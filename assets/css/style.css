@@ -103,14 +103,6 @@ h6 {
 	font-weight: 400;
 } */
 
-.bg-image {
-	/* The image used */  
-	/* Add the blur effect */
-	filter: blur(8px);
-	-webkit-filter: blur(8px);
-  
-  }
-
 /* ---------------------------------------------- /*
  * Reset border-radius
 /* ---------------------------------------------- */
@@ -359,6 +351,8 @@ textarea.form-control {
 	   -moz-background-size: cover;
 		 -o-background-size: cover;
 			background-size: cover;
+	filter: blur(8px);
+	-webkit-filter: blur(8px);
 	padding: 0;
 }
 
