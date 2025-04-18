@@ -50,8 +50,8 @@ body {
 }
 
 .logo-image {
-    height: 40px;
-    width: 40px;
+    height: 32px;
+    width: 32px;
     border-radius: 50%;
     object-fit: cover;
     transition: transform 0.3s ease;
@@ -162,11 +162,12 @@ section h2 {
 }
 
 .profile-image {
-    flex: 0 0 400px;
+    flex: 0 0 300px;
 }
 
 .profile-image img {
     width: 100%;
+    max-width: 300px;
     height: auto;
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -347,8 +348,8 @@ section h2 {
     }
 
     .profile-image {
-        flex: 0 0 300px;
+        flex: 0 0 200px;
         width: 100%;
-        max-width: 300px;
+        max-width: 200px;
     }
 } 
