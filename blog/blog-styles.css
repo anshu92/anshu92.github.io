@@ -122,6 +122,20 @@
     font-weight: 500;
 }
 
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--section-bg);
+    border-radius: 1rem;
+    margin: 2rem 0;
+}
+
+.empty-state p {
+    font-size: 1.2rem;
+    color: var(--light-text);
+}
+
 /* Blog Index Styles */
 .blog-index {
     max-width: 1000px;
