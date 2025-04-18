@@ -12,12 +12,19 @@
     --light-text: #6b7280;
     --background: #ffffff;
     --section-bg: #f3f4f6;
+    --pattern-color: rgba(37, 99, 235, 0.05);
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
+    background-color: var(--background);
+    background-image: 
+        linear-gradient(var(--pattern-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--pattern-color) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-position: center center;
 }
 
 /* Header and Navigation */
@@ -90,11 +97,25 @@ body {
     justify-content: center;
     text-align: center;
     padding: 2rem;
-    background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(243, 244, 246, 0.9) 100%);
+    z-index: 1;
 }
 
 .hero-content {
     max-width: 800px;
+    position: relative;
+    z-index: 2;
 }
 
 .hero h1 {
@@ -153,11 +174,32 @@ section h2 {
 
 /* About Section */
 .about {
+    position: relative;
     padding: 6rem 2rem;
     background: var(--section-bg);
+    overflow: hidden;
+}
+
+.about::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(45deg, var(--pattern-color) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--pattern-color) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--pattern-color) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--pattern-color) 75%);
+    background-size: 100px 100px;
+    opacity: 0.5;
+    z-index: 1;
 }
 
 .about-content {
+    position: relative;
+    z-index: 2;
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
