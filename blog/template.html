@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post Title - Anshuman's Blog</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="blog-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="../index.html" class="logo">Anshuman</a>
+                <ul class="nav-links">
+                    <li><a href="../index.html#home">Home</a></li>
+                    <li><a href="../index.html#about">About</a></li>
+                    <li><a href="../index.html#projects">Projects</a></li>
+                    <li><a href="../index.html#blog">Blog</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="blog-post">
+        <article>
+            <header class="post-header">
+                <h1>Blog Post Title</h1>
+                <div class="post-meta">
+                    <span class="post-date">April 18, 2024</span>
+                    <span class="post-category">Machine Learning</span>
+                </div>
+            </header>
+
+            <div class="post-content">
+                <p>Introduction paragraph goes here...</p>
+
+                <h2>Section Title</h2>
+                <p>Content for this section...</p>
+
+                <h3>Code Example</h3>
+                <pre><code class="language-python">
+import tensorflow as tf
+
+# Example code
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+                </code></pre>
+
+                <h2>Another Section</h2>
+                <p>More content...</p>
+
+                <h3>Key Takeaways</h3>
+                <ul>
+                    <li>First takeaway</li>
+                    <li>Second takeaway</li>
+                    <li>Third takeaway</li>
+                </ul>
+            </div>
+
+            <footer class="post-footer">
+                <div class="post-tags">
+                    <span class="tag">Machine Learning</span>
+                    <span class="tag">Deep Learning</span>
+                    <span class="tag">TensorFlow</span>
+                </div>
+                <div class="post-share">
+                    <h3>Share this post</h3>
+                    <div class="social-links">
+                        <a href="#" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </footer>
+        </article>
+
+        <div class="post-navigation">
+            <a href="#" class="prev-post">
+                <span class="nav-label">Previous Post</span>
+                <span class="nav-title">Previous Post Title</span>
+            </a>
+            <a href="#" class="next-post">
+                <span class="nav-label">Next Post</span>
+                <span class="nav-title">Next Post Title</span>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Anshuman. All rights reserved.</p>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html> 
