@@ -3,113 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anshuman's Portfolio</title>
+    <title>Anshuman's Blog</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header class="header">
+    <div class="sidebar">
+        <div class="profile">
+            <img src="images/anshuman.PNG" alt="Anshuman" class="avatar">
+            <h1>Anshuman</h1>
+            <p class="bio">I'm a Machine Learning Engineer with 8 years of experience @ BenchSci. I specialize in developing ML models, data pipelines, and scalable solutions for real-world problems.</p>
+        </div>
+        <div class="search-container">
+            <input type="search" placeholder="Search..." class="search-input">
+            <button class="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
         <nav class="nav">
-            <div class="nav-content">
-                <a href="#home" class="logo">
-                    <img src="images/anshuman.PNG" alt="Anshuman" class="logo-image">
-                </a>
-                <ul class="nav-links">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#projects">Projects</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </div>
+            <ul class="nav-links">
+                <li><a href="#home">HOME</a></li>
+                <li><a href="#categories">CATEGORIES</a></li>
+                <li><a href="#tags">TAGS</a></li>
+                <li><a href="#archives">ARCHIVES</a></li>
+                <li><a href="#about">ABOUT</a></li>
+            </ul>
         </nav>
-    </header>
+    </div>
 
-    <main>
-        <section id="home" class="hero">
-            <div class="hero-content">
-                <h1>Hi, I'm Anshuman</h1>
-                <p class="subtitle">Machine Learning Engineer & Developer</p>
-                <div class="cta-buttons">
-                    <a href="#projects" class="btn primary">View My Work</a>
-                    <a href="#blog" class="btn secondary">Read My Blog</a>
+    <main class="content">
+        <div class="posts">
+            <article class="post panel">
+                <h2><a href="#">How to Design ML Systems</a></h2>
+                <div class="post-meta">
+                    <span class="date">Apr 18, 2024</span>
+                    <span class="category">Machine Learning</span>
                 </div>
-            </div>
-        </section>
+                <p class="post-excerpt">In this post, I would like to discuss how to design scalable machine learning systems, focusing on best practices and real-world examples...</p>
+            </article>
 
-        <section id="about" class="about">
-            <h2>About Me</h2>
-            <div class="about-content">
-                <div class="profile-image-container">
-                    <img src="images/anshuman.PNG" alt="Anshuman" class="profile-image">
+            <article class="post panel">
+                <h2><a href="#">Understanding Neural Networks</a></h2>
+                <div class="post-meta">
+                    <span class="date">Apr 15, 2024</span>
+                    <span class="category">Deep Learning</span>
                 </div>
-                <div class="about-text">
-                    <p>Machine Learning Engineer with 8 years of experience @ <a href="https://www.benchsci.com/" target="_blank" rel="noopener noreferrer">BenchSci</a>. Enjoy all things science and machine learning!</p>
-                    <p>I specialize in developing ML models, data pipelines, and scalable solutions for real-world problems. My work focuses on applying machine learning to scientific research and data analysis.</p>
-                    <div class="skills">
-                        <h3>Skills</h3>
-                        <div class="skill-tags">
-                            <span class="skill-tag">Machine Learning</span>
-                            <span class="skill-tag">Deep Learning</span>
-                            <span class="skill-tag">Python</span>
-                            <span class="skill-tag">TensorFlow</span>
-                            <span class="skill-tag">PyTorch</span>
-                            <span class="skill-tag">Data Science</span>
-                            <span class="skill-tag">MLOps</span>
-                            <span class="skill-tag">Git</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+                <p class="post-excerpt">A deep dive into neural network architectures and their applications in modern machine learning problems...</p>
+            </article>
 
-        <section id="projects" class="projects">
-            <h2>Featured Projects</h2>
-            <div class="project-grid">
-                <!-- Project cards will be added here -->
-                <div class="project-card">
-                    <h3>ML Project 1</h3>
-                    <p>Description of your first ML project goes here.</p>
-                    <div class="project-links">
-                        <a href="#" class="btn small">View Demo</a>
-                        <a href="#" class="btn small">Source Code</a>
-                    </div>
-                </div>
-                <!-- Add more project cards as needed -->
+            <div class="pagination">
+                <span class="current">1</span>
+                <a href="#" class="page">2</a>
+                <a href="#" class="next">›</a>
             </div>
-        </section>
+        </div>
 
-        <section id="blog" class="blog">
-            <h2>Latest Blog Posts</h2>
-            <div class="blog-grid">
-                <div class="empty-state">
-                    <p>No blog posts yet. Check back soon for new content!</p>
-                    <a href="blog/index.html" class="btn primary">Visit Blog</a>
-                </div>
-            </div>
-        </section>
+        <aside class="sidebar-right">
+            <section class="widget panel">
+                <h3>Recently Updated</h3>
+                <ul>
+                    <li><a href="#">How to Design ML Systems</a></li>
+                    <li><a href="#">Understanding Neural Networks</a></li>
+                    <li><a href="#">Feature Engineering Best Practices</a></li>
+                </ul>
+            </section>
 
-        <section id="contact" class="contact">
-            <h2>Get in Touch</h2>
-            <div class="contact-content">
-                <div class="social-links">
-                    <a href="https://github.com/anshu92" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-linkedin"></i>
-                    </a>
-                    <a href="mailto:your.email@example.com">
-                        <i class="fas fa-envelope"></i>
-                    </a>
+            <section class="widget panel">
+                <h3>Trending Tags</h3>
+                <div class="tags">
+                    <a href="#" class="tag">machine learning</a>
+                    <a href="#" class="tag">deep learning</a>
+                    <a href="#" class="tag">system design</a>
+                    <a href="#" class="tag">python</a>
+                    <a href="#" class="tag">tensorflow</a>
+                    <a href="#" class="tag">pytorch</a>
                 </div>
-            </div>
-        </section>
+            </section>
+        </aside>
     </main>
-
-    <footer class="footer">
-        <p>&copy; 2024 Anshuman. All rights reserved.</p>
-    </footer>
 
     <script src="script.js"></script>
 </body>
