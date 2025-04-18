@@ -55,6 +55,7 @@ body {
     border-radius: 50%;
     object-fit: cover;
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .logo:hover .logo-image {
@@ -151,6 +152,7 @@ section h2 {
 .about {
     padding: 6rem 2rem;
     background: var(--section-bg);
+    overflow: hidden;
 }
 
 .about-content {
@@ -163,6 +165,8 @@ section h2 {
 
 .profile-image {
     flex: 0 0 300px;
+    display: flex;
+    justify-content: center;
 }
 
 .profile-image img {
@@ -172,6 +176,8 @@ section h2 {
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    display: block;
+    object-fit: cover;
 }
 
 .profile-image img:hover {
@@ -350,6 +356,10 @@ section h2 {
     .profile-image {
         flex: 0 0 200px;
         width: 100%;
+        max-width: 200px;
+    }
+    
+    .profile-image img {
         max-width: 200px;
     }
 } 
