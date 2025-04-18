@@ -29,24 +29,28 @@ body {
     backdrop-filter: blur(5px);
     z-index: 1000;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 60px;
 }
 
 .nav {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0.5rem 1rem;
+    height: 100%;
 }
 
 .nav-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 100%;
 }
 
 .logo {
     text-decoration: none;
     display: flex;
     align-items: center;
+    height: 100%;
 }
 
 .logo-image {
@@ -55,7 +59,6 @@ body {
     border-radius: 50%;
     object-fit: cover;
     transition: transform 0.3s ease;
-    display: block;
 }
 
 .logo:hover .logo-image {
@@ -152,7 +155,6 @@ section h2 {
 .about {
     padding: 6rem 2rem;
     background: var(--section-bg);
-    overflow: hidden;
 }
 
 .about-content {
@@ -163,24 +165,21 @@ section h2 {
     gap: 4rem;
 }
 
-.profile-image {
+.profile-image-container {
     flex: 0 0 300px;
-    display: flex;
-    justify-content: center;
+    max-width: 300px;
 }
 
-.profile-image img {
+.profile-image {
     width: 100%;
-    max-width: 300px;
     height: auto;
     border-radius: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     display: block;
-    object-fit: cover;
 }
 
-.profile-image img:hover {
+.profile-image:hover {
     transform: scale(1.02);
 }
 
@@ -323,8 +322,7 @@ section h2 {
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-content {
-        flex-direction: column;
-        gap: 1rem;
+        padding: 0.5rem 0;
     }
 
     .nav-links {
@@ -353,13 +351,8 @@ section h2 {
         gap: 2rem;
     }
 
-    .profile-image {
+    .profile-image-container {
         flex: 0 0 200px;
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    .profile-image img {
         max-width: 200px;
     }
 } 
