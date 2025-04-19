@@ -24,7 +24,8 @@ body {
     color: var(--text-color);
     background-color: var(--background);
     background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-    display: flex;
+    display: grid;
+    grid-template-columns: 280px 1fr;
     min-height: 100vh;
 }
 
@@ -112,8 +113,8 @@ body::before {
     width: 280px;
     background: var(--sidebar-bg);
     padding: 2.5rem 1.75rem;
-    position: fixed;
-    height: 100vh;
+    position: sticky;
+    top: 0;
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
 }
@@ -171,17 +172,17 @@ body::before {
 
 /* Main Content */
 .content {
-    /* Two-column grid: fluid content + fixed sidebar */
-    margin-left: 280px;
     padding: 3rem 2rem;
     display: grid;
-    grid-template-columns: 1fr 280px;
-    column-gap: 2rem;
+    grid-template-columns: 1fr 260px;
+    gap: 2rem;
 }
 
 /* Posts container */
 .posts {
-    /* fluid column, span full width of first grid column */
+    /* center posts within the first grid column and constrain width */
+    width: 100%;
+    margin-right: auto;
 }
 
 .post {
@@ -236,7 +237,6 @@ body::before {
 
 /* Sidebar Right: fill fixed column */
 .sidebar-right {
-    /* fill second grid column */
     width: 100%;
 }
 
