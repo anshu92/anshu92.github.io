@@ -14,13 +14,15 @@
     --link-color: #37474f;
     --link-hover: #1a73e8;
     --category-bg: #e8f0fe;
-    --panel-bg: rgba(255, 255, 255, 0.9);
-    --panel-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    --panel-bg: #fcfcfd;
+    --panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --radius: 16px;
+    --shadow-strong: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.6;
+    line-height: 1.75;
     color: var(--text-color);
     background-color: var(--background);
     background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
@@ -40,7 +42,7 @@ body::before {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.3;
+    opacity: 0.1;
     z-index: -1;
     pointer-events: none;
 }
@@ -51,6 +53,16 @@ body::before {
     position: relative;
     display: flex;
     align-items: center;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+}
+
+.search-input, .search-button {
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
 .search-input {
@@ -60,7 +72,6 @@ body::before {
     border: 1px solid var(--border-color);
     border-radius: 20px;
     font-size: 0.95rem;
-    background: var(--background);
     transition: all 0.2s ease;
 }
 
@@ -96,6 +107,8 @@ body::before {
 .post.panel {
     padding: 1.5rem;
     margin-bottom: 2rem;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.075);
 }
 
 .post.panel:hover {
@@ -106,6 +119,8 @@ body::before {
 .widget.panel {
     padding: 1.5rem;
     margin-bottom: 2rem;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.075);
 }
 
 /* Sidebar */
@@ -165,18 +180,39 @@ body::before {
     transition: color 0.2s ease;
     display: block;
     padding: 0.4rem 0.5rem;
+    position: relative;
+}
+
+/* Left-bar indicator on nav hover/active */
+.nav-links a:before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0);
+    width: 4px;
+    height: 50%;
+    background: var(--link-hover);
+    transition: transform 0.2s ease;
+}
+.nav-links a:hover:before,
+.nav-links a.active:before {
+    transform: translateY(-50%) scaleY(1);
 }
 
 .nav-links a:hover {
     color: var(--link-hover);
+    padding-left: 0.6rem;
 }
 
 /* Main Content */
 .content {
     padding: 3rem 2rem;
     display: grid;
-    grid-template-columns: 1fr 260px;
-    gap: 2rem;
+    grid-template-columns: 1fr 280px;
+    column-gap: 2rem;
+    row-gap: 4rem;
+    align-items: start;
 }
 
 /* Posts container */
@@ -184,20 +220,17 @@ body::before {
     /* center posts within the first grid column and constrain width */
     width: 100%;
     margin-right: auto;
+    max-width: 700px;
+    margin: 0 auto;
 }
 
 .post {
-    margin-bottom: 3.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.post:last-child {
-    border-bottom: none;
+    margin-bottom: 2.5rem;
+    padding: 0;
 }
 
 .post h2 {
-    font-size: 1.6rem;
+    font-size: 2rem;
     margin-bottom: 1rem;
     line-height: 1.35;
 }
@@ -236,17 +269,18 @@ body::before {
     margin-top: 0.5rem;
 }
 
-/* Sidebar Right: fill fixed column */
+/* Sidebar Right: stick widgets in view */
 .sidebar-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: sticky;
+    top: 6rem;
     width: 100%;
 }
 
 .widget {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: var(--sidebar-bg);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin: 0;
 }
 
 .widget h3 {
@@ -294,44 +328,44 @@ body::before {
     color: var(--light-text);
     border: 1px solid var(--border-color);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .tag:hover {
     background: var(--category-bg);
     color: var(--link-hover);
     border-color: var(--category-bg);
+    transform: scale(1.05);
 }
 
 /* Pagination */
-.pagination {
+.posts .pagination {
     margin-top: 3rem;
+    position: relative;
     display: flex;
     gap: 0.75rem;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .pagination a, .pagination span {
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1rem;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: var(--radius);
     text-decoration: none;
     color: var(--text-color);
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .pagination .current {
     background: var(--link-hover);
-    color: white;
+    color: #fff;
     border-color: var(--link-hover);
 }
 
 .pagination a:hover {
     background: var(--category-bg);
     color: var(--link-hover);
-    border-color: var(--category-bg);
 }
 
 /* Footer */
@@ -343,6 +377,7 @@ body::before {
     font-size: 0.9rem;
     border-top: 1px solid var(--border-color);
     margin-left: 280px;
+    margin-top: 5rem;
 }
 
 /* Buttons */
@@ -444,4 +479,15 @@ body::before {
         max-width: 400px;
         margin: 1.5rem auto;
     }
+}
+
+/* Divider above pagination */
+.posts .pagination:before {
+    content: '';
+    position: absolute;
+    top: -2rem;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--border-color);
 } 
