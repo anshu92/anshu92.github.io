@@ -338,6 +338,13 @@ body::before {
     transform: scale(1.05);
 }
 
+/* Selected Tag State */
+.tag.selected {
+    background: var(--link-hover);
+    color: #fff;
+    border-color: var(--link-hover);
+}
+
 /* Pagination */
 .posts .pagination {
     margin-top: 3rem;

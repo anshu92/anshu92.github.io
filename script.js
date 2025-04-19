@@ -54,4 +54,33 @@ const observer = new IntersectionObserver((entries, observer) => {
 // Observe all sections
 document.querySelectorAll('section').forEach(section => {
     observer.observe(section);
+});
+
+// Tag-based filtering: show only posts matching selected tag in category
+const tagElements = document.querySelectorAll('.tag');
+const postElements = document.querySelectorAll('.post');
+let activeTag = null;
+
+tagElements.forEach(tagEl => {
+  tagEl.addEventListener('click', function(e) {
+    e.preventDefault();
+    const tagName = this.textContent.trim();
+
+    // Handle toggling
+    if (activeTag === tagName) {
+      // Clear filter
+      activeTag = null;
+      tagElements.forEach(t => t.classList.remove('selected'));
+      postElements.forEach(p => p.style.display = '');
+    } else {
+      // Apply new filter
+      activeTag = tagName;
+      tagElements.forEach(t => t.classList.toggle('selected', t.textContent.trim() === tagName));
+      postElements.forEach(p => {
+        const catEl = p.querySelector('.post-meta .category');
+        const postCat = catEl ? catEl.textContent.trim() : '';
+        p.style.display = (postCat === tagName) ? '' : 'none';
+      });
+    }
+  });
 }); 
