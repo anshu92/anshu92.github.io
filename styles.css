@@ -419,19 +419,54 @@ body::before {
 }
 
 @media (max-width: 768px) {
+    /* Switch to single-column layout */
     body {
-        flex-direction: column;
+        display: block;
     }
-    
+
+    /* Sidebar full width at top */
     .sidebar {
         width: 100%;
-        height: auto;
-        position: relative;
-        padding: 2rem 1.5rem;
+        padding: 1.5rem;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
     }
-    
+
+    /* Content streams below sidebar */
+    .content {
+        display: block;
+        margin-left: 0;
+        padding: 1.5rem 1rem;
+        grid-template-columns: none;
+        gap: 0;
+    }
+
+    /* Posts full width */
+    .posts {
+        width: 100%;
+        margin: 0;
+    }
+
+    /* Right sidebar becomes inline under content */
+    .sidebar-right {
+        display: block;
+        position: static;
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    /* Center pagination at bottom */
+    .posts .pagination {
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    /* Footer resets */
+    .footer {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+
     .profile {
         margin-bottom: 1.75rem;
     }
@@ -462,12 +497,6 @@ body::before {
     
     .nav-links a {
         padding: 0.4rem 0.75rem;
-    }
-    
-    .content {
-        margin-left: 0;
-        max-width: 100%;
-        padding: 2rem 1.5rem;
     }
     
     .post {
