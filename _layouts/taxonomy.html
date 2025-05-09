@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title | escape }} - {{ site.title | escape }}</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile">
+            <img src="/images/anshuman.PNG" alt="Anshuman" class="avatar">
+            <div class="profile-header" style="display:flex; align-items:center; gap:0.5rem; justify-content:center;">
+                <h1>Anshuman</h1>
+            </div>
+        </div>
+        <nav class="nav">
+            <ul class="nav-links">
+                <li><a href="/">HOME</a></li>
+                <li><a href="/categories">CATEGORIES</a></li>
+                <li><a href="/tags">TAGS</a></li>
+                <li><a href="/archives">ARCHIVES</a></li>
+                <li><a href="/about">ABOUT</a></li>
+            </ul>
+        </nav>
+    </div>
+    <main class="content">
+        <h1>{{ page.title }}</h1>
+        <div class="blog-posts">
+            {% for post in page.posts %}
+            <div class="blog-post-card">
+                <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+                <div class="post-meta">
+                    <span class="post-date">{{ post.date | date: "%b %-d, %Y" }}</span>
+                    {% if post.categories %}
+                    <span class="post-category">{{ post.categories | join: ', ' }}</span>
+                    {% endif %}
+                </div>
+                <p>{{ post.summary | default: post.excerpt }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html> 

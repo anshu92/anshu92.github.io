@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anshuman's Blog</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>{{ site.title | escape }}</title>
+    <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="sidebar">
         <div class="profile">
-            <img src="images/anshuman.PNG" alt="Anshuman" class="avatar">
+            <img src="/images/anshuman.PNG" alt="Anshuman" class="avatar">
             <div class="profile-header" style="display:flex; align-items:center; gap:0.5rem; justify-content:center;">
                 <h1>Anshuman</h1>
                 <a href="https://www.linkedin.com/in/anshu92/" target="_blank" rel="noopener noreferrer" class="linkedin-icon">
@@ -38,19 +38,20 @@
 
     <main class="content">
         <div class="posts">
+            {% for post in site.posts %}
             <article class="post panel">
-                <h2><a href="/2024/05/01/speculative-decoding-in-llms/">Speculative Decoding in Large Language Models</a></h2>
+                <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
                 <div class="post-meta">
-                    <span class="date">May 1, 2024</span>
-                    <span class="category">Machine Learning</span>
+                    <span class="date">{{ post.date | date: "%b %-d, %Y" }}</span>
+                    {% if post.categories %}
+                    <span class="category">{{ post.categories | join: ', ' }}</span>
+                    {% endif %}
                 </div>
-                <p class="post-excerpt"><b>TLDR:</b> Speculative decoding uses a small draft model to propose multiple tokens, then verifies them in parallel with a large LLM—achieving 2x–4x speedup without quality loss. This in-depth post covers the memory bottleneck, the draft/verify algorithm, code examples, and visual diagrams. Learn how modern LLMs can generate text faster with no compromise on accuracy.</p>
+                <p class="post-excerpt">{{ post.summary | default: post.excerpt }}</p>
             </article>
-
+            {% endfor %}
             <div class="pagination">
-                <span class="current">1</span>
-                <a href="#" class="page">2</a>
-                <a href="#" class="next">›</a>
+                <!-- Pagination logic can be added here if needed -->
             </div>
         </div>
 
@@ -58,24 +59,26 @@
             <section class="widget panel">
                 <h3>Recently Updated</h3>
                 <ul>
-                    <li><a href="/2024/05/01/speculative-decoding-in-llms/">Speculative Decoding in Large Language Models</a></li>
+                    {% for post in site.posts limit:4 %}
+                    <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+                    {% endfor %}
                 </ul>
             </section>
 
             <section class="widget panel">
                 <h3>Trending Tags</h3>
                 <div class="tags">
-                    <a href="/anshu92.github.io/tags/machine-learning" class="tag">machine learning</a>
-                    <a href="/anshu92.github.io/tags/deep-learning" class="tag">deep learning</a>
-                    <a href="/anshu92.github.io/tags/system-design" class="tag">system design</a>
-                    <a href="/anshu92.github.io/tags/python" class="tag">python</a>
-                    <a href="/anshu92.github.io/tags/tensorflow" class="tag">tensorflow</a>
-                    <a href="/anshu92.github.io/tags/pytorch" class="tag">pytorch</a>
+                    <a href="/tags/machine-learning" class="tag">machine learning</a>
+                    <a href="/tags/deep-learning" class="tag">deep learning</a>
+                    <a href="/tags/system-design" class="tag">system design</a>
+                    <a href="/tags/python" class="tag">python</a>
+                    <a href="/tags/tensorflow" class="tag">tensorflow</a>
+                    <a href="/tags/pytorch" class="tag">pytorch</a>
                 </div>
             </section>
         </aside>
     </main>
 
-    <script src="script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html> 

@@ -1,0 +1,41 @@
+---
+layout: default
+title: Tags
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tags - {{ site.title | escape }}</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile">
+            <img src="/images/anshuman.PNG" alt="Anshuman" class="avatar">
+            <div class="profile-header" style="display:flex; align-items:center; gap:0.5rem; justify-content:center;">
+                <h1>Anshuman</h1>
+            </div>
+        </div>
+        <nav class="nav">
+            <ul class="nav-links">
+                <li><a href="/">HOME</a></li>
+                <li><a href="/categories">CATEGORIES</a></li>
+                <li><a href="/tags">TAGS</a></li>
+                <li><a href="/archives">ARCHIVES</a></li>
+                <li><a href="/about">ABOUT</a></li>
+            </ul>
+        </nav>
+    </div>
+    <main class="content">
+        <h1>Tags</h1>
+        <ul>
+            {% assign tags = site.tags | sort %}
+            {% for tag in tags %}
+            <li><a href="/tags/{{ tag[0] | slugify }}/">{{ tag[0] }}</a> ({{ tag[1].size }})</li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html> 
