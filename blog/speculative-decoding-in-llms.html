@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speculative Decoding in Large Language Models - Anshuman's Blog</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="blog-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-content">
+                <a href="../index.html" class="logo">Anshuman</a>
+                <ul class="nav-links">
+                    <li><a href="../index.html#home">Home</a></li>
+                    <li><a href="../index.html#about">About</a></li>
+                    <li><a href="../index.html#projects">Projects</a></li>
+                    <li><a href="../index.html#blog">Blog</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="blog-post">
+        <article>
+            <header class="post-header">
+                <h1>Speculative Decoding in Large Language Models</h1>
+                <div class="post-meta">
+                    <span class="post-date">May 1, 2024</span>
+                    <span class="post-category">Machine Learning</span>
+                </div>
+            </header>
+
+            <div class="post-content">
+                <h2>2x to 4x speedup of LLMs without quality loss</h2>
+                <h3>TLDR</h3>
+                <p>Speculative decoding uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.</p>
+
+                <h2>The Problem</h2>
+                <p>Large language models are auto-regressive - they generate the next token by taking the past tokens as input at each step one at a time, which is inherently slow. It's not primarily because the mathematical computations (the FLOPs) for predicting a single token are overwhelming. Instead, the critical bottleneck is memory bandwidth.</p>
+                <p>Modern LLMs can occupy hundreds of gigabytes or even terabytes of memory. These parameters typically reside in High-Bandwidth Memory (HBM) associated with the accelerator (like a GPU or TPU). However, to perform the computations needed to predict the next token, these parameters must be loaded into the much smaller, faster on-chip memory (cache or SRAM) of the compute units.</p>
+                <p>In autoregressive decoding, this massive data transfer - loading potentially terabytes of weights from HBM to cache - happens for every single token generated. This memory movement completely dominates the time taken for each step. The powerful compute cores of the accelerator end up spending most of their time waiting for data to arrive, leading to severe underutilization and low arithmetic intensity (the ratio of computational operations to memory access).</p>
+                <img src="/images/speculative-decoding-1.png" alt="LLM memory bottleneck diagram" style="max-width:100%;margin:2rem 0;" />
+                <p>The LLM decoding operation is memory-bound as described above, and hence making compute units faster will not make the inference faster proportionally. Any truly effective acceleration strategy for the decoding phase must find a way to reduce the number of these costly memory-transfer cycles required per generated token. Hence, we would need to devise a way to parallelize an inherently sequential process.</p>
+
+                <h2>The Solution</h2>
+                <p>Speculative Decoding (SD) does exactly that - it speeds up the sequential decoding by generating multiple tokens for roughly the cost of one target model memory load cycle, and as a result, it significantly improves the efficiency of the decoding process.</p>
+                <p>It uses a draft then verify approach - drafting produces multiple next tokens using a faster/smaller model, and verifies them in parallel in the target/large LM.</p>
+                <img src="/images/speculative-decoding-2.png" alt="Draft and verify approach diagram" style="max-width:100%;margin:2rem 0;" />
+                <p><b>The Target Model (Mq):</b> This is the large, powerful, and accurate LLM whose output distribution we want to replicate exactly, but is very slow.</p>
+                <p><b>The Draft Model (Mp):</b> This is a significantly smaller, and therefore much faster, language model or n-gram model. It might be a smaller version from the same model family, a distilled version, or even a different architecture altogether. Its role is not to be perfectly accurate, but to quickly generate plausible candidate tokens (the "draft").</p>
+                <ul>
+                  <li><b>Many tokens are "easy":</b> Not all tokens in a generated response need the full power of a huge LLM - common phrases, grammatical structures, or repetitive sequences can be correctly generated by a much smaller draft model with high confidence. The large model must only be used for more nuanced generation tasks such as reasoning or factual recall - the "hard" tokens.</li>
+                  <li><b>Parallel Verification is Cheap:</b> While generating one token with the large target model Mq is slow due to the memory bandwidth bottleneck, verifying multiple candidate tokens (say, K draft tokens plus the original context) in a single, parallel forward pass through Mq takes roughly the same amount of time. This is because the dominant cost – loading the model weights – happens only once for the entire verification batch.</li>
+                </ul>
+                <p>Speculative decoding leverages these observations. If the draft model's predictions align well with what the target model would have generated, multiple tokens can be accepted in a single step, effectively amortizing the cost of the expensive target model inference over several tokens.</p>
+
+                <h2>How it Works: Code Example</h2>
+                <h3>Auto-regressive decoding (classic):</h3>
+                <pre><code class="language-python">from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_name = "gpt2"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+context = "The cat sat"
+input_ids = tokenizer(context, return_tensors="pt").input_ids
+# Step 1: Predict the next token only
+outputs = model(input_ids)
+next_token_logits = outputs.logits[:, -1, :]  # Logits for the next token
+</code></pre>
+                <h3>Speculative decoding (draft and verify):</h3>
+                <pre><code class="language-python"># Step 1 - get tokens from draft model
+drafted_tokens = ["on", "the", "mat"]
+drafted_sequence = context + " " + " ".join(drafted_tokens)
+
+# Tokenize the full sequence
+full_input_ids = tokenizer(drafted_sequence, return_tensors="pt").input_ids
+
+# One forward pass through the verifier model
+outputs = model(full_input_ids)
+
+logits = outputs.logits  # Shape: [batch_size, seq_len, vocab_size]
+
+# To get the logits for each drafted token:
+draft_start = input_ids.shape[1]  # First drafted token position
+
+for i, token in enumerate(drafted_tokens):
+    position = draft_start + i - 1  # logits at position predict next token
+    token_id = tokenizer.convert_tokens_to_ids(token)
+    # Log probability the verifier would assign to the draft token
+    prob = logits[0, position, token_id].softmax(dim=-1).item()
+    print(f"Verifier probability for '{token}': {prob}")
+</code></pre>
+                <p>We can directly get the assigned probabilities for each token at once, and hence compute the overall probability of the sequence in a single pass.</p>
+
+                <h2>Acceptance and Rejection: Top-1 and Metropolis-Hastings</h2>
+                <p>The last step is the acceptance/rejection token-by-token verification that decides which tokens to keep or reject from the draft. The simplest method is top-1 verification: check if the draft token matches the verifier's top prediction. More generally, Metropolis-Hastings-style acceptance criteria can be used.</p>
+                <pre><code class="language-python"># Start comparing drafted tokens one by one
+accepted_tokens = []
+draft_start = input_ids.shape[1]  # First position where drafts start
+
+for i, token in enumerate(draft_tokens):
+    # Position in logits where the verifier predicts the NEXT token
+    position = draft_start + i - 1  # position -1 because logits predict the next token
+    # Verifier's predicted token (top-1)
+    verifier_top_token_id = logits[0, position, :].argmax().item()
+    verifier_top_token = tokenizer.convert_ids_to_tokens([verifier_top_token_id])[0]
+    # Drafted token ID
+    drafted_token_id = tokenizer.convert_tokens_to_ids(token)
+    # Compare verifier's top token to drafted token
+    if verifier_top_token_id == drafted_token_id:
+        accepted_tokens.append(token)
+        print(f"ACCEPTED token '{token}' at position {i+1}")
+    else:
+        print(f"REJECTED token '{token}' at position {i+1}")
+        break  # Stop at first mismatch
+</code></pre>
+                <p>For probabilistic acceptance (Metropolis-Hastings):</p>
+                <pre><code class="language-python">import random
+import torch
+
+accepted_tokens = []
+draft_start = input_ids.shape[1]
+
+for i, token in enumerate(draft_tokens):
+    position = draft_start + i - 1
+    # Get probabilities (softmax over logits)
+    verifier_probs = logits[0, position, :].softmax(dim=-1)
+    draft_token_id = tokenizer.convert_tokens_to_ids(token)
+    q_t = verifier_probs[draft_token_id].item()  # verifier prob
+    p_t = draft_probs[i]  # you must get this from the draft model when proposing tokens
+    # Metropolis-Hastings acceptance rule
+    r = random.uniform(0, 1)
+    acceptance_threshold = min(1, p_t / q_t)
+    if r < acceptance_threshold:
+        accepted_tokens.append(token)
+        print(f"ACCEPTED token '{token}' with r={r:.4f}, threshold={acceptance_threshold:.4f}")
+    else:
+        print(f"REJECTED token '{token}' with r={r:.4f}, threshold={acceptance_threshold:.4f}")
+        break  # Stop at first rejection
+# If rejected, resample from residual (q - p)+
+if len(accepted_tokens) < len(draft_tokens):
+    position = draft_start + len(accepted_tokens) - 1
+    residual = (verifier_probs - draft_probs_tensor).clamp(min=0)
+    residual /= residual.sum()  # Normalize
+    next_token_id = torch.multinomial(residual, 1).item()
+    next_token = tokenizer.convert_ids_to_tokens([next_token_id])[0]
+    accepted_tokens.append(next_token)
+
+print("Final accepted sequence:", accepted_tokens)
+</code></pre>
+                <img src="/images/speculative-decoding-3.png" alt="Acceptance and rejection diagram" style="max-width:100%;margin:2rem 0;" />
+                <p>If all the draft model tokens are accepted, indicating that the draft and target model are aligned, we can actually sample an additional token from the target model since we are already generating K logits from the model, giving us K+1 tokens - this gives us a bonus token for free! Further maximizing efficiency.</p>
+
+                <h2>KV Cache and Efficient Verification</h2>
+                <p>A critical aspect for efficiency, especially during the parallel verification step, is managing the Key-Value (KV) cache. Standard autoregressive decoding maintains a cache of activations from previous steps to avoid recomputing them. In speculative decoding, the target model processes multiple potential future states simultaneously. Optimized inference engines address this challenge. Techniques like PagedAttention allow sharing parts of the KV cache between different sequences in the verification batch, preventing memory bloat and maintaining throughput even at larger batch sizes.</p>
+
+                <h2>Choosing Draft and Target Models</h2>
+                <ul>
+                  <li>A smaller model in the same LLM family (e.g., Gemma 2B → Gemma 9B), possibly further aligned through knowledge distillation.</li>
+                  <li>N-grams: Proposals are drawn by matching up to a chosen size n-grams from the prompt itself.</li>
+                  <li>Custom MLP‐based speculator networks condition on both the context vectors and sampled tokens to predict future tokens.</li>
+                  <li>EAGLE (Extrapolation Algorithm for Greater Language‐model Efficiency) draft models to extrapolate continuations, combining algorithmic lookahead with draft‐model verification for efficient, lossless sampling.</li>
+                </ul>
+                <p>See <a href="https://docs.vllm.ai/en/latest/features/spec_decode.html" target="_blank">vLLM Speculative Decoding docs</a> for more details.</p>
+
+                <h2>Most Important Hyperparameters</h2>
+                <ul>
+                  <li><b>K (number of draft tokens):</b> Number of tokens proposed by the draft model per iteration. Optimal often 3-5. Depends on draft speed/accuracy.</li>
+                  <li><b>Draft Model Size/Arch:</b> Choice of the smaller model (parameters, architecture). Directly impacts draft latency and baseline acceptance rate.</li>
+                  <li><b>Draft Model Alignment:</b> How well the draft model predicts the target model's distribution. Higher alignment = higher acceptance = more speedup.</li>
+                  <li><b>Temperature:</b> Controls randomness during sampling. Higher temp → lower predictability → lower acceptance rate → lower speedup.</li>
+                </ul>
+
+                <h2>References</h2>
+                <ul>
+                  <li><a href="https://arxiv.org/abs/2211.17192" target="_blank">Fast Inference from Transformers via Speculative Decoding</a></li>
+                  <li><a href="https://arxiv.org/abs/2203.16487" target="_blank">Speculative Decoding: Exploiting Speculative Execution for Accelerating Seq2seq Generation</a></li>
+                  <li><a href="https://docs.vllm.ai/en/latest/features/spec_decode.html" target="_blank">Speculative Decoding — vLLM</a></li>
+                </ul>
+            </div>
+
+            <footer class="post-footer">
+                <div class="post-tags">
+                    <span class="tag">Machine Learning</span>
+                    <span class="tag">Deep Learning</span>
+                    <span class="tag">Speculative Decoding</span>
+                </div>
+                <div class="post-share">
+                    <h3>Share this post</h3>
+                    <div class="social-links">
+                        <a href="#" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </footer>
+        </article>
+
+        <div class="post-navigation">
+            <a href="#" class="prev-post">
+                <span class="nav-label">Previous Post</span>
+                <span class="nav-title">&nbsp;</span>
+            </a>
+            <a href="#" class="next-post">
+                <span class="nav-label">Next Post</span>
+                <span class="nav-title">&nbsp;</span>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Anshuman. All rights reserved.</p>
+    </footer>
+
+    <script src="../script.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html> 
