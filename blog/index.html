@@ -48,7 +48,7 @@
                     <span class="post-date">May 1, 2024</span>
                     <span class="post-category">Machine Learning</span>
                 </div>
-                <p>Generating high-quality text from a large language model (LLM) often comes at the cost of latency: each new token requires a full forward pass through a heavyweight transformer.</p>
+                <p><b>TLDR:</b> Speculative decoding uses a small draft model to propose multiple tokens, then verifies them in parallel with a large LLM—achieving 2x–4x speedup without quality loss. This in-depth post covers the memory bottleneck, the draft/verify algorithm, code examples, and visual diagrams. Learn how modern LLMs can generate text faster with no compromise on accuracy.</p>
             </div>
         </div>
 
