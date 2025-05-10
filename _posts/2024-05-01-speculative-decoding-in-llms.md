@@ -1,7 +1,7 @@
 ---
 title: "Speculative Decoding in Large Language Models"
 date: 2024-05-01
-categories: [Machine Learning]
+categories: [machine-learning]
 tags: [Speculative Decoding, LLM, Deep Learning]
 summary: "Speculative decoding uses a small draft model to propose multiple tokens, then verifies them in parallel with a large LLM—achieving 2x–4x speedup without quality loss. This post covers the memory bottleneck, the draft/verify algorithm, code examples, and visual diagrams."
 ---

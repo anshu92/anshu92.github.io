@@ -55,7 +55,7 @@ plugins:
 #   - vendor/gems/
 #   - vendor/ruby/
 
-permalink: pretty
+permalink: /:categories/:year/:month/:day/:title/
 
 # Jekyll Archives configuration
 jekyll-archives:
