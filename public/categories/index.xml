@@ -9,14 +9,24 @@
     <managingEditor>anshuman264@gmail.com (Anshuman Sahoo)</managingEditor>
     <webMaster>anshuman264@gmail.com (Anshuman Sahoo)</webMaster>
     <copyright>© 2025 Anshuman Sahoo</copyright>
-    <lastBuildDate>Mon, 12 May 2025 12:00:00 -0400</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Concepts</title>
-      <link>http://localhost:1313/categories/concepts/</link>
-      <pubDate>Mon, 12 May 2025 12:00:00 -0400</pubDate>
+      <title>Machine Learning</title>
+      <link>http://localhost:1313/categories/machine-learning/</link>
+      <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
       <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-      <guid>http://localhost:1313/categories/concepts/</guid>
+      <guid>http://localhost:1313/categories/machine-learning/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>NLP</title>
+      <link>http://localhost:1313/categories/nlp/</link>
+      <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
+      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
+      <guid>http://localhost:1313/categories/nlp/</guid>
       <description></description>
       
     </item>

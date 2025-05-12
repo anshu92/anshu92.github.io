@@ -9,15 +9,25 @@
     <managingEditor>anshuman264@gmail.com (Anshuman Sahoo)</managingEditor>
     <webMaster>anshuman264@gmail.com (Anshuman Sahoo)</webMaster>
     <copyright>© 2025 Anshuman Sahoo</copyright>
-    <lastBuildDate>Mon, 12 May 2025 12:00:00 -0400</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>A Gentle Introduction to Transformer Models</title>
+      <title>Speculative Decoding: 2x to 4x speedup of LLMs without quality loss</title>
       <link>http://localhost:1313/posts/speculative-decoding/</link>
-      <pubDate>Mon, 12 May 2025 12:00:00 -0400</pubDate>
+      <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
       <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
       <guid>http://localhost:1313/posts/speculative-decoding/</guid>
-      <description>Explaining the core concepts behind the Transformer architecture, including self-attention.</description>
+      <description>&lt;h2 class=&#34;relative group&#34;&gt;TL;DR 
+    &lt;div id=&#34;tldr&#34; class=&#34;anchor&#34;&gt;&lt;/div&gt;
+    
+    &lt;span
+        class=&#34;absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100&#34;&gt;
+        &lt;a class=&#34;group-hover:text-primary-300 dark:group-hover:text-neutral-700&#34;
+            style=&#34;text-decoration-line: none !important;&#34; href=&#34;#tldr&#34; aria-label=&#34;Anchor&#34;&gt;#&lt;/a&gt;
+    &lt;/span&gt;        
+    
+&lt;/h2&gt;
+&lt;p&gt;Speculative decoding uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.&lt;/p&gt;</description>
       
     </item>
     
