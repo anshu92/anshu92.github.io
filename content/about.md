@@ -5,10 +5,6 @@ draft: false
 showAuthor: false # Usually don't need author box on 'about'
 ---
 
-Hello! I'm [Your Name], a [Your Role] passionate about [Your Interests within ML/DS].
-
-This blog serves as my digital notebook and portfolio where I share project write-ups, tutorials, and thoughts on machine learning concepts.
-
-You can find my resume [here](/resume.pdf) (Place `resume.pdf` in the `static/` folder).
+I'm Anshu, an ML Engineer with 8+ years of experience at various hands-on problems in machine learning. This blog is my attempt to share some learning and distill ideas, along side showcasing some work and thoughts on different topics.
 
 Connect with me via the links in the profile section or footer.
