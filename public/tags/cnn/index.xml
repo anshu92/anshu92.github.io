@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CNN on Blowfish</title>
+    <link>http://localhost:1313/tags/cnn/</link>
+    <description>Recent content in CNN on Blowfish</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <managingEditor>nuno@n9o.xyz (Blowfish)</managingEditor>
+    <webMaster>nuno@n9o.xyz (Blowfish)</webMaster>
+    <copyright>© 2025 Blowfish</copyright>
+    <lastBuildDate>Thu, 20 Mar 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/cnn/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>CNN for Image Classification (CIFAR-10)</title>
+      <link>http://localhost:1313/projects/image-classification-cnn/</link>
+      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
+      <author>nuno@n9o.xyz (Blowfish)</author>
+      <guid>http://localhost:1313/projects/image-classification-cnn/</guid>
+      <description>Built and trained a Convolutional Neural Network using PyTorch to classify images from the CIFAR-10 dataset.</description>
+      
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blowfish</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Blowfish</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <managingEditor>nuno@n9o.xyz (Blowfish)</managingEditor>
+    <webMaster>nuno@n9o.xyz (Blowfish)</webMaster>
+    <copyright>© 2025 Blowfish</copyright>
+    <lastBuildDate>Mon, 12 May 2025 12:00:00 -0400</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>A Gentle Introduction to Transformer Models</title>
+      <link>http://localhost:1313/posts/speculative-decoding/</link>
+      <pubDate>Mon, 12 May 2025 12:00:00 -0400</pubDate>
+      <author>nuno@n9o.xyz (Blowfish)</author>
+      <guid>http://localhost:1313/posts/speculative-decoding/</guid>
+      <description>Explaining the core concepts behind the Transformer architecture, including self-attention.</description>
+      
+    </item>
+    
+    <item>
+      <title>CNN for Image Classification (CIFAR-10)</title>
+      <link>http://localhost:1313/projects/image-classification-cnn/</link>
+      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
+      <author>nuno@n9o.xyz (Blowfish)</author>
+      <guid>http://localhost:1313/projects/image-classification-cnn/</guid>
+      <description>Built and trained a Convolutional Neural Network using PyTorch to classify images from the CIFAR-10 dataset.</description>
+      
+    </item>
+    
+    <item>
+      <title>About Me</title>
+      <link>http://localhost:1313/about/</link>
+      <pubDate>Wed, 01 Jan 2025 00:00:00 +0000</pubDate>
+      <author>nuno@n9o.xyz (Blowfish)</author>
+      <guid>http://localhost:1313/about/</guid>
+      <description>&lt;p&gt;Hello! I&amp;rsquo;m [Your Name], a [Your Role] passionate about [Your Interests within ML/DS].&lt;/p&gt;
+&lt;p&gt;This blog serves as my digital notebook and portfolio where I share project write-ups, tutorials, and thoughts on machine learning concepts.&lt;/p&gt;</description>
+      
+    </item>
+    
+  </channel>
+</rss>
