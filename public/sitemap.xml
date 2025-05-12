@@ -4,73 +4,73 @@
 
   <url>
     <loc>http://localhost:1313/posts/speculative-decoding/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/tags/attention/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/categories/concepts/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/tags/deep-learning/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/tags/nlp/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/series/nlp-basics/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/posts/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/series/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>http://localhost:1313/tags/transformers/</loc>
-    <lastmod>2025-05-12T13:42:49-04:00</lastmod>
+    <lastmod>2025-05-12T14:43:10-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
