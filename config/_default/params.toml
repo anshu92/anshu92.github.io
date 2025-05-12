@@ -6,13 +6,13 @@
 # https://blowfish.page/docs/configuration/#theme-parameters
 
 colorScheme = "avocado"
-defaultAppearance = "light" # valid options: light or dark
+defaultAppearance = "dark" # valid options: light or dark
 autoSwitchAppearance = true
 
 enableSearch = true
 enableCodeCopy = true
 
-replyByEmail = false
+replyByEmail = true
 
 mainSections = ["posts", "docs", "projects"]
 # robots = ""
@@ -41,7 +41,7 @@ smartTOCHideUnfocusedChildren = false
   showScrollToTop = true
 
 [homepage]
-  layout = "custom" # valid options: page, profile, hero, card, background, custom
+  layout = "background" # valid options: page, profile, hero, card, background, custom
   # homepageImage = "/img/iceland.jpg" # used in: hero, and card
   showRecent = false
   showRecentItems = 6
