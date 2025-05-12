@@ -7,7 +7,7 @@ baseURL = "https://anshu92.github.io"
 defaultContentLanguage = "en"
 disableLanguages = [] #to allow translation work requiring shipping to production
 enableGitInfo = true
-
+logo = "logo.png"
 # pluralizeListTitles = "true" # hugo function useful for non-english languages, find out more in  https://gohugo.io/getting-started/configuration/#pluralizelisttitles
 
 enableRobotsTXT = true
@@ -24,6 +24,7 @@ googleAnalytics = "G-PEDMYR1V0K"
 [params.features]
   math = true
   diagram = true
+
 
 [markup]
   [markup.goldmark]

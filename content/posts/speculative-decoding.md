@@ -40,3 +40,10 @@ class SelfAttention(nn.Module):
     def forward(self, value, key, query, mask):
         # ... (Attention calculation) ...
         return out
+
+graph TD
+    A[Input Embedding] --> B(Multi-Head Self-Attention);
+    B --> C{Add & Norm};
+    C --> D[Feed Forward Network];
+    D --> E{Add & Norm};
+    E --> F[Output];

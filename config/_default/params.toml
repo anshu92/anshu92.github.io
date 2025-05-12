@@ -14,7 +14,7 @@ enableCodeCopy = true
 
 replyByEmail = false
 
-mainSections = ["docs"]
+mainSections = ["posts", "docs", "projects"]
 # robots = ""
 
 disableImageOptimization = false
@@ -145,13 +145,6 @@ smartTOCHideUnfocusedChildren = false
 [selineAnalytics]
   # token = "XXXXXX"
   # enableTrackEvent = false
-
-[buymeacoffee]
-  identifier = "nunocoracao"
-  globalWidget = true
-  globalWidgetMessage = ""
-  globalWidgetColor = "#FFDD00"
-  globalWidgetPosition = "Right"
 
 [verification]
   # google = ""
