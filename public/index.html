@@ -31,8 +31,8 @@
   
   
   
-  <link type="text/css" rel="stylesheet" href="/css/main.bundle.min.e359332ab03c2ed85121e81a49782ac16491faa1574c61ee78fc37d66e54e7ed2d098f15412cc76ad2a34b05d99cf9c3d5421f5fc6f568dbe2bafa93c3b52785.css"
-    integrity="sha512-41kzKrA8LthRIegaSXgqwWSR&#43;qFXTGHuePw31m5U5&#43;0tCY8VQSzHatKjSwXZnPnD1UIfX8b1aNviuvqTw7UnhQ==" />
+  <link type="text/css" rel="stylesheet" href="/css/main.bundle.min.3ada9087da02daa6a1697e4edd0b6a01ef3bc9001ac03edcebbe90894d66bf48f0e27eecb98c0e6b9a9bd95b78209e1244454768781fb0f309ed28e0b2b1bb6b.css"
+    integrity="sha512-OtqQh9oC2qahaX5O3QtqAe87yQAawD7c676QiU1mv0jw4n7suYwOa5qb2Vt4IJ4SREVHaHgfsPMJ7SjgsrG7aw==" />
   
   
   <script type="text/javascript" src="/js/appearance.min.516a16745bea5a9bd011138d254cc0fd3973cd55ce6e15f3dec763e7c7c2c7448f8fe7b54cca811cb821b0c7e12cd161caace1dd794ac3d34d40937cbcc9ee12.js"
@@ -158,6 +158,29 @@
   
   
   <meta name="theme-color"/>
+  
+  
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script>
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_API_KEY",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID"
+    };
+
+    var app = firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+    var auth = firebase.auth();
+
+  </script>
   
   
 </head>
