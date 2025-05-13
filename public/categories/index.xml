@@ -31,15 +31,5 @@
       
     </item>
     
-    <item>
-      <title>Projects</title>
-      <link>http://localhost:1313/categories/projects/</link>
-      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
-      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-      <guid>http://localhost:1313/categories/projects/</guid>
-      <description></description>
-      
-    </item>
-    
   </channel>
 </rss>

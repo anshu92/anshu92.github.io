@@ -44,27 +44,27 @@ smartTOCHideUnfocusedChildren = false
   showScrollToTop = true
 
 [homepage]
-  layout = "background" # valid options: page, profile, hero, card, background, custom
+  layout = "hero" # valid options: page, profile, hero, card, background, custom
   # homepageImage = "/img/iceland.jpg" # used in: hero, and card
-  showRecent = false
+  showRecent = true
   showRecentItems = 6
   showMoreLink = true
-  showMoreLinkDest = "docs"
+  showMoreLinkDest = "blog"
   cardView = true
   cardViewScreenWidth = false
   layoutBackgroundBlur = true # only used when layout equals background
 
 [article]
   showDate = true
-  showViews = true
-  showLikes = true
+  showViews = false
+  showLikes = false
   showDateOnlyInArticle = false
   showDateUpdated = false
-  showAuthor = true
+  showAuthor = false
   # showAuthorBottom = false
-  showHero = true
-  heroStyle = "background" # valid options: basic, big, background, thumbAndBackground
-  layoutBackgroundBlur = true # only used when heroStyle equals background
+  showHero = false
+  heroStyle = "big" # valid options: basic, big, background, thumbAndBackground
+  layoutBackgroundBlur = false # only used when heroStyle equals background
   showBreadcrumbs = true
   showDraftLabel = true
   showEdit = true
@@ -81,7 +81,7 @@ smartTOCHideUnfocusedChildren = false
   showTaxonomies = true 
   showAuthorsBadges = true 
   showWordCount = false
-  sharingLinks = [ "linkedin", "twitter", "bluesky", "reddit", "whatsapp", "telegram", "pinterest", "facebook", "email"]
+  sharingLinks = [ "linkedin", "email"]
   showZenMode = true
 
 [list]
@@ -157,9 +157,9 @@ smartTOCHideUnfocusedChildren = false
 
 [features]
   # Enable KaTeX for math formulas (also requires setting in markup below)
-  math = false
+  math = true
   # Enable Mermaid for diagrams
-  mermaid = false
+  mermaid = true
 
 [rssnext]
   # feedId = ""

@@ -51,45 +51,5 @@
       
     </item>
     
-    <item>
-      <title>CNN</title>
-      <link>http://localhost:1313/tags/cnn/</link>
-      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
-      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-      <guid>http://localhost:1313/tags/cnn/</guid>
-      <description></description>
-      
-    </item>
-    
-    <item>
-      <title>Computer Vision</title>
-      <link>http://localhost:1313/tags/computer-vision/</link>
-      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
-      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-      <guid>http://localhost:1313/tags/computer-vision/</guid>
-      <description></description>
-      
-    </item>
-    
-    <item>
-      <title>Portfolio</title>
-      <link>http://localhost:1313/tags/portfolio/</link>
-      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
-      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-      <guid>http://localhost:1313/tags/portfolio/</guid>
-      <description></description>
-      
-    </item>
-    
-    <item>
-      <title>PyTorch</title>
-      <link>http://localhost:1313/tags/pytorch/</link>
-      <pubDate>Thu, 20 Mar 2025 00:00:00 +0000</pubDate>
-      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-      <guid>http://localhost:1313/tags/pytorch/</guid>
-      <description></description>
-      
-    </item>
-    
   </channel>
 </rss>
