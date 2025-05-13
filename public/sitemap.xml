@@ -4,7 +4,67 @@
 
   <url>
     <loc>http://localhost:1313/categories/</loc>
-    <lastmod>2025-05-12T20:46:34-04:00</lastmod>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/posts/intuitive-linear-algebra-with-python/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/categories/linear-algebra/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/tags/linear-algebra/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/categories/machine-learning/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/categories/math/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/tags/math/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/posts/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>http://localhost:1313/tags/vectors/</loc>
+    <lastmod>2025-05-13T16:35:32-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
   </url>
@@ -21,19 +81,7 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>http://localhost:1313/categories/machine-learning/</loc>
-    <lastmod>2025-05-12T20:46:34-04:00</lastmod>
-    <changefreq>always</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>http://localhost:1313/categories/nlp/</loc>
-    <lastmod>2025-05-12T20:46:34-04:00</lastmod>
-    <changefreq>always</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>http://localhost:1313/posts/</loc>
     <lastmod>2025-05-12T20:46:34-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>
@@ -46,18 +94,6 @@
   </url>
   <url>
     <loc>http://localhost:1313/posts/speculative-decoding/</loc>
-    <lastmod>2025-05-12T20:46:34-04:00</lastmod>
-    <changefreq>always</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>http://localhost:1313/</loc>
-    <lastmod>2025-05-12T20:46:34-04:00</lastmod>
-    <changefreq>always</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>http://localhost:1313/tags/</loc>
     <lastmod>2025-05-12T20:46:34-04:00</lastmod>
     <changefreq>always</changefreq>
     <priority>0.5</priority>

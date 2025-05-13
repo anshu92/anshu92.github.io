@@ -11,3 +11,9 @@
 [tableOfContents]
   startLevel = 2
   endLevel = 4
+
+# Enable KaTeX math rendering
+[goldmark.extensions]
+  [goldmark.extensions.math]
+    block = true
+    inline = true

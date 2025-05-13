@@ -9,7 +9,17 @@
     <managingEditor>anshuman264@gmail.com (Anshuman Sahoo)</managingEditor>
     <webMaster>anshuman264@gmail.com (Anshuman Sahoo)</webMaster>
     <copyright>© 2025 Anshuman Sahoo</copyright>
-    <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 13 May 2025 16:35:32 -0400</lastBuildDate><atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>🐍 Python Guide to Linear Algebra for Machine Learning for Engineers</title>
+      <link>http://localhost:1313/posts/intuitive-linear-algebra-with-python/</link>
+      <pubDate>Tue, 13 May 2025 16:35:32 -0400</pubDate>
+      <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
+      <guid>http://localhost:1313/posts/intuitive-linear-algebra-with-python/</guid>
+      <description>&lt;p&gt;This series is designed to forge a deep, intuitive understanding of the mathematics that power the code I write every day as an ML engineer. Just as a traveler in Montreal might scrape by on a handful of French phrases but needs true fluency to think and live there, we often learn machine-learning theory and then struggle to translate it into code. Likewise, many engineers can train models and assemble practical toolkits without ever unpacking the mechanics beneath the surface. Here, we&amp;rsquo;ll sidestep heavy libraries like NumPy—at least at first—to examine each calculation by hand and demystify exactly how the math drives every line of code.&lt;/p&gt;</description>
+      
+    </item>
     
     <item>
       <title>Speculative Decoding: 2x to 4x speedup of LLMs without quality loss</title>
