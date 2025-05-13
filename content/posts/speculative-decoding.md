@@ -250,7 +250,4 @@ Usually draft models can be:
 * Chen, X., et al. (2023). **Accelerating Large Language Model Decoding with Speculative Sampling**. arXiv preprint.
 * Spector, B., & Murray, K. (2023). **Accelerating LLM Inference with Staged Speculative Decoding**. NeurIPS.
 
-## Visuals & Diagrams
-
-
 
