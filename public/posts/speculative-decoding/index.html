@@ -11,7 +11,7 @@
   <title>Speculative Decoding: 2x to 4x speedup of LLMs without quality loss &middot; synaptic_radio</title>
   <meta name="title" content="Speculative Decoding: 2x to 4x speedup of LLMs without quality loss &middot; synaptic_radio" />
   
-  <meta name="description" content="How speculative decoding speeds up language models by 2–4x using a draft-then-verify strategy." />
+  <meta name="description" content="Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck." />
   <meta name="keywords" content="LLM, Speculative Decoding, Transformers, Inference Optimization, " />
   
   
@@ -70,7 +70,7 @@
   <meta property="og:url" content="http://localhost:1313/posts/speculative-decoding/">
   <meta property="og:site_name" content="synaptic_radio">
   <meta property="og:title" content="Speculative Decoding: 2x to 4x speedup of LLMs without quality loss">
-  <meta property="og:description" content="How speculative decoding speeds up language models by 2–4x using a draft-then-verify strategy.">
+  <meta property="og:description" content="Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -84,7 +84,7 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Speculative Decoding: 2x to 4x speedup of LLMs without quality loss">
-  <meta name="twitter:description" content="How speculative decoding speeds up language models by 2–4x using a draft-then-verify strategy.">
+  <meta name="twitter:description" content="Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck.">
 
   
   <script type="application/ld+json">
@@ -94,7 +94,7 @@
     "articleSection": "Posts",
     "name": "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss",
     "headline": "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss",
-    "description": "How speculative decoding speeds up language models by 2–4x using a draft-then-verify strategy.",
+    "description": "Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck.",
     "abstract": "\u003ch2 class=\u0022relative group\u0022\u003eTL;DR \n    \u003cdiv id=\u0022tldr\u0022 class=\u0022anchor\u0022\u003e\u003c\/div\u003e\n    \n    \u003cspan\n        class=\u0022absolute top-0 w-6 transition-opacity opacity-0 ltr:-left-6 rtl:-right-6 not-prose group-hover:opacity-100\u0022\u003e\n        \u003ca class=\u0022group-hover:text-primary-300 dark:group-hover:text-neutral-700\u0022\n            style=\u0022text-decoration-line: none !important;\u0022 href=\u0022#tldr\u0022 aria-label=\u0022Anchor\u0022\u003e#\u003c\/a\u003e\n    \u003c\/span\u003e        \n    \n\u003c\/h2\u003e\n\u003cp\u003e\u003cstrong\u003eSpeculative decoding\u003c\/strong\u003e uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.\u003c\/p\u003e",
     "inLanguage": "en",
     "url" : "http:\/\/localhost:1313\/posts\/speculative-decoding\/",
@@ -111,7 +111,7 @@
     "keywords": ["LLM","Speculative Decoding","Transformers","Inference Optimization"],
     
     "mainEntityOfPage": "true",
-    "wordCount": "1979"
+    "wordCount": "2048"
   }]
   </script>
 
@@ -984,14 +984,16 @@
 </h3>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Setup model and tokenizer</span>
 </span></span><span class="line"><span class="cl"><span class="n">model_name</span> <span class="o">=</span> <span class="s2">&#34;gpt2&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Prepare input context</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span> <span class="o">=</span> <span class="s2">&#34;The cat sat&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="n">input_ids</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&#34;pt&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">input_ids</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># Step 1: Predict the next token only</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Generate single token prediction</span>
 </span></span><span class="line"><span class="cl"><span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">input_ids</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">next_token_logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">logits</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="c1"># Logits for the next token</span>
 </span></span></code></pre></div>
@@ -1006,19 +1008,18 @@
     </span>        
     
 </h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Step 1 - get tokens from draft model</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Step 1: Draft Model - Generate candidate tokens</span>
 </span></span><span class="line"><span class="cl"><span class="n">drafted_tokens</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;on&#34;</span><span class="p">,</span> <span class="s2">&#34;the&#34;</span><span class="p">,</span> <span class="s2">&#34;mat&#34;</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="n">drafted_sequence</span> <span class="o">=</span> <span class="n">context</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">drafted_tokens</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># Tokenize the full sequence</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 2: Prepare full sequence for verification</span>
 </span></span><span class="line"><span class="cl"><span class="n">full_input_ids</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">drafted_sequence</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&#34;pt&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">input_ids</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># One forward pass through the verifier model</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 3: Verify with target model (single forward pass)</span>
 </span></span><span class="line"><span class="cl"><span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">full_input_ids</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">logits</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">logits</span> <span class="c1"># Shape: [batch_size, seq_len, vocab_size]</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># To get the logits for each drafted token:</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 4: Extract verification probabilities for each drafted token</span>
 </span></span><span class="line"><span class="cl"><span class="n">draft_start</span> <span class="o">=</span> <span class="n">input_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># First drafted token position</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">drafted_tokens</span><span class="p">):</span>
@@ -1030,23 +1031,25 @@
 </span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Verifier probability for &#39;</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">prob</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
 </span></span></code></pre></div><p>As you can see, we can directly get the assigned probabilities for each token at once, and hence compute the overall probability of the sequence in a single pass.</p>
 <p>The last step is the <strong>acceptance/rejection token-by-token verification</strong> that decides which tokens to keep or reject from the draft - we simply follow the above idea, where we have the verifier probability of each drafted token, and check if it is the highest top token according to the verifier logits. This is the simplest acceptance/rejection method, called <strong>top-1 verification</strong>. In practice, we would use a generalized speculative decoding algorithm with Metropolis-Hastings-style acceptance criteria (often called &ldquo;adaptive speculative decoding&rdquo; or &ldquo;accept/reject sampling&rdquo;).</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Start comparing drafted tokens one by one</span>
-</span></span><span class="line"><span class="cl"><span class="n">accepted_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Top-1 Verification Implementation</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Setup for token verification</span>
+</span></span><span class="line"><span class="cl"><span class="n">accepted_tokens</span> <span class="o">=</span> <span class="p">[]</span>
 </span></span><span class="line"><span class="cl"><span class="n">draft_start</span> <span class="o">=</span> <span class="n">input_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># First position where drafts start</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 1: Iterate through each drafted token for verification</span>
 </span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">draft_tokens</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="c1"># Position in logits where the verifier predicts the NEXT token</span>
 </span></span><span class="line"><span class="cl">    <span class="n">position</span> <span class="o">=</span> <span class="n">draft_start</span> <span class="o">+</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1"># position -1 because logits predict the next token</span>
 </span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl">    <span class="c1"># Verifier&#39;s predicted token (top-1)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Step 2: Get verifier&#39;s top prediction</span>
 </span></span><span class="line"><span class="cl">    <span class="n">verifier_top_token_id</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">    <span class="n">verifier_top_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">convert_ids_to_tokens</span><span class="p">([</span><span class="n">verifier_top_token_id</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1"># Drafted token ID</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Step 3: Get drafted token ID for comparison</span>
 </span></span><span class="line"><span class="cl">    <span class="n">drafted_token_id</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">convert_tokens_to_ids</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1"># Compare verifier&#39;s top token to drafted token</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Step 4: Accept/reject based on exact match with top prediction</span>
 </span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">verifier_top_token_id</span> <span class="o">==</span> <span class="n">drafted_token_id</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="n">accepted_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;ACCEPTED token &#39;</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&#39; at position </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
@@ -1108,20 +1111,23 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">random</span>
 </span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Setup for Metropolis-Hastings acceptance criteria</span>
 </span></span><span class="line"><span class="cl"><span class="n">accepted_tokens</span> <span class="o">=</span> <span class="p">[]</span>
 </span></span><span class="line"><span class="cl"><span class="n">draft_start</span> <span class="o">=</span> <span class="n">input_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 1: Process drafted tokens with probabilistic acceptance</span>
 </span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">token</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">draft_tokens</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="n">position</span> <span class="o">=</span> <span class="n">draft_start</span> <span class="o">+</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1"># Get probabilities (softmax over logits)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Step 2: Get probability distributions from both models</span>
 </span></span><span class="line"><span class="cl">    <span class="n">verifier_probs</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    <span class="n">draft_token_id</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">convert_tokens_to_ids</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Extract specific token probabilities</span>
 </span></span><span class="line"><span class="cl">    <span class="n">q_t</span> <span class="o">=</span> <span class="n">verifier_probs</span><span class="p">[</span><span class="n">draft_token_id</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="c1"># verifier prob</span>
 </span></span><span class="line"><span class="cl">    <span class="n">p_t</span> <span class="o">=</span> <span class="n">draft_probs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1"># you must get this from the draft model when proposing tokens</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1"># Metropolis-Hastings acceptance rule</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Step 3: Apply Metropolis-Hastings acceptance rule</span>
 </span></span><span class="line"><span class="cl">    <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    <span class="n">acceptance_threshold</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_t</span> <span class="o">/</span> <span class="n">q_t</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
@@ -1132,13 +1138,15 @@
 </span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;REJECTED token &#39;</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&#39; with r=</span><span class="si">{</span><span class="n">r</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, threshold=</span><span class="si">{</span><span class="n">acceptance_threshold</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">        <span class="k">break</span> <span class="c1"># Stop at first rejection</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># If rejected, resample from residual (q - p)+</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 4: Handle rejection with residual sampling</span>
 </span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">accepted_tokens</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">draft_tokens</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="n">position</span> <span class="o">=</span> <span class="n">draft_start</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">accepted_tokens</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Calculate and normalize residual distribution</span>
 </span></span><span class="line"><span class="cl">    <span class="n">residual</span> <span class="o">=</span> <span class="p">(</span><span class="n">verifier_probs</span> <span class="o">-</span> <span class="n">draft_probs_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    <span class="n">residual</span> <span class="o">/=</span> <span class="n">residual</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="c1"># Normalize</span>
 </span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Sample from residual distribution</span>
 </span></span><span class="line"><span class="cl">    <span class="n">next_token_id</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">    <span class="n">next_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">convert_ids_to_tokens</span><span class="p">([</span><span class="n">next_token_id</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl">    <span class="n">accepted_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_token</span><span class="p">)</span>

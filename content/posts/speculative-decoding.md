@@ -1,7 +1,7 @@
 ---
 title: "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss"
 date: 2025-05-12
-description: "How speculative decoding speeds up language models by 2–4x using a draft-then-verify strategy."
+description: "Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck."
 tags: ["LLM", "Speculative Decoding", "Transformers", "Inference Optimization"]
 categories: ["Machine Learning", "NLP"]
 draft: false
@@ -22,7 +22,6 @@ In autoregressive decoding, this massive data transfer - loading potentially ter
 * **Low arithmetic intensity** (the ratio of computational operations to memory access)
 
 ![Performance Comparison](/spec_decode_images/image1.png)
-
 
 The LLM decoding operation is **memory-bound** as described above, and hence making compute units faster will not make the inference faster proportionally. Any truly effective acceleration strategy for the decoding phase must find a way to reduce the number of these costly memory-transfer cycles required per generated token. Hence, we would need to devise a way to parallelize an inherently sequential process.
 
@@ -55,14 +54,16 @@ The drafting part is straightforward - you just generate K tokens from the draft
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+# Setup model and tokenizer
 model_name = "gpt2"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
+# Prepare input context
 context = "The cat sat"
 input_ids = tokenizer(context, return_tensors="pt").input_ids
 
-# Step 1: Predict the next token only
+# Generate single token prediction
 outputs = model(input_ids)
 next_token_logits = outputs.logits[:, -1, :] # Logits for the next token
 ```
@@ -70,19 +71,18 @@ next_token_logits = outputs.logits[:, -1, :] # Logits for the next token
 ### Speculative Decoding (Draft + Verify)
 
 ```python
-# Step 1 - get tokens from draft model
+# Step 1: Draft Model - Generate candidate tokens
 drafted_tokens = ["on", "the", "mat"]
 drafted_sequence = context + " " + " ".join(drafted_tokens)
 
-# Tokenize the full sequence
+# Step 2: Prepare full sequence for verification
 full_input_ids = tokenizer(drafted_sequence, return_tensors="pt").input_ids
 
-# One forward pass through the verifier model
+# Step 3: Verify with target model (single forward pass)
 outputs = model(full_input_ids)
-
 logits = outputs.logits # Shape: [batch_size, seq_len, vocab_size]
 
-# To get the logits for each drafted token:
+# Step 4: Extract verification probabilities for each drafted token
 draft_start = input_ids.shape[1] # First drafted token position
 
 for i, token in enumerate(drafted_tokens):
@@ -99,23 +99,25 @@ As you can see, we can directly get the assigned probabilities for each token at
 The last step is the **acceptance/rejection token-by-token verification** that decides which tokens to keep or reject from the draft - we simply follow the above idea, where we have the verifier probability of each drafted token, and check if it is the highest top token according to the verifier logits. This is the simplest acceptance/rejection method, called **top-1 verification**. In practice, we would use a generalized speculative decoding algorithm with Metropolis-Hastings-style acceptance criteria (often called "adaptive speculative decoding" or "accept/reject sampling").
 
 ```python
-# Start comparing drafted tokens one by one
-accepted_tokens = []
+# Top-1 Verification Implementation
 
+# Setup for token verification
+accepted_tokens = []
 draft_start = input_ids.shape[1] # First position where drafts start
 
+# Step 1: Iterate through each drafted token for verification
 for i, token in enumerate(draft_tokens):
     # Position in logits where the verifier predicts the NEXT token
     position = draft_start + i - 1 # position -1 because logits predict the next token
     
-    # Verifier's predicted token (top-1)
+    # Step 2: Get verifier's top prediction
     verifier_top_token_id = logits[0, position, :].argmax().item()
     verifier_top_token = tokenizer.convert_ids_to_tokens([verifier_top_token_id])[0]
 
-    # Drafted token ID
+    # Step 3: Get drafted token ID for comparison
     drafted_token_id = tokenizer.convert_tokens_to_ids(token)
 
-    # Compare verifier's top token to drafted token
+    # Step 4: Accept/reject based on exact match with top prediction
     if verifier_top_token_id == drafted_token_id:
         accepted_tokens.append(token)
         print(f"ACCEPTED token '{token}' at position {i+1}")
@@ -160,20 +162,23 @@ In this case, "dog" remains the only option. If you just pick from q(x) again, y
 import random
 import torch
 
+# Setup for Metropolis-Hastings acceptance criteria
 accepted_tokens = []
 draft_start = input_ids.shape[1]
 
+# Step 1: Process drafted tokens with probabilistic acceptance
 for i, token in enumerate(draft_tokens):
     position = draft_start + i - 1
 
-    # Get probabilities (softmax over logits)
+    # Step 2: Get probability distributions from both models
     verifier_probs = logits[0, position, :].softmax(dim=-1)
     draft_token_id = tokenizer.convert_tokens_to_ids(token)
 
+    # Extract specific token probabilities
     q_t = verifier_probs[draft_token_id].item() # verifier prob
     p_t = draft_probs[i] # you must get this from the draft model when proposing tokens
 
-    # Metropolis-Hastings acceptance rule
+    # Step 3: Apply Metropolis-Hastings acceptance rule
     r = random.uniform(0, 1)
     acceptance_threshold = min(1, p_t / q_t)
 
@@ -184,13 +189,15 @@ for i, token in enumerate(draft_tokens):
         print(f"REJECTED token '{token}' with r={r:.4f}, threshold={acceptance_threshold:.4f}")
         break # Stop at first rejection
 
-# If rejected, resample from residual (q - p)+
+# Step 4: Handle rejection with residual sampling
 if len(accepted_tokens) < len(draft_tokens):
     position = draft_start + len(accepted_tokens) - 1
 
+    # Calculate and normalize residual distribution
     residual = (verifier_probs - draft_probs_tensor).clamp(min=0)
     residual /= residual.sum() # Normalize
 
+    # Sample from residual distribution
     next_token_id = torch.multinomial(residual, 1).item()
     next_token = tokenizer.convert_ids_to_tokens([next_token_id])[0]
     accepted_tokens.append(next_token)
