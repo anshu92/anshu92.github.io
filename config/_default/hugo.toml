@@ -3,7 +3,7 @@
 # https://blowfish.page/docs/getting-started/
 
 theme = "blowfish"
-baseURL = "https://anshu92.github.io"
+baseURL = "https://synapticradio.com"
 defaultContentLanguage = "en"
 disableLanguages = [] #to allow translation work requiring shipping to production
 enableGitInfo = true
