@@ -27,7 +27,7 @@
     &lt;/span&gt;        
     
 &lt;/h2&gt;
-&lt;p&gt;Speculative decoding uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.&lt;/p&gt;</description>
+&lt;p&gt;&lt;strong&gt;Speculative decoding&lt;/strong&gt; uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.&lt;/p&gt;</description>
       
     </item>
     
