@@ -24,9 +24,6 @@ disableTextInHeader = false
 defaultBackgroundImage = "/img/background.svg"
 defaultFeaturedImage = "/img/featured.svg"
 
-# Use the same logo for favicon
-favicon = "logo.png"
-
 highlightCurrentMenuArea = true
 smartTOC = true
 smartTOCHideUnfocusedChildren = false
