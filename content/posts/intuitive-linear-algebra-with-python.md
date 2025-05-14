@@ -16,7 +16,7 @@ Let's start by implementing the dot product, the workhorse computation of machin
 
 ### Calculating the Dot Product
 
-Given two vectors, say \\(\vec{a} = [a_1, a_2, \dots, a_n]\\) and \\(\vec{b} = [b_1, b_2, \dots, b_n]\\), their dot product is found by multiplying corresponding elements and summing the results.
+Given two vectors, say \\\(\vec{a} = [a_1, a_2, \dots, a_n]\\\) and \\\(\vec{b} = [b_1, b_2, \dots, b_n]\\\), their dot product is found by multiplying corresponding elements and summing the results.
 
 ```python
 import math
@@ -54,7 +54,7 @@ The formula we've just implemented is:
 
 $$
 \vec{a} \cdot \vec{b} = a_1 b_1 + a_2 b_2 + \dots + a_n b_n
-$$For our example vectors \\(\\vec{a} = [1, 3, -5]\\) and \\(\\vec{b} = [4, -2, -1]\\):
+$$For our example vectors \\\(\\vec{a} = [1, 3, -5]\\\) and \\\(\\vec{b} = [4, -2, -1]\\\):
 
 $$\\vec{a} \\cdot \\vec{b} = (1)(4) + (3)(-2) + (-5)(-1) = 4 - 6 + 5 = 3
 $$The result, `3`, is a single number (a scalar), which is why the dot product is often called the **scalar product**.
@@ -67,9 +67,9 @@ $$
 \vec{a} \cdot \vec{b} = \|\vec{a}\| \|\vec{b}\| \cos(\theta)
 $$Where:
 
-- \\(|\\vec{a}|\\) is the magnitude (or length) of vector \\(\\vec{a}\\).
-- \\(|\\vec{b}|\\) is the magnitude of vector \\(\\vec{b}\\).
-- \\(\\theta\\) is the angle between vectors \\(\\vec{a}\\) and \\(\\vec{b}\\).
+- \\\(|\\vec{a}|\\\) is the magnitude (or length) of vector \\\(\\vec{a}\\\).
+- \\\(|\\vec{b}|\\\) is the magnitude of vector \\\(\\vec{b}\\\).
+- \\\(\\theta\\\) is the angle between vectors \\\(\\vec{a}\\\) and \\\(\\vec{b}\\\).
 
 Let's add functions to calculate the magnitude of a vector and the angle between two vectors.
 
@@ -117,11 +117,11 @@ Angle between a and b (θ): 83.61 degrees
 
 **Interpreting the Dot Product's Sign:**
 
-The formula \\(\\vec{a} \\cdot \\vec{b} = |\\vec{a}| |\\vec{b}| \\cos(\\theta)\\) tells us a lot about the vectors' orientation:
+The formula \\\(\\vec{a} \\cdot \\vec{b} = |\\vec{a}| |\\vec{b}| \\cos(\\theta)\\\) tells us a lot about the vectors' orientation:
 
-- If \\(\\vec{a} \\cdot \\vec{b} > 0\\): \\(\\cos(\\theta) > 0\\), meaning \\(0^\\circ \\leq \\theta < 90^\\circ\\). The vectors point in the **same general direction**.
-- If \\(\\vec{a} \\cdot \\vec{b} = 0\\): \\(\\cos(\\theta) = 0\\), meaning \\(\\theta = 90^\\circ\\). The vectors are **perpendicular** (orthogonal). This is a crucial concept in many areas of math and computer science.
-- If \\(\\vec{a} \\cdot \\vec{b} < 0\\): \\(\\cos(\\theta) < 0\\), meaning \\(90^\\circ < \\theta \\leq 180^\\circ\\). The vectors point in **opposite general directions**.
+- If \\\(\\vec{a} \\cdot \\vec{b} > 0\\\): \\\(\\cos(\\theta) > 0\\\), meaning \\\(0^\\circ \\leq \\theta < 90^\\circ\\\). The vectors point in the **same general direction**.
+- If \\\(\\vec{a} \\cdot \\vec{b} = 0\\\): \\\(\\cos(\\theta) = 0\\\), meaning \\\(\\theta = 90^\\circ\\\). The vectors are **perpendicular** (orthogonal). This is a crucial concept in many areas of math and computer science.
+- If \\\(\\vec{a} \\cdot \\vec{b} < 0\\\): \\\(\\cos(\\theta) < 0\\\), meaning \\\(90^\\circ < \\theta \\leq 180^\\circ\\\). The vectors point in **opposite general directions**.
 
 Our result of `3` (positive) and an angle of `83.61` degrees aligns with this: the vectors are generally pointing in a similar direction.
 
@@ -129,17 +129,17 @@ Our result of `3` (positive) and an angle of `83.61` degrees aligns with this: t
 
 The dot product isn't just an abstract mathematical operation; it's incredibly useful:
 
-1.  **Cosine Similarity**: The term \\(\\cos(\\theta)\\) can be isolated: \\(\\cos(\\theta) = \\frac{\\vec{a} \\cdot \\vec{b}}{|\\vec{a}| |\\vec{b}|}\\). This is the cosine similarity, a metric ranging from -1 to 1 that measures how similar the *direction* of two vectors is.
+1.  **Cosine Similarity**: The term \\\(\\cos(\\theta)\\\) can be isolated: \\\(\\cos(\\theta) = \\frac{\\vec{a} \\cdot \\vec{b}}{|\\vec{a}| |\\vec{b}|}\\\). This is the cosine similarity, a metric ranging from -1 to 1 that measures how similar the *direction* of two vectors is.
 
 * **Search Engines & Recommendation Systems**: Used to compare query vectors with document vectors or user preference vectors with item vectors. High cosine similarity means high relevance.
 * **Natural Language Processing (NLP)**: Word embeddings (like Word2Vec, GloVe, or those from Transformers) represent words as vectors. Cosine similarity between these vectors can indicate semantic similarity between words.
 * **Large Language Models (LLMs)**: Attention mechanisms, a core component of Transformers (which power LLMs like GPT), heavily rely on dot products to determine how much "attention" one part of a sequence should pay to another. Essentially, it's calculating similarities between query, key, and value vectors.
 
-2.  **Projections**: The dot product helps in projecting one vector onto another. This tells us how much of one vector lies in the direction of another. Imagine shining a light perpendicularly onto vector \\(\\vec{b}\\); the length of the shadow of \\(\\vec{a}\\) on \\(\\vec{b}\\) is related to the dot product.
+2.  **Projections**: The dot product helps in projecting one vector onto another. This tells us how much of one vector lies in the direction of another. Imagine shining a light perpendicularly onto vector \\\(\\vec{b}\\\); the length of the shadow of \\\(\\vec{a}\\\) on \\\(\\vec{b}\\\) is related to the dot product.
 
 3.  **Geometric Transformations**: As we'll see with matrices, dot products are fundamental to rotating, scaling, and shearing vectors in 2D/3D graphics.
 
-4.  **Physics - Work Done**: A classic example. If a force \\(\\vec{F}\\) acts on an object causing a displacement \\(\\vec{d}\\), the work done (\\(W\\)) is:
+4.  **Physics - Work Done**: A classic example. If a force \\\(\\vec{F}\\\) acts on an object causing a displacement \\\(\\vec{d}\\\), the work done (\\\(W\\\)) is:
 
 $$
 W = \vec{F} \cdot \vec{d}
@@ -149,7 +149,7 @@ $$Only the component of the force that is *in the direction of movement* contrib
 
 Now, let's see how the dot product extends to multiplying a matrix by a vector.
 
-Consider a matrix \\(A\\) and a vector \\(\\vec{x}\\):
+Consider a matrix \\\(A\\\) and a vector \\\(\\vec{x}\\\):
 
 ```
 A = [
@@ -162,7 +162,7 @@ A = [
 x = [x₁, x₂, ..., xₙ]ᵀ // Transpose for column vector notation
 ```
 
-The product \\(A \\cdot \\vec{x}\\) is a new vector \\(\\vec{y}\\), where each element of \\(\\vec{y}\\) is the dot product of a row from \\(A\\) with the vector \\(\\vec{x}\\).
+The product \\\(A \\cdot \\vec{x}\\\) is a new vector \\\(\\vec{y}\\\), where each element of \\\(\\vec{y}\\\) is the dot product of a row from \\\(A\\\) with the vector \\\(\\vec{x}\\\).
 
 ```python
 # Matrix-vector dot product
@@ -202,23 +202,142 @@ Matrix-vector product (A · x): [6, -12, -1]
 
 **What does this mean?**
 
-The resulting vector \\(\\vec{y}\\) is:
+The resulting vector \\\(\\vec{y}\\\) is:
 
 $$
 \vec{y} = \begin{bmatrix} \text{row}_1 \cdot \vec{x} \\ \text{row}_2 \cdot \vec{x} \\ \vdots \\ \text{row}_m \cdot \vec{x} \end{bmatrix}
 $$For our example:
-\\(y_1 = \\text{row}_1 \\cdot \\vec{x} = [2, 1, 0] \\cdot [4, -2, -1] = (2)(4) + (1)(-2) + (0)(-1) = 8 - 2 + 0 = 6\\)
-\\(y_2 = \\text{row}_2 \\cdot \\vec{x} = [-1, 3, 2] \\cdot [4, -2, -1] = (-1)(4) + (3)(-2) + (2)(-1) = -4 - 6 - 2 = -12\\)
-\\(y_3 = \\text{row}_3 \\cdot \\vec{x} = [0, 0, 1] \\cdot [4, -2, -1] = (0)(4) + (0)(-2) + (1)(-1) = 0 + 0 - 1 = -1\\)
+\\\(y_1 = \\text{row}_1 \\cdot \\vec{x} = [2, 1, 0] \\cdot [4, -2, -1] = (2)(4) + (1)(-2) + (0)(-1) = 8 - 2 + 0 = 6\\\)
+\\\(y_2 = \\text{row}_2 \\cdot \\vec{x} = [-1, 3, 2] \\cdot [4, -2, -1] = (-1)(4) + (3)(-2) + (2)(-1) = -4 - 6 - 2 = -12\\\)
+\\\(y_3 = \\text{row}_3 \\cdot \\vec{x} = [0, 0, 1] \\cdot [4, -2, -1] = (0)(4) + (0)(-2) + (1)(-1) = 0 + 0 - 1 = -1\\\)
 
-So, \\(\\vec{y} = [6, -12, -1]\\).
+So, \\\(\\vec{y} = [6, -12, -1]\\\).
 
 **Applications of Matrix-Vector Products:**
 
-- **Weighted Sums in Neural Networks**: This is *exactly* how inputs are combined in a neuron. If \\(\\vec{x}\\) is a vector of inputs and a row of matrix \\(A\\) contains the weights for those inputs, their dot product is the weighted sum, which then goes into an activation function. The entire matrix \\(A\\) can represent the weights of a layer.
-- **Systems of Linear Equations**: A system of linear equations can be compactly written as \\(A\\vec{x} = \\vec{b}\\), where we solve for \\(\\vec{x}\\).
-- **Linear Transformations**: In geometry, multiplying a vector by a matrix can represent a linear transformation like rotation, scaling, or shearing of that vector. Each row of the matrix contributes to transforming the input vector into the output vector. The resulting vector \\(\\vec{y}\\) tells you where the vector \\(\\vec{x}\\) lands after being transformed by \\(A\\).
+- **Weighted Sums in Neural Networks**: This is *exactly* how inputs are combined in a neuron. If \\\(\\vec{x}\\\) is a vector of inputs and a row of matrix \\\(A\\\) contains the weights for those inputs, their dot product is the weighted sum, which then goes into an activation function. The entire matrix \\\(A\\\) can represent the weights of a layer.
+- **Systems of Linear Equations**: A system of linear equations can be compactly written as \\\(A\\vec{x} = \\vec{b}\\\), where we solve for \\\(\\vec{x}\\\).
+- **Linear Transformations**: In geometry, multiplying a vector by a matrix can represent a linear transformation like rotation, scaling, or shearing of that vector. Each row of the matrix contributes to transforming the input vector into the output vector. The resulting vector \\\(\\vec{y}\\\) tells you where the vector \\\(\\vec{x}\\\) lands after being transformed by \\\(A\\\).
 
 **Phew! That's a lot of work to understand something basic, but upon this stone we shall build our non-religious gathering place to preach the gospel of ML!**
+
+## Chapter 2: Matrix Transpose
+
+Matrix transpose is somewhat of a trivial idea, but connecting it to the bigger picture reveals its functionality - like the lug nuts that hold a car's wheels together.
+
+The transpose of a matrix is a new matrix whose rows are the columns of the original, and whose columns are the rows of the original. Think of it as flipping the matrix over its main diagonal.
+
+### Calculating the transpose
+
+```python
+def transpose_matrix(matrix):
+    """
+    Transposes a given matrix.
+    Rows become columns and columns become rows.
+    """
+    # Handle empty matrix or matrix with empty rows
+    if not matrix or not matrix[0]:
+        return []
+
+    num_rows = len(matrix)
+    num_cols = len(matrix[0])
+
+    # Create a new matrix with dimensions swapped
+    transposed = [[0 for _ in range(num_rows)] for _ in range(num_cols)]
+
+    for i in range(num_rows):
+        for j in range(num_cols):
+            transposed[j][i] = matrix[i][j]
+    return transposed
+
+def transpose_matrix_one_liner(matrix):
+    """
+    Single line pythonic way of doing a transpose.
+    """
+   return [list(x) for x in zip(*matrix)] # all hail zip again!
+    
+# Example Matrix
+A = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Calculate and print the transpose
+A_T = transpose_matrix(A)
+
+print("Original Matrix A:")
+for row in A:
+    print(row)
+
+print("\nTransposed Matrix A_T:")
+for row in A_T:
+    print(row)
+```
+This will output:
+```
+Original Matrix A:
+[1, 2, 3]
+[4, 5, 6]
+
+Transposed Matrix A_T:
+[1, 4]
+[2, 5]
+[3, 6]
+```
+
+### Why is the Transpose So Important? 
+
+The transpose might seem like a simple restructuring, but it has several important properties and a wide array of applications.
+
+**Key Properties:**
+1. **Double Transpose**: Transposing a matrix twice gets you back to the original. $$ (A^T)^T = A $$
+2. **Sum/Difference of Transposes:** The transpose of a sum (or difference) of two matrices is the sum (or difference) of their transposes. \\( (A + B)^T = A^T + B^T \\)
+3. **Scalar Multiplication:** Transposing a matrix multiplied by a scalar is the same as multiplying the transposed matrix by that scalar. \\( (cA)^T = cA^T \\)
+4. **Product Transpose (The "Socks and Shoes" Rule):** This is a crucial one! The transpose of a product of two matrices is the product of their transposes in reverse order. \\( (AB)^T = B^T A^T \\) Think of putting on socks then shoes. To reverse the operation, you take off shoes first, then socks. This property extends to multiple matrices: \\((ABC)^T = C^T B^T A^T\\).
+
+**Applications in Machine Learning and Statistics:**
+
+1. **Vector Transposition (Row vs. Column Vectors):** In many textbooks and papers, vectors are often assumed to be column vectors by default. A row vector can be represented as the transpose of a column vector. If \\(\vec{v} = \begin{bmatrix} v_1 \ v_2 \ \vdots \ v_n \end{bmatrix}\\) (a column vector), then \\(\vec{v}^T = [v_1, v_2, \dots, v_n]\\) (a row vector). This is essential for matrix multiplication involving vectors to ensure dimensions align correctly. For instance, the dot product of two column vectors \\(\vec{a}\\) and \\(\vec{b}\\) can be elegantly written as \\(\vec{a}^T \vec{b}\\).
+```
+# Example: dot product using transpose (conceptual)
+a = [[1], [2], [3]]  # (column vector)
+b = [[4], [5], [6]]  # (column vector)
+a_T = [[1, 2, 3]] # (row vector after transpose)
+dot_product = a_T @ b  # (matrix multiplication way of doing dot product)
+```
+
+2. **Covariance Matrix Calculation:**
+The covariance matrix is fundamental in statistics and many ML algorithms (like PCA). 
+- The covariance matrix summarizes how much each pair of features in your dataset vary together.
+- If two features increase and decrease together, their covariance is positive. If one increases while the other decreases, their covariance is negative.
+- The diagonal elements of the matrix represent variances of individual features.
+- The off-diagonal elements represent covariances between pairs of features.
+
+For a data matrix \\(X\\) where each row is an observation and each column is a feature (and data is mean-centered), the covariance matrix can be computed as:
+$$
+\text{Cov}(X) = \frac{1}{n-1} X^T X
+$$
+Here, \\(X^T X\\) involves multiplying the transpose of the data matrix by itself. This operation results in a square matrix where diagonal elements are variances and off-diagonal elements are covariances between features.
+
+3. **Least Squares Regression:**
+In linear regression, we often seek to find the parameters \\(\vec{\theta}\\) that minimize the sum of squared errors. The solution can be found using the Normal Equation:
+\\( \vec{\theta} = (X^T X)^{-1} X^T \vec{y} \\)
+Where \\(X\\) is the matrix of input features (with an added column of ones for the intercept) and \\(\vec{y}\\) is the vector of target values. Notice the heavy use of the transpose \\(X^T\\).
+
+4. **Principal Component Analysis (PCA):**
+PCA aims to find principal components (directions of largest variance) in data. It involves calculating the covariance matrix (which uses transpose) and then finding its eigenvectors and eigenvalues. Transposes also appear when projecting data onto principal components.
+
+5. **Symmetric Matrices:**
+A matrix \\(A\\) is symmetric if \\(A = A^T\\). Symmetric matrices have many special properties and arise naturally in various contexts:
+
+- Covariance matrices are always symmetric.
+- Kernel matrices in Support Vector Machines (SVMs) are symmetric.
+- The Hessian matrix of second-order partial derivatives (used in optimization) is symmetric.
+- Defining Norms and Inner Products:
+- The squared Euclidean norm (or \\(L_2\\) norm) of a vector \\(\vec{x}\\) can be written as \\(|\vec{x}|_2^2 = \vec{x}^T \vec{x}\\).
+
+6. **Neural Networks:**
+In backpropagation, the transpose of weight matrices is used when calculating gradients for layers further back in the network. If the forward pass involves multiplying by a weight matrix \\(W\\), the backward pass (for gradients) will often involve multiplying by \\(W^T\\).
+
 
 ## TO BE CONTINUED
