@@ -1,6 +1,6 @@
 ---
-date: "2025-05-13T16:35:32-04:00"
-draft: true
+date: "2025-05-13"
+draft: false
 title: "🐍 Python Guide to Linear Algebra for Machine Learning for Engineers"
 description: "A code-first, step-by-step exploration of linear algebra using Python, and its applications in machine learning."
 categories: ["Machine Learning", "Math", "Linear Algebra", "Python"]
@@ -220,3 +220,5 @@ So, \\(\\vec{y} = [6, -12, -1]\\).
 - **Linear Transformations**: In geometry, multiplying a vector by a matrix can represent a linear transformation like rotation, scaling, or shearing of that vector. Each row of the matrix contributes to transforming the input vector into the output vector. The resulting vector \\(\\vec{y}\\) tells you where the vector \\(\\vec{x}\\) lands after being transformed by \\(A\\).
 
 **Phew! That's a lot of work to understand something basic, but upon this stone we shall build our non-religious gathering place to preach the gospel of ML!**
+
+## TO BE CONTINUED
