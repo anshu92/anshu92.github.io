@@ -297,7 +297,9 @@ The transpose might seem like a simple restructuring, but it has several importa
 
 **Applications in Machine Learning and Statistics:**
 
-1. **Vector Transposition (Row vs. Column Vectors):** In many textbooks and papers, vectors are often assumed to be column vectors by default. A row vector can be represented as the transpose of a column vector. If \\(\vec{v} = \begin{bmatrix} v_1 \ v_2 \ \vdots \ v_n \end{bmatrix}\\) (a column vector), then \\(\vec{v}^T = [v_1, v_2, \dots, v_n]\\) (a row vector). This is essential for matrix multiplication involving vectors to ensure dimensions align correctly. For instance, the dot product of two column vectors \\(\vec{a}\\) and \\(\vec{b}\\) can be elegantly written as \\(\vec{a}^T \vec{b}\\).
+#### 1. Vector Transposition (Row vs. Column Vectors)
+
+In many textbooks and papers, vectors are often assumed to be column vectors by default. A row vector can be represented as the transpose of a column vector. If \\(\vec{v} = \begin{bmatrix} v_1 \ v_2 \ \vdots \ v_n \end{bmatrix}\\) (a column vector), then \\(\vec{v}^T = [v_1, v_2, \dots, v_n]\\) (a row vector). This is essential for matrix multiplication involving vectors to ensure dimensions align correctly. For instance, the dot product of two column vectors \\(\vec{a}\\) and \\(\vec{b}\\) can be elegantly written as \\(\vec{a}^T \vec{b}\\).
 ```
 # Example: dot product using transpose (conceptual)
 a = [[1], [2], [3]]  # (column vector)
@@ -306,7 +308,7 @@ a_T = [[1, 2, 3]] # (row vector after transpose)
 dot_product = a_T @ b  # (matrix multiplication way of doing dot product)
 ```
 
-2. **Covariance Matrix Calculation:**
+#### 2. Covariance Matrix Calculation
 The covariance matrix is fundamental in statistics and many ML algorithms (like PCA). 
 - The covariance matrix summarizes how much each pair of features in your dataset vary together.
 - If two features increase and decrease together, their covariance is positive. If one increases while the other decreases, their covariance is negative.
@@ -319,15 +321,92 @@ $$
 $$
 Here, \\(X^T X\\) involves multiplying the transpose of the data matrix by itself. This operation results in a square matrix where diagonal elements are variances and off-diagonal elements are covariances between features.
 
-3. **Least Squares Regression:**
-In linear regression, we often seek to find the parameters \\(\vec{\theta}\\) that minimize the sum of squared errors. The solution can be found using the Normal Equation:
-\\( \vec{\theta} = (X^T X)^{-1} X^T \vec{y} \\)
-Where \\(X\\) is the matrix of input features (with an added column of ones for the intercept) and \\(\vec{y}\\) is the vector of target values. Notice the heavy use of the transpose \\(X^T\\).
+#### 3. Least Squares Regression
+In linear regression, we want to fit a line (or hyperplane) to data that minimizes the difference between the predicted values and the actual values. This difference is measured using the sum of squared errors.
 
-4. **Principal Component Analysis (PCA):**
+We aim to find the parameter vector \\( \vec{\theta} \\) such that:
+
+$$
+\vec{y} \approx X \vec{\theta}
+$$
+
+Where:
+
+- \\( X \\): \\( n \times d \\) **design matrix** (each row is a sample, each column is a feature; with an extra column of 1s for the intercept),
+- \\( \vec{y} \\): target vector (size \( n \)),
+- \\( \vec{\theta} \\): parameter vector (size \( d \)).
+
+We minimize the **sum of squared residuals**:
+
+$$
+\text{Loss} = \|X\vec{\theta} - \vec{y}\|^2
+$$
+
+To minimize this, we take the derivative with respect to \\(\vec{\theta}\\), set it to zero, and solve. Solving for the minimum gives us the **Normal Equation**:
+
+$$
+\vec{\theta} = (X^T X)^{-1} X^T \vec{y}
+$$
+
+| Component               | Meaning                                          |
+|------------------------|--------------------------------------------------|
+| \\( X^T \\)            | Transpose of design matrix                       |
+| \\( X^T X \\)          | Feature-feature relationships (covariances)      |
+| \\( (X^T X)^{-1} \\)    | Inverse to "undo" the mixing of features         |
+| \\( X^T \vec{y} \\)     | Relationship of features to targets              |
+| \\( \vec{\theta} \\)   | Best-fit parameters (intercept + slopes)         |
+
+Let's see how heavy use of transpose (as you can see above) is used in code.
+
+```python
+# Example data: 3 samples, 1 feature
+X_raw = [
+    [1],
+    [2],
+    [3]
+]
+y = [2, 4, 6]
+
+# Step 1: Add intercept column
+X = [[1] + row for row in X_raw]
+
+# Step 2: Transpose function
+def transpose(matrix):
+    return list(zip(*matrix))
+
+# Step 3: Matrix multiplication
+def mat_mult(A, B):
+    result = []
+    for i in range(len(A)):
+        row = []
+        for j in range(len(B[0])):
+            val = sum(A[i][k] * B[k][j] for k in range(len(B)))
+            row.append(val)
+        result.append(row)
+    return result
+
+# Step 4: Inverse of 2x2 matrix (manual)
+def inverse_2x2(m):
+    [[a, b], [c, d]] = m
+    det = a * d - b * c
+    return [[d / det, -b / det], [-c / det, a / det]]
+
+# Step 5: Build required matrices
+X_T = transpose(X)
+XTX = mat_mult(X_T, X)
+XTy = mat_mult(X_T, [[v] for v in y])
+XTX_inv = inverse_2x2(XTX)
+
+# Step 6: Compute theta
+theta = mat_mult(XTX_inv, XTy)
+
+print("Fitted parameters (intercept, slope):", theta)
+```
+
+#### 4. Principal Component Analysis (PCA)
 PCA aims to find principal components (directions of largest variance) in data. It involves calculating the covariance matrix (which uses transpose) and then finding its eigenvectors and eigenvalues. Transposes also appear when projecting data onto principal components.
 
-5. **Symmetric Matrices:**
+#### 5. Symmetric Matrices
 A matrix \\(A\\) is symmetric if \\(A = A^T\\). Symmetric matrices have many special properties and arise naturally in various contexts:
 
 - Covariance matrices are always symmetric.
@@ -336,7 +415,7 @@ A matrix \\(A\\) is symmetric if \\(A = A^T\\). Symmetric matrices have many spe
 - Defining Norms and Inner Products:
 - The squared Euclidean norm (or \\(L_2\\) norm) of a vector \\(\vec{x}\\) can be written as \\(|\vec{x}|_2^2 = \vec{x}^T \vec{x}\\).
 
-6. **Neural Networks:**
+#### 6. Neural Networks
 In backpropagation, the transpose of weight matrices is used when calculating gradients for layers further back in the network. If the forward pass involves multiplying by a weight matrix \\(W\\), the backward pass (for gradients) will often involve multiplying by \\(W^T\\).
 
 
