@@ -8,7 +8,6 @@ tags: ["math", "linear algebra", "vectors", "python", "code-first"]
 math: true
 ---
 {{< katex >}}
-
 This series is designed to forge a deep, intuitive understanding of the mathematics that power the code I write every day as an ML engineer. Just as a traveler in Montreal might scrape by on a handful of French phrases but needs true fluency to think and live there, we often learn machine-learning theory and then struggle to translate it into code. Likewise, many engineers can train models and assemble practical toolkits without ever unpacking the mechanics beneath the surface. Here, we'll sidestep heavy libraries like NumPy—at least at first—to examine each calculation by hand and demystify exactly how the math drives every line of code.
 
 ## Chapter 1: Dot Product
