@@ -78,7 +78,7 @@ weight = -70
 identifier = 'linkedin'
 name = 'LinkedIn'
 url = 'https://www.linkedin.com/in/anshu92/'
-params.icon = 'brand-linkedin'
+params = { icon = 'brand-linkedin' }
 
 # Related content
 [related]

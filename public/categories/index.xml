@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Categories on Synaptic Radio</title>
-        <link>http://localhost:1313/categories/</link>
+        <link>https://synapticradio.com/categories/</link>
         <description>Recent content in Categories on Synaptic Radio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <copyright>Anshuman Sahoo</copyright>
-        <lastBuildDate>Thu, 30 Jan 2025 10:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 30 Jan 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://synapticradio.com/categories/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>General</title>
-        <link>http://localhost:1313/categories/general/</link>
+        <link>https://synapticradio.com/categories/general/</link>
         <pubDate>Thu, 30 Jan 2025 10:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/categories/general/</guid>
+        <guid>https://synapticradio.com/categories/general/</guid>
         <description></description>
         </item>
         
