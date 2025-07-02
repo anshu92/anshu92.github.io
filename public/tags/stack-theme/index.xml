@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Stack-Theme on My Blog</title>
+        <link>https://anshu92.github.io/tags/stack-theme/</link>
+        <description>Recent content in Stack-Theme on My Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <copyright>© {year} My Blog</copyright>
+        <lastBuildDate>Thu, 30 Jan 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://anshu92.github.io/tags/stack-theme/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Welcome to My Blog</title>
+        <link>https://anshu92.github.io/post/welcome/</link>
+        <pubDate>Thu, 30 Jan 2025 10:00:00 +0000</pubDate>
+        
+        <guid>https://anshu92.github.io/post/welcome/</guid>
+        <description>&lt;h1 id=&#34;welcome-to-my-blog&#34;&gt;Welcome to My Blog!
+&lt;/h1&gt;&lt;p&gt;This is my first post using &lt;strong&gt;Hugo&lt;/strong&gt; with the beautiful &lt;a class=&#34;link&#34; href=&#34;https://github.com/CaiJimmy/hugo-theme-stack&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Stack theme&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;features-of-the-stack-theme&#34;&gt;Features of the Stack Theme
+&lt;/h2&gt;&lt;p&gt;The Stack theme offers many great features:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Card-style design&lt;/strong&gt; - Clean and modern layout&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Responsive design&lt;/strong&gt; - Works great on mobile and desktop&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Fast performance&lt;/strong&gt; - Optimized for speed&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Search functionality&lt;/strong&gt; - Built-in search capabilities&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Archive organization&lt;/strong&gt; - Easy content organization&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Syntax highlighting&lt;/strong&gt; - Great for code snippets&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;code-example&#34;&gt;Code Example
+&lt;/h2&gt;&lt;p&gt;Here&amp;rsquo;s a sample code block with syntax highlighting:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;hello_world&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nb&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;Hello, World!&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;Welcome to my blog!&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;vm&#34;&gt;__name__&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;__main__&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;message&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hello_world&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nb&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;message&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;getting-started&#34;&gt;Getting Started
+&lt;/h2&gt;&lt;p&gt;To create new posts, you can use Hugo&amp;rsquo;s built-in commands:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;hugo new post/my-new-post.md
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Then edit the created file and start writing your content in Markdown!&lt;/p&gt;
+&lt;h2 id=&#34;whats-next&#34;&gt;What&amp;rsquo;s Next?
+&lt;/h2&gt;&lt;p&gt;I&amp;rsquo;m excited to start sharing my thoughts and experiences on this blog. Stay tuned for more posts about:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Web development&lt;/li&gt;
+&lt;li&gt;Programming tutorials&lt;/li&gt;
+&lt;li&gt;Technology insights&lt;/li&gt;
+&lt;li&gt;Personal projects&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Thanks for visiting! 🚀&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

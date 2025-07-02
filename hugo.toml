@@ -1,3 +1,103 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://anshu92.github.io/'
 languageCode = 'en-us'
-title = 'My New Hugo Site'
+title = 'My Blog'
+theme = 'stack'
+
+# Copyright notice
+copyright = '© {year} My Blog'
+
+# Params
+[params]
+mainSections = ['post']
+featuredImageField = 'image'
+rssFullContent = true
+
+# Sidebar configuration
+[params.sidebar]
+emoji = '🍥'
+subtitle = 'Welcome to my blog'
+
+# Article configuration
+[params.article]
+math = false
+readingTime = true
+license.enabled = false
+
+# Comments (disabled by default)
+[params.comments]
+enabled = false
+
+# Widget configuration
+[params.widgets]
+homepage = [
+    { type = "search" },
+    { type = "archives", params = { limit = 5 } },
+    { type = "categories", params = { limit = 10 } },
+    { type = "tag-cloud", params = { limit = 10 } }
+]
+page = [
+    { type = "toc" }
+]
+
+# Default image
+[params.defaultImage]
+opengraph.enabled = false
+article.enabled = false
+
+# Menu configuration
+[[menu.main]]
+identifier = 'home'
+name = 'Home'
+url = '/'
+weight = -100
+[[menu.main]]
+identifier = 'archives'
+name = 'Archives'
+url = '/archives/'
+weight = -90
+[[menu.main]]
+identifier = 'categories'
+name = 'Categories'
+url = '/categories/'
+weight = -80
+[[menu.main]]
+identifier = 'tags'
+name = 'Tags'
+url = '/tags/'
+weight = -70
+
+# Related content
+[related]
+includeNewer = true
+threshold = 60
+toLower = false
+[[related.indices]]
+name = 'keywords'
+weight = 100
+[[related.indices]]
+name = 'tags'
+weight = 80
+[[related.indices]]
+name = 'categories'
+weight = 60
+[[related.indices]]
+name = 'date'
+weight = 10
+
+# Markup configuration
+[markup]
+[markup.goldmark.renderer]
+unsafe = true
+[markup.tableOfContents]
+endLevel = 4
+ordered = true
+startLevel = 2
+[markup.highlight]
+noClasses = false
+codeFences = true
+guessSyntax = true
+lineNoStart = 1
+lineNos = true
+lineNumbersInTable = true
+style = 'github'
+tabWidth = 4
