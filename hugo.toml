@@ -18,7 +18,11 @@ favicon = '/img/brain-logo.png'
 emoji = '🎧'
 subtitle = 'Exploring AI, Technology & Innovation 🎧'
 compact = false
-# avatar = { enabled = true, local = true, src = "img/brain-logo-small.png" }
+
+# [params.sidebar.avatar]
+# enabled = true
+# local = true
+# src = "img/brain-logo-small.png"
 
 # Article configuration
 [params.article]
