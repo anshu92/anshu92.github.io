@@ -1,10 +1,10 @@
-baseURL = 'https://anshu92.github.io/'
+baseURL = 'https://synapticradio.com'
 languageCode = 'en-us'
-title = '🧠 AI Insights Blog'
+title = 'Synaptic Radio'
 theme = 'stack'
 
 # Copyright notice
-copyright = '© {year} My Blog'
+copyright = 'Anshuman Sahoo'
 
 # Params
 [params]
@@ -16,7 +16,7 @@ favicon = '/img/brain-logo.png'
 # Sidebar configuration
 [params.sidebar]
 emoji = '🎧'
-subtitle = 'Exploring AI, Technology & Innovation 🎧'
+subtitle = 'Anshuman Sahoo'
 compact = false
 
 # [params.sidebar.avatar]
@@ -72,6 +72,13 @@ identifier = 'tags'
 name = 'Tags'
 url = '/tags/'
 weight = -70
+
+# Social menu configuration
+[[menu.social]]
+identifier = 'linkedin'
+name = 'LinkedIn'
+url = 'https://www.linkedin.com/in/anshu92/'
+params.icon = 'brand-linkedin'
 
 # Related content
 [related]
