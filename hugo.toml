@@ -64,11 +64,6 @@ name = 'Home'
 url = '/'
 weight = -100
 [[menu.main]]
-identifier = 'archives'
-name = 'Archives'
-url = '/archives/'
-weight = -90
-[[menu.main]]
 identifier = 'categories'
 name = 'Categories'
 url = '/categories/'
