@@ -2,31 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://synapticradio.com/post/welcome/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/categories/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/tags/blogging/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/tags/inference-optimization/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/categories/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/tags/llm/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/categories/general/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/categories/machine-learning/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/tags/hugo/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/categories/nlp/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/post/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/post/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/tags/stack-theme/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/tags/speculative-decoding/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/post/speculative-decoding/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://synapticradio.com/tags/</loc>
-    <lastmod>2025-01-30T10:00:00+00:00</lastmod>
+    <loc>http://localhost:1313/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/transformers/</loc>
+    <lastmod>2025-05-12T00:00:00+00:00</lastmod>
   </url>
 </urlset>

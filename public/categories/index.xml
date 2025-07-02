@@ -2,17 +2,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Categories on Synaptic Radio</title>
-        <link>https://synapticradio.com/categories/</link>
+        <link>http://localhost:1313/categories/</link>
         <description>Recent content in Categories on Synaptic Radio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <copyright>Anshuman Sahoo</copyright>
-        <lastBuildDate>Thu, 30 Jan 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://synapticradio.com/categories/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>General</title>
-        <link>https://synapticradio.com/categories/general/</link>
-        <pubDate>Thu, 30 Jan 2025 10:00:00 +0000</pubDate>
+        <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Machine Learning</title>
+        <link>http://localhost:1313/categories/machine-learning/</link>
+        <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
         
-        <guid>https://synapticradio.com/categories/general/</guid>
+        <guid>http://localhost:1313/categories/machine-learning/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>NLP</title>
+        <link>http://localhost:1313/categories/nlp/</link>
+        <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/categories/nlp/</guid>
         <description></description>
         </item>
         
