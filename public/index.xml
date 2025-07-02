@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Synaptic Radio</title>
-        <link>https://synapticradio.com/</link>
+        <link>http://localhost:1313/</link>
         <description>Recent content on Synaptic Radio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <copyright>Anshuman Sahoo</copyright>
-        <lastBuildDate>Thu, 30 Jan 2025 10:00:00 +0000</lastBuildDate><atom:link href="https://synapticradio.com/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Thu, 30 Jan 2025 10:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Welcome to My Blog</title>
-        <link>https://synapticradio.com/post/welcome/</link>
+        <link>http://localhost:1313/post/welcome/</link>
         <pubDate>Thu, 30 Jan 2025 10:00:00 +0000</pubDate>
         
-        <guid>https://synapticradio.com/post/welcome/</guid>
+        <guid>http://localhost:1313/post/welcome/</guid>
         <description>&lt;h1 id=&#34;welcome-to-my-blog&#34;&gt;Welcome to My Blog!
 &lt;/h1&gt;&lt;p&gt;This is my first post using &lt;strong&gt;Hugo&lt;/strong&gt; with the beautiful &lt;a class=&#34;link&#34; href=&#34;https://github.com/CaiJimmy/hugo-theme-stack&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Stack theme&lt;/a&gt;.&lt;/p&gt;
