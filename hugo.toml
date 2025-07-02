@@ -13,10 +13,16 @@ featuredImageField = 'image'
 rssFullContent = true
 favicon = '/img/brain-logo.png'
 
+# Author configuration
+[params.author]
+name = 'Anshuman Sahoo'
+bio = "I'm Anshu, a machine learning engineer with nine years of experience turning first-principles ideas into prototypes and production systems. Here, I share ideas, practical insights and best practices to help fellow engineers accelerate their ML projects."
+email = 'anshuman264@gmail.com'
+
 # Sidebar configuration
 [params.sidebar]
 emoji = '🎧'
-subtitle = 'Anshuman Sahoo'
+subtitle = "I'm Anshu, a machine learning engineer with nine years of experience turning first-principles ideas into prototypes and production systems. Here, I share ideas, practical insights and best practices to help fellow engineers accelerate their ML projects."
 compact = false
 
 # [params.sidebar.avatar]

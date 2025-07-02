@@ -6,12 +6,14 @@
         <description>Recent content in NLP on Synaptic Radio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
+        <managingEditor>anshuman264@gmail.com (Anshuman Sahoo)</managingEditor>
+        <webMaster>anshuman264@gmail.com (Anshuman Sahoo)</webMaster>
         <copyright>Anshuman Sahoo</copyright>
         <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/nlp/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Speculative Decoding: 2x to 4x speedup of LLMs without quality loss</title>
         <link>http://localhost:1313/post/speculative-decoding/</link>
         <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
-        
+        <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
         <guid>http://localhost:1313/post/speculative-decoding/</guid>
         <description>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Speculative decoding&lt;/strong&gt; uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.&lt;/p&gt;
