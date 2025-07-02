@@ -44,7 +44,6 @@ enabled = false
 [params.widgets]
 homepage = [
     { type = "search" },
-    { type = "archives", params = { limit = 5 } },
     { type = "categories", params = { limit = 10 } },
     { type = "tag-cloud", params = { limit = 10 } }
 ]
@@ -63,6 +62,12 @@ identifier = 'home'
 name = 'Home'
 url = '/'
 weight = -100
+[[menu.main]]
+identifier = 'archives'
+name = 'Archives'
+url = '/page/archives/'
+weight = -90
+params = { icon = '' }
 [[menu.main]]
 identifier = 'categories'
 name = 'Categories'
