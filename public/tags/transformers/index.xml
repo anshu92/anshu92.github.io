@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Transformers on Synaptic Radio</title>
-        <link>http://localhost:1313/tags/transformers/</link>
+        <link>https://synapticradio.com/tags/transformers/</link>
         <description>Recent content in Transformers on Synaptic Radio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <managingEditor>anshuman264@gmail.com (Anshuman Sahoo)</managingEditor>
         <webMaster>anshuman264@gmail.com (Anshuman Sahoo)</webMaster>
         <copyright>Anshuman Sahoo</copyright>
-        <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/transformers/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://synapticradio.com/tags/transformers/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Speculative Decoding: 2x to 4x speedup of LLMs without quality loss</title>
-        <link>http://localhost:1313/post/speculative-decoding/</link>
+        <link>https://synapticradio.com/post/speculative-decoding/</link>
         <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
         <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-        <guid>http://localhost:1313/post/speculative-decoding/</guid>
+        <guid>https://synapticradio.com/post/speculative-decoding/</guid>
         <description>&lt;h2 id=&#34;tldr&#34;&gt;TL;DR
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;Speculative decoding&lt;/strong&gt; uses a small draft model or heuristic to propose a continuation of generated tokens, and the LLM scans the suggestions in parallel to verify the suggestions, or quickly correct them. The introduced parallelism makes it much faster than token-by-token generation, and unlike other optimizations, it does not sacrifice quality.&lt;/p&gt;
 &lt;h2 id=&#34;the-problem&#34;&gt;The Problem
@@ -25,7 +25,7 @@
 &lt;li&gt;&lt;strong&gt;Severe underutilization&lt;/strong&gt; of compute resources&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Low arithmetic intensity&lt;/strong&gt; (the ratio of computational operations to memory access)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/spec_decode_images/image1.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://synapticradio.com/spec_decode_images/image1.png&#34;
 	
 	
 	
@@ -58,7 +58,7 @@
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Speculative decoding leverages these observations. If the draft model&amp;rsquo;s predictions align well with what the target model would have generated, multiple tokens can be accepted in a single step, effectively amortizing the cost of the expensive target model inference over several tokens.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/spec_decode_images/image2.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://synapticradio.com/spec_decode_images/image2.png&#34;
 	
 	
 	
@@ -391,7 +391,7 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/spec_decode_images/image3.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://synapticradio.com/spec_decode_images/image3.png&#34;
 	
 	
 	

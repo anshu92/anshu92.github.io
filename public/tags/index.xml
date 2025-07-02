@@ -2,43 +2,43 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Tags on Synaptic Radio</title>
-        <link>http://localhost:1313/tags/</link>
+        <link>https://synapticradio.com/tags/</link>
         <description>Recent content in Tags on Synaptic Radio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
         <managingEditor>anshuman264@gmail.com (Anshuman Sahoo)</managingEditor>
         <webMaster>anshuman264@gmail.com (Anshuman Sahoo)</webMaster>
         <copyright>Anshuman Sahoo</copyright>
-        <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 12 May 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://synapticradio.com/tags/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Inference Optimization</title>
-        <link>http://localhost:1313/tags/inference-optimization/</link>
+        <link>https://synapticradio.com/tags/inference-optimization/</link>
         <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
         <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-        <guid>http://localhost:1313/tags/inference-optimization/</guid>
+        <guid>https://synapticradio.com/tags/inference-optimization/</guid>
         <description></description>
         </item>
         <item>
         <title>LLM</title>
-        <link>http://localhost:1313/tags/llm/</link>
+        <link>https://synapticradio.com/tags/llm/</link>
         <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
         <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-        <guid>http://localhost:1313/tags/llm/</guid>
+        <guid>https://synapticradio.com/tags/llm/</guid>
         <description></description>
         </item>
         <item>
         <title>Speculative Decoding</title>
-        <link>http://localhost:1313/tags/speculative-decoding/</link>
+        <link>https://synapticradio.com/tags/speculative-decoding/</link>
         <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
         <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-        <guid>http://localhost:1313/tags/speculative-decoding/</guid>
+        <guid>https://synapticradio.com/tags/speculative-decoding/</guid>
         <description></description>
         </item>
         <item>
         <title>Transformers</title>
-        <link>http://localhost:1313/tags/transformers/</link>
+        <link>https://synapticradio.com/tags/transformers/</link>
         <pubDate>Mon, 12 May 2025 00:00:00 +0000</pubDate>
         <author>anshuman264@gmail.com (Anshuman Sahoo)</author>
-        <guid>http://localhost:1313/tags/transformers/</guid>
+        <guid>https://synapticradio.com/tags/transformers/</guid>
         <description></description>
         </item>
         
