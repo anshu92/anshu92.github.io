@@ -9,6 +9,24 @@ math: true
 mermaid: true
 ---
 
+## Why was attention needed?
+The performant architecture of the day circa 2014 were **RNNs**. They performed remarkably well on tasks like machine translation compared to prior model types. However, they suffered from 2 main disadvantages:
+1. **Long range dependencies:** Theoretically, the current hidden state of an RNN contains information relating to all previous states due to its recurrent nature. However, practically training these networks with backprop leads to the vanishing or exploding gradient problem since contribution of an early time step can propogate signal that arbitrarily large or small as it passes through the layers. LSTMs and GRUs introduced gating mechanisms to deal with these dependency issues, but struggled with very long sequences as well.
+2. **Lack of parallelism**: In RNNs, the prior tokens needed to be processed in order for the next token to be processed due to the nature of the architecture. This approach left a lot on the table in terms of taking advantage of the massive parallelism enabled by advances in GPU hardware, which were the devices on which neural networks and tensor ops took place on. In contrast, modern transformer architectures enable each token to interact with every other token in the sequence simulataneously - allowing for much faster training of models.
+
+![RNN architecture](/attention_deep_dive/Recurrent_neural_network_unfold.svg)
+
+Attention was initially invented to augment RNN models, so that the model can focus on different parts of the input sequence as the output sequence is being generated.
+
+## What is attention?
+The core analogy of attention comes from classic information retrieval system - 
+1. **Query (Q)** represents what a specific token in the input is "looking for" in the sequence.
+2. **Key (K)** represents what each token "offers" and how it can be identified by others.
+3. **Value (V)** represents the actual content or information in a specific token.
+
+To note, in **self-attention** the Q, K and V vectors are all derived from the same source, typically the output of the previous layer. This allows each to token to dynamically compute attention scores against each token in the sequence (including itself, effectively teaching itself which tokens are important to understand its own meeting within its context).
+
+
 ## Setup
 Attention mechanisms form the backbone of the transformer architecture, powering the latest variant of LLMs near you. Here, we will delve into core concepts of attention, build towards the transformer architecture and then review some efficient attention modifications including some hardware-aware optimizations.
 
@@ -33,22 +51,6 @@ input_embeddings = torch.randn(batch_size, seq_len, embed_dim)
 We have a 3 token toy example, which is projected into an embedding dimension of size 4.
 
 ## Core concepts
-The inspirations behind "attention", like many other machine learning ideas, originate in human cognition - selectively concentrating on some parts of the input while ignoring others (like in a party, focusing on the person you are talking while ignoring the cacophany of conversations).
-
-Attention became popular with RNN based encoder-decoder models applied to machine translation tasks. The critical bottleneck that attention helped improve on, was that these models compressed sequences of tokens into a single fixed-length vector from the encoder, which was then passed to the decoder to generate the translation. With longer sentences, this led to information dilution or loss. Attention solved this by allowing the model to look at different part of the input sequence at each step of the translation process. Another key point was that this attention was "soft" rather than "hard", as in, instead of picking specific parts to ignore or focus on, the model uses a weighted average of all source hidden states.
-
-### Query, Key, Value (QKV) paradigm
-Since this lies at the heart of most attention mechanisms, it is crucial to understand these three components in order to grasp how attention works. This is also borrowed from earlier information retrieval frameworks.
-
-Imagine you are searching for a video on YouTube,
-- Your search text is the **Query (Q)**
-- YouTube database of videos has titles (or metadata) which are the **Keys (K)** - these are what the query is compared against.
-- The actual video content is the **Value (V)** - this is the information to retrieve once a good match between your Query and Key is found.
-
-In attention,
-- **Query (Q)** - represents the current token or element for which we want to compute a contextualized representation. It's sort of asking - what information is relevant to me? For an example, in an input sentence, a "verb" token might be looking for its "subject" or "object".
-- **Key (K)** - represents all tokens in the sequence (including the query token iteself in self-attention) that offer information. Each key essentially says, "This is what I represent; see if I am relevant". For instance, a noun token (as a key) might offer "noun-ness".
-- **Value (V)** - represents the actual content or embedding of each token. Once the relevance of each key to the query is determined (via attention scores), these values are aggregated (typically through a weighted sum) to form the output. The value matrix this encompasses the context, meaning and weight that each token contributes.
 
 ![QKV Process](/attention_deep_dive/attention-1.png)
 
@@ -124,7 +126,10 @@ $$
 \text{ScaledScores} = \frac{Scores}{\sqrt{d_k}}
 $$
 
-This scaling factor is crucial due to the softmax operation. As \\( d_k \\) increases, it linearly increases the variance of the \\( Q.K \\) dot product, which when fed into the softmax, makes the scaled scores very sparse (weighing heavily towards the highest value). Let's understand more intuitively.
+## Role of scaling factor
+The dot-product of query (Q) and the transpose of key (K^T), when the dimensions of the key vector (d_k) grow large in magnitude. When we pass these into the softmax function, they can push the function into regions where its gradients are extremely small, effectively halting the learning process or making it unstable. Hence, scaling this dot-product by a factor (d_k) counteracts this by bringing the gradients to a more stable range, and preventing the saturation of the softmax.
+
+As \\( d_k \\) increases, it linearly increases the variance of the \\( Q.K \\) dot product, which when fed into the softmax, makes the scaled scores very sparse (weighing heavily towards the highest value). Let's understand more intuitively.
 
 The softmax formula is:
 $$
@@ -471,9 +476,8 @@ class MultiHeadAttention(nn.Module):
     return output
 
 ```
+##TODO:
 ### Cross Attention
-In encoder-decoder architectures
-
 ## Efficient Attention
 ### \\(O(N^2)\\) problem
 ### Local/Sliding window attention
