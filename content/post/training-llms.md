@@ -13,7 +13,7 @@ mermaid: true
 
 Let's get this straight to start with - distributed training is first and foremost about jumping over the **Memory Wall**, less about speed.
 
-A single H100 GPU (\$\$\$\$) has 80GB of memory, which to poor old engineers like me who remember the joy of getting their hands on 48GB GPUs seems like a dream, but a 70B parameter model requires around 140GB just to store the weights in 16-bit precision, not counting the optimizer states (which take significantly more space) or activation memory.
+A single expensive H100 GPU has 80GB of memory, which to poor old engineers like me who remember the joy of getting their hands on 48GB GPUs seems like a dream, but a 70B parameter model requires around 140GB just to store the weights in 16-bit precision, not counting the optimizer states (which take significantly more space) or activation memory.
 
 So the primary goal of setting up training is to architect a system to fit a massive data transform/equation across a cluster of hardware without letting the communication overhead kill your throughput.
 
