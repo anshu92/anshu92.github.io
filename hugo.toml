@@ -114,8 +114,8 @@ enable = true
 block = [['\[', '\]'], ['$$', '$$']]
 inline = [['\(', '\)'], ['$', '$']]
 [markup.tableOfContents]
-endLevel = 4
-ordered = true
+endLevel = 6
+ordered = false
 startLevel = 2
 [markup.highlight]
 noClasses = false
