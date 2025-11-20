@@ -9,6 +9,8 @@ math: true
 mermaid: true
 ---
 
+![](/training_llms/pole-vault.png)
+
 ## What are the priorities of distributed training?
 
 Let's get this straight to start with - distributed training is first and foremost about jumping over the **Memory Wall**, less about speed.
