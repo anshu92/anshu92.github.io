@@ -7,7 +7,6 @@ categories: ["Machine Learning", "LLM", "Distributed Training", "Practical ML"]
 tags: ["attention", "transformers", "deep-learning", "nlp", "llm"]
 math: true
 mermaid: true
-toc: true
 ---
 
 ## What are the priorities of distributed training?
