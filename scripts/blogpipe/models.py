@@ -55,12 +55,23 @@ class EvidenceBundle(BaseModel):
     followups: list[Item] = Field(default_factory=list)
     benchmarks: list[BenchmarkRow] = Field(default_factory=list)
     aec_links: list[Item] = Field(default_factory=list)
+    enrichment_items: list[Item] = Field(default_factory=list)
     quotes: list[Quote] = Field(default_factory=list)
+    planner_buckets: list[str] = Field(default_factory=list)
+    planner_questions: list[str] = Field(default_factory=list)
+    section_evidence: dict[str, str] = Field(default_factory=dict)
+    contradiction_notes: list[str] = Field(default_factory=list)
     by_id: dict[str, Item] = Field(default_factory=dict)
 
     def register_ids(self) -> None:
         self.by_id = {self.primary.id: self.primary}
-        for it in self.ancestors + self.competitors + self.followups + self.aec_links:
+        for it in (
+            self.ancestors
+            + self.competitors
+            + self.followups
+            + self.aec_links
+            + self.enrichment_items
+        ):
             if it.id not in self.by_id:
                 self.by_id[it.id] = it
 
@@ -118,6 +129,9 @@ class EditorReport(BaseModel):
         default_factory=lambda: {"missing": [], "weak": [], "cut": []}
     )
     pass_gate: bool = False
+    lint_issues: list[str] = Field(default_factory=list)
+    grounding_ok: bool = True
+    grounding_issues: list[str] = Field(default_factory=list)
 
 
 # --- Requests for HTTP allow-lists (no user-controlled URLs) ---

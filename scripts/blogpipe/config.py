@@ -112,3 +112,24 @@ def art_cooldown() -> int:
 
 def force_format() -> str:
     return _get("BLOGPIPE_FORCE_FORMAT", "")
+
+
+def mcp_enrichment_enabled() -> bool:
+    return _get("BLOGPIPE_MCP_ENRICHMENT", "0") in ("1", "true", "yes", "on")
+
+
+def brave_api_key() -> str:
+    return _get("BRAVE_API_KEY") or _get("BRAVE_SEARCH_API_KEY")
+
+
+def tavily_api_key() -> str:
+    """Tavily offers a free developer tier; use for web search when Brave is not configured."""
+    return _get("TAVILY_API_KEY")
+
+
+def github_token() -> str:
+    return _get("GITHUB_TOKEN")
+
+
+def context7_api_key() -> str:
+    return _get("CONTEXT7_API_KEY")

@@ -9,7 +9,7 @@ from typing import Any, Optional
 
 import httpx
 
-from . import config, memory
+from . import config, mcp_enrichment, memory, openrouter_client
 from .models import BenchmarkRow, EvidenceBundle, Item, Pillar, Quote
 from .memory import _ROOT
 
@@ -132,6 +132,66 @@ def openalex_search(q: str) -> list[Item]:
     return out
 
 
+def _competitor_queries(title: str, abstract: str) -> list[str]:
+    """LLM: short OpenAlex search phrases for related methods. Caller must gate dry_run / no key."""
+    raw = openrouter_client.llm_text(
+        'Output JSON only: {"queries": ["<q1>", "<q2>"]}. '
+        "Each query: 4-8 words naming a competing, adjacent, or ancestor method/line of work. "
+        "No generic words only.",
+        f"Title: {title}\nAbstract: {abstract[:600]}",
+    )
+    m = re.search(r"\{[\s\S]*\}", raw)
+    if m:
+        try:
+            qlist = json.loads(m.group(0)).get("queries") or []
+            out = [str(x).strip() for x in qlist if str(x).strip()][:2]
+            if out:
+                return out
+        except (json.JSONDecodeError, TypeError) as e:
+            LOG.debug("competitor_queries json: %s", e)
+    return [title[:80].strip() or "machine learning"]
+
+
+def _extract_benchmarks_from_abstract(title: str, abstract: str) -> list[BenchmarkRow]:
+    """LLM: pull explicit numbers from abstract into BenchmarkRow (no invention)."""
+    if not abstract.strip():
+        return []
+    raw = openrouter_client.llm_text(
+        'Extract benchmark or result numbers from the abstract only as JSON: '
+        '{"rows": [{"method": "...", "metric": "...", "value": "...", "baseline": "..."}]}. '
+        "Use only values stated in the text. If none, return {\"rows\": []}.",
+        f"Title: {title}\nAbstract: {abstract[:2000]}",
+    )
+    m = re.search(r"\{[\s\S]*\}", raw)
+    if not m:
+        return []
+    try:
+        rows = (json.loads(m.group(0)) or {}).get("rows") or []
+    except (json.JSONDecodeError, TypeError) as e:
+        LOG.debug("extract_benchmarks json: %s", e)
+        return []
+    out: list[BenchmarkRow] = []
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        method = (r.get("method") or r.get("name") or "").strip()
+        value = (r.get("value") or "").strip()
+        if not method or not value:
+            continue
+        metric = (r.get("metric") or "").strip()
+        baseline = (r.get("baseline") or "").strip()
+        out.append(
+            BenchmarkRow(
+                name=method[:200],
+                value=value[:200],
+                unit=metric[:200],
+                baseline=baseline[:200],
+                notes="from abstract (LLM extract)",
+            )
+        )
+    return out
+
+
 def _primary_from_rank() -> Item:
     p = _ROOT / "reports" / "rank_result.json"
     if not p.is_file():
@@ -184,24 +244,45 @@ def run() -> EvidenceBundle:
         _trace_append({"tool": "refs_cites", "refs": len(refs), "cites": len(cits)}, trace)
         ancestors = refs[:3]
         followups = cits[:2]
+    competitor_queries: list[str] = []
     if calls < max_c:
-        oa = openalex_search(primary.title[:100])
+        if not config.dry_run() and config.llm_configured():
+            competitor_queries = _competitor_queries(primary.title, primary.abstract)
+            calls += 1
+        else:
+            competitor_queries = [primary.title[:80].strip() or "machine learning paper"]
+        _trace_append({"tool": "competitor_queries", "n": len(competitor_queries)}, trace)
+    for q in competitor_queries or [primary.title[:80]]:
+        if len(competitors) >= 3 or calls >= max_c:
+            break
+        oa = openalex_search(q)
         calls += 1
-        _trace_append({"tool": "openalex", "n": len(oa)}, trace)
+        _trace_append({"tool": "openalex", "q": q[:100], "n": len(oa)}, trace)
         for it in oa:
-            if it.id not in by_id and len(competitors) < 2:
+            if it.id not in by_id and len(competitors) < 3:
                 competitors.append(it)
                 by_id[it.id] = it
     for a in ancestors + followups + competitors:
         by_id[a.id] = a
-    bms: list[BenchmarkRow] = [
-        BenchmarkRow(
-            name=primary.title[:40],
-            value="(see paper)",
-            baseline="prior SOTA (paper Table 1)",
-            notes="[cite: primary]",
-        )
-    ]
+    bms: list[BenchmarkRow] = []
+    if (
+        calls < max_c
+        and not config.dry_run()
+        and config.llm_configured()
+        and primary.abstract.strip()
+    ):
+        bms = _extract_benchmarks_from_abstract(primary.title, primary.abstract)
+        calls += 1
+        _trace_append({"tool": "extract_benchmarks", "n": len(bms)}, trace)
+    if not bms:
+        bms = [
+            BenchmarkRow(
+                name=primary.title[:40],
+                value="(see paper)",
+                baseline="prior SOTA (paper Table 1)",
+                notes="[cite: primary]",
+            )
+        ]
     qts: list[Quote] = [
         Quote(
             source_id=primary.id,
@@ -211,6 +292,8 @@ def run() -> EvidenceBundle:
     ]
     for it in aec_links:
         by_id[it.id] = it
+    mres = mcp_enrichment.run(primary, calls, max_c, trace)
+    calls = mres.calls_used
     b = EvidenceBundle(
         primary=primary,
         ancestors=ancestors,
@@ -219,6 +302,11 @@ def run() -> EvidenceBundle:
         benchmarks=bms,
         aec_links=aec_links,
         quotes=qts,
+        enrichment_items=mres.enrichment_items,
+        planner_buckets=mres.planner_buckets,
+        planner_questions=mres.planner_questions,
+        section_evidence=mres.section_evidence,
+        contradiction_notes=mres.contradiction_notes,
     )
     b.register_ids()
     (_ROOT / "reports" / "evidence_bundle.json").write_text(

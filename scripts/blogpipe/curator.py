@@ -183,7 +183,11 @@ def _last_n_formats(n: int) -> list[str]:
     return [str(x.get("format", "")) for x in e[-n:]]
 
 
-def _pick_format(metas: list[PostMeta], brief: dict[str, float]) -> tuple[str, str, str, str, str]:
+def _pick_format(
+    metas: list[PostMeta],
+    brief: dict[str, float],
+    dominant_pillar: str = "research",
+) -> tuple[str, str, str, str, str]:
     """Returns format_name, opener, art, diagram, rationale."""
     counts: dict[str, int] = {}
     for f in _last_n_formats(10):
@@ -218,6 +222,12 @@ def _pick_format(metas: list[PostMeta], brief: dict[str, float]) -> tuple[str, s
                 score += 3
             if not systems_boost and c == "deep_dive":
                 score += 1
+            fmt_obj = formats.FORMATS.get(c)
+            if fmt_obj and fmt_obj.pillar_preference is not None:
+                if fmt_obj.pillar_preference.value != dominant_pillar:
+                    score -= 3
+            if dominant_pillar == "research" and c in ("deep_dive", "paper_to_code"):
+                score += 2
             scored.append((score, c))
         scored.sort(reverse=True)
         fmt = scored[0][1] if scored else "deep_dive"
@@ -254,7 +264,8 @@ def _pick_format(metas: list[PostMeta], brief: dict[str, float]) -> tuple[str, s
         diagram = "flowchart"
 
     rationale = (
-        f"Format {fmt} balances last 10 (counts {counts!s}) and systems_boost={systems_boost}."
+        f"Format {fmt} balances last 10 (counts {counts!s}), systems_boost={systems_boost}, "
+        f"dominant_pillar={dominant_pillar}."
     )
     return fmt, opener, art, diagram, rationale
 
@@ -333,7 +344,8 @@ def run() -> EditorialBrief:
         if isinstance(v, str) and "T-" in v:
             avoid.append(k[:200])
     voice = _build_voice_guide(metas)
-    fmt, opener, art, diagram, fr = _pick_format(metas, pweights)
+    dominant = max(pweights.items(), key=lambda kv: kv[1])[0] if pweights else "research"
+    fmt, opener, art, diagram, fr = _pick_format(metas, pweights, dominant_pillar=dominant)
     brief = EditorialBrief(
         pillar_weights=pweights,
         recent_topics=recent,

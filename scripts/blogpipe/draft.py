@@ -55,6 +55,54 @@ def _unwrap_markdown_fence(text: str) -> str:
     return m.group(1).strip() if m else t
 
 
+def _has_result_signal(text: str) -> bool:
+    return bool(
+        re.search(
+            r"\d+\.?\d*\s*(%|x|×|ms|GB|tokens|params|pts|F1|BLEU|ROUGE)",
+            text,
+            re.I,
+        )
+    )
+
+
+def _ensure_mermaid(body: str, title: str, brief: EditorialBrief) -> str:
+    if "```mermaid" in body:
+        return body
+    LOG.info("draft: no mermaid block; injecting diagram")
+    if config.dry_run() or not config.llm_configured():
+        return (
+            body.rstrip()
+            + "\n\n```mermaid\nflowchart LR\n  A[Input] --> B[Core method] --> C[Output]\n```\n"
+        )
+    raw = openrouter_client.llm_text(
+        "Output only a mermaid code block (```mermaid ... ```) — no explanation. "
+        f"Style: {brief.diagram_style}. Show the key method or process flow.",
+        f"Paper: {title}",
+    )
+    if raw.strip():
+        body = body.rstrip() + "\n\n" + raw.strip() + "\n"
+    return body
+
+
+def _apply_result_first_takeaway(body: str, title: str) -> str:
+    line = body.split("\n", 1)[0].strip() if body.strip() else ""
+    if not line or _has_result_signal(line):
+        return body
+    if config.dry_run() or not config.llm_configured():
+        return body
+    fixed = openrouter_client.llm_text(
+        "Rewrite as ONE sentence takeaway that names the key result with a number. "
+        "Output only the sentence, no quotes.",
+        f"Title: {title}\nCurrent first line: {line}",
+    )
+    if not fixed.strip() or not _has_result_signal(fixed):
+        return body
+    new_line = fixed.strip()[:500]
+    if "\n" in body:
+        return new_line + "\n" + body.split("\n", 1)[1]
+    return new_line
+
+
 def _looks_like_markdown_body(text: str) -> bool:
     t = _unwrap_markdown_fence(text)
     if "## " not in t:
@@ -77,9 +125,21 @@ def build_prompt(
     brief: EditorialBrief,
     fmt: formats.PostFormat,
 ) -> tuple[str, str]:
+    bundle.register_ids()
     sec = "\n".join(f"- ## {s}" for s in fmt.required_sections)
     ev = []
     ev.append(f"PRIMARY: {bundle.primary.title}\n{bundle.primary.abstract[:1500]}")
+    b_rows = []
+    for r in bundle.benchmarks:
+        u = f" {r.unit}" if r.unit else ""
+        b_rows.append(
+            f"- {r.name}: {r.value}{u} (baseline: {r.baseline or 'n/a'}) {r.notes or ''}"
+        )
+    if b_rows:
+        ev.append(
+            "BENCHMARK rows from evidence — use ONLY these numbers in the table and prose; "
+            "do not invent other metrics:\n" + "\n".join(b_rows)
+        )
     for lab, items in (
         ("ANCESTORS", bundle.ancestors),
         ("COMPETITORS", bundle.competitors),
@@ -87,18 +147,49 @@ def build_prompt(
     ):
         for it in items[:4]:
             ev.append(f"{lab} {it.title} | {it.url}\n{it.abstract[:400]}")
+    if bundle.planner_questions:
+        ev.append(
+            "RESEARCH_QUESTIONS (cover across sections where relevant):\n"
+            + "\n".join(f"- {q}" for q in bundle.planner_questions[:12])
+        )
+    if bundle.section_evidence:
+        for k, v in bundle.section_evidence.items():
+            if (v or "").strip():
+                ev.append(f"SECTION_EVIDENCE[{k}]:\n{v.strip()[:6000]}")
+    if bundle.contradiction_notes:
+        ev.append(
+            "CONTRADICTIONS_AND_LIMITS (address honestly; do not bury):\n"
+            + "\n".join(f"- {x}" for x in bundle.contradiction_notes[:8])
+        )
+    for it in bundle.enrichment_items[:12]:
+        ev.append(
+            f"ENRICHMENT {it.source} {it.title} | {it.url}\n{it.abstract[:500]}"
+        )
     ctx = "\n\n".join(ev)
     brief_json = brief.model_dump_json()
     system = (
         "You write Hugo markdown blog posts. Output ONLY the markdown body "
         "(no outer frontmatter — the tool will add it). "
-        "Start with exactly one line: the one-sentence takeaway (no heading on that line). "
+        "Start with exactly one line: the one-sentence takeaway with a key numeric result (no heading on that line). "
         "Then use ## headings exactly as listed in required sections (you may adjust the part after a colon to be specific). "
+        "For the first section after TL;DR: include 2-3 sentences of plain-English intuition for the core algorithm or "
+        "method before any equations or implementation details. "
         "Use [cite: ID] where ID is one of: primary, or these exact ids: "
         + ", ".join(bundle.by_id.keys())
         + ". One mermaid code block (language mermaid) for the primary diagram. "
         "Include a markdown table with columns | Method | Metric | Baseline | under a results section. "
-        "Include 'What did not work' with real failure content. "
+        "If BENCHMARK rows are given in EVIDENCE, the table and prose must use only those values — do not invent numbers. "
+        "If ENRICHMENT or SECTION_EVIDENCE blocks are present, use those URLs and snippets for web or repo claims; "
+        "do not invent other external sources. "
+        "'What did not work': cover at least one of — (a) a reproduction barrier (hardware, missing code, compute), "
+        "(b) an assumption of the method that may break (model family, task type, scale), or (c) a failure mode or "
+        "limitation the authors themselves mention. Do NOT describe ablations the authors ran as 'what did not work' — "
+        "ablations that validate the method are not failures. "
+        "In 'What to steal': begin with one sentence of explicit author opinion — start with 'What I find' or "
+        "'The remarkable thing here is' — before the bullet list. "
+        "For 'Where this shows up in AEC': either (a) name a specific construction, BIM, or design-tool application "
+        "with one concrete sentence, or (b) write exactly: 'There is no direct AEC application for this paper.' — "
+        "do not write generic sentences about 'implications for NLP and computer vision' or 'various applications'. "
         "Opener style: "
         + brief.opener_hook
         + ". Voice: "
@@ -149,6 +240,15 @@ def run() -> Path:
             body = _cleanup_missing_cites(body)
     else:
         body = _cleanup_missing_cites(body)
+    body = _ensure_mermaid(body, bundle.primary.title, brief)
+    body = _apply_result_first_takeaway(body, bundle.primary.title)
+    struct = lint.lint_structure(body)
+    if struct:
+        LOG.warning("draft: structural lint: %s", struct)
+    (_ROOT / "reports" / "draft_lint.json").write_text(
+        json.dumps({"structural": struct}, indent=2),
+        encoding="utf-8",
+    )
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     slug = _slugify(bundle.primary.title)
     title = bundle.primary.title[:200]
@@ -186,7 +286,7 @@ def _stub_body(
     """Deterministic placeholder for dry runs / no API key."""
     t = bundle.primary.title
     return (
-        f"{t.split('.')[0][:120]}: a concise engineering view of the paper and its limits.\n\n"
+        f"2× clearer tradeoffs on the main latency metric: {t.split('.')[0][:100]} in practice.\n\n"
         f"## TL;DR\n- Problem: training and deploying at scale.\n"
         f"- Takeaway: measure p95 before p50. [cite: {bundle.primary.id}]\n\n"
         f"## Why this matters\n"
@@ -201,6 +301,7 @@ def _stub_body(
         "| Method | Metric | Baseline |\n|--------|--------|----------|\n"
         "| Paper | main | prior SOTA |\n\n"
         f"## Related posts on this site\n\nSee /post/ for prior notes.\n\n"
-        f"## What to steal\n\n- Try ablations first.\n- Avoid hero metrics without baselines.\n"
+        f"## What to steal\n\nWhat I find: teams under-invest in baselines until a regression lands in production.\n\n"
+        f"- Try ablations first.\n- Avoid hero metrics without baselines.\n"
         f"- Run a latency budget check.\n"
     )

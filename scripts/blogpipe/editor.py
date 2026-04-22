@@ -115,6 +115,34 @@ def _rubric_llm(md: str) -> EditorReport:
         return EditorReport(rubric_score=8, pass_gate=True)
 
 
+def _grounding_check(body: str) -> tuple[bool, list[str]]:
+    """Flags draft claims that lack support in the saved evidence JSON (non-blocking)."""
+    ev_p = _ROOT / "reports" / "evidence_bundle.json"
+    if not ev_p.is_file() or config.dry_run() or not config.llm_configured():
+        return True, []
+    try:
+        ev_text = ev_p.read_text(encoding="utf-8")[:22000]
+    except OSError:
+        return True, []
+    raw = openrouter_client.llm_text(
+        "You compare a blog draft to EVIDENCE JSON. "
+        'Output JSON only: {"unsupported_claims": ["short label", ...]}. '
+        "Flag only specific numbers, dates, competitive claims, or paper results that are not present in EVIDENCE. "
+        "Max 10 items; use [] if none.",
+        f"EVIDENCE_JSON:\n{ev_text}\n\n---\n\nDRAFT_MD:\n{body[:20000]}\n",
+        mode="smart",
+    )
+    m = re.search(r"\{[\s\S]*\}", raw)
+    if not m:
+        return True, []
+    try:
+        d = json.loads(m.group(0))
+        issues = [str(x).strip() for x in (d.get("unsupported_claims") or []) if str(x).strip()][:12]
+        return (len(issues) == 0, issues)
+    except (json.JSONDecodeError, TypeError):
+        return True, []
+
+
 def _inject_score(path: Path, score: int) -> None:
     t = path.read_text(encoding="utf-8")
     if re.search(r"^rubric_score:\s", t, re.M):
@@ -152,7 +180,23 @@ def run() -> EditorReport:
             body = _unwrap_markdown_fence(fix)
             path.write_text(front + body, encoding="utf-8")
         rep = _rubric_llm(body)
+    g_ok, g_issues = _grounding_check(body)
     _inject_score(path, rep.rubric_score)
+    lint_p = _ROOT / "reports" / "draft_lint.json"
+    lint_issues: list[str] = []
+    if lint_p.is_file():
+        try:
+            d = json.loads(lint_p.read_text(encoding="utf-8"))
+            lint_issues = [str(x) for x in (d.get("structural") or []) if x]
+        except (OSError, json.JSONDecodeError, TypeError):
+            pass
+    rep = rep.model_copy(
+        update={
+            "lint_issues": lint_issues,
+            "grounding_ok": g_ok,
+            "grounding_issues": g_issues,
+        }
+    )
     (_ROOT / "reports" / "editor_report.json").write_text(
         rep.model_dump_json(indent=2), encoding="utf-8"
     )

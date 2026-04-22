@@ -52,3 +52,54 @@ def lint_bland_h2(body: str) -> list[str]:
         if ":" not in line:
             bad.append(line)
     return bad
+
+
+def _first_h2_section(body: str, heading_phrase: str) -> str:
+    pat = re.compile(
+        r"^##\s*" + re.escape(heading_phrase) + r"[^\n]*\n([\s\S]*?)(?=^##\s|\Z)",
+        re.M | re.I,
+    )
+    m = pat.search(body)
+    return (m.group(1) or "").strip() if m else ""
+
+
+def lint_structure(body: str) -> list[str]:
+    issues: list[str] = []
+    if "```mermaid" not in body:
+        issues.append("no_mermaid_block")
+    first = body.split("\n", 1)[0].strip() if body.strip() else ""
+    if first and not re.search(r"\d", first):
+        issues.append("takeaway_lacks_number")
+    table_match = re.search(r"^\s*\|[^\n]*\bMethod\b[^\n]*\|", body, re.M)
+    if table_match:
+        prose = body[: table_match.start()]
+        table_part = body[table_match.start() :]
+    else:
+        prose = body
+        table_part = ""
+    table_nums = set(re.findall(r"[\d.]+\s*%", table_part))
+    prose_nums = set(re.findall(r"[\d.]+\s*%", prose))
+    if table_nums and prose_nums and not table_nums.intersection(prose_nums):
+        issues.append("table_numbers_diverge_from_prose")
+    pov_markers = (
+        "what i find",
+        "the remarkable thing",
+        "i think",
+        "in my view",
+        "what strikes me",
+    )
+    b = body.lower()
+    if not any(m in b for m in pov_markers):
+        issues.append("no_author_pov")
+    aec_section = _first_h2_section(body, "Where this shows up in AEC")
+    if aec_section:
+        if len(aec_section.split()) < 15:
+            issues.append("aec_section_too_short")
+        if re.search(
+            r"implications for.*?"
+            r"(natural language|various applications|nlp|computer vision|many applications)\b",
+            aec_section,
+            re.I,
+        ):
+            issues.append("aec_section_generic_filler")
+    return issues
