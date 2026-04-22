@@ -3,7 +3,9 @@
 #   Shared with evr: OPENROUTER_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, GROQ_API_KEY, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_TO
 #   Blog-only optional: SEMANTIC_SCHOLAR_API_KEY, FAL_API_KEY
 #   Optional GROQ for blogpipe if you add routing later; safe to leave unset.
-# Optional: same Gmail App Password pattern as evr for EMAIL_PASSWORD.
+# Email: EMAIL_PASSWORD must be a Google "App password" (16 letters, from myaccount.google.com → Security
+#   → 2-Step Verification → App passwords), not your normal Gmail password. If SMTP fails with
+#   534-5.7.9 Application-specific password required, rotate the App password and re-save the secret.
 # Repo variables: AEC_SCHOLAR_RSS, BLOGPIPE_DRY_RUN (0/1), BLOGPIPE_RESEARCH_MAX_CALLS, BLOGPIPE_PILLAR_FLOOR,
 #   BLOGPIPE_EMBED_MODEL, BLOGPIPE_EDITOR_MIN_SCORE, BLOGPIPE_EDITOR_MAX_LOOPS, BLOGPIPE_FORMAT_COOLDOWN,
 #   BLOGPIPE_ART_COOLDOWN, BLOGPIPE_FORCE_FORMAT
