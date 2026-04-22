@@ -128,13 +128,9 @@ jobs:
           AEC_SCHOLAR_RSS: ${{ vars.AEC_SCHOLAR_RSS }}
           BLOGPIPE_DRY_RUN: ${{ vars.BLOGPIPE_DRY_RUN || '0' }}
           BLOGPIPE_MCP_ENRICHMENT: ${{ vars.BLOGPIPE_MCP_ENRICHMENT || '0' }}
+          BLOGPIPE_LLM_CALL_CAP: ${{ vars.BLOGPIPE_LLM_CALL_CAP }}
         run: |
-          python -m blogpipe curate
-          python -m blogpipe harvest
-          python -m blogpipe rank
-          python -m blogpipe research
-          python -m blogpipe draft
-          python -m blogpipe edit
+          python -m blogpipe graph
           python -m blogpipe visuals
 
       - name: Create branch, commit, open PR, email

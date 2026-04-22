@@ -43,6 +43,24 @@ def _first_section(body: str, heading: str) -> str:
     return m.group(1).strip()
 
 
+def _h2_sections(body: str, limit: int = 2) -> list[tuple[str, str]]:
+    """Return the first `limit` (heading, body) pairs in order — heading-agnostic."""
+    out: list[tuple[str, str]] = []
+    pat = re.compile(r"^##\s+(.+?)\s*\n([\s\S]*?)(?=^##\s+|\Z)", re.M)
+    for m in pat.finditer(body or ""):
+        out.append((m.group(1).strip(), m.group(2).strip()))
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _opening_prose(body: str) -> str:
+    """Grab everything before the first ## heading (the takeaway + lead paragraph)."""
+    m = re.search(r"^##\s", body or "", re.M)
+    head = body[: m.start()] if m else (body or "")
+    return head.strip()
+
+
 def _compact(text: str, limit: int = 320) -> str:
     out = " ".join(text.split())
     return out[:limit].rstrip() + ("..." if len(out) > limit else "")
@@ -81,8 +99,12 @@ def run() -> Path:
             front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
     title = front.get("title") or Path(draft_rel).stem
     takeaway = front.get("one_sentence_takeaway") or ""
-    tldr = _compact(_first_section(body, "TL;DR"), 700)
-    why = _compact(_first_section(body, "Why this matters"), 420)
+    sections = _h2_sections(body, limit=2)
+    opening = _compact(_opening_prose(body), 700)
+    lead_heading = sections[0][0] if sections else ""
+    lead_body = _compact(sections[0][1], 700) if sections else ""
+    second_heading = sections[1][0] if len(sections) > 1 else ""
+    second_body = _compact(sections[1][1], 420) if len(sections) > 1 else ""
     pr_url = (rep / "pr_url.txt").read_text().strip() if (rep / "pr_url.txt").is_file() else ""
     branch = (rep / "branch.txt").read_text().strip() if (rep / "branch.txt").is_file() else ""
     lines = [
@@ -113,10 +135,16 @@ def run() -> Path:
         lines.append(f"<p><strong>Takeaway:</strong> {html.escape(_compact(str(takeaway), 320))}</p>")
     if draft_rel:
         lines.append(f"<p><strong>Draft file:</strong> <code>{html.escape(draft_rel)}</code></p>")
-    if tldr:
-        lines.append(f"<h3>TL;DR</h3><p>{html.escape(tldr)}</p>")
-    if why:
-        lines.append(f"<h3>Why this matters</h3><p>{html.escape(why)}</p>")
+    if opening:
+        lines.append(f"<p>{html.escape(opening)}</p>")
+    if lead_heading:
+        lines.append(
+            f"<h3>{html.escape(lead_heading)}</h3><p>{html.escape(lead_body)}</p>"
+        )
+    if second_heading:
+        lines.append(
+            f"<h3>{html.escape(second_heading)}</h3><p>{html.escape(second_body)}</p>"
+        )
     if brief:
         summary_bits = []
         if brief.get("format_name"):

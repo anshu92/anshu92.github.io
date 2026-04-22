@@ -25,6 +25,7 @@ def main() -> int:
             "edit",
             "visuals",
             "package",
+            "graph",
             "run",
         ],
     )
@@ -62,15 +63,15 @@ def main() -> int:
             from . import package
 
             package.run()
-        elif a.command == "run":
-            from . import curator, draft, editor, harvest, package, rank, research, visuals
+        elif a.command == "graph":
+            from .graph import runner
 
-            curator.run()
-            harvest.run()
-            rank.run()
-            research.run()
-            draft.run()
-            editor.run()
+            runner.run_graph_pipeline()
+        elif a.command == "run":
+            from .graph import runner
+            from . import package, visuals
+
+            runner.run_graph_pipeline()
             visuals.run()
             package.run()
     except Exception as e:

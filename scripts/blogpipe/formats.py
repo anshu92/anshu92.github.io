@@ -1,9 +1,15 @@
-"""PostFormat catalog: section templates, length bands, voice hints."""
+"""PostFormat catalog: length bands, voice hints, and topic GOALS.
+
+Posts do NOT follow rigid titles or pre-assigned headings. ``required_sections``
+holds high-level *content goals* (what the post must accomplish) that the writer
+turns into its own, story-specific H2 headings. Never emit these strings as
+literal ``## ...`` lines in the final post.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar, Optional
+from typing import Optional
 
 from .models import Pillar
 
@@ -13,7 +19,7 @@ class PostFormat:
     name: str
     length_min: int
     length_max: int
-    required_sections: list[str]  # H2 text prefix or exact match for lint
+    required_sections: list[str]  # content GOALS, not literal headings
     optional_sections: list[str]
     voice_override: str
     hero_art_hint: str
@@ -25,8 +31,8 @@ class PostFormat:
     def length_band(self) -> tuple[int, int]:
         return (self.length_min, self.length_max)
 
-    def section_template_markdown(self) -> str:
-        return "\n".join(f"## {s}\n" for s in self.required_sections if s)
+    def goals_markdown(self) -> str:
+        return "\n".join(f"- {s}" for s in self.required_sections if s)
 
 
 FORMATS: dict[str, PostFormat] = {}
@@ -36,27 +42,31 @@ def _add(fmt: PostFormat) -> None:
     FORMATS[fmt.name] = fmt
 
 
+# Default goals shared by most formats. These are content objectives, NOT headings.
+_CORE_GOALS = [
+    "Lead with a one-sentence takeaway that names a concrete number or result",
+    "Explain why the problem is hard in plain English before any equations",
+    "Describe the core method's intuition and how it differs from what came before",
+    "Show at least one numeric result compared to a named baseline in both prose and a markdown table",
+    "Discuss at least one honest limitation, failure mode, or reproduction barrier (not authors' ablations that validate the method)",
+    "Offer one concrete author opinion or takeaway the reader can steal",
+    "Use [cite: id] for every external claim, matching one of the evidence ids provided",
+    "Include exactly one mermaid diagram that clarifies the method",
+]
+
+
 _add(
     PostFormat(
         name="deep_dive",
         length_min=2000,
         length_max=3500,
-        required_sections=[
-            "TL;DR",
-            "Why this matters",
-            "Why this is hard",
-            "What others tried",
-            "Approach",
-            "Implementation",
-            "Results: metrics vs baseline",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Name who changed their mind after reading, and why",
         ],
-        optional_sections=["Appendix: deep dive"],
+        optional_sections=[
+            "Appendix for implementation details if warranted",
+        ],
         voice_override="Analytical, peer-to-peer, prefer concrete systems language.",
         hero_art_hint="Editorial, layered illustration with a single visual metaphor.",
         diagram_style="flowchart",
@@ -69,24 +79,14 @@ _add(
         name="case_study",
         length_min=1200,
         length_max=2000,
-        required_sections=[
-            "TL;DR",
-            "The situation",
-            "The constraint",
-            "What we tried first",
-            "Why it broke",
-            "What actually worked",
-            "What we would do differently",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Anchor the story in a specific constraint or deadline",
+            "Be honest about what you would do differently next time",
         ],
-        optional_sections=["Appendix: deep dive"],
+        optional_sections=[],
         voice_override="First-person where helpful; narrative, but still number-backed.",
-        hero_art_hint="Situational / building-site adjacent without stock clichés.",
+        hero_art_hint="Situational / building-site adjacent without stock cliches.",
         diagram_style="block",
         pillar_preference=Pillar.aec,
     )
@@ -97,22 +97,12 @@ _add(
         name="benchmark_shootout",
         length_min=900,
         length_max=1800,
-        required_sections=[
-            "TL;DR",
-            "The contenders",
-            "The rig",
-            "The metrics that matter",
-            "Head-to-head",
-            "Surprises",
-            "When to pick which",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Define the evaluation rig and the metrics that matter before reporting numbers",
+            "End with a when-to-pick-which recommendation grounded in the numbers",
         ],
-        optional_sections=["Results chart"],
+        optional_sections=["A visible results chart or table"],
         voice_override="Table-forward; every row ties to a named baseline.",
         hero_art_hint="Data-viz aesthetic, comparison bars.",
         diagram_style="sequence",
@@ -125,22 +115,12 @@ _add(
         name="paper_to_code",
         length_min=1500,
         length_max=2500,
-        required_sections=[
-            "TL;DR",
-            "The claim",
-            "The equation (if any)",
-            "The 20-line reference implementation",
-            "Running it",
-            "Where my numbers diverged",
-            "Reading the paper differently afterwards",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Include a short reference implementation snippet (< 30 lines) or a link to one",
+            "Describe where your reproduction numbers diverged from the paper",
         ],
-        optional_sections=["Appendix: deep dive"],
+        optional_sections=[],
         voice_override="Code-first, explain invariants before the snippet.",
         hero_art_hint="Schematic, IDE-adjacent, monospace accents.",
         diagram_style="state",
@@ -153,19 +133,10 @@ _add(
         name="opinion_with_receipts",
         length_min=800,
         length_max=1500,
-        required_sections=[
-            "TL;DR",
-            "The take",
-            "Why most people get it wrong",
-            "The receipts",
-            "The counterarguments I respect",
-            "The falsifier",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "State the take in the first paragraph, not the last",
+            "Address the strongest counterargument you can name and offer a falsifier",
         ],
         optional_sections=[],
         voice_override="Argued, first-person, every claim has a [cite:].",
@@ -180,18 +151,10 @@ _add(
         name="field_notes",
         length_min=600,
         length_max=1000,
-        required_sections=[
-            "TL;DR",
-            "Observation",
-            "What I tried",
-            "What I noticed",
-            "Open questions",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Be explicit about sample size and hedging ('n = 1', 'only on macOS')",
+            "End with at least one open question worth another experiment",
         ],
         optional_sections=[],
         voice_override="Short, hedged, honest about n=",
@@ -205,21 +168,12 @@ _add(
         name="under_the_hood",
         length_min=1800,
         length_max=3000,
-        required_sections=[
-            "TL;DR",
-            "The surface behavior",
-            "The interesting question",
-            "Instrumentation",
-            "What the trace shows",
-            "The mental model you should keep",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Describe the instrumentation before showing the trace",
+            "Give the reader a durable mental model, not just observations",
         ],
-        optional_sections=["Appendix: deep dive"],
+        optional_sections=[],
         voice_override="Systems engineer; latency, memory, and failure mode language.",
         hero_art_hint="Cutaway, layers, server-room palette.",
         diagram_style="sequence",
@@ -232,15 +186,9 @@ _add(
         name="dialogue",
         length_min=1200,
         length_max=2000,
-        required_sections=[
-            "TL;DR",
-            "Dialogue",
-            "What did not work (and what the dialogue hid)",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Let both voices disagree with receipts, not just vibes",
         ],
         optional_sections=[],
         voice_override="Socratic; both voices grounded in [cite:].",
@@ -255,19 +203,10 @@ _add(
         name="retrospective",
         length_min=1500,
         length_max=2200,
-        required_sections=[
-            "TL;DR",
-            "The state of play 2 years ago",
-            "What changed",
-            "What aged well",
-            "What aged badly",
-            "The next bottleneck",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "Be specific about what aged well and what aged badly, with dates",
+            "Name the next bottleneck, not just the last one",
         ],
         optional_sections=[],
         voice_override="Reflective, timeline-aware, cite sources of change.",
@@ -282,18 +221,10 @@ _add(
         name="failure_mode_map",
         length_min=1200,
         length_max=2000,
-        required_sections=[
-            "TL;DR",
-            "The system",
-            "The failure taxonomy",
-            "Each mode: symptom, root cause, detector, fix",
-            "The gaps still open",
-            "What did not work",
-            "Limitations and boundary conditions",
-            "Where this shows up in AEC",
-            "Related posts on this site",
-            "What to steal",
-            "References",
+        required_sections=_CORE_GOALS
+        + [
+            "For each failure mode, give symptom, root cause, detector, and fix",
+            "Call out which gaps are still open, not just solved ones",
         ],
         optional_sections=[],
         voice_override="Postmortem style; no blame, all mechanisms.",
@@ -303,4 +234,5 @@ _add(
     )
 )
 
-POSTFORMAT_NAMES: ClassVar[tuple[str, ...]] = tuple(FORMATS.keys())
+
+POSTFORMAT_NAMES: tuple[str, ...] = tuple(FORMATS.keys())

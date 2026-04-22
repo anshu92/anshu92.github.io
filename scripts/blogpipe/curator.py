@@ -19,7 +19,6 @@ from .openrouter_client import embed_text
 
 LOG = logging.getLogger(__name__)
 
-_TLDR = re.compile(r"^##\s*TL;DR", re.M)
 _H2 = re.compile(r"^##\s+(.+)$", re.M)
 _FOLLOW = re.compile(
     r"(in a future post|we'll revisit|open question|limitation|TODO:)",
@@ -129,11 +128,13 @@ def _index_post(path: Path) -> Optional[PostMeta]:
     cats = [str(x) for x in (fm.get("categories") or []) if x is not None]
     h2s = [h.strip() for h in _H2.findall(body)][:30]
     tldr = ""
-    if _TLDR.search(body):
-        s = _TLDR.search(body)
-        if s:
-            end = body.find("##", s.end())
-            tldr = body[s.end() : end if end > 0 else len(body)].strip()[:500]
+    fm_takeaway = str(fm.get("one_sentence_takeaway") or "").strip()
+    if fm_takeaway:
+        tldr = fm_takeaway[:500]
+    else:
+        first_h2 = re.search(r"^##\s+", body, re.M)
+        lead = body[: first_h2.start()] if first_h2 else body
+        tldr = lead.strip()[:500]
     pillar = _classify_pillar(str(path), title, tags, cats, body)
     wc = len(body.split())
     return PostMeta(

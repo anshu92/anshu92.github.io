@@ -1,4 +1,10 @@
-"""Structural and red-flag lints for drafted markdown."""
+"""Structural and red-flag lints for drafted markdown.
+
+These lints intentionally do NOT require specific section titles or a fixed
+outline. The only structural expectations are: a numeric takeaway line, a
+mermaid diagram, a results table whose numbers match the prose, and the absence
+of empty placeholder sections. Everything else is content/quality.
+"""
 
 from __future__ import annotations
 
@@ -19,8 +25,9 @@ _THROAT = re.compile(
     r"It goes without saying|In today's world)\b",
     re.I | re.M,
 )
-_BLAND_H2 = re.compile(
-    r"^##\s*(Introduction|Background|Overview|Results|Conclusion|Summary)\s*$", re.M
+_GENERIC_H2 = re.compile(
+    r"^##\s*(Introduction|Background|Overview|Results|Conclusion|Summary)\s*$",
+    re.I | re.M,
 )
 _DIGITS = re.compile(r"\d")
 
@@ -33,10 +40,10 @@ def lint_forbidden_phrases(body: str) -> list[str]:
     issues: list[str] = []
     if _BANNED.search(body):
         issues.append("banned_marketing_phrase")
-    for m in _ROBUST_UNQUAL.finditer(body):
+    for _ in _ROBUST_UNQUAL.finditer(body):
         issues.append("robust_without_metric")
         break
-    for m in _SOTA_UNQUAL.finditer(body):
+    for _ in _SOTA_UNQUAL.finditer(body):
         issues.append("sota_without_benchmark")
         break
     first_para = body.split("\n\n", 1)[0][:800]
@@ -45,29 +52,24 @@ def lint_forbidden_phrases(body: str) -> list[str]:
     return issues
 
 
-def lint_bland_h2(body: str) -> list[str]:
+def lint_generic_headings(body: str) -> list[str]:
+    """Flag generic one-word-ish headings. Specific, story-named H2s are required."""
     bad: list[str] = []
-    for m in _BLAND_H2.finditer(body):
-        line = m.group(0)
+    for m in _GENERIC_H2.finditer(body):
+        line = m.group(0).strip()
         if ":" not in line:
             bad.append(line)
-    return bad
-
-
-def _first_h2_section(body: str, heading_phrase: str) -> str:
-    pat = re.compile(
-        r"^##\s*" + re.escape(heading_phrase) + r"[^\n]*\n([\s\S]*?)(?=^##\s|\Z)",
-        re.M | re.I,
-    )
-    m = pat.search(body)
-    return (m.group(1) or "").strip() if m else ""
+    return ["generic_heading_used"] if bad else []
 
 
 def lint_structure(body: str) -> list[str]:
+    """Format-independent structural checks. Does not care about section titles."""
     issues: list[str] = []
     if "```mermaid" not in body:
         issues.append("no_mermaid_block")
     first = body.split("\n", 1)[0].strip() if body.strip() else ""
+    if first.startswith("#"):
+        issues.append("takeaway_is_heading")
     if first and not re.search(r"\d", first):
         issues.append("takeaway_lacks_number")
     table_match = re.search(r"^\s*\|[^\n]*\bMethod\b[^\n]*\|", body, re.M)
@@ -81,27 +83,6 @@ def lint_structure(body: str) -> list[str]:
     prose_nums = set(re.findall(r"[\d.]+\s*%", prose))
     if table_nums and prose_nums and not table_nums.intersection(prose_nums):
         issues.append("table_numbers_diverge_from_prose")
-    pov_markers = (
-        "what i find",
-        "the remarkable thing",
-        "i think",
-        "in my view",
-        "what strikes me",
-    )
-    b = body.lower()
-    if not any(m in b for m in pov_markers):
-        issues.append("no_author_pov")
-    aec_section = _first_h2_section(body, "Where this shows up in AEC")
-    if aec_section:
-        if len(aec_section.split()) < 15:
-            issues.append("aec_section_too_short")
-        if re.search(
-            r"implications for.*?"
-            r"(natural language|various applications|nlp|computer vision|many applications)\b",
-            aec_section,
-            re.I,
-        ):
-            issues.append("aec_section_generic_filler")
     return issues
 
 
@@ -109,13 +90,15 @@ _H2_BLOCK = re.compile(
     r"^##\s*[^\n]+\n([\s\S]*?)(?=^##\s|\Z)", re.M
 )
 _PLACEHOLDER_SEC = re.compile(
-    r"^no [a-z]+ (information|reference|equation|code|content)\b",
+    r"^(no [a-z]+ (information|reference|equation|code|content)\b"
+    r"|prose placeholder\b"
+    r"|(tbd|tba|todo)\b)",
     re.I | re.M,
 )
 
 
 def lint_empty_placeholders(body: str) -> list[str]:
-    """Flags sections that are explicit 'no X' empty placeholders under ## bodies."""
+    """Flag sections whose first line is an explicit empty/placeholder marker."""
     issues: list[str] = []
     for m in _H2_BLOCK.finditer(body or ""):
         block = (m.group(1) or "").strip()
@@ -136,7 +119,7 @@ _FIRST_PERSON = re.compile(
 
 
 def lint_pov_after_phrase(body: str) -> list[str]:
-    """Require first-person or evaluative follow-up after the POV lead-in phrase."""
+    """If a POV lead-in phrase appears, it must be followed by an actual opinion."""
     m = _POV_INTRO.search(body or "")
     if not m:
         return []
@@ -154,6 +137,7 @@ def structural_issues(body: str) -> list[str]:
     """All structural lints in one list (used by editor gate)."""
     return (
         lint_structure(body)
+        + lint_generic_headings(body)
         + lint_empty_placeholders(body)
         + lint_pov_after_phrase(body)
     )

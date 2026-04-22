@@ -1,4 +1,7 @@
-"""Editor pass: rubric score, optional rewrite."""
+"""Editor pass: rubric score, optional rewrite.
+
+When using ``python -m blogpipe graph``, rubric/grounding run inside the graph after drafting.
+"""
 
 from __future__ import annotations
 
@@ -73,16 +76,48 @@ def _split_frontmatter(text: str) -> tuple[str, str]:
 
 def _rubric_llm(md: str) -> EditorReport:
     system = (
-        "Score the technical blog draft 0-15 (one point each for: "
-        "sharp takeaway, intro earns attention, concrete problem, structure, "
-        "specificity, teaches why, strong example, tradeoffs, evidence, "
-        "limitations, skimmable, actionable close, diagrams clarify, honest scope, POV). "
-        "Also in JSON, five_questions: {problem, hard, tried, outcomes, next} each 1-3 sentences from the text. "
-        "If any cannot be answered from the post, set that value to \"CANNOT_DETERMINE\". "
-        'rubric_items must be a JSON array of 15 objects, one per rubric line, each like '
-        '{"item": "short label", "score": 0 or 1} — not an array of strings. '
+        "You are a senior technical editor. Score the blog draft on 15 criteria, 1 point each if "
+        "the draft clearly meets the standard, 0 otherwise. Be strict: the bar is a post a senior "
+        "engineer would recommend in a Slack channel.\n"
+        "\nCRITERIA (score each 0 or 1):\n"
+        "1. sharp_takeaway: First sentence names a concrete result with a number; one-sentence summary "
+        "of the whole post is possible.\n"
+        "2. intro_earns_attention: In the first 3-5 sentences, the reader knows the problem, who it "
+        "matters to, and what they will learn. No throat-clearing, no 'In recent years'.\n"
+        "3. concrete_problem: Real-world context, constraints, and failure mode are named. Avoids "
+        "vague words ('scale', 'performance', 'robustness') without specifics.\n"
+        "4. inevitable_structure: Flow reads problem -> context -> approach -> implementation -> "
+        "results -> limits. Each section answers one clear question. No tangents.\n"
+        "5. specific_language: Specific systems, components, datasets, APIs, models, numbers. No "
+        "filler, no repeated caveats.\n"
+        "6. teaches_why: Explains why something works, not just what was done. Provides enough "
+        "background for an informed outsider to follow.\n"
+        "7. strong_example: At least one concrete example with inputs/outputs or before/after "
+        "behaviour that carries the argument, not decorates it.\n"
+        "8. tradeoffs_explicit: Names alternatives considered and what was given up (latency, cost, "
+        "simplicity, accuracy, maintainability).\n"
+        "9. claims_backed: Every improvement/speed/accuracy claim is supported by a number, "
+        "benchmark, baseline, or citation. No unsupported confidence.\n"
+        "10. limitations_honest: Describes where the method breaks, assumptions required, and when "
+        "NOT to use it. The success path is not the only path shown.\n"
+        "11. skimmable: Short paragraphs, descriptive sub-headings, key takeaways easy to spot on a "
+        "scroll, code blocks that matter.\n"
+        "12. actionable_close: Reader ends knowing what to try, avoid, run, or think differently "
+        "about. Not a restatement of the intro.\n"
+        "13. diagrams_clarify: Mermaid/figure reduces cognitive load; does not need a paragraph to "
+        "decode. If absent, score 0.\n"
+        "14. honest_scope: Local results are not sold as general laws. Sample size, dataset, scale, "
+        "or team constraints are acknowledged where relevant.\n"
+        "15. pov_present: The post argues something — why a design worked, why an assumption is "
+        "wrong, why a tradeoff is underrated. At least one first-person opinion sentence.\n"
+        "\nAlso fill five_questions: {problem, hard, tried, outcomes, next}, each 1-3 sentences "
+        "quoted or paraphrased from the text. If any cannot be answered from the post, set that "
+        "value to \"CANNOT_DETERMINE\". five_questions_ok is true only if none are CANNOT_DETERMINE.\n"
+        "\nrubric_items MUST be a JSON array of 15 objects (one per criterion above), each "
+        '{"item": "sharp_takeaway", "score": 0 or 1}. Not an array of strings.\n'
         'Output JSON only: {"rubric_score": N, "rubric_items": ['
-        '{"item":"sharp takeaway","score":1},...], "five_questions": {...}, "five_questions_ok": true }'
+        '{"item":"sharp_takeaway","score":1}, ...], "five_questions": {...}, '
+        '"five_questions_ok": true}'
     )
     raw = openrouter_client.llm_text(
         system, md[:24000], mode="smart", max_tokens=config.max_tokens_smart()
@@ -173,10 +208,23 @@ def run() -> EditorReport:
     ):
         loops += 1
         fix = openrouter_client.llm_text(
-            f"Revise the markdown body only to pass rubric >= {config.editor_min_score()} "
-            f"and ensure five_questions are answerable. Keep ## headings. "
-            f"Score {rep.rubric_score}. Output full markdown body only, no frontmatter, "
-            f"no commentary, and no code fences.",
+            f"Revise the markdown body to pass rubric >= {config.editor_min_score()} and make all "
+            "five questions (problem, hard, tried, outcomes, next) answerable in one skim. Current "
+            f"score {rep.rubric_score}.\n"
+            "Editing standards to apply:\n"
+            "- Open with a sharp takeaway containing a concrete number; remove throat-clearing.\n"
+            "- Replace vague wording ('performance', 'scale', 'robust') with specifics: components, "
+            "constraints, numbers, failure modes.\n"
+            "- Every speed/accuracy/cost claim needs a number, baseline, or [cite:] backing.\n"
+            "- Name tradeoffs where a design choice is described; name at least one limitation where "
+            "a method or result is described.\n"
+            "- Keep the narrative tight: each section answers one question that leads to the next.\n"
+            "- Close with a concrete next action for the reader, not a restatement of the intro.\n"
+            "- Keep at least one first-person opinion sentence with a real stance.\n"
+            "- Short paragraphs. Descriptive, story-specific ## headings (rename, add, remove, or "
+            "reorder as needed — NO 'Introduction', 'Background', 'Overview', 'Results', 'Summary', "
+            "'Conclusion').\n"
+            "Output full markdown body only, no frontmatter, no commentary, no code fences.",
             body[:20000],
             mode="smart",
             max_tokens=config.max_tokens_smart(),
@@ -203,7 +251,7 @@ def run() -> EditorReport:
         rep = rep.model_copy(update={"pass_gate": False})
     if llm_ok and "pov_phrase_without_opinion" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
-    if llm_ok and "aec_section_too_short" in lint_issues:
+    if llm_ok and "generic_heading_used" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
     if not llm_ok:
         rep = rep.model_copy(update={"pass_gate": False})

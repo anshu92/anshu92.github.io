@@ -1,4 +1,8 @@
-"""Build EvidenceBundle via Semantic Scholar, OpenAlex, arXiv."""
+"""Build EvidenceBundle via Semantic Scholar, OpenAlex, arXiv.
+
+For the LangGraph end-to-end pipeline (rank → research → draft → editor), use
+``python -m blogpipe graph`` or ``python -m blogpipe run`` instead of this stage alone.
+"""
 
 from __future__ import annotations
 

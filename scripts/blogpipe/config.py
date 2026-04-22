@@ -134,6 +134,15 @@ def max_tokens_smart() -> int:
     return max(256, min(v, 8192))
 
 
+def llm_call_cap() -> int:
+    """Max successful+failed model completions per run (graph + chain hard stop)."""
+    try:
+        v = int(_get("BLOGPIPE_LLM_CALL_CAP", "40"))
+    except ValueError:
+        v = 40
+    return max(1, min(v, 200))
+
+
 def brave_api_key() -> str:
     return _get("BRAVE_API_KEY") or _get("BRAVE_SEARCH_API_KEY")
 

@@ -12,33 +12,13 @@ image: /img/posts/{{ .Name }}/hero.png
 rubric_score: 0
 ---
 
-One-sentence takeaway goes here (first line of body).
+<!--
+Structure note: posts do NOT follow a fixed template.
+Open with one sentence containing the takeaway and a concrete number (no heading).
+Then invent your own ## H2 headings specific to this post's story.
+Avoid generic headings like Introduction / Background / Overview / Summary / Conclusion.
+Include one ```mermaid``` block, one results table with | Method | Metric | Baseline |,
+at least one honest limitation, and one first-person opinion ("What I find is..." / "In my view...").
+-->
 
-## TL;DR
-
-## Why this matters
-
-## Why this is hard
-
-## What others tried
-
-## Approach
-
-## Implementation
-
-## Results: metrics vs baseline
-
-| Method | Metric | Baseline |
-| ------ | ------ | -------- |
-
-## What did not work
-
-## Limitations and boundary conditions
-
-## Where this shows up in AEC
-
-## Related posts on this site
-
-## What to steal
-
-## References
+One-sentence takeaway goes here with a concrete number (first line of body).

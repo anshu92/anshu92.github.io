@@ -101,6 +101,24 @@ REASONING_MODELS: set[str] = {
 _BLACKLIST: dict[str, float] = {}
 _BLACKLIST_TTL_DAILY = 86400.0
 _USAGE: dict[str, Any] = {"ok": 0, "fail": 0, "blacklisted_skips": 0, "blacklist_added": []}
+_LLM_CALL_CAP: int = 0  # 0 = disabled
+
+
+def set_llm_call_cap(n: int) -> None:
+    """0 disables; when set, chat_with_chain stops when ok+fail >= n (after each attempt)."""
+    global _LLM_CALL_CAP
+    _LLM_CALL_CAP = max(0, int(n))
+
+
+def _at_call_cap() -> bool:
+    if _LLM_CALL_CAP <= 0:
+        return False
+    return int(_USAGE.get("ok", 0)) + int(_USAGE.get("fail", 0)) >= _LLM_CALL_CAP
+
+
+def is_llm_call_cap_reached() -> bool:
+    """True when BLOGPIPE_LLM_CALL_CAP would block further chat/completion calls."""
+    return _at_call_cap()
 
 
 def reset_llm_usage() -> None:
@@ -354,6 +372,9 @@ def chat_with_chain(
     max_tokens: int = 1536,
 ) -> str:
     """Try the evr fast chain, or smart then fast (like evr ``_smart_call``)."""
+    if _at_call_cap():
+        LOG.warning("llm: call cap reached, skipping provider chain")
+        return ""
     _merge_blacklist_from_disk()
     now = time.time()
     _prune_expired(_BLACKLIST, now)
@@ -365,6 +386,8 @@ def chat_with_chain(
     last: Optional[Exception] = None
     for pool in pools:
         for entry in pool:
+            if _at_call_cap():
+                return ""
             k = _entry_key(entry)
             if _is_active_blacklist(k):
                 _USAGE["blacklisted_skips"] = int(_USAGE.get("blacklisted_skips", 0)) + 1

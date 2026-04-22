@@ -36,10 +36,12 @@ def chat_completion(
     max_tokens: Optional[int] = None,
 ) -> str:
     """Single OpenRouter chat. Returns "" on error or if no key."""
-    from . import llm_chain
+    from . import llm_chain  # lazy: import order
 
     if max_tokens is None:
         max_tokens = config.max_tokens_fast()
+    if llm_chain.is_llm_call_cap_reached():
+        return ""
     if config.dry_run() or not config.openrouter_key():
         return ""
     body: dict[str, Any] = {
@@ -83,7 +85,11 @@ def llm_text(
     max_tokens: Optional[int] = None,
 ) -> str:
     """If ``BLOGPIPE_MODEL`` / ``BLOGPIPE_EDITOR_MODEL`` or ``model=`` is set, try that on OpenRouter first, then fall back to the evr fast/smart chain (Groq, Gemini, OpenRouter)."""
+    from . import llm_chain
+
     if config.dry_run():
+        return ""
+    if llm_chain.is_llm_call_cap_reached():
         return ""
     if max_tokens is None:
         max_tokens = (
