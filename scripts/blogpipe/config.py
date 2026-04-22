@@ -118,6 +118,22 @@ def mcp_enrichment_enabled() -> bool:
     return _get("BLOGPIPE_MCP_ENRICHMENT", "0") in ("1", "true", "yes", "on")
 
 
+def max_tokens_fast() -> int:
+    try:
+        v = int(_get("BLOGPIPE_MAX_TOKENS_FAST", "1536"))
+    except ValueError:
+        v = 1536
+    return max(256, min(v, 8192))
+
+
+def max_tokens_smart() -> int:
+    try:
+        v = int(_get("BLOGPIPE_MAX_TOKENS_SMART", "3072"))
+    except ValueError:
+        v = 3072
+    return max(256, min(v, 8192))
+
+
 def brave_api_key() -> str:
     return _get("BRAVE_API_KEY") or _get("BRAVE_SEARCH_API_KEY")
 

@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import config, formats, lint, memory, openrouter_client
+from .llm_chain import get_llm_usage
 from .models import EditorialBrief, EvidenceBundle, Item
 from .memory import _ROOT
 
@@ -78,6 +79,7 @@ def _ensure_mermaid(body: str, title: str, brief: EditorialBrief) -> str:
         "Output only a mermaid code block (```mermaid ... ```) — no explanation. "
         f"Style: {brief.diagram_style}. Show the key method or process flow.",
         f"Paper: {title}",
+        max_tokens=1024,
     )
     if raw.strip():
         body = body.rstrip() + "\n\n" + raw.strip() + "\n"
@@ -94,6 +96,7 @@ def _apply_result_first_takeaway(body: str, title: str) -> str:
         "Rewrite as ONE sentence takeaway that names the key result with a number. "
         "Output only the sentence, no quotes.",
         f"Title: {title}\nCurrent first line: {line}",
+        max_tokens=512,
     )
     if not fixed.strip() or not _has_result_signal(fixed):
         return body
@@ -128,7 +131,7 @@ def build_prompt(
     bundle.register_ids()
     sec = "\n".join(f"- ## {s}" for s in fmt.required_sections)
     ev = []
-    ev.append(f"PRIMARY: {bundle.primary.title}\n{bundle.primary.abstract[:1500]}")
+    ev.append(f"PRIMARY: {bundle.primary.title}\n{bundle.primary.abstract[:900]}")
     b_rows = []
     for r in bundle.benchmarks:
         u = f" {r.unit}" if r.unit else ""
@@ -146,7 +149,7 @@ def build_prompt(
         ("FOLLOWUPS", bundle.followups),
     ):
         for it in items[:4]:
-            ev.append(f"{lab} {it.title} | {it.url}\n{it.abstract[:400]}")
+            ev.append(f"{lab} {it.title} | {it.url}\n{it.abstract[:260]}")
     if bundle.planner_questions:
         ev.append(
             "RESEARCH_QUESTIONS (cover across sections where relevant):\n"
@@ -155,17 +158,19 @@ def build_prompt(
     if bundle.section_evidence:
         for k, v in bundle.section_evidence.items():
             if (v or "").strip():
-                ev.append(f"SECTION_EVIDENCE[{k}]:\n{v.strip()[:6000]}")
+                ev.append(f"SECTION_EVIDENCE[{k}]:\n{v.strip()[:800]}")
     if bundle.contradiction_notes:
         ev.append(
             "CONTRADICTIONS_AND_LIMITS (address honestly; do not bury):\n"
             + "\n".join(f"- {x}" for x in bundle.contradiction_notes[:8])
         )
-    for it in bundle.enrichment_items[:12]:
+    for it in bundle.enrichment_items[:5]:
         ev.append(
-            f"ENRICHMENT {it.source} {it.title} | {it.url}\n{it.abstract[:500]}"
+            f"ENRICHMENT {it.source} {it.title} | {it.url}\n{it.abstract[:260]}"
         )
     ctx = "\n\n".join(ev)
+    if len(ctx) > 3500:
+        ctx = ctx[:3500] + "\n\n[EVIDENCE truncated to budget]\n"
     brief_json = brief.model_dump_json()
     system = (
         "You write Hugo markdown blog posts. Output ONLY the markdown body "
@@ -209,6 +214,7 @@ def build_prompt(
 
 def run() -> Path:
     memory.ensure_dirs()
+    u0 = get_llm_usage()
     bundle = EvidenceBundle.model_validate_json(
         (_ROOT / "reports" / "evidence_bundle.json").read_text()
     )
@@ -221,7 +227,9 @@ def run() -> Path:
     if config.dry_run() or not config.llm_configured():
         body = _stub_body(bundle, brief, fmt)
     else:
-        body = openrouter_client.llm_text(system, user)
+        body = openrouter_client.llm_text(
+            system, user, max_tokens=config.max_tokens_smart()
+        )
         if not body.strip():
             body = _stub_body(bundle, brief, fmt)
     body = _unwrap_markdown_fence(body)
@@ -233,6 +241,7 @@ def run() -> Path:
             "or remove the affected sentence. Output only the full revised markdown body, no commentary "
             "and no code fences.",
             body[:12000],
+            max_tokens=2048,
         )
         if repair.strip() and _looks_like_markdown_body(repair):
             body = _unwrap_markdown_fence(repair)
@@ -242,12 +251,26 @@ def run() -> Path:
         body = _cleanup_missing_cites(body)
     body = _ensure_mermaid(body, bundle.primary.title, brief)
     body = _apply_result_first_takeaway(body, bundle.primary.title)
-    struct = lint.lint_structure(body)
+    struct = lint.structural_issues(body)
     if struct:
         LOG.warning("draft: structural lint: %s", struct)
+    u = get_llm_usage()
+    draft_calls_ok = u["ok"] - int(u0.get("ok", 0) or 0)
+    draft_calls_fail = u["fail"] - int(u0.get("fail", 0) or 0)
+    rep_draft = {
+        "structural": struct,
+        "stage": "draft",
+        "stage_llm_ok": draft_calls_ok,
+        "stage_llm_fail": draft_calls_fail,
+    }
     (_ROOT / "reports" / "draft_lint.json").write_text(
-        json.dumps({"structural": struct}, indent=2),
+        json.dumps(rep_draft, indent=2),
         encoding="utf-8",
+    )
+    print(
+        f"stage=draft calls={draft_calls_ok}/{draft_calls_ok + max(0, draft_calls_fail)} "
+        f"structural={len(struct)}",
+        flush=True,
     )
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     slug = _slugify(bundle.primary.title)

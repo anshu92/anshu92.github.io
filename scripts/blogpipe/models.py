@@ -129,6 +129,8 @@ class EditorReport(BaseModel):
         default_factory=lambda: {"missing": [], "weak": [], "cut": []}
     )
     pass_gate: bool = False
+    llm_ok: bool = True
+    editor_warnings: list[str] = Field(default_factory=list)
     lint_issues: list[str] = Field(default_factory=list)
     grounding_ok: bool = True
     grounding_issues: list[str] = Field(default_factory=list)

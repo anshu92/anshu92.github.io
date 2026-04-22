@@ -33,9 +33,13 @@ def chat_completion(
     model: str,
     messages: list[dict[str, str]],
     temperature: float = 0.4,
-    max_tokens: int = 8192,
+    max_tokens: Optional[int] = None,
 ) -> str:
     """Single OpenRouter chat. Returns "" on error or if no key."""
+    from . import llm_chain
+
+    if max_tokens is None:
+        max_tokens = config.max_tokens_fast()
     if config.dry_run() or not config.openrouter_key():
         return ""
     body: dict[str, Any] = {
@@ -56,10 +60,17 @@ def chat_completion(
         data = r.json()
         ch = (data or {}).get("choices") or []
         if not ch:
+            llm_chain.bump_llm_fail()
             return ""
-        return str((ch[0].get("message") or {}).get("content") or "")
+        out = str((ch[0].get("message") or {}).get("content") or "")
+        if out.strip():
+            llm_chain.bump_llm_ok()
+        else:
+            llm_chain.bump_llm_fail()
+        return out
     except httpx.HTTPError as e:
         LOG.warning("openrouter request failed: %s", e)
+        llm_chain.bump_llm_fail()
         return ""
 
 
@@ -69,10 +80,15 @@ def llm_text(
     model: Optional[str] = None,
     *,
     mode: str = "fast",
+    max_tokens: Optional[int] = None,
 ) -> str:
     """If ``BLOGPIPE_MODEL`` / ``BLOGPIPE_EDITOR_MODEL`` or ``model=`` is set, try that on OpenRouter first, then fall back to the evr fast/smart chain (Groq, Gemini, OpenRouter)."""
     if config.dry_run():
         return ""
+    if max_tokens is None:
+        max_tokens = (
+            config.max_tokens_smart() if mode == "smart" else config.max_tokens_fast()
+        )
     messages: list[dict[str, str]] = [
         {"role": "system", "content": system},
         {"role": "user", "content": user},
@@ -86,7 +102,7 @@ def llm_text(
         m_arg = config.editor_model().strip()
 
     if m_arg and config.openrouter_key():
-        out = chat_completion(m_arg, messages)
+        out = chat_completion(m_arg, messages, max_tokens=max_tokens)
         if out.strip():
             return out
         LOG.warning("explicit model %s returned empty; trying provider chain", m_arg)
@@ -99,7 +115,7 @@ def llm_text(
     from .llm_chain import chat_with_chain
 
     return chat_with_chain(
-        messages, "smart" if mode == "smart" else "fast", temperature=0.4, max_tokens=8192
+        messages, "smart" if mode == "smart" else "fast", temperature=0.4, max_tokens=max_tokens
     )
 
 

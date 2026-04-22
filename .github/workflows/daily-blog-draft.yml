@@ -19,7 +19,7 @@ name: Daily blog draft
 
 on:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "30 0 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -75,6 +75,8 @@ jobs:
             cache/covered_papers.json
             cache/post_index.json
             cache/variety_ledger.json
+            cache/llm_blacklist.json
+            cache/ss_cache
           key: blogpipe-durable-${{ hashFiles('scripts/blogpipe/**/*.py') }}-${{ github.run_id }}
           restore-keys: |
             blogpipe-durable-
@@ -103,7 +105,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
       - name: Install cover tooling (optional)
         working-directory: scripts/blogpipe/visuals
         run: "test -f package.json && npm install || true"
@@ -114,6 +116,8 @@ jobs:
           # Source layout import (belt-and-suspenders if editable/install path differs on runner)
           PYTHONPATH: ${{ github.workspace }}/scripts
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
+          BLOGPIPE_MAX_TOKENS_FAST: ${{ vars.BLOGPIPE_MAX_TOKENS_FAST }}
+          BLOGPIPE_MAX_TOKENS_SMART: ${{ vars.BLOGPIPE_MAX_TOKENS_SMART }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -145,6 +149,7 @@ jobs:
             echo "No content post in dry or preview; skip PR"
             exit 0
           fi
+          jq -e '((.llm_ok // true) and (.pass_gate // true))' reports/editor_report.json
           SLUG=$(basename "$DRAFT_FILE" .md)
           # Include GITHUB_RUN_ID so re-runs / same-day runs do not collide with an existing remote branch.
           BR="draft/blog-$(date -u +%F)-${SLUG:0:36}-${GITHUB_RUN_ID}"
@@ -180,7 +185,7 @@ jobs:
       - name: Send approval email
         if: success() && vars.BLOGPIPE_DRY_RUN != '1'
         continue-on-error: true
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp.gmail.com
           server_port: 465
@@ -202,6 +207,8 @@ jobs:
             cache/covered_papers.json
             cache/post_index.json
             cache/variety_ledger.json
+            cache/llm_blacklist.json
+            cache/ss_cache
           key: blogpipe-durable-${{ hashFiles('scripts/blogpipe/**/*.py') }}-${{ github.run_id }}
 
       - name: Upload reports artifact

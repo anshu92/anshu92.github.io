@@ -8,7 +8,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-from . import config, memory, openrouter_client
+from . import config, lint, memory, openrouter_client
+from .llm_chain import get_llm_usage
 from .models import EditorReport
 from .memory import _ROOT
 
@@ -83,7 +84,9 @@ def _rubric_llm(md: str) -> EditorReport:
         'Output JSON only: {"rubric_score": N, "rubric_items": ['
         '{"item":"sharp takeaway","score":1},...], "five_questions": {...}, "five_questions_ok": true }'
     )
-    raw = openrouter_client.llm_text(system, md[:24000], mode="smart")
+    raw = openrouter_client.llm_text(
+        system, md[:24000], mode="smart", max_tokens=config.max_tokens_smart()
+    )
     if not raw.strip():
         return EditorReport(
             rubric_score=9,
@@ -115,15 +118,15 @@ def _rubric_llm(md: str) -> EditorReport:
         return EditorReport(rubric_score=8, pass_gate=True)
 
 
-def _grounding_check(body: str) -> tuple[bool, list[str]]:
-    """Flags draft claims that lack support in the saved evidence JSON (non-blocking)."""
+def _grounding_check(body: str) -> tuple[bool, list[str], bool]:
+    """Flags claims vs evidence. Third value: LLM returned parseable/usable content."""
     ev_p = _ROOT / "reports" / "evidence_bundle.json"
     if not ev_p.is_file() or config.dry_run() or not config.llm_configured():
-        return True, []
+        return True, [], True
     try:
         ev_text = ev_p.read_text(encoding="utf-8")[:22000]
     except OSError:
-        return True, []
+        return True, [], True
     raw = openrouter_client.llm_text(
         "You compare a blog draft to EVIDENCE JSON. "
         'Output JSON only: {"unsupported_claims": ["short label", ...]}. '
@@ -131,16 +134,17 @@ def _grounding_check(body: str) -> tuple[bool, list[str]]:
         "Max 10 items; use [] if none.",
         f"EVIDENCE_JSON:\n{ev_text}\n\n---\n\nDRAFT_MD:\n{body[:20000]}\n",
         mode="smart",
+        max_tokens=config.max_tokens_smart(),
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
-        return True, []
+        return True, [], bool(raw.strip())
     try:
         d = json.loads(m.group(0))
         issues = [str(x).strip() for x in (d.get("unsupported_claims") or []) if str(x).strip()][:12]
-        return (len(issues) == 0, issues)
+        return (len(issues) == 0, issues, True)
     except (json.JSONDecodeError, TypeError):
-        return True, []
+        return True, [], True
 
 
 def _inject_score(path: Path, score: int) -> None:
@@ -175,26 +179,51 @@ def run() -> EditorReport:
             f"no commentary, and no code fences.",
             body[:20000],
             mode="smart",
+            max_tokens=config.max_tokens_smart(),
         )
         if fix.strip() and _looks_like_markdown_body(fix):
             body = _unwrap_markdown_fence(fix)
             path.write_text(front + body, encoding="utf-8")
         rep = _rubric_llm(body)
-    g_ok, g_issues = _grounding_check(body)
+    g_ok, g_issues, g_llm = _grounding_check(body)
     _inject_score(path, rep.rubric_score)
-    lint_p = _ROOT / "reports" / "draft_lint.json"
-    lint_issues: list[str] = []
-    if lint_p.is_file():
-        try:
-            d = json.loads(lint_p.read_text(encoding="utf-8"))
-            lint_issues = [str(x) for x in (d.get("structural") or []) if x]
-        except (OSError, json.JSONDecodeError, TypeError):
-            pass
+    lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
+    usage = get_llm_usage()
+    need_llm = bool(config.llm_configured() and not config.dry_run())
+    llm_ok = True
+    editor_warnings: list[str] = []
+    if need_llm:
+        if int(usage.get("ok", 0) or 0) < 3:
+            llm_ok = False
+            editor_warnings.append("llm_successes_below_threshold")
+        if not g_llm:
+            llm_ok = False
+            editor_warnings.append("grounding_llm_no_response")
+    if llm_ok and "empty_placeholder_section" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "pov_phrase_without_opinion" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "aec_section_too_short" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if not llm_ok:
+        rep = rep.model_copy(update={"pass_gate": False})
+    u_total = int(usage.get("ok", 0) or 0) + int(usage.get("fail", 0) or 0)
+    print(
+        f"stage=edit calls_ok={usage.get('ok', 0)}/{max(1, u_total)} pass_gate={rep.pass_gate} "
+        f"llm_ok={llm_ok}",
+        flush=True,
+    )
+    (_ROOT / "reports" / "llm_usage.json").write_text(
+        json.dumps(usage, indent=2),
+        encoding="utf-8",
+    )
     rep = rep.model_copy(
         update={
             "lint_issues": lint_issues,
             "grounding_ok": g_ok,
             "grounding_issues": g_issues,
+            "llm_ok": llm_ok,
+            "editor_warnings": editor_warnings,
         }
     )
     (_ROOT / "reports" / "editor_report.json").write_text(

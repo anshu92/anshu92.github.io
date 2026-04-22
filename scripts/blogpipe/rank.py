@@ -9,6 +9,7 @@ import re
 from pathlib import Path
 
 from . import config, memory, openrouter_client
+from .llm_chain import reset_llm_usage
 from .models import EditorialBrief, Item, Pillar, RankResult
 from .memory import _ROOT, load_json, save_json
 
@@ -94,7 +95,7 @@ def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str,
         )
     user = "Candidates:\n" + "\n".join(lines)
     try:
-        raw = openrouter_client.llm_text(system, user)
+        raw = openrouter_client.llm_text(system, user, max_tokens=1536)
         m = re.search(r"\{[\s\S]*\}", raw)
         if not m:
             raise ValueError("no json")
@@ -111,6 +112,7 @@ def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str,
 
 
 def run() -> RankResult:
+    reset_llm_usage()
     items = _load_harvested()
     brief = _brief()
     covered = _covered()

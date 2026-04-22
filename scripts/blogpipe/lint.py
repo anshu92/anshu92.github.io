@@ -103,3 +103,57 @@ def lint_structure(body: str) -> list[str]:
         ):
             issues.append("aec_section_generic_filler")
     return issues
+
+
+_H2_BLOCK = re.compile(
+    r"^##\s*[^\n]+\n([\s\S]*?)(?=^##\s|\Z)", re.M
+)
+_PLACEHOLDER_SEC = re.compile(
+    r"^no [a-z]+ (information|reference|equation|code|content)\b",
+    re.I | re.M,
+)
+
+
+def lint_empty_placeholders(body: str) -> list[str]:
+    """Flags sections that are explicit 'no X' empty placeholders under ## bodies."""
+    issues: list[str] = []
+    for m in _H2_BLOCK.finditer(body or ""):
+        block = (m.group(1) or "").strip()
+        first = block.split("\n", 1)[0].strip() if block else ""
+        if _PLACEHOLDER_SEC.search(first):
+            issues.append("empty_placeholder_section")
+            break
+    return issues
+
+
+_POV_INTRO = re.compile(
+    r"\b(what I find|what i find|the remarkable thing here is)\b",
+    re.I,
+)
+_FIRST_PERSON = re.compile(
+    r"\b(I'|I\s|I’m|I'm|I think|I find|my view|in my view)\b", re.I
+)
+
+
+def lint_pov_after_phrase(body: str) -> list[str]:
+    """Require first-person or evaluative follow-up after the POV lead-in phrase."""
+    m = _POV_INTRO.search(body or "")
+    if not m:
+        return []
+    after = (body or "")[m.end() : m.end() + 400]
+    if not _FIRST_PERSON.search(after) and not re.search(
+        r"\b(clear|striking|tells|matters|worth|surprising|valuable|weak|strong|concern|like|dislike)\b",
+        after,
+        re.I,
+    ):
+        return ["pov_phrase_without_opinion"]
+    return []
+
+
+def structural_issues(body: str) -> list[str]:
+    """All structural lints in one list (used by editor gate)."""
+    return (
+        lint_structure(body)
+        + lint_empty_placeholders(body)
+        + lint_pov_after_phrase(body)
+    )
