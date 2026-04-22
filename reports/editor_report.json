@@ -1,0 +1,89 @@
+{
+  "rubric_score": 11,
+  "rubric_items": [
+    {
+      "item": "sharp takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro earns attention",
+      "score": 0
+    },
+    {
+      "item": "concrete problem",
+      "score": 1
+    },
+    {
+      "item": "structure",
+      "score": 1
+    },
+    {
+      "item": "specificity",
+      "score": 1
+    },
+    {
+      "item": "teaches why",
+      "score": 1
+    },
+    {
+      "item": "strong example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs",
+      "score": 0
+    },
+    {
+      "item": "evidence",
+      "score": 1
+    },
+    {
+      "item": "limitations",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable close",
+      "score": 1
+    },
+    {
+      "item": "diagrams clarify",
+      "score": 1
+    },
+    {
+      "item": "honest scope",
+      "score": 1
+    },
+    {
+      "item": "POV",
+      "score": 0
+    }
+  ],
+  "five_questions": {
+    "problem": "The problem is multimodal hallucination in Large Vision-Language Models (LVLMs).",
+    "hard": "The authors tried to mitigate multimodal hallucination in LVLMs at inference time without external supervision.",
+    "tried": "The authors proposed a PSRD (Phase-wise Self-Reward Decoding) framework.",
+    "outcomes": "The PSRD framework reduced the hallucination rate of LLaVA-1.5-7B by 50.0%.",
+    "next": "One potential limitation of PSRD is that it relies on the distillation of the hallucination guidance signal from LVLMs into a lightweight reward model."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": true,
+  "lint_issues": [
+    "aec_section_too_short"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "One potential limitation of PSRD is that it relies on the distillation of the hallucination guidance signal from LVLMs into a lightweight reward model, which may not always capture the complexities of the original model.",
+    "Additionally, the authors note that PSRD may not be effective for all types of hallucination, particularly those that are not phase-wise in nature.",
+    "The authors highlight that PSRD assumes that the hallucination exhibits phase-wise dynamic patterns, which may not always be the case.",
+    "Furthermore, the effectiveness of PSRD may depend on the specific LVLM and task being used."
+  ]
+}

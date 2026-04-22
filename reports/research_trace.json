@@ -1,0 +1,22 @@
+{
+  "calls": 5,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 0
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "Self-supervised hallucination mitigation methods",
+      "n": 3
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 0
+    }
+  ]
+}

@@ -1,0 +1,326 @@
+{
+  "primary": {
+    "id": "hf_2604.17982",
+    "title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+    "url": "https://arxiv.org/abs/2604.17982",
+    "authors": [
+      "Yu Zhang",
+      "Chuyang Sun",
+      "Kehai Chen",
+      "Xuefeng Bai",
+      "Yang Xiang",
+      "Min Zhang"
+    ],
+    "abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose PSRD (Phase-wise \\textbf{Self-Reward Decoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+    "published_at": "2026-04-20T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.17982",
+          "authors": [
+            {
+              "_id": "69e871c65f6b3d4e5af9ad0b",
+              "name": "Yu Zhang",
+              "hidden": false
+            },
+            {
+              "_id": "69e871c65f6b3d4e5af9ad0c",
+              "name": "Chuyang Sun",
+              "hidden": false
+            },
+            {
+              "_id": "69e871c65f6b3d4e5af9ad0d",
+              "name": "Kehai Chen",
+              "hidden": false
+            },
+            {
+              "_id": "69e871c65f6b3d4e5af9ad0e",
+              "name": "Xuefeng Bai",
+              "hidden": false
+            },
+            {
+              "_id": "69e871c65f6b3d4e5af9ad0f",
+              "name": "Yang Xiang",
+              "hidden": false
+            },
+            {
+              "_id": "69e871c65f6b3d4e5af9ad10",
+              "name": "Min Zhang",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-20T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-22T05:32:17.742Z",
+          "title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "submittedOnDailyBy": {
+            "_id": "65fe9599d74aed6c3e6d93a2",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/65fe9599d74aed6c3e6d93a2/WxPDKPJ6-p0_xu0dzOYXw.jpeg",
+            "isPro": false,
+            "fullname": "Yu Zhang",
+            "user": "271754echo",
+            "type": "user",
+            "name": "271754echo"
+          },
+          "summary": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose PSRD (Phase-wise \\textbf{Self-Reward Decoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "upvotes": 1,
+          "discussionId": "69e871c65f6b3d4e5af9ad11",
+          "ai_summary": "A new self-rewarding framework called PSRD is introduced for dynamic hallucination mitigation in large vision-language models during inference, using phase-wise self-reward signals and a distilled lightweight reward model for efficient hallucination correction.",
+          "ai_keywords": [
+            "vision hallucination",
+            "large vision-language models",
+            "self-rewarding framework",
+            "phase-wise self-reward decoding",
+            "hallucination guidance signal",
+            "lightweight reward model",
+            "hallucination mitigation",
+            "hallucination propagation",
+            "inference efficiency"
+          ]
+        },
+        "publishedAt": "2026-04-19T20:00:00.000Z",
+        "title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+        "summary": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose PSRD (Phase-wise \\textbf{Self-Reward Decoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17982.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "65fe9599d74aed6c3e6d93a2",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/65fe9599d74aed6c3e6d93a2/WxPDKPJ6-p0_xu0dzOYXw.jpeg",
+          "fullname": "Yu Zhang",
+          "name": "271754echo",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 3,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      }
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_2780218631",
+      "title": "SERPENT-VLM : Self-Refining Radiology Report Generation Using Vision Language Models",
+      "url": "https://openalex.org/W4401042290",
+      "authors": [],
+      "abstract": "Radiology Report Generation (R2Gen) demonstrates how Multi-modal Large Language Models (MLLMs) can automate the creation of accurate and coherent radiological reports.Existing methods often hallucinate details in textbased reports that don't accurately reflect image content.To mitigate this, we introduce a novel strategy, SERPENT-VLM (SElf Refining RePort GENeraTion using Vision Models), which improves R2Gen task by integrating self-refining mechanism into MLLM framework.We employ unique self-supervised loss leverages similarity between pooled representations contextual generated text, alongside standard Causal Modeling objective, to refine image-text representations.This allows model scrutinize align text through dynamic interaction given therefore reducing hallucination continuously enhancing nuanced report generation.SERPENT-VLM outperforms existing baselines such as LlaVA-Med, BiomedGPT, etc., achieving SoTA performance on IU X-ray Objects COntext (ROCO) datasets, also proves be robust against noisy images.A qualitative case study emphasizes significant advancements towards more sophisticated frameworks for R2Gen, opening paths further research refinement medical imaging domain.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_2957652497",
+      "title": "Clinical Practice Guidelines for the Prevention and Management of Pain, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption in Adult Patients in the ICU",
+      "url": "https://openalex.org/W2885896746",
+      "authors": [],
+      "abstract": "We found substantial agreement among a large, interdisciplinary cohort of international experts regarding evidence supporting recommendations, and the remaining literature gaps in assessment, prevention, treatment Pain, Agitation/sedation, Delirium, Immobility (mobilization/rehabilitation), Sleep (disruption) critically ill adults. Highlighting this research needs will improve management provide foundation for improved outcomes science vulnerable population.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_356898329",
+      "title": "Large language models encode clinical knowledge",
+      "url": "https://openalex.org/W4384071683",
+      "authors": [],
+      "abstract": "Large language models (LLMs) have demonstrated impressive capabilities, but the bar for clinical applications is high. Attempts to assess knowledge of typically rely on automated evaluations based limited benchmarks. Here, address these limitations, we present MultiMedQA, a benchmark combining six existing medical question answering datasets spanning professional medicine, research and consumer queries new dataset questions searched online, HealthSearchQA. We propose human evaluation framework model answers along multiple axes including factuality, comprehension, reasoning, possible harm bias. In addition, evaluate Pathways Language Model<sup>1</sup> (PaLM, 540-billion parameter LLM) its instruction-tuned variant, Flan-PaLM<sup>2</sup> MultiMedQA. Using combination prompting strategies, Flan-PaLM achieves state-of-the-art accuracy every MultiMedQA multiple-choice (MedQA<sup>3</sup>, MedMCQA<sup>4</sup>, PubMedQA<sup>5</sup> Measuring Massive Multitask Understanding (MMLU) topics<sup>6</sup>), 67.6% MedQA (US Medical Licensing Exam-style questions), surpassing prior state art by more than 17%. However, reveals key gaps. To resolve this, introduce instruction prompt tuning, parameter-efficient approach aligning LLMs domains using few exemplars. The resulting model, Med-PaLM, performs encouragingly, remains inferior clinicians. show that recall reasoning improve with scale suggesting potential utility in medicine. Our reveal limitations today's models, reinforcing importance both frameworks method development creating safe, helpful applications.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "Mitigating Multimodal Hallucination via ",
+      "value": "(see paper)",
+      "unit": "",
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.17982",
+      "text": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without exter",
+      "url": "https://arxiv.org/abs/2604.17982"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {},
+  "contradiction_notes": [],
+  "by_id": {
+    "hf_2604.17982": {
+      "id": "hf_2604.17982",
+      "title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+      "url": "https://arxiv.org/abs/2604.17982",
+      "authors": [
+        "Yu Zhang",
+        "Chuyang Sun",
+        "Kehai Chen",
+        "Xuefeng Bai",
+        "Yang Xiang",
+        "Min Zhang"
+      ],
+      "abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose PSRD (Phase-wise \\textbf{Self-Reward Decoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+      "published_at": "2026-04-20T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.17982",
+            "authors": [
+              {
+                "_id": "69e871c65f6b3d4e5af9ad0b",
+                "name": "Yu Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69e871c65f6b3d4e5af9ad0c",
+                "name": "Chuyang Sun",
+                "hidden": false
+              },
+              {
+                "_id": "69e871c65f6b3d4e5af9ad0d",
+                "name": "Kehai Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e871c65f6b3d4e5af9ad0e",
+                "name": "Xuefeng Bai",
+                "hidden": false
+              },
+              {
+                "_id": "69e871c65f6b3d4e5af9ad0f",
+                "name": "Yang Xiang",
+                "hidden": false
+              },
+              {
+                "_id": "69e871c65f6b3d4e5af9ad10",
+                "name": "Min Zhang",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-20T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T05:32:17.742Z",
+            "title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+            "submittedOnDailyBy": {
+              "_id": "65fe9599d74aed6c3e6d93a2",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/65fe9599d74aed6c3e6d93a2/WxPDKPJ6-p0_xu0dzOYXw.jpeg",
+              "isPro": false,
+              "fullname": "Yu Zhang",
+              "user": "271754echo",
+              "type": "user",
+              "name": "271754echo"
+            },
+            "summary": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose PSRD (Phase-wise \\textbf{Self-Reward Decoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+            "upvotes": 1,
+            "discussionId": "69e871c65f6b3d4e5af9ad11",
+            "ai_summary": "A new self-rewarding framework called PSRD is introduced for dynamic hallucination mitigation in large vision-language models during inference, using phase-wise self-reward signals and a distilled lightweight reward model for efficient hallucination correction.",
+            "ai_keywords": [
+              "vision hallucination",
+              "large vision-language models",
+              "self-rewarding framework",
+              "phase-wise self-reward decoding",
+              "hallucination guidance signal",
+              "lightweight reward model",
+              "hallucination mitigation",
+              "hallucination propagation",
+              "inference efficiency"
+            ]
+          },
+          "publishedAt": "2026-04-19T20:00:00.000Z",
+          "title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "summary": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose PSRD (Phase-wise \\textbf{Self-Reward Decoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17982.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "65fe9599d74aed6c3e6d93a2",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/65fe9599d74aed6c3e6d93a2/WxPDKPJ6-p0_xu0dzOYXw.jpeg",
+            "fullname": "Yu Zhang",
+            "name": "271754echo",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 3,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    "oa_2780218631": {
+      "id": "oa_2780218631",
+      "title": "SERPENT-VLM : Self-Refining Radiology Report Generation Using Vision Language Models",
+      "url": "https://openalex.org/W4401042290",
+      "authors": [],
+      "abstract": "Radiology Report Generation (R2Gen) demonstrates how Multi-modal Large Language Models (MLLMs) can automate the creation of accurate and coherent radiological reports.Existing methods often hallucinate details in textbased reports that don't accurately reflect image content.To mitigate this, we introduce a novel strategy, SERPENT-VLM (SElf Refining RePort GENeraTion using Vision Models), which improves R2Gen task by integrating self-refining mechanism into MLLM framework.We employ unique self-supervised loss leverages similarity between pooled representations contextual generated text, alongside standard Causal Modeling objective, to refine image-text representations.This allows model scrutinize align text through dynamic interaction given therefore reducing hallucination continuously enhancing nuanced report generation.SERPENT-VLM outperforms existing baselines such as LlaVA-Med, BiomedGPT, etc., achieving SoTA performance on IU X-ray Objects COntext (ROCO) datasets, also proves be robust against noisy images.A qualitative case study emphasizes significant advancements towards more sophisticated frameworks for R2Gen, opening paths further research refinement medical imaging domain.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_2957652497": {
+      "id": "oa_2957652497",
+      "title": "Clinical Practice Guidelines for the Prevention and Management of Pain, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption in Adult Patients in the ICU",
+      "url": "https://openalex.org/W2885896746",
+      "authors": [],
+      "abstract": "We found substantial agreement among a large, interdisciplinary cohort of international experts regarding evidence supporting recommendations, and the remaining literature gaps in assessment, prevention, treatment Pain, Agitation/sedation, Delirium, Immobility (mobilization/rehabilitation), Sleep (disruption) critically ill adults. Highlighting this research needs will improve management provide foundation for improved outcomes science vulnerable population.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_356898329": {
+      "id": "oa_356898329",
+      "title": "Large language models encode clinical knowledge",
+      "url": "https://openalex.org/W4384071683",
+      "authors": [],
+      "abstract": "Large language models (LLMs) have demonstrated impressive capabilities, but the bar for clinical applications is high. Attempts to assess knowledge of typically rely on automated evaluations based limited benchmarks. Here, address these limitations, we present MultiMedQA, a benchmark combining six existing medical question answering datasets spanning professional medicine, research and consumer queries new dataset questions searched online, HealthSearchQA. We propose human evaluation framework model answers along multiple axes including factuality, comprehension, reasoning, possible harm bias. In addition, evaluate Pathways Language Model<sup>1</sup> (PaLM, 540-billion parameter LLM) its instruction-tuned variant, Flan-PaLM<sup>2</sup> MultiMedQA. Using combination prompting strategies, Flan-PaLM achieves state-of-the-art accuracy every MultiMedQA multiple-choice (MedQA<sup>3</sup>, MedMCQA<sup>4</sup>, PubMedQA<sup>5</sup> Measuring Massive Multitask Understanding (MMLU) topics<sup>6</sup>), 67.6% MedQA (US Medical Licensing Exam-style questions), surpassing prior state art by more than 17%. However, reveals key gaps. To resolve this, introduce instruction prompt tuning, parameter-efficient approach aligning LLMs domains using few exemplars. The resulting model, Med-PaLM, performs encouragingly, remains inferior clinicians. show that recall reasoning improve with scale suggesting potential utility in medicine. Our reveal limitations today's models, reinforcing importance both frameworks method development creating safe, helpful applications.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  }
+}
