@@ -50,7 +50,10 @@ def _kroki_svg(diagram: str, variant: str = "mermaid") -> Optional[bytes]:
         r = httpx.post(
             u,
             content=diagram.encode("utf-8"),
-            headers={"Content-Type": "text/plain"},
+            headers={
+                "Content-Type": "text/plain",
+                "Accept": "image/svg+xml",
+            },
             timeout=60.0,
         )
         if r.status_code == 200:
@@ -160,7 +163,6 @@ def run() -> None:
             r = client.models.generate_images(  # type: ignore[union-attr]
                 model="imagen-3.0-generate-002",
                 prompt=pr,
-                n=1,
             )
             if r and r.generated_images:  # type: ignore[union-attr]
                 b = r.generated_images[0].as_png_bytes()  # type: ignore[union-attr]

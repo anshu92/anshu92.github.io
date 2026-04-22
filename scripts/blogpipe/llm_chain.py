@@ -69,16 +69,12 @@ _PROVIDER_PRESETS: dict[str, dict[str, str]] = {
     },
 }
 
-# Same set as evr: disable <think> noise where supported
+# Disable <think> where the API allows; omit gpt-oss (OpenRouter requires reasoning on).
 REASONING_MODELS: set[str] = {
     "qwen/qwen3-32b",
     "qwen/qwen3-next-80b-a3b-instruct:free",
     "qwen/qwen3.6-plus-preview:free",
     "qwen/qwen3-coder:free",
-    "openai/gpt-oss-120b",
-    "openai/gpt-oss-120b:free",
-    "openai/gpt-oss-20b",
-    "openai/gpt-oss-20b:free",
 }
 
 
@@ -127,6 +123,21 @@ def _openrouter_headers() -> dict[str, str]:
     }
 
 
+_GROQ_CONTENT_CAP = 12000  # avoid 413 when TPM budget is tight on long draft prompts
+
+
+def _messages_for_provider(messages: list[dict[str, str]], prov: str) -> list[dict[str, str]]:
+    if prov != "groq":
+        return messages
+    out: list[dict[str, str]] = []
+    for m in messages:
+        c = m.get("content", "")
+        if len(c) > _GROQ_CONTENT_CAP:
+            c = c[:_GROQ_CONTENT_CAP] + "\n\n[truncated for Groq request size limits]"
+        out.append({**m, "content": c})
+    return out
+
+
 def _one_chat(
     entry: dict[str, Any],
     messages: list[dict[str, str]],
@@ -136,9 +147,10 @@ def _one_chat(
     base = (entry.get("base_url") or "").rstrip("/")
     url = f"{base}/chat/completions"
     prov = entry.get("provider", "")
+    to_send = _messages_for_provider(messages, prov)
     body: dict[str, Any] = {
         "model": entry["model"],
-        "messages": messages,
+        "messages": to_send,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
