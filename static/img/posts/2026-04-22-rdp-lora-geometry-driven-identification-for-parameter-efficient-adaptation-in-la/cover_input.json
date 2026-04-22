@@ -1,0 +1,1 @@
+{"format": "under_the_hood", "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models", "takeaway": "Fine-tuning Large Language Models (LLMs) with parameter-efficient methods like Low-Rank Adaptation (LoRA) remains structurally uncertain due to poorly understood layer-specific roles of internal repre"}
