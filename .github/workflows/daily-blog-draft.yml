@@ -91,6 +91,8 @@ jobs:
       - name: Run pipeline
         working-directory: ${{ github.workspace }}
         env:
+          # Source layout import (belt-and-suspenders if editable/install path differs on runner)
+          PYTHONPATH: ${{ github.workspace }}/scripts
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
