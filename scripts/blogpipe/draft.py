@@ -43,6 +43,35 @@ def _strip_unresolved(md: str) -> bool:
     return bool(re.search(r"\[missing cite:", md))
 
 
+def _cleanup_missing_cites(md: str) -> str:
+    md = re.sub(r"\s*\[missing cite:\s*[^\]]+\]", "", md)
+    md = re.sub(r"[ \t]+\n", "\n", md)
+    return md
+
+
+def _unwrap_markdown_fence(text: str) -> str:
+    t = text.strip()
+    m = re.match(r"^```(?:markdown|md)?\n([\s\S]*?)\n```$", t, re.I)
+    return m.group(1).strip() if m else t
+
+
+def _looks_like_markdown_body(text: str) -> bool:
+    t = _unwrap_markdown_fence(text)
+    if "## " not in t:
+        return False
+    if len(t.split()) < 120:
+        return False
+    bad_starts = (
+        "i've identified",
+        "i identified",
+        "here's the revised",
+        "here is the revised",
+        "i replaced",
+        "i removed",
+    )
+    return not t.lower().startswith(bad_starts)
+
+
 def build_prompt(
     bundle: EvidenceBundle,
     brief: EditorialBrief,
@@ -104,15 +133,22 @@ def run() -> Path:
         body = openrouter_client.llm_text(system, user)
         if not body.strip():
             body = _stub_body(bundle, brief, fmt)
+    body = _unwrap_markdown_fence(body)
     body = _resolve_cites(body, bundle)
     if _strip_unresolved(body):
         LOG.warning("draft: unresolved cites; attempting one repair")
         repair = openrouter_client.llm_text(
-            "Fix [missing cite: ...] by replacing with paraphrase without external cite, or remove sentence.",
+            "Fix [missing cite: ...] markers by replacing them with paraphrase without external cite, "
+            "or remove the affected sentence. Output only the full revised markdown body, no commentary "
+            "and no code fences.",
             body[:12000],
         )
-        if repair.strip():
-            body = repair
+        if repair.strip() and _looks_like_markdown_body(repair):
+            body = _unwrap_markdown_fence(repair)
+        else:
+            body = _cleanup_missing_cites(body)
+    else:
+        body = _cleanup_missing_cites(body)
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     slug = _slugify(bundle.primary.title)
     title = bundle.primary.title[:200]

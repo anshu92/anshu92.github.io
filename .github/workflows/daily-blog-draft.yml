@@ -35,8 +35,13 @@ jobs:
   draft_pipeline:
     runs-on: ubuntu-latest
     services:
+      # Gateway only; mermaid runs in a companion (see https://docs.kroki.io/kroki/setup/use-docker-or-podman).
+      mermaid:
+        image: yuzutech/kroki-mermaid:latest
       kroki:
         image: yuzutech/kroki:latest
+        env:
+          KROKI_MERMAID_HOST: mermaid
         ports:
           - 8000:8000
     steps:
@@ -45,6 +50,14 @@ jobs:
           for i in 1 2 3 4 5 6 7 8 9 10; do
             curl -fsS "http://localhost:8000/health" && break || true
             sleep 3
+          done
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if printf 'graph LR\nA-->B' | curl -fsS -X POST "http://localhost:8000/mermaid" \
+              -H "Content-Type: text/plain" -H "Accept: image/svg+xml" --data-binary @- -o /tmp/kroki-m.svg \
+              && test -s /tmp/kroki-m.svg; then
+              break
+            fi
+            sleep 2
           done
       - uses: actions/checkout@v4
         with:
@@ -114,7 +127,6 @@ jobs:
           python -m blogpipe draft
           python -m blogpipe edit
           python -m blogpipe visuals
-          python -m blogpipe package
 
       - name: Create branch, commit, open PR, email
         id: cpr
@@ -131,6 +143,8 @@ jobs:
           SLUG=$(basename "$DRAFT_FILE" .md)
           # Include GITHUB_RUN_ID so re-runs / same-day runs do not collide with an existing remote branch.
           BR="draft/blog-$(date -u +%F)-${SLUG:0:36}-${GITHUB_RUN_ID}"
+          mkdir -p reports
+          echo "$BR" > reports/branch.txt
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git checkout -b "$BR"
@@ -146,6 +160,10 @@ jobs:
           PR_URL=$(gh pr create --base main --head "$BR" --title "Blog draft: $SLUG" --body "Automated daily draft. See email and Actions artifacts for HTML summary and traces." 2>/dev/null || true)
           echo "$PR_URL" > reports/pr_url.txt
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: Build email package
+        if: success() && vars.BLOGPIPE_DRY_RUN != '1'
+        run: python -m blogpipe package
 
       - name: Ensure report files for email
         if: success() && vars.BLOGPIPE_DRY_RUN != '1'

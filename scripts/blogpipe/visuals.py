@@ -154,20 +154,30 @@ def run() -> None:
     ):
         _pillow_card(cover, title, sub, (*pal, pal[0], pal[1], pal[2]))
     if config.gemini_key() and not config.dry_run():
-        # Optional: Imagen via google-genai if installed and API available.
+        # Optional: Imagen via google-genai (model IDs change; try newest first).
         try:
             from google import genai as _genai  # type: ignore
 
             client = _genai.Client(api_key=config.gemini_key())
             pr = f"Editorial cover art for ML article, style {brief.art_direction}, no text, abstract, no human faces: {title}"
-            r = client.models.generate_images(  # type: ignore[union-attr]
-                model="imagen-3.0-generate-002",
-                prompt=pr,
-            )
-            if r and r.generated_images:  # type: ignore[union-attr]
-                b = r.generated_images[0].as_png_bytes()  # type: ignore[union-attr]
-                if b:
-                    hero.write_bytes(b)
+            for model_id in (
+                "imagen-4.0-generate-001",
+                "imagen-3.0-generate-002",
+                "imagen-3.0-generate-001",
+            ):
+                try:
+                    r = client.models.generate_images(  # type: ignore[union-attr]
+                        model=model_id,
+                        prompt=pr,
+                    )
+                    if r and r.generated_images:  # type: ignore[union-attr]
+                        b = r.generated_images[0].as_png_bytes()  # type: ignore[union-attr]
+                        if b:
+                            hero.write_bytes(b)
+                            break
+                except Exception as inner:
+                    LOG.debug("imagen %s: %s", model_id, inner)
+                    continue
         except Exception as e:
             LOG.warning("gemini image (optional): %s", e)
     if not hero.is_file() or hero.stat().st_size < 100:

@@ -23,7 +23,7 @@ _FAST_MODEL_CHAIN: list[tuple[str, str]] = [
     ("openai/gpt-oss-120b:free", "openrouter"),
     ("qwen/qwen3-32b", "groq"),
     ("qwen/qwen3-next-80b-a3b-instruct:free", "openrouter"),
-    ("qwen/qwen3.6-plus-preview:free", "openrouter"),
+    ("qwen/qwen2.5-72b-instruct:free", "openrouter"),
     ("meta-llama/llama-4-scout-17b-16e-instruct", "groq"),
     ("stepfun/step-3.5-flash:free", "openrouter"),
     ("z-ai/glm-4.5-air:free", "openrouter"),
@@ -47,7 +47,7 @@ _SMART_MODEL_CHAIN: list[tuple[str, str]] = [
     ("nvidia/nemotron-3-super-120b-a12b:free", "openrouter"),
     ("openai/gpt-oss-120b:free", "openrouter"),
     ("qwen/qwen3-32b", "groq"),
-    ("qwen/qwen3.6-plus-preview:free", "openrouter"),
+    ("qwen/qwen2.5-72b-instruct:free", "openrouter"),
 ]
 
 _PROVIDER_PRESETS: dict[str, dict[str, str]] = {
@@ -73,7 +73,6 @@ _PROVIDER_PRESETS: dict[str, dict[str, str]] = {
 REASONING_MODELS: set[str] = {
     "qwen/qwen3-32b",
     "qwen/qwen3-next-80b-a3b-instruct:free",
-    "qwen/qwen3.6-plus-preview:free",
     "qwen/qwen3-coder:free",
 }
 
@@ -123,7 +122,7 @@ def _openrouter_headers() -> dict[str, str]:
     }
 
 
-_GROQ_CONTENT_CAP = 12000  # avoid 413 when TPM budget is tight on long draft prompts
+_GROQ_CONTENT_CAP = 5500  # stay under Groq TPM on long prompts (API returns 413 when over budget)
 
 
 def _messages_for_provider(messages: list[dict[str, str]], prov: str) -> list[dict[str, str]]:
