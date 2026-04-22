@@ -1,0 +1,12 @@
+{
+  "rubric_score": 8,
+  "rubric_items": [],
+  "five_questions": {},
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": true
+}

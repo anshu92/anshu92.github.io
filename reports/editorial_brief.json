@@ -1,0 +1,36 @@
+{
+  "pillar_weights": {
+    "research": 0.2,
+    "systems": 0.2,
+    "applied": 0.2,
+    "foundations": 0.2,
+    "aec": 0.2
+  },
+  "recent_topics": [
+    {
+      "slug": "attention-deep-dive",
+      "title": "Attention Mechanisms - tracking the evolution + pair programming in pytorch",
+      "pillar": "Pillar.foundations"
+    },
+    {
+      "slug": "speculative-decoding",
+      "title": "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss",
+      "pillar": "Pillar.systems"
+    },
+    {
+      "slug": "from-code-to-theory-llm",
+      "title": "from-code-to-theory-llm",
+      "pillar": "Pillar.foundations"
+    }
+  ],
+  "follow_up_candidates": [],
+  "avoid_topics": [],
+  "voice_guide": "Example titles: Attention Mechanisms - tracking the evolution + pair programming in pytorch, Speculative Decoding: 2x to 4x speedup of LLMs without quality loss",
+  "suggested_series": null,
+  "format_name": "under_the_hood",
+  "format_rationale": "Format under_the_hood balances last 10 (counts {'deep_dive': 1}) and systems_boost=False.",
+  "opener_hook": "contrarian_claim",
+  "art_direction": "isometric_diagram",
+  "diagram_style": "flowchart",
+  "proactive_topic": null
+}

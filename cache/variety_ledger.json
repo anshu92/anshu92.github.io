@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "at": "2026-04-22T18:08:59.821871+00:00",
+      "format": "deep_dive",
+      "opener": "in_medias_res_scene",
+      "art": "editorial_illustration",
+      "diagram": "mermaid",
+      "slug": "2026-04-22-rdp-lora-geometry-driven-identification-for-parameter-efficient-adaptation-in-la"
+    },
+    {
+      "at": "2026-04-22T18:14:11.303947+00:00",
+      "format": "under_the_hood",
+      "opener": "contrarian_claim",
+      "art": "isometric_diagram",
+      "diagram": "mermaid",
+      "slug": "2026-04-22-rdp-lora-geometry-driven-identification-for-parameter-efficient-adaptation-in-la"
+    }
+  ]
+}

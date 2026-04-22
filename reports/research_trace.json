@@ -1,0 +1,13 @@
+{
+  "calls": 3,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 0
+    },
+    {
+      "tool": "openalex",
+      "n": 3
+    }
+  ]
+}
