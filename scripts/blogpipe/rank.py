@@ -74,8 +74,12 @@ def _heuristic_score(it: Item, brief: EditorialBrief) -> float:
 def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str, list[Item]]:
     if len(candidates) == 1:
         return candidates[0], "single candidate", []
-    if not openrouter_client.llm_text("", "") and config.dry_run():
-        return candidates[0], "dry_run", candidates[1:6]
+    if config.dry_run() or not config.openrouter_key():
+        return (
+            candidates[0],
+            "dry_run" if config.dry_run() else "no openrouter key",
+            candidates[1:6],
+        )
     system = (
         "You are an editorial ranker. Pick ONE best item for a technical blog. "
         "Return JSON only: { \"pick_index\": 0, \"reasoning\": \"...\" }"
