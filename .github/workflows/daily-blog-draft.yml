@@ -1,0 +1,193 @@
+# Secrets (align with /Users/sahooa3/Documents/git/evr so you can paste the same names in
+# GitHub → Settings → Secrets and variables → Actions). Values are NOT in git—copy in UI or gh secret set.
+#   Shared with evr: OPENROUTER_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, GROQ_API_KEY, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_TO
+#   Blog-only optional: SEMANTIC_SCHOLAR_API_KEY, FAL_API_KEY
+#   Optional GROQ for blogpipe if you add routing later; safe to leave unset.
+# Optional: same Gmail App Password pattern as evr for EMAIL_PASSWORD.
+# Repo variables: AEC_SCHOLAR_RSS, BLOGPIPE_DRY_RUN (0/1), BLOGPIPE_MODEL, BLOGPIPE_EDITOR_MODEL,
+#   BLOGPIPE_RESEARCH_MAX_CALLS, BLOGPIPE_PILLAR_FLOOR, BLOGPIPE_EMBED_MODEL, BLOGPIPE_EDITOR_MIN_SCORE,
+#   BLOGPIPE_EDITOR_MAX_LOOPS, BLOGPIPE_FORMAT_COOLDOWN, BLOGPIPE_ART_COOLDOWN, BLOGPIPE_FORCE_FORMAT
+# Approval: merge the opened PR to main, then publish-on-approve workflow flips draft and deploys.
+name: Daily blog draft
+
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-blog-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  KROKI_URL: http://localhost:8000
+
+jobs:
+  draft_pipeline:
+    runs-on: ubuntu-latest
+    services:
+      kroki:
+        image: yuzutech/kroki:latest
+        ports:
+          - 8000:8000
+    steps:
+      - name: Wait for Kroki
+        run: |
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            curl -fsS "http://localhost:8000/health" && break || true
+            sleep 3
+          done
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore blogpipe cache
+        uses: actions/cache/restore@v4
+        id: bpcache
+        continue-on-error: true
+        with:
+          path: |
+            cache/covered_papers.json
+            cache/post_index.json
+            cache/variety_ledger.json
+          key: blogpipe-durable-${{ hashFiles('scripts/blogpipe/**/*.py') }}-${{ github.run_id }}
+          restore-keys: |
+            blogpipe-durable-
+      - name: Restore blogpipe-memory branch (fallback)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p cache
+          git fetch origin blogpipe-memory 2>/dev/null || true
+          for f in cache/covered_papers.json cache/post_index.json cache/variety_ledger.json; do
+            if git rev-parse --verify "origin/blogpipe-memory" >/dev/null 2>&1; then
+              if git cat-file -e "origin/blogpipe-memory:$f" 2>/dev/null; then
+                git show "origin/blogpipe-memory:$f" > "$f" && echo "Restored $f from blogpipe-memory"
+              fi
+            fi
+          done
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install blogpipe
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "${GITHUB_WORKSPACE}/scripts"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install cover tooling (optional)
+        working-directory: scripts/blogpipe/visuals
+        run: "test -f package.json && npm install || true"
+
+      - name: Run pipeline
+        working-directory: ${{ github.workspace }}
+        env:
+          BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
+          FAL_API_KEY: ${{ secrets.FAL_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          AEC_SCHOLAR_RSS: ${{ vars.AEC_SCHOLAR_RSS }}
+          BLOGPIPE_DRY_RUN: ${{ vars.BLOGPIPE_DRY_RUN || '0' }}
+        run: |
+          python -m blogpipe curate
+          python -m blogpipe harvest
+          python -m blogpipe rank
+          python -m blogpipe research
+          python -m blogpipe draft
+          python -m blogpipe edit
+          python -m blogpipe visuals
+          python -m blogpipe package
+
+      - name: Create branch, commit, open PR, email
+        id: cpr
+        if: success() && (vars.BLOGPIPE_DRY_RUN != '1')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          DRAFT_FILE=$(cat reports/draft_path.txt)
+          if [[ "$DRAFT_FILE" != content/post/* ]]; then
+            echo "No content post in dry or preview; skip PR"
+            exit 0
+          fi
+          SLUG=$(basename "$DRAFT_FILE" .md)
+          BR="draft/blog-$(date -u +%F)-${SLUG:0:40}"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git checkout -b "$BR"
+          git add content/post static/img/posts cache reports
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(blog): daily draft $SLUG [skip publish]"
+          git push -u origin "$BR"
+          PR_URL=$(gh pr create --base main --head "$BR" --title "Blog draft: $SLUG" --body "Automated daily draft. See email and Actions artifacts for HTML summary and traces." 2>/dev/null || true)
+          echo "$PR_URL" > reports/pr_url.txt
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: Ensure report files for email
+        if: success() && vars.BLOGPIPE_DRY_RUN != '1'
+        run: |
+          mkdir -p reports
+          [ -f reports/research_trace.json ] || echo '{}' > reports/research_trace.json
+          [ -f reports/editor_report.json ] || echo '{"rubric_score":0}' > reports/editor_report.json
+
+      - name: Send approval email
+        if: success() && vars.BLOGPIPE_DRY_RUN != '1'
+        continue-on-error: true
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "[Blog draft] review — merge PR to publish"
+          to: ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
+          from: Blogpipe <${{ secrets.EMAIL_USERNAME }}>
+          html_body: file://${{ github.workspace }}/reports/daily_email.html
+          attachments: ${{ github.workspace }}/reports/research_trace.json,${{ github.workspace }}/reports/editor_report.json
+
+      - name: Save blogpipe cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            cache/covered_papers.json
+            cache/post_index.json
+            cache/variety_ledger.json
+          key: blogpipe-durable-${{ hashFiles('scripts/blogpipe/**/*.py') }}-${{ github.run_id }}
+
+      - name: Upload reports artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blogpipe-reports-${{ github.run_id }}
+          path: reports/
+          if-no-files-found: ignore
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Daily blog draft failed: ${context.runId}`,
+              body: `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });

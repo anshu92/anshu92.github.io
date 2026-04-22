@@ -1,0 +1,48 @@
+# After merging a draft/blog-* PR, flips draft: true -> draft: false so hugo.yml deploys.
+name: Publish approved blog post
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'draft/blog-')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set draft false on new posts
+        run: |
+          set -euo pipefail
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          BASE="${{ github.event.pull_request.base.sha }}"
+          MERGE="${{ github.event.pull_request.merge_commit_sha }}"
+          git fetch origin main
+          git checkout main
+          git pull origin main
+          CHANGED=$(git diff --name-only "$BASE" "$MERGE" -- content/post/ || true)
+          echo "Changed: $CHANGED"
+          ANY=0
+          for f in $CHANGED; do
+            [ -f "$f" ] || continue
+            if grep -q '^draft: true' "$f"; then
+              sed -i 's/^draft: true$/draft: false/' "$f"
+              ANY=1
+            fi
+          done
+          if [ "$ANY" -eq 1 ]; then
+            git add content/post/
+            git commit -m "chore(blog): publish merged draft" || true
+            git push origin main
+          else
+            echo "No draft posts to flip"
+          fi
