@@ -1,0 +1,27 @@
+{
+  "ok": 21,
+  "fail": 11,
+  "blacklisted_skips": 147,
+  "blacklist_added": [
+    "groq:llama-3.3-70b-versatile",
+    "groq:qwen/qwen3-32b",
+    "gemini:gemini-2.5-flash",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+    "openrouter:nousresearch/hermes-3-llama-3.1-405b:free",
+    "openrouter:openrouter/free",
+    "openrouter:google/gemma-4-31b-it:free",
+    "openrouter:google/gemma-4-26b-a4b-it:free",
+    "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+    "openrouter:openai/gpt-oss-120b:free",
+    "openrouter:qwen/qwen3-next-80b-a3b-instruct:free"
+  ],
+  "llm_cap": 40,
+  "llm_calls": 32,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "research"
+  ]
+}

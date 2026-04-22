@@ -1,0 +1,30 @@
+{
+  "calls": 5,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 0
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "On-device language models",
+      "n": 3
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 0
+    }
+  ],
+  "ss_cache_hits": 0,
+  "ss_429": 6,
+  "ss_search_calls": 2,
+  "ss_ref_calls": 0,
+  "llm_ok": 2,
+  "llm_fail": 0,
+  "rewrites_applied": 2,
+  "re_research_applied": 0
+}

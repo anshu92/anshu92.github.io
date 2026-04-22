@@ -1,0 +1,87 @@
+{
+  "rubric_score": 13,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 0
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "The problem is that on edge devices like smartwatches and smart glasses, power and compute constraints limit the use of large language models, while cloud inference introduces significant latency, disrupting the user experience.",
+    "hard": "One challenge is that traditional language models are too large for on-device deployment, and their computational requirements exceed device capabilities.",
+    "tried": "The authors tried using micro language models (\u03bcLMs), which are ultra-compact models (8M-30M parameters) designed to instantly generate the first 4-8 words of a contextually grounded response on-device.",
+    "outcomes": "The \u03bcLMs match the performance of larger models (70M-256M parameters) while being significantly more compact, achieving comparable results to prior state-of-the-art models.",
+    "next": "To further improve the performance of micro language models (\u03bcLMs), the authors believe we should focus on optimizing the collaborative generation framework, particularly reducing the latency associated with cloud-based continuation."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": true,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "takeaway_is_heading",
+    "takeaway_lacks_number"
+  ],
+  "grounding_ok": true,
+  "grounding_issues": []
+}
