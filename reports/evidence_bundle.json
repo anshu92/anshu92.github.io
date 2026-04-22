@@ -1,0 +1,303 @@
+{
+  "primary": {
+    "id": "hf_2604.19321",
+    "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+    "url": "https://arxiv.org/abs/2604.19321",
+    "authors": [
+      "Yusuf Çelebi",
+      "Yağız Asker",
+      "Özay Ezerceli",
+      "Mahmoud ElHussieni",
+      "Selva Taş",
+      "Reyhan Bayraktar",
+      "Fatma Betül Terzioğlu"
+    ],
+    "abstract": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+    "published_at": "2026-04-21T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.19321",
+          "authors": [
+            {
+              "_id": "69e8d7c855c040b43a45a89c",
+              "name": "Yusuf Çelebi",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a89d",
+              "name": "Yağız Asker",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a89e",
+              "name": "Özay Ezerceli",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a89f",
+              "name": "Mahmoud ElHussieni",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a8a0",
+              "name": "Selva Taş",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a8a1",
+              "name": "Reyhan Bayraktar",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a8a2",
+              "name": "Fatma Betül Terzioğlu",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-21T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-22T12:46:47.013Z",
+          "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+          "submittedOnDailyBy": {
+            "_id": "6422eab8e2029ade06eeee2c",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+            "isPro": false,
+            "fullname": "Mahmud ElHuseyni 🇵🇸",
+            "user": "MElHuseyni",
+            "type": "user",
+            "name": "MElHuseyni"
+          },
+          "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+          "upvotes": 4,
+          "discussionId": "69e8d7c855c040b43a45a8a3",
+          "ai_summary": "Using geometric trajectory analysis with the Ramer-Douglas-Peucker algorithm to select optimal layers for parameter-efficient fine-tuning of large language models, achieving better performance than full or random layer selection.",
+          "ai_keywords": [
+            "Large Language Models",
+            "Low-Rank Adaptation",
+            "hidden states",
+            "geometric trajectory",
+            "Ramer-Douglas-Peucker algorithm",
+            "parameter-efficient fine-tuning",
+            "layer selection",
+            "representation trajectories"
+          ]
+        },
+        "publishedAt": "2026-04-20T20:00:00.000Z",
+        "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+        "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19321.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "6422eab8e2029ade06eeee2c",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+          "fullname": "Mahmud ElHuseyni 🇵🇸",
+          "name": "MElHuseyni",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 27,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      }
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_2640283193",
+      "title": "A Survey on Imitation Learning for Contact-Rich Tasks in Robotics",
+      "url": "https://openalex.org/W4415108917",
+      "authors": [],
+      "abstract": "This paper comprehensively surveys research trends in imitation learning for contact-rich robotic tasks. Contact-rich tasks, which require complex physical interactions with the environment, represent a central challenge robotics due to their nonlinear dynamics and sensitivity small positional deviations. The examines demonstration collection methodologies, including teaching methods sensory modalities crucial capturing subtle interaction dynamics. We then analyze approaches, highlighting applications manipulation. Recent advances multimodal foundation models have significantly enhanced performance contact tasks across industrial, household, healthcare domains. Through systematic organization of current identification challenges, this survey provides future advancements",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_83950027",
+      "title": "Privacy-Preserving Feature Extraction with Differentially Private Contrastive Objectives for Time Series",
+      "url": "https://openalex.org/W7118985210",
+      "authors": [],
+      "abstract": "The proliferation of ubiquitous sensing technologies has resulted in an explosion time series data generation, ranging from personal health metrics collected by wearable devices to complex industrial telemetry smart infrastructures. While Deep Learning demonstrated remarkable utility extracting latent representations such high-dimensional temporal data, the deployment these models raises severe privacy concerns. In particular, inversion feature embeddings can inadvertently reveal sensitive attributes underlying subjects. This paper introduces a novel framework for Privacy-Preserving Feature Extraction using Differentially Private Contrastive (DP-CL). We propose rigorous methodology that integrates gradient perturbation mechanisms directly into optimization normalized temperature-scaled cross-entropy loss (NT-Xent) adapted data. By enforcing Differential Privacy (DP) guarantees during pre-training phase, we ensure resulting encoder yields are robust against membership inference and reconstruction attacks while maintaining high downstream utility. Our approach addresses specific challenges applying DP contrastive objectives, as sensitivity magnitudes projection heads impact noise on alignment uniformity metrics. Extensive experiments standard multivariate benchmarks demonstrate our method achieves superior trade-off between budgets classification accuracy compared traditional auto-encoding baselines supervised differentially private training.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "RDP LoRA: Geometry-Driven Identification",
+      "value": "(see paper)",
+      "unit": "",
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  ],
+  "aec_links": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.19321",
+      "text": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification me",
+      "url": "https://arxiv.org/abs/2604.19321"
+    }
+  ],
+  "by_id": {
+    "hf_2604.19321": {
+      "id": "hf_2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "url": "https://arxiv.org/abs/2604.19321",
+      "authors": [
+        "Yusuf Çelebi",
+        "Yağız Asker",
+        "Özay Ezerceli",
+        "Mahmoud ElHussieni",
+        "Selva Taş",
+        "Reyhan Bayraktar",
+        "Fatma Betül Terzioğlu"
+      ],
+      "abstract": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.19321",
+            "authors": [
+              {
+                "_id": "69e8d7c855c040b43a45a89c",
+                "name": "Yusuf Çelebi",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89d",
+                "name": "Yağız Asker",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89e",
+                "name": "Özay Ezerceli",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89f",
+                "name": "Mahmoud ElHussieni",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a0",
+                "name": "Selva Taş",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a1",
+                "name": "Reyhan Bayraktar",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a2",
+                "name": "Fatma Betül Terzioğlu",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T12:46:47.013Z",
+            "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+            "submittedOnDailyBy": {
+              "_id": "6422eab8e2029ade06eeee2c",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+              "isPro": false,
+              "fullname": "Mahmud ElHuseyni 🇵🇸",
+              "user": "MElHuseyni",
+              "type": "user",
+              "name": "MElHuseyni"
+            },
+            "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+            "upvotes": 4,
+            "discussionId": "69e8d7c855c040b43a45a8a3",
+            "ai_summary": "Using geometric trajectory analysis with the Ramer-Douglas-Peucker algorithm to select optimal layers for parameter-efficient fine-tuning of large language models, achieving better performance than full or random layer selection.",
+            "ai_keywords": [
+              "Large Language Models",
+              "Low-Rank Adaptation",
+              "hidden states",
+              "geometric trajectory",
+              "Ramer-Douglas-Peucker algorithm",
+              "parameter-efficient fine-tuning",
+              "layer selection",
+              "representation trajectories"
+            ]
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+          "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19321.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "6422eab8e2029ade06eeee2c",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+            "fullname": "Mahmud ElHuseyni 🇵🇸",
+            "name": "MElHuseyni",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 27,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    "oa_2640283193": {
+      "id": "oa_2640283193",
+      "title": "A Survey on Imitation Learning for Contact-Rich Tasks in Robotics",
+      "url": "https://openalex.org/W4415108917",
+      "authors": [],
+      "abstract": "This paper comprehensively surveys research trends in imitation learning for contact-rich robotic tasks. Contact-rich tasks, which require complex physical interactions with the environment, represent a central challenge robotics due to their nonlinear dynamics and sensitivity small positional deviations. The examines demonstration collection methodologies, including teaching methods sensory modalities crucial capturing subtle interaction dynamics. We then analyze approaches, highlighting applications manipulation. Recent advances multimodal foundation models have significantly enhanced performance contact tasks across industrial, household, healthcare domains. Through systematic organization of current identification challenges, this survey provides future advancements",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_83950027": {
+      "id": "oa_83950027",
+      "title": "Privacy-Preserving Feature Extraction with Differentially Private Contrastive Objectives for Time Series",
+      "url": "https://openalex.org/W7118985210",
+      "authors": [],
+      "abstract": "The proliferation of ubiquitous sensing technologies has resulted in an explosion time series data generation, ranging from personal health metrics collected by wearable devices to complex industrial telemetry smart infrastructures. While Deep Learning demonstrated remarkable utility extracting latent representations such high-dimensional temporal data, the deployment these models raises severe privacy concerns. In particular, inversion feature embeddings can inadvertently reveal sensitive attributes underlying subjects. This paper introduces a novel framework for Privacy-Preserving Feature Extraction using Differentially Private Contrastive (DP-CL). We propose rigorous methodology that integrates gradient perturbation mechanisms directly into optimization normalized temperature-scaled cross-entropy loss (NT-Xent) adapted data. By enforcing Differential Privacy (DP) guarantees during pre-training phase, we ensure resulting encoder yields are robust against membership inference and reconstruction attacks while maintaining high downstream utility. Our approach addresses specific challenges applying DP contrastive objectives, as sensitivity magnitudes projection heads impact noise on alignment uniformity metrics. Extensive experiments standard multivariate benchmarks demonstrate our method achieves superior trade-off between budgets classification accuracy compared traditional auto-encoding baselines supervised differentially private training.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  }
+}

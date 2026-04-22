@@ -1,0 +1,18 @@
+{
+  "calls": 4,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 0
+    },
+    {
+      "tool": "refs_cites",
+      "refs": 0,
+      "cites": 0
+    },
+    {
+      "tool": "openalex",
+      "n": 3
+    }
+  ]
+}
