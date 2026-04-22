@@ -4,9 +4,11 @@
 #   Blog-only optional: SEMANTIC_SCHOLAR_API_KEY, FAL_API_KEY
 #   Optional GROQ for blogpipe if you add routing later; safe to leave unset.
 # Optional: same Gmail App Password pattern as evr for EMAIL_PASSWORD.
-# Repo variables: AEC_SCHOLAR_RSS, BLOGPIPE_DRY_RUN (0/1), BLOGPIPE_MODEL, BLOGPIPE_EDITOR_MODEL,
-#   BLOGPIPE_RESEARCH_MAX_CALLS, BLOGPIPE_PILLAR_FLOOR, BLOGPIPE_EMBED_MODEL, BLOGPIPE_EDITOR_MIN_SCORE,
-#   BLOGPIPE_EDITOR_MAX_LOOPS, BLOGPIPE_FORMAT_COOLDOWN, BLOGPIPE_ART_COOLDOWN, BLOGPIPE_FORCE_FORMAT
+# Repo variables: AEC_SCHOLAR_RSS, BLOGPIPE_DRY_RUN (0/1), BLOGPIPE_RESEARCH_MAX_CALLS, BLOGPIPE_PILLAR_FLOOR,
+#   BLOGPIPE_EMBED_MODEL, BLOGPIPE_EDITOR_MIN_SCORE, BLOGPIPE_EDITOR_MAX_LOOPS, BLOGPIPE_FORMAT_COOLDOWN,
+#   BLOGPIPE_ART_COOLDOWN, BLOGPIPE_FORCE_FORMAT
+#   BLOGPIPE_MODEL, BLOGPIPE_EDITOR_MODEL: optional single OpenRouter model; leave unset to use the same
+#   multi-provider chains as the evr repo (fast: draft/rank, smart: editor), with GROQ + GEMINI + OPENROUTER fallbacks.
 # Approval: merge the opened PR to main, then publish-on-approve workflow flips draft and deploys.
 name: Daily blog draft
 

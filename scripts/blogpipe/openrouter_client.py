@@ -1,4 +1,4 @@
-"""OpenAI-compatible client for OpenRouter and embeddings."""
+"""OpenAI-compatible LLM and embeddings (OpenRouter, Groq, Gemini via evr-ordered chain)."""
 
 from __future__ import annotations
 
@@ -35,6 +35,7 @@ def chat_completion(
     temperature: float = 0.4,
     max_tokens: int = 8192,
 ) -> str:
+    """Single OpenRouter chat. Returns "" on error or if no key."""
     if config.dry_run() or not config.openrouter_key():
         return ""
     body: dict[str, Any] = {
@@ -43,27 +44,62 @@ def chat_completion(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    r = _client().post(
-        f"{config.openrouter_base()}/chat/completions",
-        headers={**_headers(), "Content-Type": "application/json"},
-        content=json.dumps(body).encode("utf-8"),
-    )
-    r.raise_for_status()
-    data = r.json()
-    ch = (data or {}).get("choices") or []
-    if not ch:
+    try:
+        r = _client().post(
+            f"{config.openrouter_base()}/chat/completions",
+            headers={**_headers(), "Content-Type": "application/json"},
+            content=json.dumps(body).encode("utf-8"),
+        )
+        if r.is_error:
+            LOG.warning("openrouter chat %s (model=%s): %s", r.status_code, model, (r.text or "")[:800])
+        r.raise_for_status()
+        data = r.json()
+        ch = (data or {}).get("choices") or []
+        if not ch:
+            return ""
+        return str((ch[0].get("message") or {}).get("content") or "")
+    except httpx.HTTPError as e:
+        LOG.warning("openrouter request failed: %s", e)
         return ""
-    return str((ch[0].get("message") or {}).get("content") or "")
 
 
-def llm_text(system: str, user: str, model: Optional[str] = None) -> str:
-    m = model or config.blogpipe_model()
-    return chat_completion(
-        m,
-        [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
+def llm_text(
+    system: str,
+    user: str,
+    model: Optional[str] = None,
+    *,
+    mode: str = "fast",
+) -> str:
+    """If ``BLOGPIPE_MODEL`` / ``BLOGPIPE_EDITOR_MODEL`` or ``model=`` is set, try that on OpenRouter first, then fall back to the evr fast/smart chain (Groq, Gemini, OpenRouter)."""
+    if config.dry_run():
+        return ""
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+    m_arg = (model or "").strip()
+    if mode not in ("fast", "smart"):
+        mode = "fast"
+    if not m_arg and mode == "fast" and config.blogpipe_model().strip():
+        m_arg = config.blogpipe_model().strip()
+    if not m_arg and mode == "smart" and config.editor_model().strip():
+        m_arg = config.editor_model().strip()
+
+    if m_arg and config.openrouter_key():
+        out = chat_completion(m_arg, messages)
+        if out.strip():
+            return out
+        LOG.warning("explicit model %s returned empty; trying provider chain", m_arg)
+    elif m_arg and not config.openrouter_key():
+        LOG.warning("model override set but no OPENROUTER_API_KEY; using provider chain")
+
+    if not config.llm_configured():
+        return ""
+
+    from .llm_chain import chat_with_chain
+
+    return chat_with_chain(
+        messages, "smart" if mode == "smart" else "fast", temperature=0.4, max_tokens=8192
     )
 
 
@@ -95,6 +131,6 @@ def embed_text(text: str) -> Optional[List[float]]:
         d = r.json()
         v = d["data"][0]["embedding"]
         return [float(x) for x in v]
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         LOG.debug("embed parse: %s", e)
         return None

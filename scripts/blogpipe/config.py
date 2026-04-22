@@ -22,8 +22,16 @@ def openai_key() -> str:
     return _get("OPENAI_API_KEY")
 
 
+def groq_key() -> str:
+    return _get("GROQ_API_KEY")
+
+
 def gemini_key() -> str:
     return _get("GEMINI_API_KEY")
+
+
+def llm_configured() -> bool:
+    return bool(groq_key() or gemini_key() or openrouter_key())
 
 
 def semantic_scholar_key() -> str:
@@ -39,11 +47,13 @@ def aec_scholar_rss() -> str:
 
 
 def blogpipe_model() -> str:
-    return _get("BLOGPIPE_MODEL", "google/gemini-2.0-flash-001")
+    # Empty = use evr fast model chain; set to pin one OpenRouter model.
+    return _get("BLOGPIPE_MODEL", "")
 
 
 def editor_model() -> str:
-    return _get("BLOGPIPE_EDITOR_MODEL", "anthropic/claude-3-5-sonnet-20241022")
+    # Empty = use evr smart model chain; set to pin one OpenRouter model.
+    return _get("BLOGPIPE_EDITOR_MODEL", "")
 
 
 def embed_model() -> str:

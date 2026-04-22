@@ -98,7 +98,7 @@ def run() -> Path:
     fmt = formats.FORMATS.get(brief.format_name) or formats.FORMATS["deep_dive"]
     system, user = build_prompt(bundle, brief, fmt)
     body = ""
-    if config.dry_run() or not config.openrouter_key():
+    if config.dry_run() or not config.llm_configured():
         body = _stub_body(bundle, brief, fmt)
     else:
         body = openrouter_client.llm_text(system, user)

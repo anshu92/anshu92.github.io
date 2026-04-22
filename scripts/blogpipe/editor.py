@@ -36,7 +36,7 @@ def _rubric_llm(md: str) -> EditorReport:
         'Output JSON only: {"rubric_score": N, "rubric_items": [], '
         '"five_questions": {...}, "five_questions_ok": true }'
     )
-    raw = openrouter_client.llm_text(system, md[:24000], model=config.editor_model())
+    raw = openrouter_client.llm_text(system, md[:24000], mode="smart")
     if not raw.strip():
         return EditorReport(
             rubric_score=9,
@@ -90,7 +90,7 @@ def run() -> EditorReport:
         not rep.pass_gate
         and loops < config.editor_max_loops()
         and not config.dry_run()
-        and config.openrouter_key()
+        and config.llm_configured()
     ):
         loops += 1
         fix = openrouter_client.llm_text(
@@ -98,7 +98,7 @@ def run() -> EditorReport:
             f"and ensure five_questions are answerable. Keep ## headings. "
             f"Score {rep.rubric_score}. Output full markdown body only, no frontmatter.",
             body[:20000],
-            model=config.editor_model(),
+            mode="smart",
         )
         if fix.strip():
             body = fix
