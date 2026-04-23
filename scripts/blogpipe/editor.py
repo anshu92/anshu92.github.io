@@ -11,9 +11,9 @@ import re
 from pathlib import Path
 from typing import Any
 
-from . import config, lint, memory, openrouter_client
+from . import config, draft, lint, memory, openrouter_client
 from .llm_chain import get_llm_usage
-from .models import EditorReport
+from .models import EditorReport, EvidenceBundle
 from .memory import _ROOT
 
 LOG = logging.getLogger(__name__)
@@ -242,6 +242,20 @@ def run() -> EditorReport:
     g_ok, g_issues, g_llm = _grounding_check(body)
     ev_p = _ROOT / "reports" / "evidence_bundle.json"
     ev_text = ev_p.read_text(encoding="utf-8")[:22000] if ev_p.is_file() else ""
+    bundle_for_explainer: EvidenceBundle | None = None
+    if ev_p.is_file():
+        try:
+            bundle_for_explainer = EvidenceBundle.model_validate_json(ev_p.read_text())
+        except Exception:
+            bundle_for_explainer = None
+    if bundle_for_explainer is not None:
+        body = draft.explain_undefined_terms(body, bundle_for_explainer)
+        body = draft.embed_planned_visuals(
+            body,
+            bundle_for_explainer.visual_plan,
+            draft._slugify(bundle_for_explainer.primary.title),
+        )
+        path.write_text(front + body, encoding="utf-8")
     lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
     det_ground = lint.unsupported_numeric_claims(body, ev_text) if ev_text else []
     if (

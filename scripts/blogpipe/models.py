@@ -82,6 +82,33 @@ class EvidencePack(BaseModel):
     cits: list[Item] = Field(default_factory=list)
 
 
+class FigureSpec(BaseModel):
+    """One planned body figure (LLM + image chain output)."""
+
+    id: str
+    kind: str = "concept"  # concept|architecture|comparison|plot
+    prompt: str = ""
+    alt: str = ""
+    caption: str = ""
+    placement_hint: str = ""
+
+
+class EquationSpec(BaseModel):
+    """One planned LaTeX block for the body."""
+
+    id: str
+    latex: str
+    caption: str = ""
+    placement_hint: str = ""
+
+
+class VisualPlan(BaseModel):
+    """0–3 figures and 0–3 equations; only what clarifies the paper’s concepts."""
+
+    figures: list[FigureSpec] = Field(default_factory=list)
+    equations: list[EquationSpec] = Field(default_factory=list)
+
+
 class EvidenceBundle(BaseModel):
     primary: Item
     ancestors: list[Item] = Field(default_factory=list)
@@ -98,6 +125,7 @@ class EvidenceBundle(BaseModel):
     by_id: dict[str, Item] = Field(default_factory=dict)
     analyst_notes: list[AnalystNote] = Field(default_factory=list)
     committee_synthesis: str = ""
+    visual_plan: Optional[VisualPlan] = None
 
     def register_ids(self) -> None:
         self.by_id = {self.primary.id: self.primary}

@@ -8,16 +8,19 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
-from .. import config, formats, lint, memory
+from .. import config, draft, formats, lint, memory
 from ..draft import (
     _cleanup_missing_cites,
     _polish_body,
     _resolve_cites,
     _sanitize_frontmatter_text,
+    _slugify,
     _strip_unresolved,
     _stub_body,
     _unwrap_markdown_fence,
     build_prompt,
+    embed_planned_visuals,
+    explain_undefined_terms,
 )
 from ..llm_chain import get_llm_usage, is_llm_call_cap_reached
 from ..memory import _ROOT
@@ -255,6 +258,10 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
                 body = _replace_section_body(body, title, nblock)
 
     body = _polish_body(body, bundle, brief)
+    body = explain_undefined_terms(body, bundle)
+    body = embed_planned_visuals(
+        body, bundle.visual_plan, _slugify(bundle.primary.title)
+    )
     struct = lint.structural_issues(body)
     unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
     print(
@@ -267,6 +274,9 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
         "draft_lint": {
             "structural": struct,
             "unsupported_numeric_claims": unsupported,
+            "missing_planned_visuals": lint.missing_planned_visuals(
+                body, bundle.visual_plan
+            ),
             "stage": "draft_graph",
         },
         "rewrites_applied": rewrites,
@@ -284,6 +294,25 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
 
     rep = global_rubric(body)
     g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
+    bundle_for_explainer: EvidenceBundle | None = None
+    if isinstance(evidence_json, dict) and evidence_json:
+        try:
+            bundle_for_explainer = EvidenceBundle.model_validate(evidence_json)
+        except Exception:
+            bundle_for_explainer = None
+    if bundle_for_explainer is not None:
+        body = explain_undefined_terms(body, bundle_for_explainer)
+        body = embed_planned_visuals(
+            body,
+            bundle_for_explainer.visual_plan,
+            _slugify(bundle_for_explainer.primary.title),
+        )
+        state["body"] = body
+        undefined_after = lint.undefined_acronyms(
+            body, draft._glossary_terms_from_bundle(bundle_for_explainer)
+        )
+    else:
+        undefined_after = lint.undefined_acronyms(body, [])
     lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
     det_ground = lint.unsupported_numeric_claims(body, ev_text)
     usage = get_llm_usage()
@@ -324,6 +353,14 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     d["lint_issues"] = lint_issues
     d["grounding_ok"] = bool(g_ok and not det_ground)
     d["grounding_issues"] = list(dict.fromkeys(g_iss + det_ground))
+    d["undefined_acronyms"] = undefined_after
+    d["missing_planned_visuals"] = (
+        lint.missing_planned_visuals(
+            body, bundle_for_explainer.visual_plan
+        )
+        if bundle_for_explainer is not None
+        else {"missing_figures": [], "missing_equations": []}
+    )
     d["llm_ok"] = llm_ok
     d["editor_warnings"] = ed_warn
     return {

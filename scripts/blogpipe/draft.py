@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import config, formats, lint, memory, openrouter_client
 from .llm_chain import get_llm_usage
-from .models import EditorialBrief, EvidenceBundle, Item
+from .models import EditorialBrief, EvidenceBundle, Item, VisualPlan
 from .memory import _ROOT
 
 LOG = logging.getLogger(__name__)
@@ -490,6 +490,148 @@ def _sanitize_frontmatter_text(text: str, limit: int) -> str:
     return _plain_text(text).replace('"', "'")[:limit]
 
 
+def _glossary_terms_from_bundle(bundle: EvidenceBundle) -> list[str]:
+    out: list[str] = []
+    for n in bundle.analyst_notes or []:
+        if getattr(n, "role", "") == "glossary" and not getattr(n, "skipped", False):
+            for c in n.claims or []:
+                if c and c.strip():
+                    out.append(c.strip())
+    return out
+
+
+def _glossary_block(terms: list[str]) -> str:
+    if not terms:
+        return ""
+    return "\n".join(f"- {t}" for t in terms[:14])
+
+
+def explain_undefined_terms(body: str, bundle: EvidenceBundle) -> str:
+    """Inline-expand acronyms that lack a parenthetical or glossary definition on first use."""
+    terms = _glossary_terms_from_bundle(bundle)
+    missing = lint.undefined_acronyms(body, terms)
+    if not missing:
+        return body
+    if config.dry_run() or not config.llm_configured():
+        return body
+    LOG.info("explainer: %s undefined acronyms: %s", len(missing), missing)
+    glossary = _glossary_block(terms)
+    instruction = (
+        "Edit the markdown body to define the listed acronyms on their FIRST occurrence. "
+        "Use the GLOSSARY for ground truth. Format: ACRONYM (expansion) followed by a brief clause, "
+        "or 'TERM — short definition'. Do not change numbers, citations [cite: id], the mermaid "
+        "block, or section headings. Return the FULL revised markdown body only — no commentary, no "
+        "code fences around the body."
+    )
+    user = (
+        f"UNDEFINED_ACRONYMS:\n- " + "\n- ".join(missing[:12]) + "\n\n"
+        f"GLOSSARY:\n{glossary or '(empty — infer brief, accurate definitions from context)'}\n\n"
+        f"BODY:\n{body[:16000]}\n"
+    )
+    rewrite = openrouter_client.llm_text(
+        instruction, user, max_tokens=2000, task="explainer_rewrite"
+    )
+    revised = _unwrap_markdown_fence(rewrite)
+    if not revised.strip() or not _looks_like_markdown_body(revised):
+        return body
+    after = lint.undefined_acronyms(revised, terms)
+    if len(after) >= len(missing):
+        return body
+    return revised
+
+
+def _h2_titles_from_body(body: str) -> list[str]:
+    return [m.group(1).strip() for m in re.finditer(r"^##\s+(.+?)\s*$", body, re.M)]
+
+
+def _match_h2_for_hint(headings: list[str], hint: str) -> str | None:
+    """Pick the H2 that best matches a free-text placement hint."""
+    h_l = (hint or "").lower().strip()
+    if not h_l:
+        return headings[0] if headings else None
+    for h in headings:
+        if h.lower() in h_l or h_l in h.lower():
+            return h
+    for h in headings:
+        words = re.findall(r"[\w][\w'-]{2,40}", h_l)
+        for w in words:
+            if len(w) > 3 and w in h.lower():
+                return h
+    return headings[0] if headings else None
+
+
+def _end_of_h2_section(body: str, h2_title: str) -> int | None:
+    m = re.search(
+        r"^##\s+" + re.escape(h2_title.strip()) + r"\s*$\n",
+        body,
+        re.M,
+    )
+    if not m:
+        return None
+    rest = body[m.end() :]
+    m2 = re.search(r"^##\s+", rest, re.M)
+    if m2:
+        return m.end() + m2.start()
+    return len(body)
+
+
+def _insert_before_index(body: str, idx: int, block: str) -> str:
+    return body[:idx].rstrip() + "\n\n" + block.strip() + "\n" + body[idx:].lstrip()
+
+
+def _figure_md(spec, slug: str) -> str:
+    u = f"/img/posts/{slug}/figures/{spec.id}.png"
+    lines = [f"![{getattr(spec, 'alt', None) or spec.id}]({u})"]
+    cap = (getattr(spec, "caption", None) or "").strip()
+    if cap:
+        lines.append(f"*{cap}*")
+    return "\n".join(lines)
+
+
+def _equation_md(spec) -> str:
+    cap = (getattr(spec, "caption", None) or "").strip()
+    lx = (getattr(spec, "latex", None) or "").strip()
+    out = f"$$\n{lx}\n$$"
+    if cap:
+        return f"*{cap}*\n\n{out}\n"
+    return f"{out}\n"
+
+
+def embed_planned_visuals(body: str, plan: VisualPlan | None, slug: str) -> str:
+    """Insert planned figure and equation blocks where still missing and placement matches."""
+    if not plan or (not plan.figures and not plan.equations):
+        return body
+    b = body
+    heads = _h2_titles_from_body(b)
+    for spec in plan.figures:
+        needle = f"/figures/{spec.id}.png"
+        if needle in b:
+            continue
+        h2 = _match_h2_for_hint(heads, spec.placement_hint)
+        block = _figure_md(spec, slug)
+        end = _end_of_h2_section(b, h2) if h2 else None
+        if end is None:
+            b = b.rstrip() + "\n\n" + block + "\n"
+        else:
+            b = _insert_before_index(b, end, block)
+    for spec in plan.equations:
+        lx = (spec.latex or "").strip()
+        if not lx:
+            continue
+        compact = lx.replace(" ", "")
+        bcompact = b.replace(" ", "")
+        if lx in b or (len(compact) > 2 and compact in bcompact):
+            continue
+        h2 = _match_h2_for_hint(heads, spec.placement_hint)
+        block = _equation_md(spec)
+        end = _end_of_h2_section(b, h2) if h2 else None
+        if end is None:
+            b = b.rstrip() + "\n\n" + block + "\n"
+        else:
+            b = _insert_before_index(b, end, block)
+    return b
+
+
 def _polish_body(body: str, bundle: EvidenceBundle, brief: EditorialBrief) -> str:
     body = _unwrap_markdown_fence(body)
     body = _cleanup_missing_cites(body)
@@ -514,6 +656,7 @@ def build_prompt(
     fmt: formats.PostFormat,
 ) -> tuple[str, str]:
     bundle.register_ids()
+    post_slug = _slugify(bundle.primary.title)
     goals = fmt.goals_markdown()
     ev = []
     ev.append(f"PRIMARY: {bundle.primary.title}\n{bundle.primary.abstract[:900]}")
@@ -563,6 +706,7 @@ def build_prompt(
             "EDITORIAL_ANGLE (committee): "
             + (bundle.committee_synthesis or "")[:2000]
         )
+    glossary_terms: list[str] = []
     if bundle.analyst_notes:
         lines: list[str] = [
             "COMMITTEE_NOTES (use to sharpen; resolve conflicts with EVIDENCE):"
@@ -570,11 +714,42 @@ def build_prompt(
         for n in bundle.analyst_notes:
             if getattr(n, "skipped", False):
                 continue
+            if n.role == "visual_planner":
+                continue
             role = n.role
             cpart = "\n".join(f"- {c}" for c in (n.claims or [])[:6])
             if cpart.strip():
                 lines.append(f"### {role}\n{cpart}")
+            if role == "glossary":
+                glossary_terms.extend(n.claims or [])
         ev.append("\n\n".join(lines)[:5000])
+    if glossary_terms:
+        ev.append(
+            "GLOSSARY (define each term on its FIRST mention in the body, inline and concise — "
+            "either 'TERM (expansion): definition' or 'TERM — definition'. Do not skip any term "
+            "the post actually uses, especially acronyms like RDP):\n"
+            + "\n".join(f"- {t}" for t in glossary_terms[:14])
+        )
+    if bundle.visual_plan and (
+        bundle.visual_plan.figures or bundle.visual_plan.equations
+    ):
+        vlines: list[str] = [
+            f"VISUAL_PLAN (use exactly; do not add extra images or LaTeX; asset path prefix: "
+            f"/img/posts/{post_slug}/figures/<id>.png):"
+        ]
+        for f in bundle.visual_plan.figures:
+            u = f"/img/posts/{post_slug}/figures/{f.id}.png"
+            vlines.append(
+                f"- FIGURE id={f.id} kind={f.kind} alt={f.alt!r} caption={f.caption!r} "
+                f"placement={f.placement_hint!r} insert_markdown: ![{f.alt or f.id}]({u})"
+            )
+            vlines.append(f"  image_prompt: {f.prompt[:1200]}")
+        for e in bundle.visual_plan.equations:
+            vlines.append(
+                f"- EQUATION id={e.id} placement={e.placement_hint!r} "
+                f"caption={e.caption!r} latex_block: $$ ... {e.latex[:800]} ... $$"
+            )
+        ev.append("\n".join(vlines)[:5000])
     for it in bundle.enrichment_items[:5]:
         ev.append(
             f"ENRICHMENT {it.source} {it.title} | {it.url}\n{it.abstract[:260]}"
@@ -625,6 +800,14 @@ def build_prompt(
         "steal, or a different way to think about the system.\n"
         "10. Have a point of view. Argue why a design worked, why a common assumption is wrong, why a "
         "tradeoff is underrated, or why a result will not generalise.\n"
+        "11. Define jargon on first use. Every acronym (e.g. RDP, MMLU, LoRA, PEFT, KV) must be "
+        "expanded inline the FIRST time it appears, with a one-clause working definition. Use the "
+        "GLOSSARY block as ground truth for definitions. Do not assume the reader recognizes "
+        "domain-specific terms; teach them in passing without slowing the narrative.\n"
+        "12. If a VISUAL_PLAN is present, follow it: insert each figure’s markdown and each "
+        "display equation ($$...$$) at the indicated placement, using those paths. Do not invent "
+        "extra figures, stock photos, or equations beyond the plan. You may skip a plan item only "
+        "if the section does not discuss that concept. Do not add decorative images.\n"
         "\nTHE FIVE-QUESTION TEST — a smart reader must be able to answer these after one skim:\n"
         "(a) What problem is being solved?\n"
         "(b) Why is it hard?\n"
@@ -793,16 +976,25 @@ def run() -> Path:
             body = _polish_body(_unwrap_markdown_fence(rewrite), bundle, brief)
             struct = lint.structural_issues(body)
             unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
+    body = explain_undefined_terms(body, bundle)
+    post_slug = _slugify(bundle.primary.title)
+    body = embed_planned_visuals(body, bundle.visual_plan, post_slug)
+    undefined = lint.undefined_acronyms(body, _glossary_terms_from_bundle(bundle))
+    miss_vis = lint.missing_planned_visuals(body, bundle.visual_plan)
     if struct:
         LOG.warning("draft: structural lint: %s", struct)
     if unsupported:
         LOG.warning("draft: unsupported numeric claims: %s", unsupported)
+    if undefined:
+        LOG.warning("draft: still-undefined acronyms after explainer: %s", undefined)
     u = get_llm_usage()
     draft_calls_ok = u["ok"] - int(u0.get("ok", 0) or 0)
     draft_calls_fail = u["fail"] - int(u0.get("fail", 0) or 0)
     rep_draft = {
         "structural": struct,
         "unsupported_numeric_claims": unsupported,
+        "undefined_acronyms": undefined,
+        "missing_planned_visuals": miss_vis,
         "stage": "draft",
         "stage_llm_ok": draft_calls_ok,
         "stage_llm_fail": draft_calls_fail,
@@ -817,7 +1009,7 @@ def run() -> Path:
         flush=True,
     )
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    slug = _slugify(bundle.primary.title)
+    slug = post_slug
     title = _sanitize_frontmatter_text(bundle.primary.title, 200)
     takeaway = _sanitize_frontmatter_text(body.split("\n", 1)[0].strip(), 500)
     fm = f"""---

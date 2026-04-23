@@ -248,6 +248,46 @@ _TASKS: dict[str, TaskProfile] = {
             ("llama-3.1-8b-instant", "groq"),
         ),
     ),
+    "analyst_glossary": TaskProfile(
+        "analyst_glossary",
+        1000,
+        _CAP_LC | _CAP_ST,
+        _fc(
+            ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
+            ("openrouter/free", "openrouter"),
+        ),
+        _fc(
+            ("openai/gpt-4.1-mini", "openrouter"),
+            ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
+        ),
+    ),
+    "visual_planner": TaskProfile(
+        "visual_planner",
+        1500,
+        _CAP_LC | _CAP_ST,
+        _fc(
+            ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
+            ("openrouter/free", "openrouter"),
+        ),
+        _fc(
+            ("openai/gpt-4.1-mini", "openrouter"),
+            ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
+        ),
+    ),
+    "explainer_rewrite": TaskProfile(
+        "explainer_rewrite",
+        2000,
+        _CAP_LC,
+        _fc(
+            ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
+            ("llama-3.3-70b-versatile", "groq"),
+            ("openrouter/free", "openrouter"),
+        ),
+        _fc(
+            ("google/gemini-2.0-flash-001", "openrouter"),
+            ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
+        ),
+    ),
     "committee_synthesis": TaskProfile(
         "committee_synthesis",
         1800,

@@ -736,6 +736,9 @@ def finalize_evidence_from_pack(
                 merged_section_evidence[key].rstrip() + "\n\n" + value.lstrip()
             )[:4000]
     nlist = list(analyst_notes) if analyst_notes else []
+    from .analysts.visual_planner import parse_visual_plan_from_analysts
+
+    visual_plan = parse_visual_plan_from_analysts(nlist)
     extra_contra = list(
         dict.fromkeys(
             [c for n in nlist for c in (n.contradictions or [])] + paper_limitations
@@ -759,6 +762,7 @@ def finalize_evidence_from_pack(
         contradiction_notes=contradiction_notes,
         analyst_notes=nlist,
         committee_synthesis=committee_synthesis,
+        visual_plan=visual_plan,
     )
     b.register_ids()
     return b, calls, trace

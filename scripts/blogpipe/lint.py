@@ -243,6 +243,108 @@ def unsupported_numeric_claims(body: str, evidence_text: str) -> list[str]:
     return unsupported
 
 
+_ACRONYM = re.compile(r"\b([A-Z]{2,6})(?:s)?\b")
+_COMMON_OK = frozenset(
+    {
+        "AI",
+        "ML",
+        "API",
+        "URL",
+        "GPU",
+        "CPU",
+        "RAM",
+        "OS",
+        "JSON",
+        "XML",
+        "HTML",
+        "CSS",
+        "HTTP",
+        "HTTPS",
+        "PDF",
+        "RFC",
+        "CLI",
+        "REST",
+        "OK",
+        "TODO",
+        "TBD",
+        "FAQ",
+        "RTX",
+        "EU",
+        "US",
+        "USA",
+        "USD",
+        "I",
+        "A",
+        "BLEU",
+    }
+)
+
+
+def _strip_code_and_links(text: str) -> str:
+    t = _CODE_FENCE.sub(" ", text or "")
+    t = re.sub(r"`[^`]*`", " ", t)
+    t = re.sub(r"\[cite:[^\]]+\]", " ", t)
+    t = re.sub(r"\[[^\]]+\]\([^)]+\)", " ", t)
+    return t
+
+
+def missing_planned_visuals(body: str, plan) -> dict[str, list[str]]:
+    """Report planned figure or equation items not yet present in the body (soft signal)."""
+    if plan is None:
+        return {"missing_figures": [], "missing_equations": []}
+    missing_f: list[str] = []
+    missing_e: list[str] = []
+    for f in plan.figures or []:
+        fid = str(getattr(f, "id", "") or "")
+        if fid and f"/figures/{fid}.png" not in body:
+            missing_f.append(fid)
+    for e in plan.equations or []:
+        lx = str(getattr(e, "latex", "") or "").strip()
+        eid = str(getattr(e, "id", "") or "")
+        if not lx:
+            continue
+        compact = lx.replace(" ", "")
+        bcompact = body.replace(" ", "")
+        if lx in body or (len(compact) >= 3 and compact in bcompact):
+            continue
+        missing_e.append(eid or "eq")
+    return {"missing_figures": missing_f, "missing_equations": missing_e}
+
+
+def undefined_acronyms(body: str, glossary_terms: list[str] | None = None) -> list[str]:
+    """Acronyms whose first occurrence is not followed by a parenthetical expansion or glossary def."""
+    text = _strip_code_and_links(body or "")
+    glossary_set = {
+        (t or "").strip().split(" ")[0].upper().rstrip(":,.;")
+        for t in (glossary_terms or [])
+        if t
+    }
+    seen: dict[str, int] = {}
+    for m in _ACRONYM.finditer(text):
+        a = m.group(1)
+        if a in _COMMON_OK or a in seen:
+            continue
+        seen[a] = m.start()
+    out: list[str] = []
+    for a, idx in seen.items():
+        window = text[max(0, idx - 200) : idx + len(a) + 200]
+        if a in glossary_set:
+            continue
+        if re.search(rf"\(\s*{re.escape(a)}\s*\)", window):
+            continue
+        if re.search(
+            rf"{re.escape(a)}\s*\([A-Z][^()]{{2,80}}\)", window
+        ):
+            continue
+        if re.search(
+            rf"\b([A-Z][a-z]+(?:[-\s][A-Z][a-z]+){{1,4}})\s*\(\s*{re.escape(a)}\s*\)",
+            window,
+        ):
+            continue
+        out.append(a)
+    return out
+
+
 def structural_issues(body: str) -> list[str]:
     """All structural lints in one list (used by editor gate)."""
     return (

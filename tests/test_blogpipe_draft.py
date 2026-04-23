@@ -4,8 +4,13 @@ import textwrap
 import unittest
 
 from blogpipe import formats, lint
-from blogpipe.draft import _polish_body, _stub_body
-from blogpipe.models import EditorialBrief, EvidenceBundle, Item, Pillar
+from blogpipe.draft import (
+    _glossary_terms_from_bundle,
+    _polish_body,
+    _stub_body,
+    explain_undefined_terms,
+)
+from blogpipe.models import AnalystNote, EditorialBrief, EvidenceBundle, Item, Pillar
 
 
 MICRO_ABSTRACT = (
@@ -116,6 +121,27 @@ class DraftPolishTests(unittest.TestCase):
         self.assertIn("The authors' models", polished)
         self.assertIn("The authors evaluate their geometric layer selection method", polished)
         self.assertNotIn("collective_research_voice", lint.structural_issues(polished))
+
+    def test_glossary_terms_collected_from_bundle(self) -> None:
+        self.bundle.analyst_notes = [
+            AnalystNote(
+                role="glossary",
+                claims=[
+                    "RDP — Ramer-Douglas-Peucker polygon simplification.",
+                    "MMLU — Massive Multitask Language Understanding benchmark.",
+                ],
+            ),
+            AnalystNote(role="methods", claims=["unrelated"]),
+        ]
+        terms = _glossary_terms_from_bundle(self.bundle)
+        self.assertEqual(len(terms), 2)
+        self.assertTrue(any(t.startswith("RDP") for t in terms))
+
+    def test_explain_undefined_terms_is_noop_in_dry_run(self) -> None:
+        body = "RDP LoRA reaches 81.67% MMLU-Math.\n"
+        self.bundle.analyst_notes = []
+        out = explain_undefined_terms(body, self.bundle)
+        self.assertEqual(out, body)
 
     def test_stub_body_is_grounded_and_structurally_valid(self) -> None:
         stub = _stub_body(self.bundle, self.brief, formats.FORMATS["deep_dive"])

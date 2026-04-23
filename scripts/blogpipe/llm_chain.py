@@ -18,48 +18,31 @@ _TIMEOUT = httpx.Timeout(120.0, connect=15.0)
 # (model_id, provider). OpenRouter slugs are from https://openrouter.ai/api/v1/models — use :free
 # only where the API lists that id (no paid-only ids with a fake :free suffix).
 _FAST_MODEL_CHAIN: list[tuple[str, str]] = [
-    # Groq
+    # Groq (verified live ids; see https://console.groq.com/docs/models)
     ("llama-3.3-70b-versatile", "groq"),
     ("qwen/qwen3-32b", "groq"),
     ("meta-llama/llama-4-scout-17b-16e-instruct", "groq"),
-    ("moonshotai/kimi-k2-instruct", "groq"),
     ("llama-3.1-8b-instant", "groq"),
     # OpenRouter free pool (order: strong general + router + breadth + small fallbacks)
     ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
-    ("nousresearch/hermes-3-llama-3.1-405b:free", "openrouter"),
     ("nvidia/nemotron-3-super-120b-a12b:free", "openrouter"),
     ("openai/gpt-oss-120b:free", "openrouter"),
     ("qwen/qwen3-next-80b-a3b-instruct:free", "openrouter"),
     ("openrouter/free", "openrouter"),
-    ("google/gemma-4-31b-it:free", "openrouter"),
-    ("google/gemma-4-26b-a4b-it:free", "openrouter"),
-    ("minimax/minimax-m2.5:free", "openrouter"),
     ("z-ai/glm-4.5-air:free", "openrouter"),
-    ("arcee-ai/trinity-large-preview:free", "openrouter"),
     ("qwen/qwen3-coder:free", "openrouter"),
-    ("inclusionai/ling-2.6-flash:free", "openrouter"),
     ("google/gemma-3-27b-it:free", "openrouter"),
     ("google/gemma-3-12b-it:free", "openrouter"),
-    ("google/gemma-3-4b-it:free", "openrouter"),
-    ("google/gemma-3n-e4b-it:free", "openrouter"),
-    ("google/gemma-3n-e2b-it:free", "openrouter"),
-    ("nvidia/nemotron-3-nano-30b-a3b:free", "openrouter"),
     ("nvidia/nemotron-nano-9b-v2:free", "openrouter"),
-    ("nvidia/nemotron-nano-12b-v2-vl:free", "openrouter"),
     ("openai/gpt-oss-20b:free", "openrouter"),
     ("meta-llama/llama-3.2-3b-instruct:free", "openrouter"),
-    ("liquid/lfm-2.5-1.2b-instruct:free", "openrouter"),
-    ("cognitivecomputations/dolphin-mistral-24b-venice-edition:free", "openrouter"),
 ]
 
 _SMART_MODEL_CHAIN: list[tuple[str, str]] = [
     ("gemini-2.5-flash", "gemini"),
     ("llama-3.3-70b-versatile", "groq"),
     ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
-    ("nousresearch/hermes-3-llama-3.1-405b:free", "openrouter"),
     ("openrouter/free", "openrouter"),
-    ("google/gemma-4-31b-it:free", "openrouter"),
-    ("google/gemma-4-26b-a4b-it:free", "openrouter"),
     ("nvidia/nemotron-3-super-120b-a12b:free", "openrouter"),
     ("openai/gpt-oss-120b:free", "openrouter"),
     ("qwen/qwen3-next-80b-a3b-instruct:free", "openrouter"),
@@ -100,6 +83,8 @@ REASONING_MODELS: set[str] = {
 
 _BLACKLIST: dict[str, float] = {}
 _BLACKLIST_TTL_DAILY = 86400.0
+_BLACKLIST_TTL_SHORT = 600.0  # 10 minutes — for transient TPM/503 spikes
+_BLACKLIST_TTL_MED = 3600.0  # 1 hour — for upstream "temporarily rate-limited" pools
 def _empty_usage() -> dict[str, Any]:
     return {
         "ok": 0,
@@ -241,24 +226,29 @@ def _persist_blacklist() -> None:
         LOG.debug("blacklist write: %s", e)
 
 
+def register_blacklist_key(key: str, ttl: float) -> None:
+    """Block a logical key (e.g. image:pollinations) for ttl seconds, persisted to disk."""
+    if not (key or "").strip():
+        return
+    _merge_blacklist_from_disk()
+    _BLACKLIST[key.strip()] = time.time() + max(1.0, float(ttl))
+    _persist_blacklist()
+
+
+def is_blacklist_key_active(key: str) -> bool:
+    if not (key or "").strip():
+        return False
+    _merge_blacklist_from_disk()
+    return _BLACKLIST.get(key.strip(), 0) > time.time()
+
+
 def _entry_key(entry: dict[str, Any]) -> str:
     return f"{entry.get('provider', '')}:{entry.get('model', '')}"
 
 
 def _blacklist_ttl_for_body(status: int, body: str) -> Optional[float]:
     low = (body or "").lower()
-    if status == 429 and any(
-        s in low
-        for s in (
-            "tokens per day",
-            "free-models-per-day",
-            "resource_exhausted",
-            "resource exhausted",
-            "rate limit",
-            "too many requests",
-        )
-    ):
-        return _BLACKLIST_TTL_DAILY
+    # Permanent-for-the-day: model is gone, daily quota exhausted, or hard not-found.
     if status in (400, 404) and any(
         s in low
         for s in (
@@ -266,9 +256,40 @@ def _blacklist_ttl_for_body(status: int, body: str) -> Optional[float]:
             "invalid model",
             "unknown model",
             "not a valid model id",
+            "model_not_found",
+            "does not exist",
+            "no endpoints found",
+            "no allowed providers",
         )
     ):
         return _BLACKLIST_TTL_DAILY
+    if status == 429 and any(
+        s in low
+        for s in (
+            "tokens per day",
+            "requests per day",
+            "free-models-per-day",
+            "resource_exhausted",
+            "resource exhausted",
+        )
+    ):
+        return _BLACKLIST_TTL_DAILY
+    # Medium TTL: provider-side pool rate-limit ("temporarily rate-limited upstream").
+    if status == 429 and "temporarily rate-limited" in low:
+        return _BLACKLIST_TTL_MED
+    # Short TTL: per-minute TPM/RPM spikes and transient upstream errors.
+    if status == 429 and any(
+        s in low
+        for s in (
+            "tokens per minute",
+            "requests per minute",
+            "rate limit",
+            "too many requests",
+        )
+    ):
+        return _BLACKLIST_TTL_SHORT
+    if status in (502, 503, 504):
+        return _BLACKLIST_TTL_SHORT
     return None
 
 

@@ -68,6 +68,31 @@ class LintRegressionTests(unittest.TestCase):
         )
         self.assertIn("collective_research_voice", lint.structural_issues(body))
 
+    def test_undefined_acronyms_flag_first_use(self) -> None:
+        body = (
+            "RDP LoRA reaches 81.67% MMLU-Math accuracy.\n\n"
+            "The authors apply RDP to identify breakpoints in MMLU evaluation runs."
+        )
+        flagged = lint.undefined_acronyms(body, [])
+        self.assertIn("RDP", flagged)
+        self.assertIn("MMLU", flagged)
+
+    def test_undefined_acronyms_respect_inline_expansion(self) -> None:
+        body = (
+            "Ramer-Douglas-Peucker (RDP) yields 81.67% on the math split.\n\n"
+            "MMLU (Massive Multitask Language Understanding) is the reported benchmark."
+        )
+        flagged = lint.undefined_acronyms(body, [])
+        self.assertNotIn("RDP", flagged)
+        self.assertNotIn("MMLU", flagged)
+
+    def test_undefined_acronyms_respect_glossary(self) -> None:
+        body = "RDP LoRA reaches 81.67% MMLU-Math accuracy.\n"
+        flagged = lint.undefined_acronyms(
+            body, ["RDP — Ramer-Douglas-Peucker polygon simplification."]
+        )
+        self.assertNotIn("RDP", flagged)
+
 
 if __name__ == "__main__":
     unittest.main()

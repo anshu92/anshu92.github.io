@@ -31,6 +31,11 @@ def gemini_key() -> str:
     return _get("GEMINI_API_KEY")
 
 
+def hf_token() -> str:
+    """Hugging Face token for optional Inference API image fallbacks (FLUX, etc.)."""
+    return _get("HF_TOKEN") or _get("HUGGING_FACE_HUB_TOKEN", "")
+
+
 def llm_configured() -> bool:
     return bool(groq_key() or gemini_key() or openrouter_key())
 
@@ -181,6 +186,8 @@ def committee_analysts() -> list[str]:
             "practitioner",
             "code",
             "web",
+            "glossary",
+            "visual_planner",
         ]
     return [p.strip() for p in raw.split(",") if p.strip()]
 
