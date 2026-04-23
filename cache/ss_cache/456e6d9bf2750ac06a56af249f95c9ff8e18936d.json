@@ -1,0 +1,24 @@
+{
+"kind": "search",
+"exp": 1777053982.078272,
+"items": [
+{
+"id": "ss_9d598f65a9dbe906532b2e464500018ec4bcccdf",
+"title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+"url": "https://www.semanticscholar.org/paper/9d598f65a9dbe906532b2e464500018ec4bcccdf",
+"authors": [
+"Yuval Haitman",
+"Amit Efraim",
+"J. Francos"
+],
+"abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a\"Match-then-Fuse\"probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+}
+]
+}

@@ -1,0 +1,162 @@
+{
+  "rubric_score": 13,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 0
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "Current learning-based 3D point cloud registration methods struggle to generalize across different sensing modalities, sampling differences, and environments.",
+    "hard": "The main issue lies in their inability to adapt to new, unseen data, which is crucial for real-world applications.",
+    "tried": "The authors propose C-GenReg, a training-free framework that leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs).",
+    "outcomes": "C-GenReg achieves strong zero-shot performance and superior cross-domain generalization on benchmarks like 3DMatch, ScanNet, and Waymo.",
+    "next": "The author would test C-GenReg on a diverse set of 3D point cloud datasets to evaluate its robustness and generalizability."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "takeaway_lacks_number",
+    "generic_heading_used",
+    "citation_count_below_min",
+    "unresolved_source_alias",
+    "comparative_claim_missing_metric",
+    "missing_mechanism_section"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "C-GenReg is interesting only if the concrete tradeoff survives contact with deployment.",
+    "current learning-based methods often struggle to generalize across different sensing modalities, sampling differences, and environments.",
+    "current learning-based methods struggle to generalize across different sensing modalities, sampling differences, and environments.",
+    "85.6%",
+    "78.2%"
+  ],
+  "rubric_floor_applied": false,
+  "rubric_floor_reasons": [],
+  "rubric_score_raw": 13,
+  "evidence_utilization": {
+    "score": 0.272,
+    "ratios": {
+      "numbers": 0.0,
+      "entities": 0.72,
+      "quotes": 0.1429,
+      "analyst_claims": 0.2083
+    },
+    "totals": {
+      "numbers": 1,
+      "entities": 25,
+      "quotes": 7,
+      "analyst_claims": 24
+    },
+    "used_counts": {
+      "numbers": 0,
+      "entities": 18,
+      "quotes": 1,
+      "analyst_claims": 5
+    },
+    "unused": {
+      "numbers": [
+        "1"
+      ],
+      "entities": [
+        "Assessing the practical applicability of neural\u2010based point clouds registration algorithms: A comparative analysis",
+        "Benchmarking of alignment-free sequence comparison methods",
+        "Convolutional Neural Network-Based Parkinson Disease Classification Using SPECT Imaging Data",
+        "C-GenReg: Training-Free 3D Point Cloud R",
+        "RGB-D",
+        "RoITr",
+        "Point-Pair-Feature"
+      ],
+      "quotes": [
+        "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3",
+        "In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].",
+        "We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).",
+        "RoITr [33] embedded Point- Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.",
+        "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+        "Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (W aymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization."
+      ],
+      "analyst_claims": [
+        "extracting matches from views using a VFM pretrained for dense correspondences",
+        "lifting pixel correspondences back to 3D via depth maps",
+        "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+        "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+        "replacing a detailed scene description with a general one results in negligible degradation",
+        "even a minimal prompt maintains reasonably strong performance",
+        "a semantically incorrect prompt substantially degrades registration accuracy",
+        "World Foundation Model \u2014 A model used to synthesize multi-view-consistent RGB representations from input geometry."
+      ]
+    }
+  },
+  "undefined_acronyms": [
+    "VFM",
+    "RGB",
+    "SOTA"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  }
+}

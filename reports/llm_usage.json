@@ -1,0 +1,156 @@
+{
+  "ok": 25,
+  "fail": 4,
+  "blacklisted_skips": 107,
+  "blacklist_added": [
+    "groq:qwen/qwen3-32b",
+    "groq:meta-llama/llama-4-scout-17b-16e-instruct",
+    "groq:llama-3.1-8b-instant",
+    "openrouter:meta-llama/llama-3.2-3b-instruct:free"
+  ],
+  "tokens_in": 22566,
+  "tokens_out": 6114,
+  "usd_spent": 0.0,
+  "by_task": {
+    "supervisor_route": {
+      "calls": 1,
+      "tokens_in": 203,
+      "tokens_out": 71,
+      "usd": 0.0
+    },
+    "query_gen": {
+      "calls": 1,
+      "tokens_in": 214,
+      "tokens_out": 66,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "qwen/qwen3-32b": {
+      "calls": 2,
+      "tokens_in": 2298,
+      "tokens_out": 563,
+      "usd": 0.0
+    },
+    "meta-llama/llama-4-scout-17b-16e-instruct": {
+      "calls": 20,
+      "tokens_in": 18620,
+      "tokens_out": 5348,
+      "usd": 0.0
+    },
+    "llama-3.1-8b-instant": {
+      "calls": 3,
+      "tokens_in": 1648,
+      "tokens_out": 203,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 5,
+    "committee": 9,
+    "draft": 9,
+    "editor": 3,
+    "polish": 2
+  },
+  "llm_cap": 90,
+  "llm_calls": 29,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'visual_planner'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer"
+  ],
+  "committee_synthesis": {
+    "narrative": "C-GenReg, a novel approach to 3D point cloud registration, marks a significant departure from traditional methods by leveraging a World Foundation Model to synthesize multi-view-consistent RGB representations. This enables the transfer of the matching problem into an auxiliary image domain, effectively sidestepping the need for extensive training data. By harnessing Vision Foundation Models (VFMs) pretrained for dense correspondences, C-GenReg efficiently extracts matches from views, which are then lifted back to 3D via depth maps.\n\nThe core of C-GenReg's innovation lies in its 'Match-then-Fuse' probabilistic cold-fusion scheme, which adeptly combines correspondence posteriors from both generated-RGB and raw geometric branches. This method not only enhances the accuracy of 3D point cloud registration but also demonstrates a remarkable ability to operate effectively in zero-shot scenarios across various benchmarks, including indoor RGB-D benchmarks like 3DMatch and ScanNet, as well as outdoor LiDAR data from Waymo.\n\nA critical analysis of C-GenReg reveals a tension between the specificity of scene descriptions and the performance of the registration process. Interestingly, the method shows resilience even when detailed scene descriptions are replaced with general ones, with negligible degradation in performance. Moreover, it maintains reasonably strong performance even with minimal prompts. However, the introduction of semantically incorrect prompts significantly degrades registration accuracy, highlighting the importance of accurate prior knowledge in the generation process.\n\nFor readers, the key takeaway is that C-GenReg presents a promising, training-free solution for 3D point cloud registration, capitalizing on the strengths of World Foundation Models and VFMs. Its ability to achieve state-of-the-art zero-shot results across diverse benchmarks, coupled with its robustness to variations in scene descriptions, positions C-GenReg as a versatile and effective tool for applications requiring accurate 3D registration.",
+    "report": {
+      "narrative": "C-GenReg, a novel approach to 3D point cloud registration, marks a significant departure from traditional methods by leveraging a World Foundation Model to synthesize multi-view-consistent RGB representations. This enables the transfer of the matching problem into an auxiliary image domain, effectively sidestepping the need for extensive training data. By harnessing Vision Foundation Models (VFMs) pretrained for dense correspondences, C-GenReg efficiently extracts matches from views, which are then lifted back to 3D via depth maps.\n\nThe core of C-GenReg's innovation lies in its 'Match-then-Fuse' probabilistic cold-fusion scheme, which adeptly combines correspondence posteriors from both generated-RGB and raw geometric branches. This method not only enhances the accuracy of 3D point cloud registration but also demonstrates a remarkable ability to operate effectively in zero-shot scenarios across various benchmarks, including indoor RGB-D benchmarks like 3DMatch and ScanNet, as well as outdoor LiDAR data from Waymo.\n\nA critical analysis of C-GenReg reveals a tension between the specificity of scene descriptions and the performance of the registration process. Interestingly, the method shows resilience even when detailed scene descriptions are replaced with general ones, with negligible degradation in performance. Moreover, it maintains reasonably strong performance even with minimal prompts. However, the introduction of semantically incorrect prompts significantly degrades registration accuracy, highlighting the importance of accurate prior knowledge in the generation process.\n\nFor readers, the key takeaway is that C-GenReg presents a promising, training-free solution for 3D point cloud registration, capitalizing on the strengths of World Foundation Models and VFMs. Its ability to achieve state-of-the-art zero-shot results across diverse benchmarks, coupled with its robustness to variations in scene descriptions, positions C-GenReg as a versatile and effective tool for applications requiring accurate 3D registration.",
+      "n_analysts": 5,
+      "n_skipped": 0,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [
+            "using a World Foundation Model to synthesize multi-view-consistent RGB representations",
+            "extracting matches from views using a VFM pretrained for dense correspondences",
+            "lifting pixel correspondences back to 3D via depth maps",
+            "combining correspondence posteriors using a 'Match-then-Fuse' probabilistic cold-fusion scheme"
+          ],
+          "citations": [
+            "[1]",
+            "[33]"
+          ],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "empirical",
+          "claims": [
+            "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+            "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+            "replacing a detailed scene description with a general one results in negligible degradation",
+            "even a minimal prompt maintains reasonably strong performance",
+            "a semantically incorrect prompt substantially degrades registration accuracy"
+          ],
+          "citations": [
+            "[1]",
+            "[33]"
+          ],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Results",
+          "skipped": false
+        },
+        {
+          "role": "glossary",
+          "claims": [
+            "C-GenReg \u2014 A training-free 3D point cloud registration method that transfers the matching problem into an auxiliary image domain.",
+            "World Foundation Model \u2014 A model used to synthesize multi-view-consistent RGB representations from input geometry.",
+            "Vision Foundation Models (VFMs) \u2014 Models that achieve remarkable robustness by training on massive, heterogeneous datasets.",
+            "Match-then-Fuse \u2014 A probabilistic cold-fusion scheme that combines correspondence posteriors from the generated-RGB and raw geometric branches.",
+            "RoITr \u2014 A method that embedded Point-Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.",
+            "3DMatch \u2014 An indoor RGB-D benchmark for 3D point cloud registration.",
+            "ScanNet \u2014 An indoor RGB-D benchmark for 3D point cloud registration.",
+            "Waymo \u2014 An outdoor LiDAR benchmark for 3D point cloud registration.",
+            "Zero-shot \u2014 A setting where a model is evaluated on a new task or domain without any additional training.",
+            "Cross-domain generalization \u2014 The ability of a model to perform well across different domains, such as indoor and outdoor scenes.",
+            "Probabilistic modalities fusion \u2014 A method that combines multiple modalities, such as geometry and image, using probabilistic techniques."
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Related Work",
+          "skipped": false
+        },
+        {
+          "role": "related",
+          "claims": [
+            "C-GenReg is a training-free framework for 3D point cloud registration",
+            "C-GenReg leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs)",
+            "C-GenReg transfers the matching problem into an auxiliary image domain"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "visual_planner",
+          "claims": [
+            "{\"figures\": [{\"id\": \"architecture_overview\", \"kind\": \"architecture\", \"prompt\": \"C-GenReg architecture overview\", \"alt\": \"C-GenReg architecture\", \"caption\": \"Overview of the proposed C-GenReg method\", \"placement_hint\": \"top\"}, {\"id\": \"multi_view_consistent_generation\", \"kind\": \"plot\", \"prompt\": \"Multi-view-consistent RGB representations\", \"alt\": \"Multi-view-consistent RGB representations\", \"caption\": \"Multi-view-consistent RGB representations generated by World Foundation Model\", \"placement_hint\": \"middle\"}, {\"id\": \"match_then_fuse_scheme\", \"kind\": \"concept\", \"prompt\": \"Match-then-Fuse probabilistic cold-fusion scheme\", \"alt\": \"Match-then-Fuse scheme\", \"caption\": \"Probabilistic cold-fusion scheme for combining correspondence posteriors\", \"placement_hint\": \"bottom\"}], \"equations\": [{\"id\": \"correspondence_posterior_fusion\", \"latex\": \"\\\\mathcal{P}(\\\\mathbf{C} | \\\\mathbf{I}, \\\\mathbf{G}) = \\\\mathcal{P}(\\\\mathbf{C} | \\\\mathbf{I}) \\\\cdot \\\\mathcal{P}(\\\\mathbf{C} | \\\\mathbf{G})\", \"caption\": \"Correspondence posterior fusion\", \"placement_hint\": \"middle\"}]}"
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        }
+      ]
+    }
+  }
+}
