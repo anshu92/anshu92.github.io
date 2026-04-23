@@ -303,6 +303,7 @@ def run() -> EditorialBrief:
         "cache/covered_papers.json",
         "cache/post_index.json",
         "cache/variety_ledger.json",
+        "cache/topic_keywords.json",
     )
     post_dir = _ROOT / "content" / "post"
     metas: list[PostMeta] = []

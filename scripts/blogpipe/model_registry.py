@@ -393,6 +393,19 @@ _TASKS: dict[str, TaskProfile] = {
             ("llama-3.1-8b-instant", "groq"),
         ),
     ),
+    "keyword_extract": TaskProfile(
+        "keyword_extract",
+        400,
+        _CAP_FAST | _CAP_ST,
+        _fc(
+            ("llama-3.1-8b-instant", "groq"),
+            ("openrouter/free", "openrouter"),
+        ),
+        _fc(
+            ("openai/gpt-4.1-mini", "openrouter"),
+            ("llama-3.1-8b-instant", "groq"),
+        ),
+    ),
 }
 
 _DEFAULT = _TASKS["draft_full"]

@@ -30,15 +30,28 @@ CACHE = _ROOT / "cache"
 REPORTS = _ROOT / "reports"
 CONTENT_POST = _ROOT / "content" / "post"
 STATIC_FONTS = _ROOT / "static" / "fonts"
+# Hugo: static/img/posts/... → site URL /img/posts/...
+STATIC_IMG_POSTS = _ROOT / "static" / "img" / "posts"
+
+
+def static_img_post_dir(slug: str) -> Path:
+    """Directory for one post’s generated images (cover, hero, diagram, etc.)."""
+    d = STATIC_IMG_POSTS / slug
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def static_img_figures_dir(slug: str) -> Path:
+    """Directory for embedded concept figures: static/img/posts/{slug}/figures/."""
+    d = static_img_post_dir(slug) / "figures"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 
 def ensure_dirs() -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     REPORTS.mkdir(parents=True, exist_ok=True)
-    (REPO_STATIC_IMG := _ROOT / "static" / "img" / "posts").mkdir(
-        parents=True, exist_ok=True
-    )
-    _ = REPO_STATIC_IMG  # quiet lint
+    STATIC_IMG_POSTS.mkdir(parents=True, exist_ok=True)
 
 
 def load_json(name: str, default: Any) -> Any:

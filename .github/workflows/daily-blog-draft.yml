@@ -81,6 +81,7 @@ jobs:
             cache/covered_papers.json
             cache/post_index.json
             cache/variety_ledger.json
+            cache/topic_keywords.json
             cache/llm_blacklist.json
             cache/graph.sqlite
             cache/ss_cache
@@ -93,7 +94,7 @@ jobs:
           set -euo pipefail
           mkdir -p cache
           git fetch origin blogpipe-memory 2>/dev/null || true
-          for f in cache/covered_papers.json cache/post_index.json cache/variety_ledger.json; do
+          for f in cache/covered_papers.json cache/post_index.json cache/variety_ledger.json cache/topic_keywords.json; do
             if git rev-parse --verify "origin/blogpipe-memory" >/dev/null 2>&1; then
               if git cat-file -e "origin/blogpipe-memory:$f" 2>/dev/null; then
                 git show "origin/blogpipe-memory:$f" > "$f" && echo "Restored $f from blogpipe-memory"
@@ -232,6 +233,7 @@ jobs:
             cache/covered_papers.json
             cache/post_index.json
             cache/variety_ledger.json
+            cache/topic_keywords.json
             cache/llm_blacklist.json
             cache/graph.sqlite
             cache/ss_cache

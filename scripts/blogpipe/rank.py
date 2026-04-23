@@ -8,7 +8,7 @@ import logging
 import re
 from pathlib import Path
 
-from . import config, memory, openrouter_client
+from . import config, memory, openrouter_client, topics
 from .llm_chain import reset_llm_usage
 from .models import EditorialBrief, Item, Pillar, RankResult
 from .memory import _ROOT, load_json, save_json
@@ -55,6 +55,22 @@ def _filter_avoid(items: list[Item], avoid: list[str]) -> list[Item]:
     return out or items
 
 
+def _filter_off_topic(items: list[Item]) -> list[Item]:
+    """Drop items that match no configured topic theme; keep all if it would empty the list."""
+    if not config.require_topic_match():
+        return items
+    kept = [it for it in items if topics.is_in_scope(it)]
+    if not kept:
+        LOG.warning(
+            "rank: topic filter would drop all %d items; keeping originals",
+            len(items),
+        )
+        return items
+    if len(kept) < len(items):
+        LOG.info("rank: topic filter %d -> %d items", len(items), len(kept))
+    return kept
+
+
 def _heuristic_score(it: Item, brief: EditorialBrief) -> float:
     w = brief.pillar_weights or {}
     base = 1.0 * float(
@@ -65,8 +81,8 @@ def _heuristic_score(it: Item, brief: EditorialBrief) -> float:
             0.2,
         )
     )
-    if "llm" in it.title.lower() or "language model" in it.abstract.lower()[:200]:
-        base += 0.1
+    matches = topics.matched_themes(it)
+    base += config.topic_relevance_weight() * (len(matches) / float(len(topics.THEMES)))
     if it.source == "huggingface_daily_papers":
         base += 0.15
     return base
@@ -83,15 +99,19 @@ def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str,
         )
     system = (
         "You are an editorial ranker. Pick ONE best item for a technical blog. "
-        "Return JSON only: { \"pick_index\": 0, \"reasoning\": \"...\" }"
-        f" Pillar weights: {brief.pillar_weights}. "
-        "Principal ML Engineer at Autodesk: prefer reproducible, engineering, "
-        "AEC when relevant, LLM when core."
+        "Return JSON only: { \"pick_index\": 0, \"reasoning\": \"...\" }\n"
+        f"Pillar weights: {brief.pillar_weights}.\n"
+        "Voice: Principal ML Engineer at Autodesk; prefer reproducible engineering depth, "
+        "AEC when relevant, LLM when core.\n"
+        + topics.themes_prompt_block()
+        + "\nHARD RULE: pick_index MUST point to a candidate that fits at least one theme above. "
+        "If none fit, choose the one closest to a theme and explain the gap in `reasoning`."
     )
     lines: list[str] = []
     for i, c in enumerate(candidates[:20]):
+        themes_str = ",".join(topics.matched_themes(c)) or "none"
         lines.append(
-            f"{i}. [{c.pillar}] {c.title} | {c.source} | {c.url}\n  {c.abstract[:400]}"
+            f"{i}. [{c.pillar}] themes=[{themes_str}] {c.title} | {c.source} | {c.url}\n  {c.abstract[:400]}"
         )
     user = "Candidates:\n" + "\n".join(lines)
     try:
@@ -125,6 +145,7 @@ def run() -> RankResult:
         and not any(sha in it.id for sha in ("placeholder",))
     ]
     items = _filter_avoid(items, brief.avoid_topics)
+    items = _filter_off_topic(items)
     if not items:
         LOG.warning("rank: no items after filter; using proactive topic path")
         # Synthetic item from follow-up

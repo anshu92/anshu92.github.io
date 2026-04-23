@@ -15,6 +15,7 @@ import httpx
 
 from . import config, memory
 from .draft import _slugify
+from .memory import static_img_figures_dir, static_img_post_dir
 from .llm_chain import (
     _BLACKLIST_TTL_DAILY,
     _BLACKLIST_TTL_SHORT,
@@ -263,8 +264,7 @@ def generate_figure(
     palette: tuple[int, ...],
 ) -> str | None:
     """Run free-first image chain; write static/img/posts/{slug}/figures/{id}.png. Return URL or None."""
-    ddir = _ROOT / "static" / "img" / "posts" / slug / "figures"
-    ddir.mkdir(parents=True, exist_ok=True)
+    ddir = static_img_figures_dir(slug)
     out = ddir / f"{spec.id}.png"
     if config.dry_run():
         out.write_bytes(b"")
@@ -301,8 +301,7 @@ def run() -> None:
     md = draft_path.read_text(encoding="utf-8")
     m = re.search(r'one_sentence_takeaway:\s*"(.*)"', md, re.S)
     sub = (m.group(1) if m else title)[:200]
-    ddir = _ROOT / "static" / "img" / "posts" / slug
-    ddir.mkdir(parents=True, exist_ok=True)
+    ddir = static_img_post_dir(slug)
     pals = {
         "editorial_illustration": (40, 60, 120, 80, 120, 200),
         "isometric_diagram": (30, 80, 50, 60, 140, 90),

@@ -230,6 +230,19 @@ def graph_thread_id_override() -> str:
     return _get("BLOGPIPE_THREAD_ID", "")
 
 
+def require_topic_match() -> bool:
+    """If true (default), drop harvested items that match none of the configured topic themes."""
+    return _get("BLOGPIPE_REQUIRE_TOPIC_MATCH", "1") in ("1", "true", "yes", "on")
+
+
+def topic_relevance_weight() -> float:
+    """Heuristic boost per matched theme in the ranker."""
+    try:
+        return max(0.0, float(_get("BLOGPIPE_TOPIC_RELEVANCE_WEIGHT", "0.6")))
+    except ValueError:
+        return 0.6
+
+
 def prefer_free_models() -> bool:
     return _get("BLOGPIPE_PREFER_FREE", "1") in ("1", "true", "yes", "on")
 

@@ -10,7 +10,7 @@ from typing import Any
 
 from langgraph.types import interrupt
 
-from .. import config, draft, formats, lint, memory
+from .. import config, draft, formats, lint, memory, topics
 from ..draft import (
     _cleanup_missing_cites,
     _polish_body,
@@ -468,8 +468,18 @@ rubric_score: {score}
         f"llm_ok={ed.get('llm_ok', True)}",
         flush=True,
     )
+    learned: dict[str, list[str]] = {}
+    try:
+        learned = topics.update_themes_from_draft(body, bundle.primary)
+    except Exception as e:  # never block publish on the keyword learner
+        LOG.warning("topics: keyword learning skipped: %s", e)
+    if learned:
+        (_ROOT / "reports" / "learned_keywords.json").write_text(
+            json.dumps(learned, indent=2, sort_keys=True), encoding="utf-8"
+        )
     return {
         "slug": slug,
         "out_path": str(out),
+        "learned_keywords": learned,
         "supervisor_decisions": sup.log_decision(state, "write_artifacts"),
     }
