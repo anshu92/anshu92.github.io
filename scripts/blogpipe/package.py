@@ -1,13 +1,19 @@
-"""Build reports/daily_email.html for notification."""
+"""Build reports/daily_email.html and optional draft_post.pdf for notification."""
 
 from __future__ import annotations
 
 import html
 import json
+import logging
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 from .memory import _ROOT
+
+LOG = logging.getLogger(__name__)
 
 
 def _read_json(path: Path) -> dict:
@@ -181,4 +187,181 @@ def run() -> Path:
     lines.append("<p><em>Merge the PR to publish, or close it to discard the draft.</em></p>")
     lines.append("</body></html>")
     out.write_text("\n".join(lines), encoding="utf-8")
+    try:
+        write_draft_print_pdf()
+    except Exception as e:  # noqa: BLE001 — never block email HTML on PDF
+        LOG.warning("draft_post.pdf not created: %s", e)
+    # CI attaches draft_post.pdf; ensure a one-page file exists if wkhtmltopdf is available
+    _pdf = rep / "draft_post.pdf"
+    if shutil.which("wkhtmltopdf") and not _pdf.is_file():
+        _fallback_minimal_pdf(
+            _pdf,
+            "The draft was not available to render (see daily_email.html and the repository).",
+        )
     return out
+
+
+_PRINT_CSS = """
+@page { margin: 1.2cm; }
+html { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11pt; line-height: 1.45; color: #111; }
+h1 { font-size: 1.35rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25em; }
+h2, h3 { font-size: 1.1rem; margin-top: 1.2em; }
+p { margin: 0.5em 0; }
+code, pre { font-size: 0.88em; }
+pre { background: #f6f8fa; padding: 0.5em; overflow-x: auto; border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
+th, td { border: 1px solid #ccc; padding: 0.35em 0.5em; text-align: left; }
+img { max-width: 100%; height: auto; }
+"""
+
+
+def _pandoc_md_to_html_fragment(md_body: str) -> str | None:
+    """Convert markdown (GFM) to an HTML body fragment; requires ``pandoc`` on PATH."""
+    pandoc = shutil.which("pandoc")
+    if not pandoc:
+        return None
+    try:
+        r = subprocess.run(
+            [pandoc, "-f", "gfm", "-t", "html"],
+            input=md_body,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as e:
+        LOG.warning("pandoc failed: %s", e)
+        return None
+    return r.stdout or ""
+
+
+def _html_resolve_static_urls(html: str, root: Path) -> str:
+    """Map ``/img/...`` to ``file://.../static/img/...`` for local PDF renderers."""
+
+    def repl_img(m: re.Match[str]) -> str:
+        url = m.group(1) or ""
+        if not url.startswith("/img/"):
+            return m.group(0)
+        rel = url.removeprefix("/img/")
+        p = (root / "static" / "img" / rel).resolve()
+        if p.is_file():
+            return f'src="file://{p}"'
+        return m.group(0)
+
+    return re.sub(r'src="(/img/[^"]+)"', repl_img, html)
+
+
+def _try_write_draft_pdf(rep: Path, front: dict, body: str) -> Path | None:
+    """Build ``rep/draft_post.pdf`` if pandoc and wkhtmltopdf are available."""
+    wk = shutil.which("wkhtmltopdf")
+    if not wk:
+        LOG.info("wkhtmltopdf not on PATH; skip draft_post.pdf")
+        return None
+    frag = _pandoc_md_to_html_fragment(body)
+    if not frag:
+        if not shutil.which("pandoc"):
+            LOG.info("pandoc not on PATH; using minimal PDF note")
+        return _fallback_minimal_pdf(
+            pdf_path,
+            "Pandoc was not available to render the full draft. Open the PR or use the markdown in this repo.",
+        )
+    title = str(front.get("title") or "Draft post").strip()
+    full_html = f"""<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<title>{html.escape(title)}</title>
+<style>{_PRINT_CSS}</style>
+</head><body>
+<article>
+<h1>{html.escape(title)}</h1>
+{_html_resolve_static_urls(frag, _ROOT)}
+</article>
+</body></html>"""
+    pdf_path = rep / "draft_post.pdf"
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".html",
+        delete=False,
+        encoding="utf-8",
+    ) as tmp:
+        tmp.write(full_html)
+        tmp_path = tmp.name
+    r: subprocess.CompletedProcess[str] | None = None
+    try:
+        r = subprocess.run(
+            [
+                wk,
+                "--quiet",
+                "--print-media-type",
+                "--enable-local-file-access",
+                tmp_path,
+                str(pdf_path),
+            ],
+            capture_output=True,
+            text=True,
+        )
+    except OSError as e:
+        LOG.warning("wkhtmltopdf: %s", e)
+    finally:
+        try:
+            Path(tmp_path).unlink(missing_ok=True)  # type: ignore[call-arg]
+        except OSError:
+            pass
+    if r is None or r.returncode != 0 or not pdf_path.is_file():
+        if r is not None:
+            LOG.warning(
+                "wkhtmltopdf failed rc=%s stderr=%s",
+                r.returncode,
+                (r.stderr or "")[:1000],
+            )
+        if pdf_path.is_file():
+            try:
+                pdf_path.unlink()
+            except OSError:
+                pass
+        return _fallback_minimal_pdf(pdf_path, "Draft PDF render failed; view the markdown in the repo PR.")
+    return pdf_path
+
+
+def _fallback_minimal_pdf(pdf_path: Path, message: str) -> Path | None:
+    """One-page note when full render is unavailable; keeps email attachment path valid."""
+    wk = shutil.which("wkhtmltopdf")
+    if not wk:
+        return None
+    msg_html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Draft</title>
+<style>body{{font-family:sans-serif;padding:1rem}}</style></head><body>
+<p>{html.escape(message)}</p>
+</body></html>"""
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".html", delete=False, encoding="utf-8"
+    ) as tmp:
+        tmp.write(msg_html)
+        tpath = tmp.name
+    try:
+        s = subprocess.run(
+            [wk, "--quiet", tpath, str(pdf_path)],
+            capture_output=True,
+            text=True,
+        )
+        if s.returncode == 0 and pdf_path.is_file():
+            return pdf_path
+    except OSError:
+        pass
+    finally:
+        try:
+            Path(tpath).unlink(missing_ok=True)  # type: ignore[call-arg]
+        except OSError:
+            pass
+    return None
+
+
+def write_draft_print_pdf() -> Path | None:
+    """If ``draft_path.txt`` points at a post, render ``draft_post.pdf`` for email attachment."""
+    rep = _ROOT / "reports"
+    dpath = (rep / "draft_path.txt").read_text().strip() if (rep / "draft_path.txt").is_file() else ""
+    if not dpath:
+        return None
+    draft_file = _ROOT / dpath
+    if not draft_file.is_file():
+        return None
+    front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
+    return _try_write_draft_pdf(rep, front, body)

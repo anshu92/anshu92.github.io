@@ -197,6 +197,13 @@ jobs:
           echo "$PR_URL" > reports/pr_url.txt
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
 
+      - name: Install draft PDF tools
+        if: success() && vars.BLOGPIPE_DRY_RUN != '1'
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y pandoc wkhtmltopdf
+
       - name: Build email package
         if: success() && vars.BLOGPIPE_DRY_RUN != '1'
         run: python -m blogpipe package
@@ -222,7 +229,7 @@ jobs:
           to: ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
           from: Blogpipe <${{ secrets.EMAIL_USERNAME }}>
           html_body: file://${{ github.workspace }}/reports/daily_email.html
-          attachments: ${{ github.workspace }}/reports/research_trace.json,${{ github.workspace }}/reports/editor_report.json
+          attachments: ${{ github.workspace }}/reports/draft_post.pdf,${{ github.workspace }}/reports/research_trace.json,${{ github.workspace }}/reports/editor_report.json
 
       - name: Save blogpipe cache
         if: always()
