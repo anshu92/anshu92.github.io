@@ -1,0 +1,711 @@
+{
+  "primary": {
+    "id": "hf_2604.19902",
+    "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+    "url": "https://arxiv.org/abs/2604.19902",
+    "authors": [
+      "Zijie Li",
+      "Yichun Shi",
+      "Jingxiang Sun",
+      "Ye Wang",
+      "Yixuan Huang",
+      "Zhiyao Guo",
+      "Xiaochen Lian",
+      "Peihao Zhu",
+      "Yu Tian",
+      "Zhonghua Zhai",
+      "Peng Wang"
+    ],
+    "abstract": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+    "published_at": "2026-04-21T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.19902",
+          "authors": [
+            {
+              "_id": "69e97d84d49e77f7389b4065",
+              "name": "Zijie Li",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4066",
+              "name": "Yichun Shi",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4067",
+              "name": "Jingxiang Sun",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4068",
+              "name": "Ye Wang",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4069",
+              "name": "Yixuan Huang",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406a",
+              "name": "Zhiyao Guo",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406b",
+              "name": "Xiaochen Lian",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406c",
+              "name": "Peihao Zhu",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406d",
+              "name": "Yu Tian",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406e",
+              "name": "Zhonghua Zhai",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406f",
+              "name": "Peng Wang",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-21T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-23T00:31:43.348Z",
+          "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+          "submittedOnDailyBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "isPro": true,
+            "fullname": "taesiri",
+            "user": "taesiri",
+            "type": "user",
+            "name": "taesiri"
+          },
+          "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+          "upvotes": 0,
+          "discussionId": "69e97d85d49e77f7389b4070",
+          "ai_summary": "MMCORE is a unified framework for multimodal image generation and editing that uses a pre-trained Vision-Language Model to predict semantic visual embeddings for diffusion model conditioning, enabling efficient high-fidelity visual synthesis.",
+          "ai_keywords": [
+            "Vision-Language Model",
+            "diffusion model",
+            "semantic visual embeddings",
+            "learnable query tokens",
+            "text-to-image synthesis",
+            "image generation",
+            "visual grounding",
+            "multimodal comprehension",
+            "high-fidelity synthesis"
+          ]
+        },
+        "publishedAt": "2026-04-20T20:00:00.000Z",
+        "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+        "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19902.png",
+        "numComments": 0,
+        "submittedBy": {
+          "_id": "6039478ab3ecf716b1a5fd4d",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+          "fullname": "taesiri",
+          "name": "taesiri",
+          "type": "user",
+          "isPro": true,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 278,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      }
+    }
+  },
+  "score": 1.0,
+  "rejected": [
+    {
+      "id": "hf_2604.17472",
+      "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+      "url": "https://arxiv.org/abs/2604.17472",
+      "authors": [
+        "Peng Huang",
+        "Yifeng Chen",
+        "Zeyu Zhang",
+        "Hao Tang"
+      ],
+      "abstract": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+      "published_at": "2026-04-19T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.17472",
+            "authors": [
+              {
+                "_id": "69e830745f6b3d4e5af9ab7d",
+                "name": "Peng Huang",
+                "hidden": false
+              },
+              {
+                "_id": "69e830745f6b3d4e5af9ab7e",
+                "name": "Yifeng Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e830745f6b3d4e5af9ab7f",
+                "name": "Zeyu Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69e830745f6b3d4e5af9ab80",
+                "name": "Hao Tang",
+                "hidden": false
+              }
+            ],
+            "mediaUrls": [
+              "https://cdn-uploads.huggingface.co/production/uploads/64ec877bb93654d4ca5c92e9/lJk-UmnpOXeXEct_m-PT1.mp4"
+            ],
+            "publishedAt": "2026-04-19T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T00:52:01.595Z",
+            "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+            "submittedOnDailyBy": {
+              "_id": "64ec877bb93654d4ca5c92e9",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/64ec877bb93654d4ca5c92e9/GvHk_KSdE9Rhnk_o-NaZX.jpeg",
+              "isPro": false,
+              "fullname": "Zeyu Zhang",
+              "user": "SteveZeyuZhang",
+              "type": "user",
+              "name": "SteveZeyuZhang"
+            },
+            "summary": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+            "upvotes": 5,
+            "discussionId": "69e830755f6b3d4e5af9ab81",
+            "projectPage": "https://aigeeksgroup.github.io/UniMesh/",
+            "githubRepo": "https://github.com/AIGeeksGroup/UniMesh",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "UniMesh presents a unified framework that combines 3D generation and understanding tasks through novel components including a Mesh Head, Chain of Mesh for iterative editing, and a self-reflection mechanism for error correction.",
+            "ai_keywords": [
+              "3D vision",
+              "diffusion based image generation",
+              "implicit shape decoders",
+              "Mesh Head",
+              "Chain of Mesh",
+              "iterative reasoning",
+              "semantic mesh editing",
+              "Actor Evaluator Self reflection triad",
+              "3D captioning"
+            ],
+            "githubStars": 10,
+            "organization": {
+              "_id": "61dcd8e344f59573371b5cb6",
+              "name": "PekingUniversity",
+              "fullname": "Peking University",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/noauth/vavgrBsnkSejriUF4lXDE.png"
+            }
+          },
+          "publishedAt": "2026-04-18T20:00:00.000Z",
+          "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+          "summary": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+          "mediaUrls": [
+            "https://cdn-uploads.huggingface.co/production/uploads/64ec877bb93654d4ca5c92e9/lJk-UmnpOXeXEct_m-PT1.mp4"
+          ],
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17472.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "64ec877bb93654d4ca5c92e9",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/64ec877bb93654d4ca5c92e9/GvHk_KSdE9Rhnk_o-NaZX.jpeg",
+            "fullname": "Zeyu Zhang",
+            "name": "SteveZeyuZhang",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 8,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "61dcd8e344f59573371b5cb6",
+            "name": "PekingUniversity",
+            "fullname": "Peking University",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/noauth/vavgrBsnkSejriUF4lXDE.png"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.11610",
+      "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+      "url": "https://arxiv.org/abs/2604.11610",
+      "authors": [
+        "Yuqing Yang",
+        "Tengxiao Liu",
+        "Wang Bill Zhu",
+        "Taiwei Shi",
+        "Linxin Song",
+        "Robin Jia"
+      ],
+      "abstract": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+      "published_at": "2026-04-13T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.11610",
+            "authors": [
+              {
+                "_id": "69e97e9fd49e77f7389b4073",
+                "name": "Yuqing Yang",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4074",
+                "name": "Tengxiao Liu",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4075",
+                "name": "Wang Bill Zhu",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4076",
+                "name": "Taiwei Shi",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4077",
+                "name": "Linxin Song",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4078",
+                "name": "Robin Jia",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-13T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T00:38:05.513Z",
+            "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+            "submittedOnDailyBy": {
+              "_id": "65c0de12efbb14b39c97f78e",
+              "avatarUrl": "/avatars/18485f79427a35bd9e19f71b67c88dce.svg",
+              "isPro": false,
+              "fullname": "Yuqing Yang",
+              "user": "ayyyq",
+              "type": "user",
+              "name": "ayyyq"
+            },
+            "summary": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+            "upvotes": 0,
+            "discussionId": "69e97ea0d49e77f7389b4079",
+            "githubRepo": "https://github.com/ayyyq/heterogeneous-memory-extraction",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "LLM-based assistants require heterogeneous memory extraction capabilities, which are evaluated through the BEHEMOTH benchmark, with CluE offering improved performance through cluster-based prompt optimization.",
+            "ai_keywords": [
+              "heterogeneous memory extraction",
+              "BEHEMOTH",
+              "CluE",
+              "self-evolving prompt optimization",
+              "cluster-based strategy",
+              "downstream utility-driven metric"
+            ],
+            "githubStars": 1
+          },
+          "publishedAt": "2026-04-12T20:00:00.000Z",
+          "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+          "summary": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.11610.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "65c0de12efbb14b39c97f78e",
+            "avatarUrl": "/avatars/18485f79427a35bd9e19f71b67c88dce.svg",
+            "fullname": "Yuqing Yang",
+            "name": "ayyyq",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 3,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.15664",
+      "title": "Stargazer: A Scalable Model-Fitting Benchmark Environment for AI Agents under Astrophysical Constraints",
+      "url": "https://arxiv.org/abs/2604.15664",
+      "authors": [
+        "Xinge Liu",
+        "Terry Jingchen Zhang",
+        "Bernhard Schölkopf",
+        "Zhijing Jin",
+        "Kristen Menou"
+      ],
+      "abstract": "The rise of autonomous AI agents suggests that dynamic benchmark environments with built-in feedback on scientifically grounded tasks are needed to evaluate the capabilities of these agents in research work. We introduce Stargazer, a scalable environment for evaluating AI agents on dynamic, iterative physics-grounded model-fitting tasks using inference on radial-velocity (RV) time series data. Stargazer comprises 120 tasks across three difficulty tiers, including 20 real archival cases, covering diverse scenarios ranging from high-SNR single-planet systems to complex multi-planetary configurations requiring involved low-SNR analysis. Our evaluation of eight frontier agents reveals a gap between numerical optimization and adherence to physical constraints: although agents often achieve a good statistical fit, they frequently fail to recover correct physical system parameters, a limitation that persists even when agents are equipped with vanilla skills. Furthermore, increasing test-time compute yields only marginal gains, with excessive token usage often reflecting recursive failure loops rather than meaningful exploration. Stargazer presents an opportunity to train, evaluate, scaffold, and scale strategies on a model-fitting problem of practical research relevance today. Our methodology to design a simulation-driven environment for AI agents presumably generalizes to many other model-fitting problems across scientific domains. Source code and the project website are available at https://github.com/Gudmorning2025/Stargazer and https://gudmorning2025.github.io/Stargazer, respectively.",
+      "published_at": "2026-04-17T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.15664",
+            "authors": [
+              {
+                "_id": "69e6727476b653026bd83b7f",
+                "user": {
+                  "_id": "68edca7eec75faa72a195a00",
+                  "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/68edca7eec75faa72a195a00/F0GkWB716w3CCzPCCrLCi.png",
+                  "isPro": false,
+                  "fullname": "Xinge Liu",
+                  "user": "liuxinge",
+                  "type": "user",
+                  "name": "liuxinge"
+                },
+                "name": "Xinge Liu",
+                "status": "claimed_verified",
+                "statusLastChangedAt": "2026-04-21T14:17:09.215Z",
+                "hidden": false
+              },
+              {
+                "_id": "69e6727476b653026bd83b80",
+                "name": "Terry Jingchen Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69e6727476b653026bd83b81",
+                "name": "Bernhard Schölkopf",
+                "hidden": false
+              },
+              {
+                "_id": "69e6727476b653026bd83b82",
+                "name": "Zhijing Jin",
+                "hidden": false
+              },
+              {
+                "_id": "69e6727476b653026bd83b83",
+                "name": "Kristen Menou",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-17T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T23:33:14.884Z",
+            "title": "Stargazer: A Scalable Model-Fitting Benchmark Environment for AI Agents under Astrophysical Constraints",
+            "submittedOnDailyBy": {
+              "_id": "68edca7eec75faa72a195a00",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/68edca7eec75faa72a195a00/F0GkWB716w3CCzPCCrLCi.png",
+              "isPro": false,
+              "fullname": "Xinge Liu",
+              "user": "liuxinge",
+              "type": "user",
+              "name": "liuxinge"
+            },
+            "summary": "The rise of autonomous AI agents suggests that dynamic benchmark environments with built-in feedback on scientifically grounded tasks are needed to evaluate the capabilities of these agents in research work. We introduce Stargazer, a scalable environment for evaluating AI agents on dynamic, iterative physics-grounded model-fitting tasks using inference on radial-velocity (RV) time series data. Stargazer comprises 120 tasks across three difficulty tiers, including 20 real archival cases, covering diverse scenarios ranging from high-SNR single-planet systems to complex multi-planetary configurations requiring involved low-SNR analysis. Our evaluation of eight frontier agents reveals a gap between numerical optimization and adherence to physical constraints: although agents often achieve a good statistical fit, they frequently fail to recover correct physical system parameters, a limitation that persists even when agents are equipped with vanilla skills. Furthermore, increasing test-time compute yields only marginal gains, with excessive token usage often reflecting recursive failure loops rather than meaningful exploration. Stargazer presents an opportunity to train, evaluate, scaffold, and scale strategies on a model-fitting problem of practical research relevance today. Our methodology to design a simulation-driven environment for AI agents presumably generalizes to many other model-fitting problems across scientific domains. Source code and the project website are available at https://github.com/Gudmorning2025/Stargazer and https://gudmorning2025.github.io/Stargazer, respectively.",
+            "upvotes": 2,
+            "discussionId": "69e6727476b653026bd83b84",
+            "projectPage": "https://aips-uoft.github.io/Stargazer/",
+            "githubRepo": "https://github.com/AIPS-UofT/Stargazer",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "Stargazer is a scalable environment for evaluating AI agents on dynamic physics-grounded model-fitting tasks using radial-velocity time series data, revealing gaps between statistical fitting and physical constraint adherence.",
+            "ai_keywords": [
+              "AI agents",
+              "dynamic benchmark environments",
+              "model-fitting tasks",
+              "radial-velocity time series",
+              "physics-grounded",
+              "iterative tasks",
+              "simulation-driven environment"
+            ],
+            "githubStars": 4,
+            "organization": {
+              "_id": "6335bb834067f020755ca3f5",
+              "name": "UniversityofToronto",
+              "fullname": "University of Toronto",
+              "avatar": "https://www.gravatar.com/avatar/c2dd968d226cb6826786ff13c9b41d25?d=retro&size=100"
+            }
+          },
+          "publishedAt": "2026-04-16T20:00:00.000Z",
+          "title": "Stargazer: A Scalable Model-Fitting Benchmark Environment for AI Agents under Astrophysical Constraints",
+          "summary": "The rise of autonomous AI agents suggests that dynamic benchmark environments with built-in feedback on scientifically grounded tasks are needed to evaluate the capabilities of these agents in research work. We introduce Stargazer, a scalable environment for evaluating AI agents on dynamic, iterative physics-grounded model-fitting tasks using inference on radial-velocity (RV) time series data. Stargazer comprises 120 tasks across three difficulty tiers, including 20 real archival cases, covering diverse scenarios ranging from high-SNR single-planet systems to complex multi-planetary configurations requiring involved low-SNR analysis. Our evaluation of eight frontier agents reveals a gap between numerical optimization and adherence to physical constraints: although agents often achieve a good statistical fit, they frequently fail to recover correct physical system parameters, a limitation that persists even when agents are equipped with vanilla skills. Furthermore, increasing test-time compute yields only marginal gains, with excessive token usage often reflecting recursive failure loops rather than meaningful exploration. Stargazer presents an opportunity to train, evaluate, scaffold, and scale strategies on a model-fitting problem of practical research relevance today. Our methodology to design a simulation-driven environment for AI agents presumably generalizes to many other model-fitting problems across scientific domains. Source code and the project website are available at https://github.com/Gudmorning2025/Stargazer and https://gudmorning2025.github.io/Stargazer, respectively.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.15664.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "68edca7eec75faa72a195a00",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/68edca7eec75faa72a195a00/F0GkWB716w3CCzPCCrLCi.png",
+            "fullname": "Xinge Liu",
+            "name": "liuxinge",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 1,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "6335bb834067f020755ca3f5",
+            "name": "UniversityofToronto",
+            "fullname": "University of Toronto",
+            "avatar": "https://www.gravatar.com/avatar/c2dd968d226cb6826786ff13c9b41d25?d=retro&size=100"
+          },
+          "isAuthorParticipating": true
+        }
+      }
+    },
+    {
+      "id": "hf_2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "url": "https://arxiv.org/abs/2604.19321",
+      "authors": [
+        "Yusuf Çelebi",
+        "Yağız Asker",
+        "Özay Ezerceli",
+        "Mahmoud ElHussieni",
+        "Selva Taş",
+        "Reyhan Bayraktar",
+        "Fatma Betül Terzioğlu"
+      ],
+      "abstract": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.19321",
+            "authors": [
+              {
+                "_id": "69e8d7c855c040b43a45a89c",
+                "name": "Yusuf Çelebi",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89d",
+                "name": "Yağız Asker",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89e",
+                "name": "Özay Ezerceli",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89f",
+                "name": "Mahmoud ElHussieni",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a0",
+                "name": "Selva Taş",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a1",
+                "name": "Reyhan Bayraktar",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a2",
+                "name": "Fatma Betül Terzioğlu",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T12:46:47.013Z",
+            "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+            "submittedOnDailyBy": {
+              "_id": "6422eab8e2029ade06eeee2c",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+              "isPro": false,
+              "fullname": "Mahmud ElHuseyni 🇵🇸",
+              "user": "MElHuseyni",
+              "type": "user",
+              "name": "MElHuseyni"
+            },
+            "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+            "upvotes": 4,
+            "discussionId": "69e8d7c855c040b43a45a8a3",
+            "ai_summary": "Using geometric trajectory analysis with the Ramer-Douglas-Peucker algorithm to select optimal layers for parameter-efficient fine-tuning of large language models, achieving better performance than full or random layer selection.",
+            "ai_keywords": [
+              "Large Language Models",
+              "Low-Rank Adaptation",
+              "hidden states",
+              "geometric trajectory",
+              "Ramer-Douglas-Peucker algorithm",
+              "parameter-efficient fine-tuning",
+              "layer selection",
+              "representation trajectories"
+            ]
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+          "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19321.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "6422eab8e2029ade06eeee2c",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+            "fullname": "Mahmud ElHuseyni 🇵🇸",
+            "name": "MElHuseyni",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 27,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.17435",
+      "title": "MoVE: Translating Laughter and Tears via Mixture of Vocalization Experts in Speech-to-Speech Translation",
+      "url": "https://arxiv.org/abs/2604.17435",
+      "authors": [
+        "Szu-Chi Chen",
+        "I-Ning Tsai",
+        "Yi-Cheng Lin",
+        "Sung-Feng Huang",
+        "Hung-yi Lee"
+      ],
+      "abstract": "Recent Speech-to-Speech Translation (S2ST) systems achieve strong semantic accuracy yet consistently strip away non-verbal vocalizations (NVs), such as laughter and crying that convey pragmatic intent, which severely limits real-world utility. We address this via three contributions. First, we propose a synthesis pipeline for building scalable expressive datasets to overcome the data scarcity limitation. Second, we propose MoVE, a Mixture-of-LoRA-Experts architecture with expressive-specialized adapters and a soft-weighting router that blends experts for capturing hybrid expressive states. Third, we show pretrained AudioLLMs enable striking data efficiency: 30 minutes of curated data is enough for strong performance. On English-Chinese S2ST, while comparing with strong baselines, MoVE reproduces target NVs in 76% of cases and achieves the highest human-rated naturalness and emotional fidelity among all compared systems, where existing S2ST systems preserve at most 14% of NVs.",
+      "published_at": "2026-04-19T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.17435",
+            "authors": [
+              {
+                "_id": "69e831ed5f6b3d4e5af9ab96",
+                "user": {
+                  "_id": "68720a0d6424e80a2618c262",
+                  "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/zGp04QtUcy44VeWt1ddf3.png",
+                  "isPro": false,
+                  "fullname": "陳思齊",
+                  "user": "47z",
+                  "type": "user",
+                  "name": "47z"
+                },
+                "name": "Szu-Chi Chen",
+                "status": "claimed_verified",
+                "statusLastChangedAt": "2026-04-22T07:20:47.693Z",
+                "hidden": false
+              },
+              {
+                "_id": "69e831ed5f6b3d4e5af9ab97",
+                "name": "I-Ning Tsai",
+                "hidden": false
+              },
+              {
+                "_id": "69e831ed5f6b3d4e5af9ab98",
+                "name": "Yi-Cheng Lin",
+                "hidden": false
+              },
+              {
+                "_id": "69e831ed5f6b3d4e5af9ab99",
+                "name": "Sung-Feng Huang",
+                "hidden": false
+              },
+              {
+                "_id": "69e831ed5f6b3d4e5af9ab9a",
+                "name": "Hung-yi Lee",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-19T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T10:09:23.946Z",
+            "title": "MoVE: Translating Laughter and Tears via Mixture of Vocalization Experts in Speech-to-Speech Translation",
+            "submittedOnDailyBy": {
+              "_id": "68720a0d6424e80a2618c262",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/zGp04QtUcy44VeWt1ddf3.png",
+              "isPro": false,
+              "fullname": "陳思齊",
+              "user": "47z",
+              "type": "user",
+              "name": "47z"
+            },
+            "summary": "Recent Speech-to-Speech Translation (S2ST) systems achieve strong semantic accuracy yet consistently strip away non-verbal vocalizations (NVs), such as laughter and crying that convey pragmatic intent, which severely limits real-world utility. We address this via three contributions. First, we propose a synthesis pipeline for building scalable expressive datasets to overcome the data scarcity limitation. Second, we propose MoVE, a Mixture-of-LoRA-Experts architecture with expressive-specialized adapters and a soft-weighting router that blends experts for capturing hybrid expressive states. Third, we show pretrained AudioLLMs enable striking data efficiency: 30 minutes of curated data is enough for strong performance. On English-Chinese S2ST, while comparing with strong baselines, MoVE reproduces target NVs in 76% of cases and achieves the highest human-rated naturalness and emotional fidelity among all compared systems, where existing S2ST systems preserve at most 14% of NVs.",
+            "upvotes": 0,
+            "discussionId": "69e831ed5f6b3d4e5af9ab9b",
+            "githubRepo": "https://github.com/47zzz/MoVE",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "MoVE, a Mixture-of-LoRA-Experts architecture with expressive-specialized adapters and a soft-weighting router, enables effective speech-to-speech translation with preserved non-verbal vocalizations while achieving high naturalness and emotional fidelity using minimal curated data.",
+            "ai_keywords": [
+              "Mixture-of-LoRA-Experts",
+              "expressive-specialized adapters",
+              "soft-weighting router",
+              "AudioLLMs",
+              "speech-to-speech translation",
+              "non-verbal vocalizations",
+              "expressive datasets"
+            ],
+            "githubStars": 0
+          },
+          "publishedAt": "2026-04-18T20:00:00.000Z",
+          "title": "MoVE: Translating Laughter and Tears via Mixture of Vocalization Experts in Speech-to-Speech Translation",
+          "summary": "Recent Speech-to-Speech Translation (S2ST) systems achieve strong semantic accuracy yet consistently strip away non-verbal vocalizations (NVs), such as laughter and crying that convey pragmatic intent, which severely limits real-world utility. We address this via three contributions. First, we propose a synthesis pipeline for building scalable expressive datasets to overcome the data scarcity limitation. Second, we propose MoVE, a Mixture-of-LoRA-Experts architecture with expressive-specialized adapters and a soft-weighting router that blends experts for capturing hybrid expressive states. Third, we show pretrained AudioLLMs enable striking data efficiency: 30 minutes of curated data is enough for strong performance. On English-Chinese S2ST, while comparing with strong baselines, MoVE reproduces target NVs in 76% of cases and achieves the highest human-rated naturalness and emotional fidelity among all compared systems, where existing S2ST systems preserve at most 14% of NVs.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17435.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "68720a0d6424e80a2618c262",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/zGp04QtUcy44VeWt1ddf3.png",
+            "fullname": "陳思齊",
+            "name": "47z",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": true
+        }
+      }
+    }
+  ],
+  "reasoning": "The chosen candidate, MMCORE, fits multiple themes including llm_scaling, training_recipes, aec_ml, new_models, problem_oriented_ml, and ml_engineering_deep_dive. It presents a unified framework for multimodal image generation and editing, leveraging a pre-trained Vision-Language Model (VLM) and a diffusion model. This aligns well with the preferred voice of a Principal ML Engineer at Autodesk, emphasizing reproducible engineering depth, AEC when relevant, and LLM when core. The candidate's focus on multimodal connection and representation-aligned latent embeddings also suggests a strong technical depth, making it a suitable choice for a technical blog."
+}

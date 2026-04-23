@@ -1,0 +1,97 @@
+{
+  "rubric_score": 14,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 1
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 0
+    }
+  ],
+  "five_questions": {
+    "problem": "The core problem is twofold: (1) aligning language semantics with visual features at a granular level, and (2) ensuring that edits preserve both the original image's structure and the new instruction's intent.",
+    "hard": "Generating images from text is already a tough nut to crack \u2014 but adding the ability to *edit* existing images based on new text instructions multiplies the difficulty.",
+    "tried": "MMCORE takes a step back from the typical deep fusion of autoregressive and diffusion models. Instead, it uses a pre-trained Vision-Language Model (VLM) to generate *semantic visual embeddings* via learnable query tokens.",
+    "outcomes": "MMCORE achieves a 30% improvement in representation alignment with latent embeddings, enabling effective multimodal connection. Human Evaluation: Average Accuracy (%) is 84.42.",
+    "next": "If you're working on multimodal systems, **steal this habit**: *decouple understanding and generation by using pre-trained models as feature extractors*."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "pov_phrase_without_opinion"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "30% improvement in representation alignment with latent embeddings",
+    "30%"
+  ],
+  "undefined_acronyms": [
+    "SOTA",
+    "TD"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  }
+}

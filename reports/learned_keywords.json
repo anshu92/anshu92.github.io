@@ -1,0 +1,14 @@
+{
+  "llm_scaling": [
+    "representation aligned",
+    "diffusion model",
+    "vision-language model",
+    "semantic visual embeddings",
+    "learnable query tokens",
+    "pre-trained vlm",
+    "multimodal connection",
+    "latent embeddings",
+    "deep fusion",
+    "autoregressive models"
+  ]
+}

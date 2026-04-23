@@ -1,0 +1,184 @@
+{
+  "ok": 18,
+  "fail": 14,
+  "blacklisted_skips": 28,
+  "blacklist_added": [
+    "openrouter:qwen/qwen3-next-80b-a3b-instruct:free",
+    "openrouter:qwen/qwen3-235b-thinking:free",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+    "openrouter:openrouter/free",
+    "groq:llama-3.3-70b-versatile",
+    "groq:qwen/qwen3-32b",
+    "openrouter:deepseek/deepseek-r1-0528:free"
+  ],
+  "tokens_in": 15805,
+  "tokens_out": 8736,
+  "usd_spent": 0.0,
+  "by_task": {
+    "rank_reasoning": {
+      "calls": 1,
+      "tokens_in": 1524,
+      "tokens_out": 145,
+      "usd": 0.0
+    },
+    "paper_chunk_summary": {
+      "calls": 4,
+      "tokens_in": 5750,
+      "tokens_out": 4646,
+      "usd": 0.0
+    },
+    "supervisor_route": {
+      "calls": 1,
+      "tokens_in": 168,
+      "tokens_out": 140,
+      "usd": 0.0
+    },
+    "analyst_practitioner": {
+      "calls": 1,
+      "tokens_in": 223,
+      "tokens_out": 96,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "llama-3.3-70b-versatile": {
+      "calls": 5,
+      "tokens_in": 2397,
+      "tokens_out": 634,
+      "usd": 0.0
+    },
+    "openrouter/free": {
+      "calls": 4,
+      "tokens_in": 5750,
+      "tokens_out": 4646,
+      "usd": 0.0
+    },
+    "llama-3.1-8b-instant": {
+      "calls": 2,
+      "tokens_in": 391,
+      "tokens_out": 236,
+      "usd": 0.0
+    },
+    "qwen/qwen3-32b": {
+      "calls": 1,
+      "tokens_in": 2485,
+      "tokens_out": 841,
+      "usd": 0.0
+    },
+    "meta-llama/llama-4-scout-17b-16e-instruct": {
+      "calls": 6,
+      "tokens_in": 4782,
+      "tokens_out": 2379,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 5,
+    "committee": 16,
+    "draft": 6,
+    "editor": 3,
+    "polish": 1
+  },
+  "llm_cap": 90,
+  "llm_calls": 32,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'visual_planner', 'practitioner'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer"
+  ],
+  "committee_synthesis": {
+    "narrative": "Committee: aggregate analyst points into one editorial through-line in draft.",
+    "report": {
+      "narrative": "Committee: aggregate analyst points into one editorial through-line in draft.",
+      "n_analysts": 6,
+      "n_skipped": 1,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [
+            "MMCORE achieves high average accuracy in human evaluation",
+            "MMCORE shows consistent improvements over the baseline in prompt-image alignment, visual fidelity, and editing consistency"
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "Methodology",
+          "skipped": false
+        },
+        {
+          "role": "empirical",
+          "claims": [
+            "MMCORE achieves high average accuracy in human evaluation over seven metrics",
+            "Human evaluation shows consistent improvements over the baseline"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Results",
+          "skipped": false
+        },
+        {
+          "role": "glossary",
+          "claims": [
+            "MMCORE \u2014 a unified framework that leverages a pre-trained Vision-Language Model (VLM) and a diffusion model for multimodal image generation and editing",
+            "VLM \u2014 a pre-trained Vision-Language Model used in the MMCORE framework for multimodal understanding and generation",
+            "UMMs \u2014 Unified Multimodal Models that integrate understanding and generation capabilities, but often face performance degradation in pure understanding tasks",
+            "VAE \u2014 a type of model capable of pixel-perfect reconstruction, used as a reference for the desired capabilities of a next-generation Omni-Tokenizer",
+            "ViT \u2014 a model capable of high-level semantic reasoning, used as a reference for the desired capabilities of a next-generation Omni-Tokenizer",
+            "Omni-Tokenizer \u2014 a proposed unified visual representation that can support both pixel-perfect reconstruction and high-level semantic reasoning simultaneously",
+            "Diffusion model \u2014 a type of model used in the MMCORE framework for multimodal image generation and editing",
+            "Ramer-Douglas-Peucker algorithm \u2014 not mentioned in the provided excerpts, but a common algorithm in geometry and image processing",
+            "LoRA \u2014 not mentioned in the provided excerpts, but a common acronym in machine learning",
+            "QKV \u2014 not mentioned in the provided excerpts, but a common acronym in machine learning",
+            "MMLU \u2014 not mentioned in the provided excerpts, but a common acronym in machine learning",
+            "RDP \u2014 not mentioned in the provided excerpts, but a common acronym in remote desktop protocol"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Introduction to MMCORE and Multimodal Models",
+          "skipped": false
+        },
+        {
+          "role": "related",
+          "claims": [
+            "MMCORE is a multimodal connection model"
+          ],
+          "citations": [],
+          "confidence": "low",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        },
+        {
+          "role": "visual_planner",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        },
+        {
+          "role": "practitioner",
+          "claims": [
+            "MMCORE model can be used for multimodal tasks such as image-text matching and video-text classification."
+          ],
+          "citations": [
+            "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings"
+          ],
+          "confidence": "medium",
+          "contradictions": [
+            "The market size and segmentation information is from a general market report and not directly related to the MMCORE model."
+          ],
+          "suggested_section": "H2 MMCORE Model Overview",
+          "skipped": false
+        }
+      ]
+    }
+  }
+}

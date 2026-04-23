@@ -1,0 +1,91 @@
+{
+  "committee_synthesis": {
+    "narrative": "Committee: aggregate analyst points into one editorial through-line in draft.",
+    "n_analysts": 6,
+    "n_skipped": 1,
+    "analysts": [
+      {
+        "role": "methods",
+        "claims": [
+          "MMCORE achieves high average accuracy in human evaluation",
+          "MMCORE shows consistent improvements over the baseline in prompt-image alignment, visual fidelity, and editing consistency"
+        ],
+        "citations": [],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "Methodology",
+        "skipped": false
+      },
+      {
+        "role": "empirical",
+        "claims": [
+          "MMCORE achieves high average accuracy in human evaluation over seven metrics",
+          "Human evaluation shows consistent improvements over the baseline"
+        ],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "Results",
+        "skipped": false
+      },
+      {
+        "role": "glossary",
+        "claims": [
+          "MMCORE \u2014 a unified framework that leverages a pre-trained Vision-Language Model (VLM) and a diffusion model for multimodal image generation and editing",
+          "VLM \u2014 a pre-trained Vision-Language Model used in the MMCORE framework for multimodal understanding and generation",
+          "UMMs \u2014 Unified Multimodal Models that integrate understanding and generation capabilities, but often face performance degradation in pure understanding tasks",
+          "VAE \u2014 a type of model capable of pixel-perfect reconstruction, used as a reference for the desired capabilities of a next-generation Omni-Tokenizer",
+          "ViT \u2014 a model capable of high-level semantic reasoning, used as a reference for the desired capabilities of a next-generation Omni-Tokenizer",
+          "Omni-Tokenizer \u2014 a proposed unified visual representation that can support both pixel-perfect reconstruction and high-level semantic reasoning simultaneously",
+          "Diffusion model \u2014 a type of model used in the MMCORE framework for multimodal image generation and editing",
+          "Ramer-Douglas-Peucker algorithm \u2014 not mentioned in the provided excerpts, but a common algorithm in geometry and image processing",
+          "LoRA \u2014 not mentioned in the provided excerpts, but a common acronym in machine learning",
+          "QKV \u2014 not mentioned in the provided excerpts, but a common acronym in machine learning",
+          "MMLU \u2014 not mentioned in the provided excerpts, but a common acronym in machine learning",
+          "RDP \u2014 not mentioned in the provided excerpts, but a common acronym in remote desktop protocol"
+        ],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "Introduction to MMCORE and Multimodal Models",
+        "skipped": false
+      },
+      {
+        "role": "related",
+        "claims": [
+          "MMCORE is a multimodal connection model"
+        ],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": false
+      },
+      {
+        "role": "visual_planner",
+        "claims": [],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": true
+      },
+      {
+        "role": "practitioner",
+        "claims": [
+          "MMCORE model can be used for multimodal tasks such as image-text matching and video-text classification."
+        ],
+        "citations": [
+          "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings"
+        ],
+        "confidence": "medium",
+        "contradictions": [
+          "The market size and segmentation information is from a general market report and not directly related to the MMCORE model."
+        ],
+        "suggested_section": "H2 MMCORE Model Overview",
+        "skipped": false
+      }
+    ]
+  },
+  "narrative": "Committee: aggregate analyst points into one editorial through-line in draft."
+}

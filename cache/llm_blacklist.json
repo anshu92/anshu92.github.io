@@ -1,0 +1,9 @@
+{
+"openrouter:qwen/qwen3-next-80b-a3b-instruct:free": 1776917619.4903326,
+"openrouter:qwen/qwen3-235b-thinking:free": 1777000550.472392,
+"openrouter:meta-llama/llama-3.3-70b-instruct:free": 1776917750.8008616,
+"openrouter:openrouter/free": 1776917752.4258516,
+"groq:llama-3.3-70b-versatile": 1777000553.0884655,
+"groq:qwen/qwen3-32b": 1776914755.7214537,
+"openrouter:deepseek/deepseek-r1-0528:free": 1777000559.9997294
+}

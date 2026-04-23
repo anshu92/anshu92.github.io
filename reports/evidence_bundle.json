@@ -1,0 +1,433 @@
+{
+  "primary": {
+    "id": "hf_2604.19902",
+    "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+    "url": "https://arxiv.org/abs/2604.19902",
+    "authors": [
+      "Zijie Li",
+      "Yichun Shi",
+      "Jingxiang Sun",
+      "Ye Wang",
+      "Yixuan Huang",
+      "Zhiyao Guo",
+      "Xiaochen Lian",
+      "Peihao Zhu",
+      "Yu Tian",
+      "Zhonghua Zhai",
+      "Peng Wang"
+    ],
+    "abstract": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+    "published_at": "2026-04-21T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.19902",
+          "authors": [
+            {
+              "_id": "69e97d84d49e77f7389b4065",
+              "name": "Zijie Li",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4066",
+              "name": "Yichun Shi",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4067",
+              "name": "Jingxiang Sun",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4068",
+              "name": "Ye Wang",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b4069",
+              "name": "Yixuan Huang",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406a",
+              "name": "Zhiyao Guo",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406b",
+              "name": "Xiaochen Lian",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406c",
+              "name": "Peihao Zhu",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406d",
+              "name": "Yu Tian",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406e",
+              "name": "Zhonghua Zhai",
+              "hidden": false
+            },
+            {
+              "_id": "69e97d84d49e77f7389b406f",
+              "name": "Peng Wang",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-21T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-23T00:31:43.348Z",
+          "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+          "submittedOnDailyBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "isPro": true,
+            "fullname": "taesiri",
+            "user": "taesiri",
+            "type": "user",
+            "name": "taesiri"
+          },
+          "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+          "upvotes": 0,
+          "discussionId": "69e97d85d49e77f7389b4070",
+          "ai_summary": "MMCORE is a unified framework for multimodal image generation and editing that uses a pre-trained Vision-Language Model to predict semantic visual embeddings for diffusion model conditioning, enabling efficient high-fidelity visual synthesis.",
+          "ai_keywords": [
+            "Vision-Language Model",
+            "diffusion model",
+            "semantic visual embeddings",
+            "learnable query tokens",
+            "text-to-image synthesis",
+            "image generation",
+            "visual grounding",
+            "multimodal comprehension",
+            "high-fidelity synthesis"
+          ]
+        },
+        "publishedAt": "2026-04-20T20:00:00.000Z",
+        "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+        "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19902.png",
+        "numComments": 0,
+        "submittedBy": {
+          "_id": "6039478ab3ecf716b1a5fd4d",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+          "fullname": "taesiri",
+          "name": "taesiri",
+          "type": "user",
+          "isPro": true,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 278,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      },
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.19902.pdf",
+      "paper_digest": "Multimodal image generation and editing\n\nMMCORE, a unified framework leveraging a pre-trained Vision-Language Model (VLM) and a diffusion model\n\n- MMCORE achieves high average accuracy in human evaluation over seven metrics\n- Human evaluation across prompt‑image alignment, visual fidelity, and editing consistency shows consistent improvements over the baseline.\n\n- Developing such a tokenizer to unify understanding and generation at the representation level is the primary focus of our future work.\n- Secondly, our current framework exhibits limitations that highlight critical directions for future research: The Understanding-Generation Trade-off.A persistent challenge in current Unified Multimodal Models (UMMs) is the performance degradation observed in pure understanding tasks after generative alignment.\n- This limitation underscores the necessity for a next-generation \"Omni-Tokenizer\"—a unified visual representation capable of supporting both pixel-perfect reconstruction (like a VAE) and high-level semantic reasoning (like a ViT) simultaneously."
+    }
+  },
+  "ancestors": [],
+  "competitors": [],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "MMCORE: MultiModal COnnection with Repre",
+      "value": "(see paper)",
+      "unit": "",
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.19902",
+      "text": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffu",
+      "url": "https://arxiv.org/abs/2604.19902"
+    },
+    {
+      "source_id": "hf_2604.19902",
+      "text": "Average accuracy (%) 84.42",
+      "url": "https://arxiv.org/pdf/2604.19902.pdf"
+    },
+    {
+      "source_id": "hf_2604.19902",
+      "text": "MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings",
+      "url": "https://arxiv.org/pdf/2604.19902.pdf"
+    },
+    {
+      "source_id": "hf_2604.19902",
+      "text": "MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis",
+      "url": "https://arxiv.org/pdf/2604.19902.pdf"
+    },
+    {
+      "source_id": "hf_2604.19902",
+      "text": "Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines",
+      "url": "https://arxiv.org/pdf/2604.19902.pdf"
+    },
+    {
+      "source_id": "hf_2604.19902",
+      "text": "MMCORE achieves high average accuracy in human evaluation over seven metrics",
+      "url": "https://arxiv.org/pdf/2604.19902.pdf"
+    },
+    {
+      "source_id": "hf_2604.19902",
+      "text": "Human evaluation across prompt‑image alignment, visual fidelity, and editing consistency shows consistent improvements over the baseline.",
+      "url": "https://arxiv.org/pdf/2604.19902.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Aligned Latent Embeddings\n- Bytedance Seed\n- Abstract\n- Introduction\n- Related Work\n- Unified Multimodal Models\n- Multi-Modal Ar\n\nDiffusion Head\n- Vaes\n\nVits Text Losses\n\nVits\n- Cross-Modality Alignment And Representation Transfer\n- Approach\n- Preliminaries\n- Mllm For Semantic Visual Prediction",
+    "paper_problem": "Multimodal image generation and editing",
+    "paper_method": "MMCORE, a unified framework leveraging a pre-trained Vision-Language Model (VLM) and a diffusion model",
+    "paper_setup": "Two‑stage training without flow‑matching loss; query budget N varied 1–128 with N=64 selected; diffusion backbone is a pre‑trained Text‑to‑Image Diffusion Transformer (MMDiT); scaling across multiple GPUs with larger batch token lengths; Supervised Fine‑Tuning (≈2K steps) on a curated multimodal instruction dataset; independent embedding dropout applied to text and visual pathways; evaluation on internal DreamBench suite and human studies.",
+    "paper_experiments": "- MMCORE achieves high average accuracy in human evaluation over seven metrics\n- Human evaluation across prompt‑image alignment, visual fidelity, and editing consistency shows consistent improvements over the baseline.",
+    "paper_limitations": "- Developing such a tokenizer to unify understanding and generation at the representation level is the primary focus of our future work.\n- Secondly, our current framework exhibits limitations that highlight critical directions for future research: The Understanding-Generation Trade-off.A persistent challenge in current Unified Multimodal Models (UMMs) is the performance degradation observed in pure understanding tasks after generative alignment.\n- This limitation underscores the necessity for a next-generation \"Omni-Tokenizer\"—a unified visual representation capable of supporting both pixel-perfect reconstruction (like a VAE) and high-level semantic reasoning (like a ViT) simultaneously.",
+    "paper_conclusion": "In this work, we present a resource-efficient, streamlined, yet highly effective framework for aligning the long-context understanding and reasoning capabilities of Multimodal Large Language Models (MLLMs) with latent visual representations. By introducing a trainable query mechanism alongside a dual-pathway conditioning strategy, our approach bridges the modality gap without the prohibitive costs of end-to-end retraining. Extensive experiments demonstrate that our method significantly improves image generation fidelity and instruction adherence compared to baseline counterparts, such as Seedream 4.0 [30], particularly in complex multi-turn interleaved generation scenarios. Despite these advancements, we admit there is still a performance gap between ours and Nano-Banana-pro [4] / GPT image 1.5 [20]. We think this might be due to the gap in the MLLM model since adding prompt rewrites from SoTA VLM models, MMCORE performs much better. Secondly, our current framework exhibits limitations"
+  },
+  "contradiction_notes": [
+    "The market size and segmentation information is from a general market report and not directly related to the MMCORE model.",
+    "Developing such a tokenizer to unify understanding and generation at the representation level is the primary focus of our future work.",
+    "Secondly, our current framework exhibits limitations that highlight critical directions for future research: The Understanding-Generation Trade-off.A persistent challenge in current Unified Multimodal Models (UMMs) is the performance degradation observed in pure understanding tasks after generative alignment.",
+    "This limitation underscores the necessity for a next-generation \"Omni-Tokenizer\"—a unified visual representation capable of supporting both pixel-perfect reconstruction (like a VAE) and high-level semantic reasoning (like a ViT) simultaneously."
+  ],
+  "by_id": {
+    "hf_2604.19902": {
+      "id": "hf_2604.19902",
+      "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+      "url": "https://arxiv.org/abs/2604.19902",
+      "authors": [
+        "Zijie Li",
+        "Yichun Shi",
+        "Jingxiang Sun",
+        "Ye Wang",
+        "Yixuan Huang",
+        "Zhiyao Guo",
+        "Xiaochen Lian",
+        "Peihao Zhu",
+        "Yu Tian",
+        "Zhonghua Zhai",
+        "Peng Wang"
+      ],
+      "abstract": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.19902",
+            "authors": [
+              {
+                "_id": "69e97d84d49e77f7389b4065",
+                "name": "Zijie Li",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4066",
+                "name": "Yichun Shi",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4067",
+                "name": "Jingxiang Sun",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4068",
+                "name": "Ye Wang",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4069",
+                "name": "Yixuan Huang",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406a",
+                "name": "Zhiyao Guo",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406b",
+                "name": "Xiaochen Lian",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406c",
+                "name": "Peihao Zhu",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406d",
+                "name": "Yu Tian",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406e",
+                "name": "Zhonghua Zhai",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406f",
+                "name": "Peng Wang",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T00:31:43.348Z",
+            "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+            "submittedOnDailyBy": {
+              "_id": "6039478ab3ecf716b1a5fd4d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+              "isPro": true,
+              "fullname": "taesiri",
+              "user": "taesiri",
+              "type": "user",
+              "name": "taesiri"
+            },
+            "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+            "upvotes": 0,
+            "discussionId": "69e97d85d49e77f7389b4070",
+            "ai_summary": "MMCORE is a unified framework for multimodal image generation and editing that uses a pre-trained Vision-Language Model to predict semantic visual embeddings for diffusion model conditioning, enabling efficient high-fidelity visual synthesis.",
+            "ai_keywords": [
+              "Vision-Language Model",
+              "diffusion model",
+              "semantic visual embeddings",
+              "learnable query tokens",
+              "text-to-image synthesis",
+              "image generation",
+              "visual grounding",
+              "multimodal comprehension",
+              "high-fidelity synthesis"
+            ]
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+          "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19902.png",
+          "numComments": 0,
+          "submittedBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "fullname": "taesiri",
+            "name": "taesiri",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 278,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        },
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.19902.pdf",
+        "paper_digest": "Multimodal image generation and editing\n\nMMCORE, a unified framework leveraging a pre-trained Vision-Language Model (VLM) and a diffusion model\n\n- MMCORE achieves high average accuracy in human evaluation over seven metrics\n- Human evaluation across prompt‑image alignment, visual fidelity, and editing consistency shows consistent improvements over the baseline.\n\n- Developing such a tokenizer to unify understanding and generation at the representation level is the primary focus of our future work.\n- Secondly, our current framework exhibits limitations that highlight critical directions for future research: The Understanding-Generation Trade-off.A persistent challenge in current Unified Multimodal Models (UMMs) is the performance degradation observed in pure understanding tasks after generative alignment.\n- This limitation underscores the necessity for a next-generation \"Omni-Tokenizer\"—a unified visual representation capable of supporting both pixel-perfect reconstruction (like a VAE) and high-level semantic reasoning (like a ViT) simultaneously."
+      }
+    }
+  },
+  "analyst_notes": [
+    {
+      "role": "methods",
+      "claims": [
+        "MMCORE achieves high average accuracy in human evaluation",
+        "MMCORE shows consistent improvements over the baseline in prompt-image alignment, visual fidelity, and editing consistency"
+      ],
+      "citations": [],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "Methodology",
+      "skipped": false
+    },
+    {
+      "role": "empirical",
+      "claims": [
+        "MMCORE achieves high average accuracy in human evaluation over seven metrics",
+        "Human evaluation shows consistent improvements over the baseline"
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Results",
+      "skipped": false
+    },
+    {
+      "role": "glossary",
+      "claims": [
+        "MMCORE — a unified framework that leverages a pre-trained Vision-Language Model (VLM) and a diffusion model for multimodal image generation and editing",
+        "VLM — a pre-trained Vision-Language Model used in the MMCORE framework for multimodal understanding and generation",
+        "UMMs — Unified Multimodal Models that integrate understanding and generation capabilities, but often face performance degradation in pure understanding tasks",
+        "VAE — a type of model capable of pixel-perfect reconstruction, used as a reference for the desired capabilities of a next-generation Omni-Tokenizer",
+        "ViT — a model capable of high-level semantic reasoning, used as a reference for the desired capabilities of a next-generation Omni-Tokenizer",
+        "Omni-Tokenizer — a proposed unified visual representation that can support both pixel-perfect reconstruction and high-level semantic reasoning simultaneously",
+        "Diffusion model — a type of model used in the MMCORE framework for multimodal image generation and editing",
+        "Ramer-Douglas-Peucker algorithm — not mentioned in the provided excerpts, but a common algorithm in geometry and image processing",
+        "LoRA — not mentioned in the provided excerpts, but a common acronym in machine learning",
+        "QKV — not mentioned in the provided excerpts, but a common acronym in machine learning",
+        "MMLU — not mentioned in the provided excerpts, but a common acronym in machine learning",
+        "RDP — not mentioned in the provided excerpts, but a common acronym in remote desktop protocol"
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Introduction to MMCORE and Multimodal Models",
+      "skipped": false
+    },
+    {
+      "role": "related",
+      "claims": [
+        "MMCORE is a multimodal connection model"
+      ],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "",
+      "skipped": false
+    },
+    {
+      "role": "visual_planner",
+      "claims": [],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "",
+      "skipped": true
+    },
+    {
+      "role": "practitioner",
+      "claims": [
+        "MMCORE model can be used for multimodal tasks such as image-text matching and video-text classification."
+      ],
+      "citations": [
+        "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings"
+      ],
+      "confidence": "medium",
+      "contradictions": [
+        "The market size and segmentation information is from a general market report and not directly related to the MMCORE model."
+      ],
+      "suggested_section": "H2 MMCORE Model Overview",
+      "skipped": false
+    }
+  ],
+  "committee_synthesis": "Committee: aggregate analyst points into one editorial through-line in draft.",
+  "visual_plan": null
+}
