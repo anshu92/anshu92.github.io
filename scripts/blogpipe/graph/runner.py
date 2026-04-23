@@ -23,11 +23,18 @@ def run_partial(stop_after: str) -> dict[str, Any]:
     """Run graph stages in-process up to stop_after; ``edit`` includes publish+write."""
     from . import nodes  # noqa: PLC0415
 
+    from . import committee  # noqa: PLC0415
+
+    def _research(s: dict[str, Any]) -> dict[str, Any]:
+        if config.committee_enabled():
+            return committee.run_committee_research_stages(s)
+        return nodes.node_research(s)
+
     order = [
         ("curate", nodes.node_curate),
         ("harvest", nodes.node_harvest),
         ("rank", nodes.node_rank),
-        ("research", nodes.node_research),
+        ("research", _research),
         ("draft", nodes.node_draft_refine),
         ("edit", nodes.node_editor),
     ]

@@ -61,6 +61,7 @@ def _planner_llm(title: str, abstract: str) -> tuple[list[str], list[str]]:
         "Questions must be answerable with web or paper evidence.",
         f"Title: {title}\nAbstract: {abstract[:1500]}",
         max_tokens=1536,
+        task="mcp_planner",
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
@@ -82,6 +83,7 @@ def _adversarial_llm(title: str, abstract: str) -> list[str]:
         'for a technical blog — not paper ablation results]}.',
         f"Title: {title}\nAbstract: {abstract[:1500]}",
         max_tokens=1536,
+        task="mcp_adversarial",
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:

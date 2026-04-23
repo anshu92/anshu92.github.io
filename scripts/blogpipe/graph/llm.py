@@ -18,6 +18,7 @@ def graph_llm_text(
     *,
     mode: str = "fast",
     max_tokens: Optional[int] = None,
+    task: Optional[str] = None,
 ) -> str:
     """Optional tag for dry-run canned paths; delegates to openrouter_client.llm_text."""
     if config.dry_run():
@@ -26,10 +27,18 @@ def graph_llm_text(
         LOG.warning("graph_llm %s: call cap reached", tag)
         return ""
     if max_tokens is None:
-        max_tokens = (
-            config.max_tokens_smart() if mode == "smart" else config.max_tokens_fast()
-        )
-    return openrouter_client.llm_text(system, user, mode=mode, max_tokens=max_tokens)
+        ovr = (task and config.max_tokens_for_task(task)) or 0
+        if ovr > 0:
+            max_tokens = ovr
+        else:
+            max_tokens = (
+                config.max_tokens_smart()
+                if mode == "smart"
+                else config.max_tokens_fast()
+            )
+    return openrouter_client.llm_text(
+        system, user, mode=mode, max_tokens=max_tokens, task=task
+    )
 
 
 def _dry_stub(tag: str, system: str, user: str) -> str:

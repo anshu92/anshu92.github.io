@@ -113,6 +113,7 @@ def node_rank(state: dict[str, Any]) -> dict[str, Any]:
 
 
 def node_research(state: dict[str, Any]) -> dict[str, Any]:
+    """Legacy single-node research (``BLOGPIPE_COMMITTEE_DISABLED=1`` or CLI ``research``)."""
     from .. import research  # noqa: PLC0415
 
     research.run()
@@ -178,7 +179,11 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
 
     system, user = build_prompt(bundle, brief, fmt)
     body = gllm.graph_llm_text(
-        "full_draft", system, user, max_tokens=config.max_tokens_smart()
+        "full_draft",
+        system,
+        user,
+        max_tokens=config.max_tokens_smart(),
+        task="draft_full",
     )
     if not (body or "").strip():
         body = _stub_body(bundle, brief, fmt)
@@ -191,6 +196,7 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
             "Fix [missing cite: ...] with paraphrase or remove. Output markdown body only, no fences.",
             body[:12000],
             max_tokens=2048,
+            task="draft_cite_repair",
         )
         if rep_txt.strip():
             body = _unwrap_markdown_fence(rep_txt)
@@ -344,6 +350,13 @@ def node_publish_and_write(state: dict[str, Any]) -> dict[str, Any]:
         is_llm_call_cap_reached() or state.get("budget_exhausted")
     )
     u["supervisor_decisions"] = state.get("supervisor_decisions", [])
+    u["tokens_in"] = u.get("tokens_in", 0)
+    u["tokens_out"] = u.get("tokens_out", 0)
+    u["usd_spent"] = u.get("usd_spent", 0.0)
+    u["by_task"] = u.get("by_task", {})
+    u["by_model"] = u.get("by_model", {})
+    if state.get("committee_synthesis"):
+        u["committee_synthesis"] = state.get("committee_synthesis")
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     slug = _slugify(bundle.primary.title)
     title = _sanitize_frontmatter_text(bundle.primary.title, 200)

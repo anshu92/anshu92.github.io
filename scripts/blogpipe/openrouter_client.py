@@ -59,12 +59,17 @@ def chat_completion(
         if r.is_error:
             LOG.warning("openrouter chat %s (model=%s): %s", r.status_code, model, (r.text or "")[:800])
         r.raise_for_status()
-        data = r.json()
-        ch = (data or {}).get("choices") or []
+        data = r.json() or {}
+        ch = data.get("choices") or []
         if not ch:
             llm_chain.bump_llm_fail()
             return ""
         out = str((ch[0].get("message") or {}).get("content") or "")
+        u = (data.get("usage") or {})
+        pin = int(u.get("prompt_tokens") or u.get("prompt", 0) or 0)
+        cout = int(u.get("completion_tokens") or u.get("completion", 0) or 0)
+        if out.strip() and (pin or cout):
+            llm_chain.record_completion_tokens(model, pin, cout, None)
         if out.strip():
             llm_chain.bump_llm_ok()
         else:
@@ -83,18 +88,23 @@ def llm_text(
     *,
     mode: str = "fast",
     max_tokens: Optional[int] = None,
+    task: Optional[str] = None,
 ) -> str:
-    """If ``BLOGPIPE_MODEL`` / ``BLOGPIPE_EDITOR_MODEL`` or ``model=`` is set, try that on OpenRouter first, then fall back to the evr fast/smart chain (Groq, Gemini, OpenRouter)."""
+    """If ``BLOGPIPE_MODEL`` / ``BLOGPIPE_EDITOR_MODEL`` or ``model=`` is set, try that on OpenRouter first, then task registry (``task=``) or the evr chain."""
     from . import llm_chain
 
     if config.dry_run():
         return ""
     if llm_chain.is_llm_call_cap_reached():
         return ""
+    ovr = int(config.max_tokens_for_task(task) or 0) if (task or "").strip() else 0
     if max_tokens is None:
-        max_tokens = (
-            config.max_tokens_smart() if mode == "smart" else config.max_tokens_fast()
-        )
+        if ovr > 0:
+            max_tokens = ovr
+        else:
+            max_tokens = (
+                config.max_tokens_smart() if mode == "smart" else config.max_tokens_fast()
+            )
     messages: list[dict[str, str]] = [
         {"role": "system", "content": system},
         {"role": "user", "content": user},
@@ -115,13 +125,26 @@ def llm_text(
     elif m_arg and not config.openrouter_key():
         LOG.warning("model override set but no OPENROUTER_API_KEY; using provider chain")
 
+    if (task or "").strip() and config.llm_configured():
+        from .llm_chain import chat_with_task_chain
+
+        return chat_with_task_chain(
+            messages,
+            task or "",
+            temperature=0.4,
+            max_tokens=max_tokens or 1536,
+        )
+
     if not config.llm_configured():
         return ""
 
     from .llm_chain import chat_with_chain
 
     return chat_with_chain(
-        messages, "smart" if mode == "smart" else "fast", temperature=0.4, max_tokens=max_tokens
+        messages,
+        "smart" if mode == "smart" else "fast",
+        temperature=0.4,
+        max_tokens=max_tokens,
     )
 
 

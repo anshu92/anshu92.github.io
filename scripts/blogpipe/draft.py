@@ -83,6 +83,7 @@ def _ensure_mermaid(body: str, title: str, brief: EditorialBrief) -> str:
         f"Style: {brief.diagram_style}. Show the key method or process flow.",
         f"Paper: {title}",
         max_tokens=1024,
+        task="draft_rewrite_section",
     )
     if raw.strip():
         body = body.rstrip() + "\n\n" + raw.strip() + "\n"
@@ -100,6 +101,7 @@ def _apply_result_first_takeaway(body: str, title: str) -> str:
         "Output only the sentence, no quotes.",
         f"Title: {title}\nCurrent first line: {line}",
         max_tokens=512,
+        task="draft_rewrite_section",
     )
     if not fixed.strip() or not _has_result_signal(fixed):
         return body
@@ -556,6 +558,23 @@ def build_prompt(
             "CONTRADICTIONS_AND_LIMITS (address honestly; do not bury):\n"
             + "\n".join(f"- {x}" for x in bundle.contradiction_notes[:8])
         )
+    if (bundle.committee_synthesis or "").strip():
+        ev.append(
+            "EDITORIAL_ANGLE (committee): "
+            + (bundle.committee_synthesis or "")[:2000]
+        )
+    if bundle.analyst_notes:
+        lines: list[str] = [
+            "COMMITTEE_NOTES (use to sharpen; resolve conflicts with EVIDENCE):"
+        ]
+        for n in bundle.analyst_notes:
+            if getattr(n, "skipped", False):
+                continue
+            role = n.role
+            cpart = "\n".join(f"- {c}" for c in (n.claims or [])[:6])
+            if cpart.strip():
+                lines.append(f"### {role}\n{cpart}")
+        ev.append("\n\n".join(lines)[:5000])
     for it in bundle.enrichment_items[:5]:
         ev.append(
             f"ENRICHMENT {it.source} {it.title} | {it.url}\n{it.abstract[:260]}"
@@ -715,7 +734,7 @@ def run() -> Path:
         body = _stub_body(bundle, brief, fmt)
     else:
         body = openrouter_client.llm_text(
-            system, user, max_tokens=config.max_tokens_smart()
+            system, user, max_tokens=config.max_tokens_smart(), task="draft_full"
         )
         if not body.strip():
             body = _stub_body(bundle, brief, fmt)
@@ -729,6 +748,7 @@ def run() -> Path:
                 f"PRIMARY_TITLE: {bundle.primary.title}\n\nBAD_DRAFT:\n{body[:12000]}\n\nEVIDENCE:\n{user[:14000]}",
                 mode="smart",
                 max_tokens=config.max_tokens_smart(),
+                task="draft_full",
             )
             if rewrite.strip() and _looks_like_markdown_body(rewrite):
                 body = _unwrap_markdown_fence(rewrite)
@@ -743,6 +763,7 @@ def run() -> Path:
             "and no code fences.",
             body[:12000],
             max_tokens=2048,
+            task="draft_cite_repair",
         )
         if repair.strip() and _looks_like_markdown_body(repair):
             body = _unwrap_markdown_fence(repair)
@@ -766,6 +787,7 @@ def run() -> Path:
             f"ISSUES:\n- " + "\n- ".join(struct + unsupported[:8]) + f"\n\nBODY:\n{body[:16000]}\n\nEVIDENCE:\n{user[:14000]}",
             mode="smart",
             max_tokens=config.max_tokens_smart(),
+            task="draft_full",
         )
         if rewrite.strip() and _looks_like_markdown_body(rewrite):
             body = _polish_body(_unwrap_markdown_fence(rewrite), bundle, brief)

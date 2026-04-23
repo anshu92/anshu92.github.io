@@ -17,7 +17,15 @@ import httpx
 
 from . import config, mcp_enrichment, memory, openrouter_client, paper_reader
 from .llm_chain import get_llm_usage
-from .models import BenchmarkRow, EvidenceBundle, Item, Pillar, Quote
+from .models import (
+    AnalystNote,
+    BenchmarkRow,
+    EvidenceBundle,
+    EvidencePack,
+    Item,
+    Pillar,
+    Quote,
+)
 from .memory import _ROOT
 
 LOG = logging.getLogger(__name__)
@@ -307,6 +315,7 @@ def _competitor_queries(title: str, abstract: str) -> list[str]:
         "No generic words only.",
         f"Title: {title}\nAbstract: {abstract[:600]}",
         max_tokens=1536,
+        task="query_gen",
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if m:
@@ -330,6 +339,7 @@ def _extract_benchmarks_from_abstract(title: str, abstract: str) -> list[Benchma
         "Use only values stated in the text. If none, return {\"rows\": []}.",
         f"Title: {title}\nAbstract: {abstract[:2000]}",
         max_tokens=1536,
+        task="paper_chunk_summary",
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
@@ -501,12 +511,8 @@ def _primary_from_rank() -> Item:
     return Item.model_validate(d["primary"])
 
 
-def _trace_append(entry: dict[str, Any], trace: list[dict[str, Any]]) -> None:
-    if len(trace) < 200:
-        trace.append(entry)
-
-
-def run() -> EvidenceBundle:
+def gather_evidence_pack(primary: Item) -> tuple[EvidencePack, int, list[dict[str, Any]]]:
+    """Retrieval: Semantic Scholar, OpenAlex (no LLM queries), ref/cite, paper PDF."""
     global _RESEARCH_SINK
     _RESEARCH_SINK = {
         "ss_cache_hits": 0,
@@ -515,23 +521,17 @@ def run() -> EvidenceBundle:
         "ss_ref_calls": 0,
     }
     memory.ensure_dirs()
-    u_research0 = get_llm_usage()
-    calls = 0
-    max_c = min(config.research_max_calls(), 15)
     trace: list[dict[str, Any]] = []
-    primary = _primary_from_rank()
+    calls = 0
     by_id: dict[str, Item] = {primary.id: primary}
     ancestors: list[Item] = []
-    competitors: list[Item] = []
     followups: list[Item] = []
-    aec_links: list[Item] = []
-    paper_section_evidence: dict[str, str] = {}
-    paper_limitations: list[str] = []
-    paper_result_notes: list[str] = []
-    paper_quotes: list[Quote] = []
+    competitors: list[Item] = []
     ss_id: Optional[str] = None
+    refs: list[Item] = []
+    cits: list[Item] = []
     ss: list[Item] = []
-    if calls < max_c:
+    if calls < 99:
         ss = semantic_search(primary.title)[:3]
         calls += 1
         _trace_append({"tool": "semantic_scholar_search", "n": len(ss)}, trace)
@@ -556,29 +556,22 @@ def run() -> EvidenceBundle:
                             }
                         )
                     break
-    if not ss and calls < max_c:
+    if not ss and calls < 99:
         ss2 = semantic_search((primary.title + " " + primary.abstract)[:200])[:1]
         calls += 1
         if ss2 and ss2[0].url:
             m = re.search(r"([0-9a-f]{40})", ss2[0].url)
             if m:
                 ss_id = m.group(1) if len(m.group(1)) == 40 else m.group(1)
-    if ss_id and calls < max_c:
+    if ss_id and calls < 99:
         refs, cits = ref_cite(ss_id)
         calls += 1
-        _trace_append({"tool": "refs_cites", "refs": len(refs), "cites": len(cits)}, trace)
         ancestors = refs[:3]
         followups = cits[:2]
-    competitor_queries: list[str] = []
-    if calls < max_c:
-        if not config.dry_run() and config.llm_configured():
-            competitor_queries = _competitor_queries(primary.title, primary.abstract)
-            calls += 1
-        else:
-            competitor_queries = [primary.title[:80].strip() or "machine learning paper"]
-        _trace_append({"tool": "competitor_queries", "n": len(competitor_queries)}, trace)
-    for q in competitor_queries or [primary.title[:80]]:
-        if len(competitors) >= 3 or calls >= max_c:
+        _trace_append({"tool": "refs_cites", "refs": len(refs), "cites": len(cits)}, trace)
+    competitor_queries = [primary.title[:80].strip() or "machine learning paper"]
+    for q in competitor_queries:
+        if len(competitors) >= 3 or calls >= 99:
             break
         oa = openalex_search(q)
         calls += 1
@@ -589,6 +582,12 @@ def run() -> EvidenceBundle:
                 by_id[it.id] = it
     for a in ancestors + followups + competitors:
         by_id[a.id] = a
+    aec_links: list[Item] = []
+    paper_section_evidence: dict[str, str] = {}
+    paper_limitations: list[str] = []
+    paper_result_notes: list[str] = []
+    paper_quotes: list[Quote] = []
+    outline: list[str] = []
     paper_ev = paper_reader.fetch_primary_paper_evidence(primary)
     if paper_ev.cleaned_text:
         primary.extra["paper_pdf_url"] = paper_ev.pdf_url
@@ -604,6 +603,7 @@ def run() -> EvidenceBundle:
         paper_limitations = list(paper_ev.limitation_notes)
         paper_result_notes = list(paper_ev.result_notes)
         paper_quotes = list(paper_ev.quotes)
+        outline = list(paper_ev.outline)
         _trace_append(
             {
                 "tool": "paper_reader",
@@ -614,6 +614,76 @@ def run() -> EvidenceBundle:
             },
             trace,
         )
+    for it in aec_links:
+        by_id[it.id] = it
+    pack = EvidencePack(
+        primary=primary,
+        ss_id=ss_id,
+        ancestors=ancestors,
+        competitors=competitors,
+        followups=followups,
+        aec_links=aec_links,
+        section_evidence=paper_section_evidence,
+        paper_limitations=paper_limitations,
+        paper_result_notes=paper_result_notes,
+        paper_quotes=paper_quotes,
+        outline=outline,
+        by_id=by_id,
+        trace=trace,
+        calls_used=calls,
+        refs=refs,
+        cits=cits,
+    )
+    return pack, calls, trace
+
+
+def _trace_append(entry: dict[str, Any], trace: list[dict[str, Any]]) -> None:
+    if len(trace) < 200:
+        trace.append(entry)
+
+
+def finalize_evidence_from_pack(
+    pack: EvidencePack,
+    calls: int,
+    trace: list[dict[str, Any]],
+    *,
+    analyst_notes: list[AnalystNote] | None = None,
+    committee_synthesis: str = "",
+) -> tuple[EvidenceBundle, int, list[dict[str, Any]]]:
+    """LLM OpenAlex, benchmarks, MCP; merge with committee outputs."""
+    max_c = min(config.research_max_calls(), 15)
+    primary = pack.primary
+    by_id: dict[str, Item] = dict(pack.by_id)
+    ancestors = list(pack.ancestors)
+    competitors = list(pack.competitors)
+    followups = list(pack.followups)
+    aec_links = list(pack.aec_links)
+    paper_section_evidence = dict(pack.section_evidence)
+    paper_limitations = list(pack.paper_limitations)
+    paper_result_notes = list(pack.paper_result_notes)
+    paper_quotes = list(pack.paper_quotes)
+    competitive_queries: list[str] = []
+    if calls < max_c:
+        if not config.dry_run() and config.llm_configured():
+            competitive_queries = _competitor_queries(primary.title, primary.abstract)
+            calls += 1
+        else:
+            competitive_queries = [primary.title[:80].strip() or "machine learning paper"]
+        _trace_append(
+            {"tool": "competitor_queries", "n": len(competitive_queries)}, trace
+        )
+    for q in competitive_queries or [primary.title[:80]]:
+        if len(competitors) >= 3 or calls >= max_c:
+            break
+        oa = openalex_search(q)
+        calls += 1
+        _trace_append({"tool": "openalex", "q": q[:100], "n": len(oa)}, trace)
+        for it in oa:
+            if it.id not in by_id and len(competitors) < 3:
+                competitors.append(it)
+                by_id[it.id] = it
+    for a in ancestors + followups + competitors:
+        by_id[a.id] = a
     bms: list[BenchmarkRow] = []
     if (
         calls < max_c
@@ -665,8 +735,14 @@ def run() -> EvidenceBundle:
             merged_section_evidence[key] = (
                 merged_section_evidence[key].rstrip() + "\n\n" + value.lstrip()
             )[:4000]
+    nlist = list(analyst_notes) if analyst_notes else []
+    extra_contra = list(
+        dict.fromkeys(
+            [c for n in nlist for c in (n.contradictions or [])] + paper_limitations
+        )
+    )
     contradiction_notes = list(
-        dict.fromkeys(paper_limitations + (mres.contradiction_notes or []))
+        dict.fromkeys(extra_contra + (mres.contradiction_notes or []))
     )[:10]
     b = EvidenceBundle(
         primary=primary,
@@ -681,8 +757,28 @@ def run() -> EvidenceBundle:
         planner_questions=mres.planner_questions,
         section_evidence=merged_section_evidence,
         contradiction_notes=contradiction_notes,
+        analyst_notes=nlist,
+        committee_synthesis=committee_synthesis,
     )
     b.register_ids()
+    return b, calls, trace
+
+
+def run() -> EvidenceBundle:
+    global _RESEARCH_SINK
+    _RESEARCH_SINK = {
+        "ss_cache_hits": 0,
+        "ss_429": 0,
+        "ss_search_calls": 0,
+        "ss_ref_calls": 0,
+    }
+    memory.ensure_dirs()
+    u_research0 = get_llm_usage()
+    primary0 = _primary_from_rank()
+    pack, calls, trace = gather_evidence_pack(primary0)
+    b, calls, trace = finalize_evidence_from_pack(
+        pack, calls, trace, analyst_notes=None, committee_synthesis=""
+    )
     (_ROOT / "reports" / "evidence_bundle.json").write_text(
         b.model_dump_json(indent=2),
         encoding="utf-8",
@@ -704,9 +800,11 @@ def run() -> EvidenceBundle:
         json.dumps(trace_out, indent=2),
         encoding="utf-8",
     )
-    n_bm = len(bms) if bms else 0
+    max_c = min(config.research_max_calls(), 15)
+    n_bm = len(b.benchmarks) if b.benchmarks else 0
+    n_comp = len(b.competitors) if b.competitors else 0
     print(
-        f"stage=research calls={calls}/{max_c} competitors={len(competitors)} "
+        f"stage=research calls={calls}/{max_c} competitors={n_comp} "
         f"benchmarks={n_bm} ss_cache_hits={trace_out['ss_cache_hits']} "
         f"ss_429={trace_out['ss_429']}",
         flush=True,

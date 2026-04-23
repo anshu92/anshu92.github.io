@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, List, TypedDict
+import operator
+from typing import Annotated, Any, List, TypedDict
 
 from ..models import EditorialBrief, EvidenceBundle, RankResult
 
@@ -14,6 +15,9 @@ class BlogState(TypedDict, total=False):
     rank_result: dict[str, Any]
     primary: dict[str, Any]
     evidence: dict[str, Any]
+    evidence_pack: dict[str, Any]
+    committee_notes: Annotated[List[dict[str, Any]], operator.add]
+    committee_synthesis: dict[str, Any]
     research_trace: dict[str, Any]
     body: str
     outline: List[str]

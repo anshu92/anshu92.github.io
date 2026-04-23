@@ -48,6 +48,40 @@ class Quote(BaseModel):
     url: str = ""
 
 
+class AnalystNote(BaseModel):
+    """One committee analyst output."""
+
+    role: str
+    claims: list[str] = Field(default_factory=list)
+    citations: list[str] = Field(default_factory=list)
+    confidence: str = "medium"
+    contradictions: list[str] = Field(default_factory=list)
+    suggested_section: str = ""
+    skipped: bool = False
+
+
+class EvidencePack(BaseModel):
+    """Scout output: primary paper context before committee LLM and bundle merge."""
+
+    primary: Item
+    ss_id: Optional[str] = None
+    ancestors: list[Item] = Field(default_factory=list)
+    competitors: list[Item] = Field(default_factory=list)
+    followups: list[Item] = Field(default_factory=list)
+    aec_links: list[Item] = Field(default_factory=list)
+    section_evidence: dict[str, str] = Field(default_factory=dict)
+    paper_limitations: list[str] = Field(default_factory=list)
+    paper_result_notes: list[str] = Field(default_factory=list)
+    paper_quotes: list[Quote] = Field(default_factory=list)
+    outline: list[str] = Field(default_factory=list)
+    by_id: dict[str, Item] = Field(default_factory=dict)
+    trace: list[dict[str, Any]] = Field(default_factory=list)
+    calls_used: int = 0
+    # Raw refs from Semantic Scholar (for related-work analyst)
+    refs: list[Item] = Field(default_factory=list)
+    cits: list[Item] = Field(default_factory=list)
+
+
 class EvidenceBundle(BaseModel):
     primary: Item
     ancestors: list[Item] = Field(default_factory=list)
@@ -62,6 +96,8 @@ class EvidenceBundle(BaseModel):
     section_evidence: dict[str, str] = Field(default_factory=dict)
     contradiction_notes: list[str] = Field(default_factory=list)
     by_id: dict[str, Item] = Field(default_factory=dict)
+    analyst_notes: list[AnalystNote] = Field(default_factory=list)
+    committee_synthesis: str = ""
 
     def register_ids(self) -> None:
         self.by_id = {self.primary.id: self.primary}

@@ -106,7 +106,9 @@ def section_critic_llm(
         "assumption, or failure mode where one would be expected."
     )
     user = f"SECTION: ## {title}\n{body[:6000]}\n\nEVIDENCE_EXCERPT:\n{evidence_excerpt[:4000]}\n"
-    raw = gllm.graph_llm_text("section_critic", system, user, mode="smart")
+    raw = gllm.graph_llm_text(
+        "section_critic", system, user, mode="smart", task="draft_section_critic"
+    )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
         return {"verdict": "ok", "query_hint": ""}
@@ -152,6 +154,7 @@ def rewrite_section(
         f"EVIDENCE:\n{bundle_excerpt[:8000]}\n\nOLD:\n{old_body[:4000]}\n",
         mode="fast",
         max_tokens=2048,
+        task="draft_rewrite_section",
     )
 
 
@@ -190,7 +193,9 @@ def global_rubric(body: str) -> EditorReport:
             five_questions_ok=True,
             pass_gate=True,
         )
-    raw = gllm.graph_llm_text("rubric", system, body[:24000], mode="smart")
+    raw = gllm.graph_llm_text(
+        "rubric", system, body[:24000], mode="smart", task="editor_rubric"
+    )
     if not raw.strip():
         return EditorReport(
             rubric_score=9,
@@ -227,10 +232,12 @@ def grounding_check_node(body: str, evidence_text: str) -> tuple[bool, list[str]
         return True, [], False
     raw = gllm.graph_llm_text(
         "grounding",
-        "You compare a blog draft to EVIDENCE JSON. Output JSON only: "
+        "You compare a blog draft to EVIDENCE JSON. If analyst_notes or contradictions in "
+        "EVIDENCE conflict with a draft claim, flag it. Output JSON only: "
         '{"unsupported_claims": ["short label", ...]}. Max 10; [] if none.',
         f"EVIDENCE:\n{evidence_text[:22000]}\n\n---\n\nDRAFT:\n{body[:20000]}\n",
         mode="smart",
+        task="editor_grounding",
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:

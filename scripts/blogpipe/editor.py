@@ -120,7 +120,11 @@ def _rubric_llm(md: str) -> EditorReport:
         '"five_questions_ok": true}'
     )
     raw = openrouter_client.llm_text(
-        system, md[:24000], mode="smart", max_tokens=config.max_tokens_smart()
+        system,
+        md[:24000],
+        mode="smart",
+        max_tokens=config.max_tokens_smart(),
+        task="editor_rubric",
     )
     if not raw.strip():
         return EditorReport(
@@ -170,6 +174,7 @@ def _grounding_check(body: str) -> tuple[bool, list[str], bool]:
         f"EVIDENCE_JSON:\n{ev_text}\n\n---\n\nDRAFT_MD:\n{body[:20000]}\n",
         mode="smart",
         max_tokens=config.max_tokens_smart(),
+        task="editor_grounding",
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
@@ -228,6 +233,7 @@ def run() -> EditorReport:
             body[:20000],
             mode="smart",
             max_tokens=config.max_tokens_smart(),
+            task="draft_full",
         )
         if fix.strip() and _looks_like_markdown_body(fix):
             body = _unwrap_markdown_fence(fix)
@@ -253,6 +259,7 @@ def run() -> EditorReport:
             + f"\n\nBODY:\n{body[:20000]}\n\nEVIDENCE_JSON:\n{ev_text}",
             mode="smart",
             max_tokens=config.max_tokens_smart(),
+            task="editor_grounding",
         )
         if fix.strip() and _looks_like_markdown_body(fix):
             body = _unwrap_markdown_fence(fix)

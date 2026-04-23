@@ -100,7 +100,21 @@ REASONING_MODELS: set[str] = {
 
 _BLACKLIST: dict[str, float] = {}
 _BLACKLIST_TTL_DAILY = 86400.0
-_USAGE: dict[str, Any] = {"ok": 0, "fail": 0, "blacklisted_skips": 0, "blacklist_added": []}
+def _empty_usage() -> dict[str, Any]:
+    return {
+        "ok": 0,
+        "fail": 0,
+        "blacklisted_skips": 0,
+        "blacklist_added": [],
+        "tokens_in": 0,
+        "tokens_out": 0,
+        "usd_spent": 0.0,
+        "by_task": {},
+        "by_model": {},
+    }
+
+
+_USAGE: dict[str, Any] = _empty_usage()
 _LLM_CALL_CAP: int = 0  # 0 = disabled
 
 
@@ -124,7 +138,7 @@ def is_llm_call_cap_reached() -> bool:
 def reset_llm_usage() -> None:
     """Call once per pipeline run (e.g. start of research) to aggregate usage across stages."""
     global _USAGE
-    _USAGE = {"ok": 0, "fail": 0, "blacklisted_skips": 0, "blacklist_added": []}
+    _USAGE = _empty_usage()
 
 
 def get_llm_usage() -> dict[str, Any]:
@@ -133,7 +147,26 @@ def get_llm_usage() -> dict[str, Any]:
         "fail": int(_USAGE.get("fail", 0)),
         "blacklisted_skips": int(_USAGE.get("blacklisted_skips", 0)),
         "blacklist_added": list(_USAGE.get("blacklist_added") or []),
+        "tokens_in": int(_USAGE.get("tokens_in", 0)),
+        "tokens_out": int(_USAGE.get("tokens_out", 0)),
+        "usd_spent": float(_USAGE.get("usd_spent", 0) or 0.0),
+        "by_task": dict(_USAGE.get("by_task") or {}),
+        "by_model": dict(_USAGE.get("by_model") or {}),
     }
+
+
+def budget_remaining_usd() -> float:
+    from . import config  # local: avoid import cycle
+
+    return max(0.0, float(config.usd_budget()) - float(_USAGE.get("usd_spent", 0) or 0.0))
+
+
+def record_completion_tokens(
+    model_slug: str, in_t: int, out_t: int, task: str | None = None
+) -> None:
+    """Update usage counters after a direct OpenRouter completion (non-chain path)."""
+    if in_t or out_t:
+        _record_token_usage(model_slug, in_t, out_t, task)
 
 
 def bump_llm_ok() -> None:
@@ -306,11 +339,53 @@ def _effective_max_tokens(model: str, requested: int) -> int:
     return requested
 
 
+def _record_token_usage(
+    model_slug: str,
+    in_t: int,
+    out_t: int,
+    task: str | None,
+) -> None:
+    from . import model_registry  # local
+
+    u = model_registry.usd_for_tokens(model_slug, in_t, out_t)
+    _USAGE["tokens_in"] = int(_USAGE.get("tokens_in", 0)) + in_t
+    _USAGE["tokens_out"] = int(_USAGE.get("tokens_out", 0)) + out_t
+    _USAGE["usd_spent"] = float(_USAGE.get("usd_spent", 0) or 0.0) + u
+    bm = _USAGE.get("by_model")
+    if not isinstance(bm, dict):
+        bm = {}
+    mk = f"{model_slug}"
+    cur = bm.get(mk) or {}
+    if not isinstance(cur, dict):
+        cur = {}
+    cur["calls"] = int(cur.get("calls", 0) or 0) + 1
+    cur["tokens_in"] = int(cur.get("tokens_in", 0) or 0) + in_t
+    cur["tokens_out"] = int(cur.get("tokens_out", 0) or 0) + out_t
+    cur["usd"] = float(cur.get("usd", 0) or 0.0) + u
+    bm[mk] = cur
+    _USAGE["by_model"] = bm
+    if task and task.strip():
+        bt = _USAGE.get("by_task")
+        if not isinstance(bt, dict):
+            bt = {}
+        tcur = bt.get(task) or {}
+        if not isinstance(tcur, dict):
+            tcur = {}
+        tcur["calls"] = int(tcur.get("calls", 0) or 0) + 1
+        tcur["tokens_in"] = int(tcur.get("tokens_in", 0) or 0) + in_t
+        tcur["tokens_out"] = int(tcur.get("tokens_out", 0) or 0) + out_t
+        tcur["usd"] = float(tcur.get("usd", 0) or 0.0) + u
+        bt[task] = tcur
+        _USAGE["by_task"] = bt
+
+
 def _one_chat(
     entry: dict[str, Any],
     messages: list[dict[str, str]],
     temperature: float,
     max_tokens: int,
+    *,
+    task: str | None = None,
 ) -> str:
     base = (entry.get("base_url") or "").rstrip("/")
     url = f"{base}/chat/completions"
@@ -351,13 +426,26 @@ def _one_chat(
                 _USAGE["blacklist_added"].append(k)
             _persist_blacklist()
         r.raise_for_status()
-    data = r.json()
-    ch = (data or {}).get("choices") or []
+    data = r.json() or {}
+    ch = data.get("choices") or []
     if not ch:
         _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
         return ""
     _USAGE["ok"] = int(_USAGE.get("ok", 0)) + 1
-    return str((ch[0].get("message") or {}).get("content") or "")
+    out_t = int(
+        (data.get("usage") or {}).get("completion_tokens", 0)
+        or (data.get("usage") or {}).get("completion", 0)
+    )
+    in_t = int(
+        (data.get("usage") or {}).get("prompt_tokens", 0)
+        or (data.get("usage") or {}).get("prompt", 0)
+    )
+    text = str((ch[0].get("message") or {}).get("content") or "")
+    if in_t == 0 and out_t == 0:
+        in_t = max(1, sum(len(str(mm.get("content", "")) or "") for mm in to_send) // 4)
+        out_t = max(1, len(text) // 4)
+    _record_token_usage(m, in_t, out_t, task)
+    return text
 
 
 def _is_active_blacklist(k: str) -> bool:
@@ -393,7 +481,7 @@ def chat_with_chain(
                 _USAGE["blacklisted_skips"] = int(_USAGE.get("blacklisted_skips", 0)) + 1
                 continue
             try:
-                return _one_chat(entry, messages, temperature, max_tokens)
+                return _one_chat(entry, messages, temperature, max_tokens, task=None)
             except Exception as e:  # noqa: BLE001 — try next, like evr
                 _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
                 last = e
@@ -401,3 +489,56 @@ def chat_with_chain(
     if last is not None:
         LOG.warning("llm chain exhausted: %s", last)
     return ""
+
+
+def chat_with_task_chain(
+    messages: list[dict[str, str]],
+    task: str,
+    *,
+    temperature: float = 0.4,
+    max_tokens: int = 1536,
+) -> str:
+    """Run task-specific model chain from model_registry; fallback to mode pool if empty."""
+    if _at_call_cap():
+        LOG.warning("llm: call cap reached, skipping task chain")
+        return ""
+    _merge_blacklist_from_disk()
+    from . import model_registry  # local
+
+    est = max(
+        1,
+        sum(len(str(m.get("content", "")) or "") for m in messages) // 4,
+    )
+    raw_chain = model_registry.select_chain(
+        task,
+        est,
+        prefer_free=config.prefer_free_models(),
+        usd_budget_remaining=budget_remaining_usd(),
+    )
+    a = _available()
+    built = _build_model_chain(raw_chain, a)
+    if not built:
+        return chat_with_chain(
+            messages, "fast", temperature=temperature, max_tokens=max_tokens
+        )
+    last: Optional[Exception] = None
+    for entry in built:
+        if _at_call_cap():
+            return ""
+        k = _entry_key(entry)
+        if _is_active_blacklist(k):
+            _USAGE["blacklisted_skips"] = int(_USAGE.get("blacklisted_skips", 0)) + 1
+            continue
+        try:
+            return _one_chat(
+                entry, messages, temperature, max_tokens, task=task
+            )
+        except Exception as e:  # noqa: BLE001
+            _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
+            last = e
+            continue
+    if last is not None:
+        LOG.warning("llm task chain exhausted: %s", last)
+    return chat_with_chain(
+        messages, "fast", temperature=temperature, max_tokens=max_tokens
+    )

@@ -433,6 +433,7 @@ def _llm_chunk_summary(primary: Item, headings: list[str], chunk_text: str) -> d
             user,
             mode="smart",
             max_tokens=min(1600, config.max_tokens_smart()),
+            task="paper_chunk_summary",
         )
     )
 

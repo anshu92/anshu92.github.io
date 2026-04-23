@@ -95,7 +95,9 @@ def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str,
         )
     user = "Candidates:\n" + "\n".join(lines)
     try:
-        raw = openrouter_client.llm_text(system, user, max_tokens=1536)
+        raw = openrouter_client.llm_text(
+            system, user, max_tokens=1536, task="rank_reasoning"
+        )
         m = re.search(r"\{[\s\S]*\}", raw)
         if not m:
             raise ValueError("no json")

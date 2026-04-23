@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 
 
@@ -137,9 +138,9 @@ def max_tokens_smart() -> int:
 def llm_call_cap() -> int:
     """Max successful+failed model completions per run (graph + chain hard stop)."""
     try:
-        v = int(_get("BLOGPIPE_LLM_CALL_CAP", "40"))
+        v = int(_get("BLOGPIPE_LLM_CALL_CAP", "60"))
     except ValueError:
-        v = 40
+        v = 60
     return max(1, min(v, 200))
 
 
@@ -158,3 +159,70 @@ def github_token() -> str:
 
 def context7_api_key() -> str:
     return _get("CONTEXT7_API_KEY")
+
+
+def committee_enabled() -> bool:
+    return _get("BLOGPIPE_COMMITTEE_DISABLED", "0") not in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+
+
+def committee_analysts() -> list[str]:
+    raw = _get("BLOGPIPE_COMMITTEE_ANALYSTS", "")
+    if not raw.strip():
+        return [
+            "methods",
+            "empirical",
+            "adversarial",
+            "related",
+            "practitioner",
+            "code",
+            "web",
+        ]
+    return [p.strip() for p in raw.split(",") if p.strip()]
+
+
+def committee_per_analyst_max_tokens() -> int:
+    try:
+        v = int(_get("BLOGPIPE_COMMITTEE_PER_ANALYST_MAX_TOKENS", "1200"))
+    except ValueError:
+        v = 1200
+    return max(256, min(v, 8192))
+
+
+def prefer_free_models() -> bool:
+    return _get("BLOGPIPE_PREFER_FREE", "1") in ("1", "true", "yes", "on")
+
+
+def usd_budget() -> float:
+    try:
+        return max(0.0, float(_get("BLOGPIPE_USD_BUDGET", "0")))
+    except ValueError:
+        return 0.0
+
+
+def model_overrides() -> dict[str, str]:
+    raw = _get("BLOGPIPE_MODEL_OVERRIDES", "")
+    if not raw:
+        return {}
+    try:
+        d = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return {}
+    if not isinstance(d, dict):
+        return {}
+    return {str(k): str(v) for k, v in d.items()}
+
+
+def max_tokens_for_task(task: str) -> int:
+    """Override max completion tokens; falls back to fast/smart by env."""
+    o = _get(f"BLOGPIPE_MAX_TOKENS_{(task or '').upper()}", "")
+    if o:
+        try:
+            return max(64, min(int(o), 8192))
+        except ValueError:
+            pass
+    return 0
