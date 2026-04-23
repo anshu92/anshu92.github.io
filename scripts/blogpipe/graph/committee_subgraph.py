@@ -7,6 +7,7 @@ from typing import Any
 from langgraph.graph import END, START, StateGraph
 
 from ..analysts import RUNNERS
+from ..llm_chain import budget
 from .committee import (
     fan_to_analysts_from_supervisor,
     make_analyst_node,
@@ -48,6 +49,15 @@ def get_committee_subgraph() -> object:
     return _COMMITTEE_COMPILED
 
 
+def committee_node(state: dict[str, Any]) -> dict[str, Any]:
+    """Parent-graph node: bill all committee LLM calls to the `committee` stage budget."""
+    with budget.stage("committee"):
+        g = get_committee_subgraph()
+        return g.invoke(state)  # type: ignore[no-untyped-call]
+
+
 def run_committee_subgraph_state(state: dict[str, Any]) -> dict[str, Any]:
     """Run committee pipeline without parent Send semantics (e.g. run_partial)."""
-    return get_committee_subgraph().invoke(state)
+    with budget.stage("committee"):
+        g = get_committee_subgraph()
+        return g.invoke(state)  # type: ignore[no-untyped-call]

@@ -6,7 +6,10 @@ import json
 import logging
 import os
 import time
-from typing import Any, Optional
+from contextlib import contextmanager
+from contextvars import ContextVar
+from types import SimpleNamespace
+from typing import Any, Generator, Optional
 
 import httpx
 
@@ -101,6 +104,9 @@ def _empty_usage() -> dict[str, Any]:
 
 _USAGE: dict[str, Any] = _empty_usage()
 _LLM_CALL_CAP: int = 0  # 0 = disabled
+_STAGE_QUOTAS: dict[str, int] = {}
+_STAGE_COUNTS: dict[str, int] = {}
+_CURRENT_STAGE: ContextVar[Optional[str]] = ContextVar("blogpipe_llm_stage", default=None)
 
 
 def set_llm_call_cap(n: int) -> None:
@@ -109,21 +115,69 @@ def set_llm_call_cap(n: int) -> None:
     _LLM_CALL_CAP = max(0, int(n))
 
 
-def _at_call_cap() -> bool:
-    if _LLM_CALL_CAP <= 0:
+def set_stage_quotas(quotas: dict[str, int] | None) -> None:
+    """Per-stage call caps; empty/None disables per-stage (global cap only). Counts are not reset here."""
+    global _STAGE_QUOTAS
+    if not quotas:
+        _STAGE_QUOTAS = {}
+        return
+    _STAGE_QUOTAS = {str(k).strip(): max(0, int(v)) for k, v in quotas.items() if str(k).strip()}
+
+
+def current_stage() -> str | None:
+    return _CURRENT_STAGE.get()
+
+
+def is_stage_full(name: str | None = None) -> bool:
+    """True when this stage (or the context stage if name is None) has hit its per-stage cap."""
+    s = (name or "").strip() or current_stage() or ""
+    if not s or s not in _STAGE_QUOTAS:
         return False
-    return int(_USAGE.get("ok", 0)) + int(_USAGE.get("fail", 0)) >= _LLM_CALL_CAP
+    q = int(_STAGE_QUOTAS.get(s, 0))
+    if q <= 0:
+        return False
+    return int(_STAGE_COUNTS.get(s, 0)) >= q
+
+
+@contextmanager
+def stage(name: str) -> Generator[None, None, None]:
+    """Bind LLM usage accounting to a pipeline stage (propagates in async/threads via copy_context)."""
+    t = _CURRENT_STAGE.set((name or "").strip())
+    try:
+        yield
+    finally:
+        _CURRENT_STAGE.reset(t)
+
+
+budget = SimpleNamespace(stage=stage)
+
+
+def _bump_stage_on_llm_outcome() -> None:
+    s = (current_stage() or "").strip()
+    if not s or s not in _STAGE_QUOTAS:
+        return
+    _STAGE_COUNTS[s] = int(_STAGE_COUNTS.get(s, 0)) + 1
+
+
+def _at_call_cap() -> bool:
+    if _LLM_CALL_CAP > 0:
+        if int(_USAGE.get("ok", 0)) + int(_USAGE.get("fail", 0)) >= _LLM_CALL_CAP:
+            return True
+    if is_stage_full():
+        return True
+    return False
 
 
 def is_llm_call_cap_reached() -> bool:
-    """True when BLOGPIPE_LLM_CALL_CAP would block further chat/completion calls."""
+    """True when global or per-stage LLM cap would block further chat/completion calls."""
     return _at_call_cap()
 
 
 def reset_llm_usage() -> None:
     """Call once per pipeline run (e.g. start of research) to aggregate usage across stages."""
-    global _USAGE
+    global _USAGE, _STAGE_COUNTS
     _USAGE = _empty_usage()
+    _STAGE_COUNTS = {}
 
 
 def get_llm_usage() -> dict[str, Any]:
@@ -137,6 +191,7 @@ def get_llm_usage() -> dict[str, Any]:
         "usd_spent": float(_USAGE.get("usd_spent", 0) or 0.0),
         "by_task": dict(_USAGE.get("by_task") or {}),
         "by_model": dict(_USAGE.get("by_model") or {}),
+        "by_stage": dict(_STAGE_COUNTS),
     }
 
 
@@ -156,10 +211,12 @@ def record_completion_tokens(
 
 def bump_llm_ok() -> None:
     _USAGE["ok"] = int(_USAGE.get("ok", 0)) + 1
+    _bump_stage_on_llm_outcome()
 
 
 def bump_llm_fail() -> None:
     _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
+    _bump_stage_on_llm_outcome()
 
 
 def _root() -> str:
@@ -339,6 +396,8 @@ def _openrouter_headers() -> dict[str, str]:
 
 
 _GROQ_CONTENT_CAP = 5500  # stay under Groq TPM on long prompts (API returns 413 when over budget)
+# Pre-trim long user payloads in critics so Groq never word-cuts; leave margin below _GROQ_CONTENT_CAP
+GROQ_USER_CONTENT_BUDGET = _GROQ_CONTENT_CAP - 500
 
 
 def _messages_for_provider(messages: list[dict[str, str]], prov: str) -> list[dict[str, str]]:
@@ -348,7 +407,10 @@ def _messages_for_provider(messages: list[dict[str, str]], prov: str) -> list[di
     for m in messages:
         c = m.get("content", "")
         if len(c) > _GROQ_CONTENT_CAP:
-            c = c[:_GROQ_CONTENT_CAP] + "\n\n[truncated for Groq request size limits]"
+            # Cut at a clean word boundary; do NOT append a textual marker — past attempts
+            # ("[truncated for Groq request size limits]") were echoed verbatim into drafts.
+            cut = c[:_GROQ_CONTENT_CAP].rsplit(" ", 1)[0]
+            c = cut.rstrip() + "\n"
         out.append({**m, "content": c})
     return out
 
@@ -451,8 +513,10 @@ def _one_chat(
     ch = data.get("choices") or []
     if not ch:
         _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
+        _bump_stage_on_llm_outcome()
         return ""
     _USAGE["ok"] = int(_USAGE.get("ok", 0)) + 1
+    _bump_stage_on_llm_outcome()
     out_t = int(
         (data.get("usage") or {}).get("completion_tokens", 0)
         or (data.get("usage") or {}).get("completion", 0)
@@ -505,6 +569,7 @@ def chat_with_chain(
                 return _one_chat(entry, messages, temperature, max_tokens, task=None)
             except Exception as e:  # noqa: BLE001 — try next, like evr
                 _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
+                _bump_stage_on_llm_outcome()
                 last = e
                 continue
     if last is not None:
@@ -556,6 +621,7 @@ def chat_with_task_chain(
             )
         except Exception as e:  # noqa: BLE001
             _USAGE["fail"] = int(_USAGE.get("fail", 0)) + 1
+            _bump_stage_on_llm_outcome()
             last = e
             continue
     if last is not None:

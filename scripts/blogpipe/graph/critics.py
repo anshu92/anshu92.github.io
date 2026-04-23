@@ -8,7 +8,7 @@ import re
 from typing import Any, Dict, Optional, Tuple
 
 from .. import config, lint
-from ..llm_chain import is_llm_call_cap_reached
+from ..llm_chain import GROQ_USER_CONTENT_BUDGET, is_llm_call_cap_reached
 from ..models import EditorReport
 from . import llm as gllm
 
@@ -18,6 +18,26 @@ _PLACEHOLDER = re.compile(
     r"^no [a-z]+ (information|reference|equation|code|content)\b",
     re.I | re.M,
 )
+
+
+def _shrink_for_groq_rubric_user(body: str) -> str:
+    b = (body or "")
+    if len(b) <= GROQ_USER_CONTENT_BUDGET:
+        return b
+    return b[:GROQ_USER_CONTENT_BUDGET].rsplit(" ", 1)[0].rstrip() + "\n"
+
+
+def _shrink_for_groq_grounding_user(body: str, evidence_text: str) -> str:
+    """Heads of EVIDENCE and DRAFT to stay under Groq user-message cap (avoids word-cut in llm_chain)."""
+    ev0 = (evidence_text or "")[:40000]
+    b0 = (body or "")[:40000]
+    s = f"EVIDENCE:\n{ev0}\n\n---\n\nDRAFT:\n{b0}\n"
+    if len(s) <= GROQ_USER_CONTENT_BUDGET:
+        return s
+    room = (GROQ_USER_CONTENT_BUDGET - 60) // 2
+    ev2 = (ev0[:room]).rsplit(" ", 1)[0].rstrip()
+    b2 = (b0[:room]).rsplit(" ", 1)[0].rstrip()
+    return f"EVIDENCE:\n{ev2}\n\n---\n\nDRAFT:\n{b2}\n"
 
 
 def filler_detector_score(text: str) -> Tuple[int, list[str]]:
@@ -69,19 +89,21 @@ def section_critic_deterministic(title: str, body: str) -> Optional[str]:
 
 
 def section_critic_llm(
-    title: str, body: str, evidence_excerpt: str
-) -> Dict[str, Any]:
-    """LLM section critic. Returns {verdict, query_hint}."""
+    title: str, body: str, evidence_excerpt: str, *, allow_llm: bool = True
+) -> tuple[Dict[str, Any], bool]:
+    """LLM section critic. Returns ({verdict, query_hint}, used_llm)."""
     det = section_critic_deterministic(title, body)
     if det is not None:
         return {
             "verdict": det,
             "query_hint": f"more on {title}",
-        }
+        }, False
     if config.dry_run():
-        return {"verdict": "ok", "query_hint": ""}
+        return {"verdict": "ok", "query_hint": ""}, False
     if is_llm_call_cap_reached() or not config.llm_configured():
-        return {"verdict": "ok", "query_hint": ""}
+        return {"verdict": "ok", "query_hint": ""}, False
+    if not allow_llm:
+        return {"verdict": "ok", "query_hint": ""}, False
     system = (
         "You review one section of a technical blog. The section title was chosen by the writer and "
         "may be anything — do NOT penalise the title itself. Judge only the body against these "
@@ -111,11 +133,11 @@ def section_critic_llm(
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
-        return {"verdict": "ok", "query_hint": ""}
+        return {"verdict": "ok", "query_hint": ""}, True
     try:
-        return json.loads(m.group(0))
+        return json.loads(m.group(0)), True
     except (json.JSONDecodeError, TypeError):
-        return {"verdict": "ok", "query_hint": ""}
+        return {"verdict": "ok", "query_hint": ""}, True
 
 
 def rewrite_section(
@@ -194,7 +216,7 @@ def global_rubric(body: str) -> EditorReport:
             pass_gate=True,
         )
     raw = gllm.graph_llm_text(
-        "rubric", system, body[:24000], mode="smart", task="editor_rubric"
+        "rubric", system, _shrink_for_groq_rubric_user(body), mode="smart", task="editor_rubric"
     )
     if not raw.strip():
         return EditorReport(
@@ -235,7 +257,7 @@ def grounding_check_node(body: str, evidence_text: str) -> tuple[bool, list[str]
         "You compare a blog draft to EVIDENCE JSON. If analyst_notes or contradictions in "
         "EVIDENCE conflict with a draft claim, flag it. Output JSON only: "
         '{"unsupported_claims": ["short label", ...]}. Max 10; [] if none.',
-        f"EVIDENCE:\n{evidence_text[:22000]}\n\n---\n\nDRAFT:\n{body[:20000]}\n",
+        _shrink_for_groq_grounding_user(body, evidence_text),
         mode="smart",
         task="editor_grounding",
     )

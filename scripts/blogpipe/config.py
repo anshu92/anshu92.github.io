@@ -143,10 +143,48 @@ def max_tokens_smart() -> int:
 def llm_call_cap() -> int:
     """Max successful+failed model completions per run (graph + chain hard stop)."""
     try:
-        v = int(_get("BLOGPIPE_LLM_CALL_CAP", "60"))
+        v = int(_get("BLOGPIPE_LLM_CALL_CAP", "90"))
     except ValueError:
-        v = 60
+        v = 90
     return max(1, min(v, 200))
+
+
+_DEFAULT_STAGE_QUOTAS: dict[str, int] = {
+    "committee": 15,
+    "paper_reader": 8,
+    "draft": 18,
+    "editor": 4,
+    "polish": 4,
+    "extras": 4,
+}
+
+
+def stage_quotas() -> dict[str, int]:
+    """Per-stage LLM call budgets (ok+fail); JSON env overrides defaults. Invalid JSON or keys fall back."""
+    out = dict(_DEFAULT_STAGE_QUOTAS)
+    raw = _get("BLOGPIPE_STAGE_QUOTAS", "")
+    if not raw.strip():
+        return out
+    try:
+        d = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return out
+    if not isinstance(d, dict):
+        return out
+    for k, v in d.items():
+        if not k:
+            continue
+        key = str(k).strip()
+        if not key:
+            continue
+        try:
+            n = int(v)
+        except (TypeError, ValueError):
+            continue
+        if n < 0:
+            continue
+        out[key] = n
+    return out
 
 
 def brave_api_key() -> str:
@@ -194,9 +232,9 @@ def committee_analysts() -> list[str]:
 
 def committee_per_analyst_max_tokens() -> int:
     try:
-        v = int(_get("BLOGPIPE_COMMITTEE_PER_ANALYST_MAX_TOKENS", "1200"))
+        v = int(_get("BLOGPIPE_COMMITTEE_PER_ANALYST_MAX_TOKENS", "800"))
     except ValueError:
-        v = 1200
+        v = 800
     return max(256, min(v, 8192))
 
 

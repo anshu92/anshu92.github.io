@@ -30,15 +30,36 @@ def _load_json(name: str) -> dict:
     return json.loads(p.read_text()) if p.is_file() else {}
 
 
+_ARXIV_ID = re.compile(r"arxiv\.org/(?:abs|pdf)/([0-9]{4}\.[0-9]{4,6})", re.I)
+
+
+def _short_anchor(it, primary_id: str, occurrence: int) -> str:
+    """Compact citation anchor: arXiv id when available; 'the paper' for repeats of the primary."""
+    if it.id == primary_id and occurrence > 0:
+        return "the paper"
+    m = _ARXIV_ID.search(it.url or "")
+    if m:
+        return f"arXiv:{m.group(1)}"
+    title = (it.title or "").strip()
+    short = title.split(":", 1)[0]
+    if len(short) > 48:
+        short = short[:45].rsplit(" ", 1)[0] + "…"
+    return short or it.id
+
+
 def _resolve_cites(md: str, bundle: EvidenceBundle) -> str:
     bundle.register_ids()
+    primary_id = bundle.primary.id
+    seen: dict[str, int] = {}
 
     def repl(m: re.Match[str]) -> str:
         cid = m.group(1).strip()
         it = bundle.by_id.get(cid)
         if not it:
             return f"[missing cite: {cid}]"
-        return f"[{it.title[:60]}]({it.url})"
+        occurrence = seen.get(cid, 0)
+        seen[cid] = occurrence + 1
+        return f"[{_short_anchor(it, primary_id, occurrence)}]({it.url})"
 
     out = re.sub(r"\[cite:\s*([^\]]+)\]", repl, md)
     if not bundle.by_id:
@@ -486,8 +507,34 @@ def _takeaway_from_bundle(bundle: EvidenceBundle) -> str:
     return f"{title} is interesting only if the concrete tradeoff survives contact with deployment."
 
 
+_GLOSS_PARENS = re.compile(r"\s*\(\s*[A-Z][^)]*[a-z][^)]*\)\s*[—-]\s*[a-z][^.]*?(?=[.,;:]|$)")
+
+
+def _strip_explainer_cruft(s: str) -> str:
+    """Remove appended glossary expansions like 'LLM (Large Language Model) — a type of...' from short text."""
+    return _GLOSS_PARENS.sub("", s)
+
+
+def _first_sentence(s: str, limit: int) -> str:
+    """Return first sentence, hard-capped at limit; never cut mid-word."""
+    s = (s or "").strip()
+    if not s:
+        return ""
+    m = re.search(r"[.!?](?:\s|$)", s)
+    if m:
+        s = s[: m.end()].rstrip()
+    if len(s) <= limit:
+        return s
+    cut = s[:limit].rsplit(" ", 1)[0].rstrip(",;:- ")
+    if not cut.endswith((".", "!", "?")):
+        cut = cut + "…"
+    return cut
+
+
 def _sanitize_frontmatter_text(text: str, limit: int) -> str:
-    return _plain_text(text).replace('"', "'")[:limit]
+    s = _plain_text(text).replace('"', "'")
+    s = _strip_explainer_cruft(s)
+    return _first_sentence(s, limit)
 
 
 def _glossary_terms_from_bundle(bundle: EvidenceBundle) -> list[str]:
@@ -517,11 +564,16 @@ def explain_undefined_terms(body: str, bundle: EvidenceBundle) -> str:
     LOG.info("explainer: %s undefined acronyms: %s", len(missing), missing)
     glossary = _glossary_block(terms)
     instruction = (
-        "Edit the markdown body to define the listed acronyms on their FIRST occurrence. "
+        "Edit the markdown body to define the listed acronyms on their FIRST occurrence in PROSE. "
         "Use the GLOSSARY for ground truth. Format: ACRONYM (expansion) followed by a brief clause, "
-        "or 'TERM — short definition'. Do not change numbers, citations [cite: id], the mermaid "
-        "block, or section headings. Return the FULL revised markdown body only — no commentary, no "
-        "code fences around the body."
+        "or 'TERM — short definition'. "
+        "HARD CONSTRAINTS (any violation = return body unchanged): "
+        "(1) Never edit text inside a markdown link `[text](url)` — keep link anchors verbatim. "
+        "(2) Never edit headings (lines starting with `#`/`##`/`###`). "
+        "(3) Never edit the first line of the body (the takeaway sentence). "
+        "(4) Never edit numbers, the mermaid block, or `[cite: id]` tokens. "
+        "(5) Do not introduce new markdown links. "
+        "Return the FULL revised markdown body only — no commentary, no code fences."
     )
     user = (
         f"UNDEFINED_ACRONYMS:\n- " + "\n- ".join(missing[:12]) + "\n\n"
@@ -534,10 +586,37 @@ def explain_undefined_terms(body: str, bundle: EvidenceBundle) -> str:
     revised = _unwrap_markdown_fence(rewrite)
     if not revised.strip() or not _looks_like_markdown_body(revised):
         return body
+    if not _explainer_preserves_structure(body, revised):
+        LOG.info("explainer: rejected revision (link/heading structure changed)")
+        return body
     after = lint.undefined_acronyms(revised, terms)
     if len(after) >= len(missing):
         return body
     return revised
+
+
+_LINK_RE = re.compile(r"\[([^\[\]\n]+)\]\(([^)\s]+)\)")
+_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.M)
+
+
+def _explainer_preserves_structure(before: str, after: str) -> bool:
+    """Reject explainer rewrites that mutate markdown links, headings, or first line."""
+    if before.split("\n", 1)[0].strip() != after.split("\n", 1)[0].strip():
+        return False
+    b_links = [(t.strip(), u) for t, u in _LINK_RE.findall(before)]
+    a_links = [(t.strip(), u) for t, u in _LINK_RE.findall(after)]
+    if len(b_links) != len(a_links):
+        return False
+    for (bt, bu), (at, au) in zip(b_links, a_links):
+        if bu != au:
+            return False
+        if bt != at:
+            return False
+    b_heads = [(lvl, ttl.strip()) for lvl, ttl in _HEADING_RE.findall(before)]
+    a_heads = [(lvl, ttl.strip()) for lvl, ttl in _HEADING_RE.findall(after)]
+    if b_heads != a_heads:
+        return False
+    return True
 
 
 def _h2_titles_from_body(body: str) -> list[str]:
@@ -588,9 +667,33 @@ def _figure_md(spec, slug: str) -> str:
     return "\n".join(lines)
 
 
+_EQ_WRAP_PAIRS = (
+    (r"^\$\$\s*", r"\s*\$\$$"),
+    (r"^\$\s*", r"\s*\$$"),
+    (r"^\\\(\s*", r"\s*\\\)$"),
+    (r"^\\\[\s*", r"\s*\\\]$"),
+)
+
+
+def _normalize_latex(lx: str) -> str:
+    """Strip outer math delimiters so embedding can apply $$...$$ exactly once."""
+    s = (lx or "").strip()
+    changed = True
+    while changed and s:
+        changed = False
+        for left, right in _EQ_WRAP_PAIRS:
+            if re.match(left, s) and re.search(right, s):
+                s = re.sub(right, "", re.sub(left, "", s, count=1), count=1).strip()
+                changed = True
+                break
+    return s
+
+
 def _equation_md(spec) -> str:
     cap = (getattr(spec, "caption", None) or "").strip()
-    lx = (getattr(spec, "latex", None) or "").strip()
+    lx = _normalize_latex(getattr(spec, "latex", None) or "")
+    if not lx:
+        return ""
     out = f"$$\n{lx}\n$$"
     if cap:
         return f"*{cap}*\n\n{out}\n"
@@ -615,7 +718,7 @@ def embed_planned_visuals(body: str, plan: VisualPlan | None, slug: str) -> str:
         else:
             b = _insert_before_index(b, end, block)
     for spec in plan.equations:
-        lx = (spec.latex or "").strip()
+        lx = _normalize_latex(spec.latex or "")
         if not lx:
             continue
         compact = lx.replace(" ", "")
@@ -624,6 +727,8 @@ def embed_planned_visuals(body: str, plan: VisualPlan | None, slug: str) -> str:
             continue
         h2 = _match_h2_for_hint(heads, spec.placement_hint)
         block = _equation_md(spec)
+        if not block:
+            continue
         end = _end_of_h2_section(b, h2) if h2 else None
         if end is None:
             b = b.rstrip() + "\n\n" + block + "\n"
@@ -976,7 +1081,6 @@ def run() -> Path:
             body = _polish_body(_unwrap_markdown_fence(rewrite), bundle, brief)
             struct = lint.structural_issues(body)
             unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
-    body = explain_undefined_terms(body, bundle)
     post_slug = _slugify(bundle.primary.title)
     body = embed_planned_visuals(body, bundle.visual_plan, post_slug)
     undefined = lint.undefined_acronyms(body, _glossary_terms_from_bundle(bundle))

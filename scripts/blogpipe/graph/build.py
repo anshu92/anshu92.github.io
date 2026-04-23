@@ -7,7 +7,7 @@ from typing import Any, Optional
 from langgraph.graph import END, START, StateGraph
 
 from .. import config
-from .committee_subgraph import get_committee_subgraph
+from .committee_subgraph import committee_node
 from .nodes import (
     node_curate,
     node_draft_refine,
@@ -38,7 +38,7 @@ def build_graph(
     g.add_edge("curate", "harvest")
     g.add_edge("harvest", "rank")
     if config.committee_enabled():
-        g.add_node("committee", get_committee_subgraph())
+        g.add_node("committee", committee_node, retry=DEFAULT_RETRY)
         g.add_edge("rank", "committee")
         g.add_edge("committee", "draft_refine")
     else:

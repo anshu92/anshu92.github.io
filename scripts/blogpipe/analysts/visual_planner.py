@@ -18,7 +18,7 @@ _BASE_SCHEMA = (
     '{"figures": ['
     '{"id": "fig1", "kind": "concept|architecture|comparison|plot", '
     '"prompt": "one paragraph image prompt, abstract editorial, no text in image", '
-    '"alt": "accessibility", "caption": "one line", '
+    '"alt": "<short alt text describing what the figure shows for screen readers>", "caption": "one line", '
     '"placement_hint": "after the section whose title contains ..." }'
     "], "
     '"equations": ['
@@ -33,18 +33,29 @@ _BASE_SCHEMA = (
 )
 
 
+_ALT_PLACEHOLDERS = {
+    "", "accessibility", "alt", "alt text", "image", "figure",
+    "<short alt text describing what the figure shows for screen readers>",
+}
+
+
 def _normalize_fig(d: dict[str, Any]) -> dict[str, Any] | None:
     raw = str(d.get("id") or "fig")
     safe = re.sub(r"[^a-z0-9_]", "", raw.lower()[:32]) or "fig"
     kind = str(d.get("kind") or "concept")[:20]
     if kind not in ("concept", "architecture", "comparison", "plot"):
         kind = "concept"
+    alt = str(d.get("alt") or "").strip()
+    caption = str(d.get("caption") or "").strip()
+    # Guard: if the LLM echoed the schema placeholder, fall back to caption or id.
+    if alt.lower() in _ALT_PLACEHOLDERS:
+        alt = caption[:200] or safe.replace("_", " ")
     return {
         "id": safe,
         "kind": kind,
         "prompt": str(d.get("prompt") or "")[:2000],
-        "alt": str(d.get("alt") or safe)[:200],
-        "caption": str(d.get("caption") or "")[:300],
+        "alt": alt[:200] or safe.replace("_", " "),
+        "caption": caption[:300],
         "placement_hint": str(d.get("placement_hint") or "")[:500],
     }
 

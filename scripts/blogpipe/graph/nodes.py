@@ -22,9 +22,9 @@ from ..draft import (
     _unwrap_markdown_fence,
     build_prompt,
     embed_planned_visuals,
-    explain_undefined_terms,
+    explain_undefined_terms,  # editor-only explainer
 )
-from ..llm_chain import get_llm_usage, is_llm_call_cap_reached
+from ..llm_chain import budget, get_llm_usage, is_llm_call_cap_reached
 from ..memory import _ROOT
 from ..models import EvidenceBundle
 from . import llm as gllm
@@ -80,6 +80,30 @@ def _discover_headings(body: str) -> list[str]:
     return seen
 
 
+def _draft_looks_truncated_for_rescue(body: str) -> bool:
+    """Heuristic: long prose that ends mid-sentence (no . ! ? on last line)."""
+    t = (body or "").rstrip()
+    if not t or len(t.split()) < 200:
+        return False
+    if t.count("```") % 2 == 1:
+        return False
+    last = t[-1]
+    if last in (".", "!", "?", ":", '"', "'"):
+        if last in ".!?\"'":
+            return False
+    lines = [ln for ln in t.splitlines() if ln.strip()]
+    if not lines:
+        return True
+    last_line = lines[-1].rstrip()
+    if re.search(r"[.!?][\"'»)]*\s*$", last_line):
+        return False
+    if last in "`" and t.endswith("```"):
+        return False
+    if last in ("#", ">"):
+        return False
+    return bool(last.isalnum() or last in (",", ";", "-"))
+
+
 def node_curate(_state: dict[str, Any]) -> dict[str, Any]:
     from .. import curator  # noqa: PLC0415
 
@@ -121,7 +145,8 @@ def node_research(state: dict[str, Any]) -> dict[str, Any]:
     """Legacy single-node research (``BLOGPIPE_COMMITTEE_DISABLED=1`` or CLI ``research``)."""
     from .. import research  # noqa: PLC0415
 
-    research.run()
+    with budget.stage("paper_reader"):
+        research.run()
     print("stage=research (graph) done", flush=True)
     ev = json.loads((_ROOT / "reports" / "evidence_bundle.json").read_text())
     tr = (
@@ -153,6 +178,11 @@ def _re_search_snippet(
 
 def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
     """One-shot draft via build_prompt, then per-section critic + optional re-search/rewrite."""
+    with budget.stage("draft"):
+        return _node_draft_refine_inner(state)
+
+
+def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
     memory.ensure_dirs()
     bundle = evidence_model(state["evidence"])
     brief = brief_model(state["brief"])
@@ -190,10 +220,23 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
         max_tokens=config.max_tokens_smart(),
         task="draft_full",
     )
+    if (body or "").strip():
+        body = _unwrap_markdown_fence(body)
+        if _draft_looks_truncated_for_rescue(body) and not is_llm_call_cap_reached():
+            cont = gllm.graph_llm_text(
+                "draft_continuation",
+                "Continue exactly where the draft stopped; do not repeat content; finish all "
+                "incomplete sections; output markdown only.",
+                f"So far (continue from the end, do not repeat):\n\n{body[-12000:]}",
+                mode="fast",
+                max_tokens=min(config.max_tokens_fast(), 4096),
+                task="draft_full",
+            )
+            if (cont or "").strip():
+                body = (body.rstrip() + "\n\n" + cont.strip()).strip()
     if not (body or "").strip():
         body = _stub_body(bundle, brief, fmt)
         warnings.append("full_draft_empty_used_stub")
-    body = _unwrap_markdown_fence(body)
     body = _resolve_cites(body, bundle)
     if _strip_unresolved(body):
         rep_txt = gllm.graph_llm_text(
@@ -215,7 +258,8 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
         ev_excerpt = user.split("EVIDENCE:", 1)[-1][:8000]
 
     headings = _discover_headings(body)
-    for title in headings:
+    critic_used = 0
+    for idx, title in enumerate(headings):
         if re_re >= _MAX_RESEARCH_WINGS and rewrites >= _MAX_REWRITES:
             break
         if is_llm_call_cap_reached():
@@ -225,7 +269,14 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
         if not block.strip():
             continue
         need, _reason = filler_detector_flag_section(title, block)
-        cr = section_critic_llm(title, block, ev_excerpt)
+        want_critic = need or (idx < 3)
+        if not want_critic:
+            cr = {"verdict": "ok", "query_hint": ""}
+        else:
+            allow = critic_used < 4
+            cr, used_llm = section_critic_llm(title, block, ev_excerpt, allow_llm=allow)
+            if used_llm:
+                critic_used += 1
         verdict = str(cr.get("verdict", "ok"))
         qhint = str(cr.get("query_hint", "") or "")
         if not need and verdict in ("ok", "vague"):
@@ -260,7 +311,6 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
                 body = _replace_section_body(body, title, nblock)
 
     body = _polish_body(body, bundle, brief)
-    body = explain_undefined_terms(body, bundle)
     body = embed_planned_visuals(
         body, bundle.visual_plan, _slugify(bundle.primary.title)
     )
@@ -294,22 +344,25 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     evidence_json = state.get("evidence") or {}
     ev_text = json.dumps(evidence_json)[:22000] if evidence_json else "{}"
 
-    rep = global_rubric(body)
-    g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
+    with budget.stage("editor"):
+        rep = global_rubric(body)
+        g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
     bundle_for_explainer: EvidenceBundle | None = None
     if isinstance(evidence_json, dict) and evidence_json:
         try:
             bundle_for_explainer = EvidenceBundle.model_validate(evidence_json)
         except Exception:
             bundle_for_explainer = None
+    with budget.stage("polish"):
+        if bundle_for_explainer is not None:
+            body = explain_undefined_terms(body, bundle_for_explainer)
+            body = embed_planned_visuals(
+                body,
+                bundle_for_explainer.visual_plan,
+                _slugify(bundle_for_explainer.primary.title),
+            )
+            state["body"] = body
     if bundle_for_explainer is not None:
-        body = explain_undefined_terms(body, bundle_for_explainer)
-        body = embed_planned_visuals(
-            body,
-            bundle_for_explainer.visual_plan,
-            _slugify(bundle_for_explainer.primary.title),
-        )
-        state["body"] = body
         undefined_after = lint.undefined_acronyms(
             body, draft._glossary_terms_from_bundle(bundle_for_explainer)
         )
@@ -417,20 +470,21 @@ def node_publish_and_write(state: dict[str, Any]) -> dict[str, Any]:
     slug = _slugify(bundle.primary.title)
     title = _sanitize_frontmatter_text(bundle.primary.title, 200)
     takeaway = (
-        _sanitize_frontmatter_text(body.split("\n", 1)[0].strip(), 500)
+        _sanitize_frontmatter_text(body.split("\n", 1)[0].strip(), 300)
         if body.strip()
         else "Draft"
     )
+    description = _sanitize_frontmatter_text(takeaway, 160)
     fm = f"""---
 date: "{day}"
 draft: true
 title: "{title}"
-description: "{takeaway[:160]}"
+description: "{description}"
 categories: ["Machine Learning"]
 tags: {json.dumps(bundle.primary.tags[:8] + ["blogpipe"])}
 math: true
 mermaid: true
-one_sentence_takeaway: "{takeaway[:300]}"
+one_sentence_takeaway: "{takeaway}"
 image: /img/posts/{slug}/hero.png
 rubric_score: {score}
 ---
@@ -470,7 +524,8 @@ rubric_score: {score}
     )
     learned: dict[str, list[str]] = {}
     try:
-        learned = topics.update_themes_from_draft(body, bundle.primary)
+        with budget.stage("extras"):
+            learned = topics.update_themes_from_draft(body, bundle.primary)
     except Exception as e:  # never block publish on the keyword learner
         LOG.warning("topics: keyword learning skipped: %s", e)
     if learned:

@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 from . import config, memory, openrouter_client, topics
-from .llm_chain import reset_llm_usage
+from .llm_chain import reset_llm_usage, set_llm_call_cap, set_stage_quotas
 from .models import EditorialBrief, Item, Pillar, RankResult
 from .memory import _ROOT, load_json, save_json
 
@@ -134,6 +134,8 @@ def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str,
 
 
 def run() -> RankResult:
+    set_llm_call_cap(config.llm_call_cap())
+    set_stage_quotas(config.stage_quotas())
     reset_llm_usage()
     items = _load_harvested()
     brief = _brief()

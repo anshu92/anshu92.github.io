@@ -707,6 +707,13 @@ def build_paper_evidence_from_text(primary: Item, raw_text: str, pdf_url: str = 
 
 
 def fetch_primary_paper_evidence(primary: Item) -> PaperEvidence:
+    from .llm_chain import budget  # local: avoid import cycle
+
+    with budget.stage("paper_reader"):
+        return _fetch_primary_paper_evidence_impl(primary)
+
+
+def _fetch_primary_paper_evidence_impl(primary: Item) -> PaperEvidence:
     for url in candidate_pdf_urls(primary):
         try:
             r = _client().get(url)

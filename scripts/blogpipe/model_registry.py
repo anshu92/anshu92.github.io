@@ -363,6 +363,7 @@ _TASKS: dict[str, TaskProfile] = {
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("llama-3.3-70b-versatile", "groq"),
             ("google/gemini-2.5-flash", "openrouter"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
         ),
@@ -376,6 +377,8 @@ _TASKS: dict[str, TaskProfile] = {
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("llama-3.3-70b-versatile", "groq"),
+            ("google/gemini-2.5-flash", "openrouter"),
             ("anthropic/claude-3-5-haiku-20241022", "openrouter"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
         ),

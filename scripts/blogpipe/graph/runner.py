@@ -11,7 +11,7 @@ from typing import Any
 from langgraph.types import Command
 
 from .. import config
-from ..llm_chain import get_llm_usage, reset_llm_usage, set_llm_call_cap
+from ..llm_chain import get_llm_usage, reset_llm_usage, set_llm_call_cap, set_stage_quotas
 from .build import build_graph
 
 LOG = logging.getLogger(__name__)
@@ -59,6 +59,7 @@ def _langsmith_run_config(tid: str) -> dict[str, Any]:
 
 def run_graph_pipeline() -> dict[str, Any]:
     set_llm_call_cap(config.llm_call_cap())
+    set_stage_quotas(config.stage_quotas())
     checkpointer = _make_checkpointer()
     g = build_graph(checkpointer=checkpointer)
     tid = _thread_id()
@@ -86,6 +87,7 @@ def run_graph_pipeline() -> dict[str, Any]:
 def resume_graph_after_interrupt(thread_id: str) -> dict[str, Any]:
     """Resume a paused run (review_gate) with approval."""
     set_llm_call_cap(config.llm_call_cap())
+    set_stage_quotas(config.stage_quotas())
     checkpointer = _make_checkpointer()
     g = build_graph(checkpointer=checkpointer)
     rlc: dict[str, Any] = {"thread_id": thread_id, **_langsmith_run_config(thread_id)}
@@ -129,6 +131,7 @@ def run_partial(stop_after: str) -> dict[str, Any]:
     ]
     s: dict[str, Any] = {}
     set_llm_call_cap(config.llm_call_cap())
+    set_stage_quotas(config.stage_quotas())
     reset_llm_usage()
     for step_name, fn in order:
         s.update(fn(s))
