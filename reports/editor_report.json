@@ -1,0 +1,94 @@
+{
+  "rubric_score": 15,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 1
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "LLMs need task-specific memory extraction (personalization, problem-solving, agentic tasks) but existing methods fail across heterogeneous tasks.",
+    "hard": "Conflicting gradients from mixed task types degrade self-evolving frameworks' performance.",
+    "tried": "GEPA, ACE, and MemEvolve frameworks that optimize prompts iteratively but fail on task diversity.",
+    "outcomes": "CluE achieves +9.04% relative gain via cluster-based evolution on BEHEMOTH benchmark.",
+    "next": "Explore alternative clustering methods (hierarchical/density-based) to improve robustness."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "no_mermaid_block",
+    "no_results_table"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "A lightweight memory module lifts macro accuracy from 37.84% to 46.00%"
+  ],
+  "undefined_acronyms": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  }
+}

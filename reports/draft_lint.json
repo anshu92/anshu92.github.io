@@ -1,0 +1,12 @@
+{
+  "structural": [
+    "no_mermaid_block",
+    "no_results_table"
+  ],
+  "unsupported_numeric_claims": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}

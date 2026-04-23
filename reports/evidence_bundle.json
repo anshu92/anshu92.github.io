@@ -1,0 +1,513 @@
+{
+  "primary": {
+    "id": "hf_2604.11610",
+    "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+    "url": "https://arxiv.org/abs/2604.11610",
+    "authors": [
+      "Yuqing Yang",
+      "Tengxiao Liu",
+      "Wang Bill Zhu",
+      "Taiwei Shi",
+      "Linxin Song",
+      "Robin Jia"
+    ],
+    "abstract": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+    "published_at": "2026-04-13T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.11610",
+          "authors": [
+            {
+              "_id": "69e97e9fd49e77f7389b4073",
+              "name": "Yuqing Yang",
+              "hidden": false
+            },
+            {
+              "_id": "69e97e9fd49e77f7389b4074",
+              "name": "Tengxiao Liu",
+              "hidden": false
+            },
+            {
+              "_id": "69e97e9fd49e77f7389b4075",
+              "name": "Wang Bill Zhu",
+              "hidden": false
+            },
+            {
+              "_id": "69e97e9fd49e77f7389b4076",
+              "name": "Taiwei Shi",
+              "hidden": false
+            },
+            {
+              "_id": "69e97e9fd49e77f7389b4077",
+              "name": "Linxin Song",
+              "hidden": false
+            },
+            {
+              "_id": "69e97e9fd49e77f7389b4078",
+              "name": "Robin Jia",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-13T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-23T00:38:05.513Z",
+          "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+          "submittedOnDailyBy": {
+            "_id": "65c0de12efbb14b39c97f78e",
+            "avatarUrl": "/avatars/18485f79427a35bd9e19f71b67c88dce.svg",
+            "isPro": false,
+            "fullname": "Yuqing Yang",
+            "user": "ayyyq",
+            "type": "user",
+            "name": "ayyyq"
+          },
+          "summary": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+          "upvotes": 0,
+          "discussionId": "69e97ea0d49e77f7389b4079",
+          "githubRepo": "https://github.com/ayyyq/heterogeneous-memory-extraction",
+          "githubRepoAddedBy": "user",
+          "ai_summary": "LLM-based assistants require heterogeneous memory extraction capabilities, which are evaluated through the BEHEMOTH benchmark, with CluE offering improved performance through cluster-based prompt optimization.",
+          "ai_keywords": [
+            "heterogeneous memory extraction",
+            "BEHEMOTH",
+            "CluE",
+            "self-evolving prompt optimization",
+            "cluster-based strategy",
+            "downstream utility-driven metric"
+          ]
+        },
+        "publishedAt": "2026-04-12T20:00:00.000Z",
+        "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+        "summary": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.11610.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "65c0de12efbb14b39c97f78e",
+          "avatarUrl": "/avatars/18485f79427a35bd9e19f71b67c88dce.svg",
+          "fullname": "Yuqing Yang",
+          "name": "ayyyq",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 3,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      },
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.11610.pdf",
+      "paper_digest": "No benchmark exists for evaluating memory extraction systems across heterogeneous tasks, and static extraction prompts degrade when training and testing tasks differ.\n\nThe paper introduces BEHEMOTH, a benchmark repurposing 18 datasets with a downstream utility-driven metric, and proposes CluE, a cluster-based self-evolving strategy that groups extraction scenarios and synthesizes cross-cluster insights.\n\n- Using memory consistently improves over no-memory baselines; even the minimal Simpleprompt raises overall macro accuracy from 37.84% to 46.00%\n\n- Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks ( +9.04% relative gain), consistently outperforming prior self-evolving frameworks.\n- Despite this challenge, there is no established benchmark for evaluating the generalizability of memory extraction systemsacross heterogeneous tasks.\n- • Through evaluation on BEHEMOTH, we reveal that no single static prompt dominates across all categories, and that existing self-evolving frameworks struggle to generalize across heterogeneous tasks.\n- Both lines of work rely on fixed, domain-specific extraction rules, limiting their generalizability."
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_3619128715",
+      "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+      "url": "https://openalex.org/W7154540307",
+      "authors": [],
+      "abstract": "As LLM-based assistants become persistent and personalized, they must extract retain useful information from past conversations as memory. However, the types of worth remembering vary considerably across tasks. We formalize \\textit{heterogeneous memory extraction} task introduce \\textbf{BEHEMOTH}, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, agentic tasks, using downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms no single static extraction prompt dominates all categories, self-evolving optimization frameworks, originally designed homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose \\textbf{CluE}, cluster-based strategy groups examples into clusters by scenarios, analyzes each cluster independently, synthesizes cross-cluster insights to update prompt. Experiments on BEHEMOTH show CluE generalizes effectively heterogeneous ($+$9.04\\% relative gain), consistently outperforming prior frameworks.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_3913425270",
+      "title": "A Survey of Large Language Models",
+      "url": "https://openalex.org/W4362515116",
+      "authors": [],
+      "abstract": "Language is essentially a complex, intricate system of human expressions governed by grammatical rules. It poses significant challenge to develop capable AI algorithms for comprehending and grasping language. As major approach, language modeling has been widely studied understanding generation in the past two decades, evolving from statistical models neural models. Recently, pre-trained (PLMs) have proposed pre-training Transformer over large-scale corpora, showing strong capabilities solving various NLP tasks. Since researchers found that model scaling can lead performance improvement, they further study effect increasing size an even larger size. Interestingly, when parameter scale exceeds certain level, these enlarged not only achieve improvement but also show some special abilities are present small-scale To discriminate difference scale, research community coined term large (LLM) PLMs on LLMs largely advanced both academia industry, remarkable progress launch ChatGPT, which attracted widespread attention society. The technical evolution making important impact entire community, would revolutionize way how we use algorithms. In this survey, review recent advances introducing background, key findings, mainstream techniques. particular, focus four aspects LLMs, namely pre-training, adaptation tuning, utilization, capacity evaluation. Besides, summarize available resources developing discuss remaining issues future directions.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_497061087",
+      "title": "Quantifying the advantage of domain-specific pre-training on named entity recognition tasks in materials science",
+      "url": "https://openalex.org/W4224442790",
+      "authors": [],
+      "abstract": "A bottleneck in efficiently connecting new materials discoveries to established literature has arisen due an increase publications. This problem may be addressed by using named entity recognition (NER) extract structured summary-level data from unstructured science text. We compare the performance of four NER models on three datasets. The include a bidirectional long short-term memory (BiLSTM) and transformer (BERT, SciBERT, MatBERT) with increasing degrees domain-specific pre-training. MatBERT improves over other two BERT<sub>BASE</sub>-based 1%∼12%, implying that pre-training provides measurable advantages. Despite relative architectural simplicity, BiLSTM model consistently outperforms BERT, perhaps its pre-trained word embeddings. Furthermore, SciBERT outperform original BERT greater extent small limit. MatBERT's higher-quality predictions should accelerate extraction literature.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "CluE",
+      "value": "+9.04%",
+      "unit": "relative gain on BEHEMOTH",
+      "baseline": "prior self‑evolving frameworks",
+      "notes": "from abstract (LLM extract)"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.11610",
+      "text": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical an",
+      "url": "https://arxiv.org/abs/2604.11610"
+    },
+    {
+      "source_id": "hf_2604.11610",
+      "text": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory.",
+      "url": "https://arxiv.org/pdf/2604.11610.pdf"
+    },
+    {
+      "source_id": "hf_2604.11610",
+      "text": "no single static extraction prompt dominates across all task categories",
+      "url": "https://arxiv.org/pdf/2604.11610.pdf"
+    },
+    {
+      "source_id": "hf_2604.11610",
+      "text": "CluE generalizes effectively across heterogeneous tasks ( +9.04% relative gain), consistently outperforming prior self-evolving frameworks",
+      "url": "https://arxiv.org/pdf/2604.11610.pdf"
+    },
+    {
+      "source_id": "hf_2604.11610",
+      "text": "Figure 1:Illustration of heterogeneous memory extraction.",
+      "url": "https://arxiv.org/pdf/2604.11610.pdf"
+    },
+    {
+      "source_id": "hf_2604.11610",
+      "text": "Using memory consistently improves over no-memory baselines; even the minimal Simpleprompt raises overall macro accuracy from 37.84% to 46.00%",
+      "url": "https://arxiv.org/pdf/2604.11610.pdf"
+    },
+    {
+      "source_id": "hf_2604.11610",
+      "text": "Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks ( +9.04% relative gain), consistently outperforming prior self-evolving frameworks.",
+      "url": "https://arxiv.org/pdf/2604.11610.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Self-Evolving Llm Memory Extraction\n\nAcross Heterogeneous Tasks\n- Abstract\n- Introduction\n- Previous Conversation\n- Steps\n- New Conversation\n- Related Work\n- Llm Memory\n- Self-Evolving Frameworks\n- Task Formulation And Dataset Curation\n- Single-Step Memory Extraction\n- Creating Behemoth",
+    "paper_problem": "No benchmark exists for evaluating memory extraction systems across heterogeneous tasks, and static extraction prompts degrade when training and testing tasks differ.",
+    "paper_method": "The paper introduces BEHEMOTH, a benchmark repurposing 18 datasets with a downstream utility-driven metric, and proposes CluE, a cluster-based self-evolving strategy that groups extraction scenarios and synthesizes cross-cluster insights.",
+    "paper_setup": "The evaluation uses BEHEMOTH, a benchmark comprising 18 datasets across three task categories. Existing self‑evolving methods (GEPA, ACE, MemEvolve) are tested under this heterogeneous setting.",
+    "paper_experiments": "- Using memory consistently improves over no-memory baselines; even the minimal Simpleprompt raises overall macro accuracy from 37.84% to 46.00%",
+    "paper_limitations": "- Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks ( +9.04% relative gain), consistently outperforming prior self-evolving frameworks.\n- Despite this challenge, there is no established benchmark for evaluating the generalizability of memory extraction systemsacross heterogeneous tasks.\n- • Through evaluation on BEHEMOTH, we reveal that no single static prompt dominates across all categories, and that existing self-evolving frameworks struggle to generalize across heterogeneous tasks.\n- Both lines of work rely on fixed, domain-specific extraction rules, limiting their generalizability.",
+    "paper_conclusion": "In this work, we focus on LLM memory extraction under heterogeneous tasks. We formalize single-step memory extraction, introduce a general benchmark methodology instantiated as BEHEMOTH, and use it to expose the limitations of both static extraction prompts and existing self-evolving frameworks. To overcome these limitations, we propose CluE, a cluster-based evolution framework that enables stable learning under heterogeneous training distributions, and demonstrate its effectiveness through extensive experiments. We believe both artifacts of this work may find use beyond the scope studied here. BEHE- MOTH can serve as a testbed for evaluating a wide range of memory extraction approaches— not only self-evolving frameworks but also routing-based, skill-based, and other emerging paradigms—to explore what strategies best handle heterogeneous memory extraction. The self-evolving framework CluE may also extend beyond memory extraction to any setting where a single agent must handle heterogen",
+    "paper_reproducibility": "- Uses two evaluation metrics: Macro Accuracy (equal-weighted average across datasets) and Relative Gain (geometric mean of per-dataset improvement ratios over baseline)"
+  },
+  "contradiction_notes": [
+    "Potential challenge in balancing preservation of old knowledge while adapting to new tasks",
+    "Difficulty in evaluating the true 'self-evolving' capability without implementation details",
+    "Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks ( +9.04% relative gain), consistently outperforming prior self-evolving frameworks.",
+    "Despite this challenge, there is no established benchmark for evaluating the generalizability of memory extraction systemsacross heterogeneous tasks.",
+    "• Through evaluation on BEHEMOTH, we reveal that no single static prompt dominates across all categories, and that existing self-evolving frameworks struggle to generalize across heterogeneous tasks.",
+    "Both lines of work rely on fixed, domain-specific extraction rules, limiting their generalizability.",
+    "3.2 Creating BEHEMOTH\n\nAs existing memory benchmarks cover only homogeneous task distributions, we provide a method to construct aheterogeneousbenchmark that covers diverse tasks under a unified protocol, enabling the first systematic study of memory extraction generalizability."
+  ],
+  "by_id": {
+    "hf_2604.11610": {
+      "id": "hf_2604.11610",
+      "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+      "url": "https://arxiv.org/abs/2604.11610",
+      "authors": [
+        "Yuqing Yang",
+        "Tengxiao Liu",
+        "Wang Bill Zhu",
+        "Taiwei Shi",
+        "Linxin Song",
+        "Robin Jia"
+      ],
+      "abstract": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+      "published_at": "2026-04-13T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.11610",
+            "authors": [
+              {
+                "_id": "69e97e9fd49e77f7389b4073",
+                "name": "Yuqing Yang",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4074",
+                "name": "Tengxiao Liu",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4075",
+                "name": "Wang Bill Zhu",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4076",
+                "name": "Taiwei Shi",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4077",
+                "name": "Linxin Song",
+                "hidden": false
+              },
+              {
+                "_id": "69e97e9fd49e77f7389b4078",
+                "name": "Robin Jia",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-13T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T00:38:05.513Z",
+            "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+            "submittedOnDailyBy": {
+              "_id": "65c0de12efbb14b39c97f78e",
+              "avatarUrl": "/avatars/18485f79427a35bd9e19f71b67c88dce.svg",
+              "isPro": false,
+              "fullname": "Yuqing Yang",
+              "user": "ayyyq",
+              "type": "user",
+              "name": "ayyyq"
+            },
+            "summary": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+            "upvotes": 0,
+            "discussionId": "69e97ea0d49e77f7389b4079",
+            "githubRepo": "https://github.com/ayyyq/heterogeneous-memory-extraction",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "LLM-based assistants require heterogeneous memory extraction capabilities, which are evaluated through the BEHEMOTH benchmark, with CluE offering improved performance through cluster-based prompt optimization.",
+            "ai_keywords": [
+              "heterogeneous memory extraction",
+              "BEHEMOTH",
+              "CluE",
+              "self-evolving prompt optimization",
+              "cluster-based strategy",
+              "downstream utility-driven metric"
+            ]
+          },
+          "publishedAt": "2026-04-12T20:00:00.000Z",
+          "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+          "summary": "As LLM-based assistants become persistent and personalized, they must extract and retain useful information from past conversations as memory. However, the types of information worth remembering vary considerably across tasks. We formalize the heterogeneous memory extraction task and introduce BEHEMOTH, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, and agentic tasks, using a downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms that no single static extraction prompt dominates across all task categories, and that existing self-evolving prompt optimization frameworks, originally designed for homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose CluE, a cluster-based self-evolving strategy that groups training examples into clusters by extraction scenarios, analyzes each cluster independently, and synthesizes cross-cluster insights to update the extraction prompt. Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks (+9.04\\% relative gain), consistently outperforming prior self-evolving frameworks.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.11610.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "65c0de12efbb14b39c97f78e",
+            "avatarUrl": "/avatars/18485f79427a35bd9e19f71b67c88dce.svg",
+            "fullname": "Yuqing Yang",
+            "name": "ayyyq",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 3,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        },
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.11610.pdf",
+        "paper_digest": "No benchmark exists for evaluating memory extraction systems across heterogeneous tasks, and static extraction prompts degrade when training and testing tasks differ.\n\nThe paper introduces BEHEMOTH, a benchmark repurposing 18 datasets with a downstream utility-driven metric, and proposes CluE, a cluster-based self-evolving strategy that groups extraction scenarios and synthesizes cross-cluster insights.\n\n- Using memory consistently improves over no-memory baselines; even the minimal Simpleprompt raises overall macro accuracy from 37.84% to 46.00%\n\n- Experiments on BEHEMOTH show that CluE generalizes effectively across heterogeneous tasks ( +9.04% relative gain), consistently outperforming prior self-evolving frameworks.\n- Despite this challenge, there is no established benchmark for evaluating the generalizability of memory extraction systemsacross heterogeneous tasks.\n- • Through evaluation on BEHEMOTH, we reveal that no single static prompt dominates across all categories, and that existing self-evolving frameworks struggle to generalize across heterogeneous tasks.\n- Both lines of work rely on fixed, domain-specific extraction rules, limiting their generalizability."
+      }
+    },
+    "oa_3619128715": {
+      "id": "oa_3619128715",
+      "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+      "url": "https://openalex.org/W7154540307",
+      "authors": [],
+      "abstract": "As LLM-based assistants become persistent and personalized, they must extract retain useful information from past conversations as memory. However, the types of worth remembering vary considerably across tasks. We formalize \\textit{heterogeneous memory extraction} task introduce \\textbf{BEHEMOTH}, a benchmark that repurposes 18 existing datasets spanning personalization, problem-solving, agentic tasks, using downstream utility-driven metric for systematic evaluation. Our empirical analysis confirms no single static extraction prompt dominates all categories, self-evolving optimization frameworks, originally designed homogeneous distributions, degrade when training tasks are heterogeneous. To address this, we propose \\textbf{CluE}, cluster-based strategy groups examples into clusters by scenarios, analyzes each cluster independently, synthesizes cross-cluster insights to update prompt. Experiments on BEHEMOTH show CluE generalizes effectively heterogeneous ($+$9.04\\% relative gain), consistently outperforming prior frameworks.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_3913425270": {
+      "id": "oa_3913425270",
+      "title": "A Survey of Large Language Models",
+      "url": "https://openalex.org/W4362515116",
+      "authors": [],
+      "abstract": "Language is essentially a complex, intricate system of human expressions governed by grammatical rules. It poses significant challenge to develop capable AI algorithms for comprehending and grasping language. As major approach, language modeling has been widely studied understanding generation in the past two decades, evolving from statistical models neural models. Recently, pre-trained (PLMs) have proposed pre-training Transformer over large-scale corpora, showing strong capabilities solving various NLP tasks. Since researchers found that model scaling can lead performance improvement, they further study effect increasing size an even larger size. Interestingly, when parameter scale exceeds certain level, these enlarged not only achieve improvement but also show some special abilities are present small-scale To discriminate difference scale, research community coined term large (LLM) PLMs on LLMs largely advanced both academia industry, remarkable progress launch ChatGPT, which attracted widespread attention society. The technical evolution making important impact entire community, would revolutionize way how we use algorithms. In this survey, review recent advances introducing background, key findings, mainstream techniques. particular, focus four aspects LLMs, namely pre-training, adaptation tuning, utilization, capacity evaluation. Besides, summarize available resources developing discuss remaining issues future directions.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_497061087": {
+      "id": "oa_497061087",
+      "title": "Quantifying the advantage of domain-specific pre-training on named entity recognition tasks in materials science",
+      "url": "https://openalex.org/W4224442790",
+      "authors": [],
+      "abstract": "A bottleneck in efficiently connecting new materials discoveries to established literature has arisen due an increase publications. This problem may be addressed by using named entity recognition (NER) extract structured summary-level data from unstructured science text. We compare the performance of four NER models on three datasets. The include a bidirectional long short-term memory (BiLSTM) and transformer (BERT, SciBERT, MatBERT) with increasing degrees domain-specific pre-training. MatBERT improves over other two BERT<sub>BASE</sub>-based 1%∼12%, implying that pre-training provides measurable advantages. Despite relative architectural simplicity, BiLSTM model consistently outperforms BERT, perhaps its pre-trained word embeddings. Furthermore, SciBERT outperform original BERT greater extent small limit. MatBERT's higher-quality predictions should accelerate extraction literature.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  },
+  "analyst_notes": [
+    {
+      "role": "methods",
+      "claims": [
+        "BEHEMOTH is a benchmark that repurposes 18 existing datasets and evaluates downstream utility using a macro‑accuracy metric.",
+        "CluE is a cluster‑based self‑evolving strategy that groups extraction scenarios and synthesizes insights across clusters to improve memory extraction.",
+        "Using a memory module consistently improves performance over no‑memory baselines; even the minimal Simpleprompt variant increases overall macro accuracy from 37.84 % to 46.00 %.",
+        "The paper demonstrates that a memory‑augmented approach yields higher macro accuracy across heterogeneous tasks compared to baselines that do not use memory."
+      ],
+      "citations": [
+        "\"Using memory consistently improves over no-memory baselines; even the minimal Simpleprompt raises overall macro accuracy from 37.84% to 46.00%\""
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Methodology",
+      "skipped": false
+    },
+    {
+      "role": "empirical",
+      "claims": [
+        "Memory improves over no-memory baselines; Simpleprompt raises macro accuracy from 37.84% to 46.00% (8.16 percentage point improvement)"
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Results",
+      "skipped": false
+    },
+    {
+      "role": "glossary",
+      "claims": [
+        "BEHEMOTH is a benchmark repurposing 18 datasets with a downstream utility-driven metric",
+        "CluE is a cluster-based self-evolving strategy that groups extraction scenarios",
+        "CluE generalizes effectively across heterogeneous tasks",
+        "BEHEMOTH shows CluE generalizes with +9.04% relative gain",
+        "Existing self-evolving frameworks struggle with cross-task generalization",
+        "Both BEHEMOTH and CluE rely on fixed domain-specific extraction rules"
+      ],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "domain methods",
+      "skipped": false
+    },
+    {
+      "role": "related",
+      "claims": [
+        "The work proposes a self-evolving LLM architecture capable of dynamically adapting memory extraction mechanisms across diverse tasks.",
+        "The approach enables cross-task generalization by leveraging heterogeneous task-specific memory patterns.",
+        "The system may improve performance on unseen tasks through continuous memory refinement and evolution.",
+        "The methodology could reduce computational overhead by optimizing memory usage for specific task requirements."
+      ],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "H2: Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+      "skipped": false
+    },
+    {
+      "role": "visual_planner",
+      "claims": [
+        "{\"figures\": [{\"id\": \"fig1\", \"kind\": \"concept\", \"prompt\": \"A conceptual diagram illustrating the BEHEMOTH benchmark's structure, showing 18 heterogeneous tasks grouped by domain utility, with arrows indicating cross-task evaluation paths\", \"alt\": \"accessibility\", \"caption\": \"Figure 1: BEHEMOTH benchmark architecture for heterogeneous memory extraction evaluation\", \"placement_hint\": \"after the section introducing BEHEMOTH\"}, {\"id\": \"fig2\", \"kind\": \"plot\", \"prompt\": \"Bar chart comparing macro accuracy improvements across tasks when using Simpleprompt vs CluE, with error bars showing 95% confidence intervals\", \"alt\": \"accessibility\", \"caption\": \"Figure 2: Accuracy gains from CluE over Simpleprompt across 18 BEHEMOTH tasks\", \"placement_hint\": \"after the results section on accuracy improvements\"}, {\"id\": \"fig3\", \"kind\": \"comparison\", \"prompt\": \"Side-by-side task performance matrix showing CluE vs prior self-evolving frameworks (e.g., PromptTuning, AutoPrompt) on BEHEMOTH's cross-domain tasks\", \"alt\": \"accessibility\", \"caption\": \"Figure 3: Cross-task generalization comparison of CluE against existing self-evolving frameworks\", \"placement_hint\": \"after the section comparing CluE to prior work\"}], \"equations\": [{\"id\": \"eq1\", \"latex\": \"\\\\(\\\\Delta\\\\text{Acc} = \\\\text{Acc}_{\\\\text{CluE}} - \\\\text{Acc}_{\\\\text{Simpleprompt}}\\\\)\", \"caption\": \"Equation 1: Macro accuracy improvement formula used in BEHEMOTH evaluation\", \"placement_hint\": \"in section about accuracy metrics\"}, {\"id\": \"eq2\", \"latex\": \"\\\\(\\\\text{GenGain} = \\\\frac{\\\\text{Acc}_{\\\\text{CluE}} - \\\\text{Acc}_{\\\\text{Baseline}}}{\\\\text{Acc}_{\\\\text{Baseline}}}\\\\)\", \"caption\": \"Equation 2: Relative generalization gain calculation for heterogeneous tasks\", \"placement_hint\": \"in section about CluE's generalization analysis\"}, {\"id\": \"eq3\", \"latex\": \"\\\\(\\\\mathcal{U}(\\\\mathcal{T}) = \\\\sum_{t\\\\in\\\\mathcal{T}} w_t \\\\cdot f(t)\\\\)\", \"caption\": \"Equation 3: Downstream utility-driven metric definition for task weighting\", \"placement_hint\": \"in section defining BEHEMOTH's evaluation framework\"}]}"
+      ],
+      "citations": [],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "",
+      "skipped": false
+    },
+    {
+      "role": "code",
+      "claims": [
+        "A novel method for extracting and preserving knowledge from LLMs",
+        "The memory system can self-evolve to adapt to new information and tasks",
+        "The approach effectively works across heterogeneous task types",
+        "The extracted memory improves model performance on diverse tasks"
+      ],
+      "citations": [
+        "No GitHub repositories found directly associated with this paper"
+      ],
+      "confidence": "low",
+      "contradictions": [
+        "Potential challenge in balancing preservation of old knowledge while adapting to new tasks",
+        "Difficulty in evaluating the true 'self-evolving' capability without implementation details"
+      ],
+      "suggested_section": "Cross-Task Memory Systems for LLMs",
+      "skipped": false
+    }
+  ],
+  "committee_synthesis": "The paper introduces a self‑evolving LLM architecture that extracts and refines task‑specific memories on the fly, then reuses those memories across a wide variety of downstream problems. By repurposing 18 existing datasets into the BEHEMOTH benchmark and measuring performance with a macro‑accuracy utility metric, the authors show that even a lightweight memory module (the Simpleprompt variant) lifts baseline performance from 37.84 % to 46.00 % macro accuracy. The more sophisticated CluE strategy builds on this foundation: it clusters extraction scenarios, synthesizes insights across clusters, and continuously updates the memory bank, yielding an additional relative gain of roughly 9 % over the simple baseline.\n\nThe central tension lies in how to make memory both stable and adaptable. On one hand, the system must preserve previously extracted knowledge so that it does not catastrophically forget when faced with new tasks; on the other hand, it must evolve its extraction rules to capture task‑specific patterns that improve generalization. The authors acknowledge that existing self‑evolving frameworks often rely on fixed, domain‑specific extraction rules, which limits their ability to transfer across heterogeneous domains. Moreover, evaluating the true “self‑evolving” nature of the approach remains challenging without detailed implementation traces, and there is an open question about the computational overhead incurred by constantly clustering and updating memory structures.\n\nFor readers, the key takeaway is that augmenting LLMs with a self‑evolving memory mechanism can deliver measurable, cross‑task performance improvements—demonstrated by consistent macro‑accuracy gains on the BEHEMOTH benchmark—while also highlighting critical design challenges. Future work should focus on balancing knowledge retention with adaptive rule evolution, reducing the computational cost of memory updates, and developing more rigorous evaluation protocols that can verify the continual self‑evolution of the memory system in realistic, unseen‑task scenarios.",
+  "visual_plan": {
+    "figures": [
+      {
+        "id": "fig1",
+        "kind": "concept",
+        "prompt": "A conceptual diagram illustrating the BEHEMOTH benchmark's structure, showing 18 heterogeneous tasks grouped by domain utility, with arrows indicating cross-task evaluation paths",
+        "alt": "accessibility",
+        "caption": "Figure 1: BEHEMOTH benchmark architecture for heterogeneous memory extraction evaluation",
+        "placement_hint": "after the section introducing BEHEMOTH"
+      },
+      {
+        "id": "fig2",
+        "kind": "plot",
+        "prompt": "Bar chart comparing macro accuracy improvements across tasks when using Simpleprompt vs CluE, with error bars showing 95% confidence intervals",
+        "alt": "accessibility",
+        "caption": "Figure 2: Accuracy gains from CluE over Simpleprompt across 18 BEHEMOTH tasks",
+        "placement_hint": "after the results section on accuracy improvements"
+      },
+      {
+        "id": "fig3",
+        "kind": "comparison",
+        "prompt": "Side-by-side task performance matrix showing CluE vs prior self-evolving frameworks (e.g., PromptTuning, AutoPrompt) on BEHEMOTH's cross-domain tasks",
+        "alt": "accessibility",
+        "caption": "Figure 3: Cross-task generalization comparison of CluE against existing self-evolving frameworks",
+        "placement_hint": "after the section comparing CluE to prior work"
+      }
+    ],
+    "equations": [
+      {
+        "id": "eq1",
+        "latex": "\\(\\Delta\\text{Acc} = \\text{Acc}_{\\text{CluE}} - \\text{Acc}_{\\text{Simpleprompt}}\\)",
+        "caption": "Equation 1: Macro accuracy improvement formula used in BEHEMOTH evaluation",
+        "placement_hint": "in section about accuracy metrics"
+      },
+      {
+        "id": "eq2",
+        "latex": "\\(\\text{GenGain} = \\frac{\\text{Acc}_{\\text{CluE}} - \\text{Acc}_{\\text{Baseline}}}{\\text{Acc}_{\\text{Baseline}}}\\)",
+        "caption": "Equation 2: Relative generalization gain calculation for heterogeneous tasks",
+        "placement_hint": "in section about CluE's generalization analysis"
+      },
+      {
+        "id": "eq3",
+        "latex": "\\(\\mathcal{U}(\\mathcal{T}) = \\sum_{t\\in\\mathcal{T}} w_t \\cdot f(t)\\)",
+        "caption": "Equation 3: Downstream utility-driven metric definition for task weighting",
+        "placement_hint": "in section defining BEHEMOTH's evaluation framework"
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "calls": 7,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 0
+    },
+    {
+      "tool": "refs_cites",
+      "refs": 0,
+      "cites": 0
+    },
+    {
+      "tool": "openalex",
+      "q": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+      "n": 3
+    },
+    {
+      "tool": "paper_reader",
+      "outline_sections": 12,
+      "results": 1,
+      "limitations": 5,
+      "llm_chunks": 3
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "BERT-based memory extraction",
+      "n": 3
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 1
+    }
+  ],
+  "committee": true,
+  "ss_cache_hits": 0,
+  "ss_429": 3,
+  "llm_ok": 15,
+  "rewrites_applied": 2,
+  "re_research_applied": 0
+}

@@ -1,0 +1,97 @@
+{
+  "committee_synthesis": {
+    "narrative": "The paper introduces a self\u2011evolving LLM architecture that extracts and refines task\u2011specific memories on the fly, then reuses those memories across a wide variety of downstream problems. By repurposing 18 existing datasets into the BEHEMOTH benchmark and measuring performance with a macro\u2011accuracy utility metric, the authors show that even a lightweight memory module (the Simpleprompt variant) lifts baseline performance from 37.84\u202f% to 46.00\u202f% macro accuracy. The more sophisticated CluE strategy builds on this foundation: it clusters extraction scenarios, synthesizes insights across clusters, and continuously updates the memory bank, yielding an additional relative gain of roughly 9\u202f% over the simple baseline.\n\nThe central tension lies in how to make memory both stable and adaptable. On one hand, the system must preserve previously extracted knowledge so that it does not catastrophically forget when faced with new tasks; on the other hand, it must evolve its extraction rules to capture task\u2011specific patterns that improve generalization. The authors acknowledge that existing self\u2011evolving frameworks often rely on fixed, domain\u2011specific extraction rules, which limits their ability to transfer across heterogeneous domains. Moreover, evaluating the true \u201cself\u2011evolving\u201d nature of the approach remains challenging without detailed implementation traces, and there is an open question about the computational overhead incurred by constantly clustering and updating memory structures.\n\nFor readers, the key takeaway is that augmenting LLMs with a self\u2011evolving memory mechanism can deliver measurable, cross\u2011task performance improvements\u2014demonstrated by consistent macro\u2011accuracy gains on the BEHEMOTH benchmark\u2014while also highlighting critical design challenges. Future work should focus on balancing knowledge retention with adaptive rule evolution, reducing the computational cost of memory updates, and developing more rigorous evaluation protocols that can verify the continual self\u2011evolution of the memory system in realistic, unseen\u2011task scenarios.",
+    "n_analysts": 6,
+    "n_skipped": 0,
+    "analysts": [
+      {
+        "role": "methods",
+        "claims": [
+          "BEHEMOTH is a benchmark that repurposes 18 existing datasets and evaluates downstream utility using a macro\u2011accuracy metric.",
+          "CluE is a cluster\u2011based self\u2011evolving strategy that groups extraction scenarios and synthesizes insights across clusters to improve memory extraction.",
+          "Using a memory module consistently improves performance over no\u2011memory baselines; even the minimal Simpleprompt variant increases overall macro accuracy from 37.84\u202f% to 46.00\u202f%.",
+          "The paper demonstrates that a memory\u2011augmented approach yields higher macro accuracy across heterogeneous tasks compared to baselines that do not use memory."
+        ],
+        "citations": [
+          "\"Using memory consistently improves over no-memory baselines; even the minimal Simpleprompt raises overall macro accuracy from 37.84% to 46.00%\""
+        ],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "Methodology",
+        "skipped": false
+      },
+      {
+        "role": "empirical",
+        "claims": [
+          "Memory improves over no-memory baselines; Simpleprompt raises macro accuracy from 37.84% to 46.00% (8.16 percentage point improvement)"
+        ],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "Results",
+        "skipped": false
+      },
+      {
+        "role": "glossary",
+        "claims": [
+          "BEHEMOTH is a benchmark repurposing 18 datasets with a downstream utility-driven metric",
+          "CluE is a cluster-based self-evolving strategy that groups extraction scenarios",
+          "CluE generalizes effectively across heterogeneous tasks",
+          "BEHEMOTH shows CluE generalizes with +9.04% relative gain",
+          "Existing self-evolving frameworks struggle with cross-task generalization",
+          "Both BEHEMOTH and CluE rely on fixed domain-specific extraction rules"
+        ],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [],
+        "suggested_section": "domain methods",
+        "skipped": false
+      },
+      {
+        "role": "related",
+        "claims": [
+          "The work proposes a self-evolving LLM architecture capable of dynamically adapting memory extraction mechanisms across diverse tasks.",
+          "The approach enables cross-task generalization by leveraging heterogeneous task-specific memory patterns.",
+          "The system may improve performance on unseen tasks through continuous memory refinement and evolution.",
+          "The methodology could reduce computational overhead by optimizing memory usage for specific task requirements."
+        ],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [],
+        "suggested_section": "H2: Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks",
+        "skipped": false
+      },
+      {
+        "role": "visual_planner",
+        "claims": [
+          "{\"figures\": [{\"id\": \"fig1\", \"kind\": \"concept\", \"prompt\": \"A conceptual diagram illustrating the BEHEMOTH benchmark's structure, showing 18 heterogeneous tasks grouped by domain utility, with arrows indicating cross-task evaluation paths\", \"alt\": \"accessibility\", \"caption\": \"Figure 1: BEHEMOTH benchmark architecture for heterogeneous memory extraction evaluation\", \"placement_hint\": \"after the section introducing BEHEMOTH\"}, {\"id\": \"fig2\", \"kind\": \"plot\", \"prompt\": \"Bar chart comparing macro accuracy improvements across tasks when using Simpleprompt vs CluE, with error bars showing 95% confidence intervals\", \"alt\": \"accessibility\", \"caption\": \"Figure 2: Accuracy gains from CluE over Simpleprompt across 18 BEHEMOTH tasks\", \"placement_hint\": \"after the results section on accuracy improvements\"}, {\"id\": \"fig3\", \"kind\": \"comparison\", \"prompt\": \"Side-by-side task performance matrix showing CluE vs prior self-evolving frameworks (e.g., PromptTuning, AutoPrompt) on BEHEMOTH's cross-domain tasks\", \"alt\": \"accessibility\", \"caption\": \"Figure 3: Cross-task generalization comparison of CluE against existing self-evolving frameworks\", \"placement_hint\": \"after the section comparing CluE to prior work\"}], \"equations\": [{\"id\": \"eq1\", \"latex\": \"\\\\(\\\\Delta\\\\text{Acc} = \\\\text{Acc}_{\\\\text{CluE}} - \\\\text{Acc}_{\\\\text{Simpleprompt}}\\\\)\", \"caption\": \"Equation 1: Macro accuracy improvement formula used in BEHEMOTH evaluation\", \"placement_hint\": \"in section about accuracy metrics\"}, {\"id\": \"eq2\", \"latex\": \"\\\\(\\\\text{GenGain} = \\\\frac{\\\\text{Acc}_{\\\\text{CluE}} - \\\\text{Acc}_{\\\\text{Baseline}}}{\\\\text{Acc}_{\\\\text{Baseline}}}\\\\)\", \"caption\": \"Equation 2: Relative generalization gain calculation for heterogeneous tasks\", \"placement_hint\": \"in section about CluE's generalization analysis\"}, {\"id\": \"eq3\", \"latex\": \"\\\\(\\\\mathcal{U}(\\\\mathcal{T}) = \\\\sum_{t\\\\in\\\\mathcal{T}} w_t \\\\cdot f(t)\\\\)\", \"caption\": \"Equation 3: Downstream utility-driven metric definition for task weighting\", \"placement_hint\": \"in section defining BEHEMOTH's evaluation framework\"}]}"
+        ],
+        "citations": [],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": false
+      },
+      {
+        "role": "code",
+        "claims": [
+          "A novel method for extracting and preserving knowledge from LLMs",
+          "The memory system can self-evolve to adapt to new information and tasks",
+          "The approach effectively works across heterogeneous task types",
+          "The extracted memory improves model performance on diverse tasks"
+        ],
+        "citations": [
+          "No GitHub repositories found directly associated with this paper"
+        ],
+        "confidence": "low",
+        "contradictions": [
+          "Potential challenge in balancing preservation of old knowledge while adapting to new tasks",
+          "Difficulty in evaluating the true 'self-evolving' capability without implementation details"
+        ],
+        "suggested_section": "Cross-Task Memory Systems for LLMs",
+        "skipped": false
+      }
+    ]
+  },
+  "narrative": "The paper introduces a self\u2011evolving LLM architecture that extracts and refines task\u2011specific memories on the fly, then reuses those memories across a wide variety of downstream problems. By repurposing 18 existing datasets into the BEHEMOTH benchmark and measuring performance with a macro\u2011accuracy utility metric, the authors show that even a lightweight memory module (the Simpleprompt variant) lifts baseline performance from 37.84\u202f% to 46.00\u202f% macro accuracy. The more sophisticated CluE strategy builds on this foundation: it clusters extraction scenarios, synthesizes insights across clusters, and continuously updates the memory bank, yielding an additional relative gain of roughly 9\u202f% over the simple baseline.\n\nThe central tension lies in how to make memory both stable and adaptable. On one hand, the system must preserve previously extracted knowledge so that it does not catastrophically forget when faced with new tasks; on the other hand, it must evolve its extraction rules to capture task\u2011specific patterns that improve generalization. The authors acknowledge that existing self\u2011evolving frameworks often rely on fixed, domain\u2011specific extraction rules, which limits their ability to transfer across heterogeneous domains. Moreover, evaluating the true \u201cself\u2011evolving\u201d nature of the approach remains challenging without detailed implementation traces, and there is an open question about the computational overhead incurred by constantly clustering and updating memory structures.\n\nFor readers, the key takeaway is that augmenting LLMs with a self\u2011evolving memory mechanism can deliver measurable, cross\u2011task performance improvements\u2014demonstrated by consistent macro\u2011accuracy gains on the BEHEMOTH benchmark\u2014while also highlighting critical design challenges. Future work should focus on balancing knowledge retention with adaptive rule evolution, reducing the computational cost of memory updates, and developing more rigorous evaluation protocols that can verify the continual self\u2011evolution of the memory system in realistic, unseen\u2011task scenarios."
+}

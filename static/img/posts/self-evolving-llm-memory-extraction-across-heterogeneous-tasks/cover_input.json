@@ -1,0 +1,1 @@
+{"format": "deep_dive", "title": "Self-Evolving LLM Memory Extraction Across Heterogeneous Tasks", "takeaway": "A lightweight memory module lifts macro accuracy from 37.84% to 46.00%, and a cluster-based evolution strategy adds another 9.04% relative gain\u2014but only if you stop trying to find one extraction promp"}
