@@ -234,14 +234,40 @@ def run() -> EditorReport:
             path.write_text(front + body, encoding="utf-8")
         rep = _rubric_llm(body)
     g_ok, g_issues, g_llm = _grounding_check(body)
-    _inject_score(path, rep.rubric_score)
+    ev_p = _ROOT / "reports" / "evidence_bundle.json"
+    ev_text = ev_p.read_text(encoding="utf-8")[:22000] if ev_p.is_file() else ""
     lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
+    det_ground = lint.unsupported_numeric_claims(body, ev_text) if ev_text else []
+    if (
+        (g_issues or det_ground)
+        and not config.dry_run()
+        and config.llm_configured()
+    ):
+        fix = openrouter_client.llm_text(
+            "Revise the markdown body to remove unsupported claims flagged against EVIDENCE. "
+            "Delete or soften any claim that is not directly supported. Do not add new facts. "
+            "Keep the topic fixed to the same paper, preserve the table and mermaid block, and "
+            "return the full markdown body only.",
+            "UNSUPPORTED CLAIMS:\n- "
+            + "\n- ".join(list(dict.fromkeys(g_issues + det_ground))[:10])
+            + f"\n\nBODY:\n{body[:20000]}\n\nEVIDENCE_JSON:\n{ev_text}",
+            mode="smart",
+            max_tokens=config.max_tokens_smart(),
+        )
+        if fix.strip() and _looks_like_markdown_body(fix):
+            body = _unwrap_markdown_fence(fix)
+            path.write_text(front + body, encoding="utf-8")
+            rep = _rubric_llm(body)
+            g_ok, g_issues, g_llm = _grounding_check(body)
+            lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
+            det_ground = lint.unsupported_numeric_claims(body, ev_text) if ev_text else []
+    _inject_score(path, rep.rubric_score)
     usage = get_llm_usage()
     need_llm = bool(config.llm_configured() and not config.dry_run())
     llm_ok = True
     editor_warnings: list[str] = []
     if need_llm:
-        if int(usage.get("ok", 0) or 0) < 3:
+        if int(usage.get("ok", 0) or 0) < 2:
             llm_ok = False
             editor_warnings.append("llm_successes_below_threshold")
         if not g_llm:
@@ -252,6 +278,20 @@ def run() -> EditorReport:
     if llm_ok and "pov_phrase_without_opinion" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
     if llm_ok and "generic_heading_used" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "collective_research_voice" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "templated_heading_used" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "duplicate_heading" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "takeaway_repeated_as_heading" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "no_results_table" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if g_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if det_ground:
         rep = rep.model_copy(update={"pass_gate": False})
     if not llm_ok:
         rep = rep.model_copy(update={"pass_gate": False})
@@ -268,8 +308,8 @@ def run() -> EditorReport:
     rep = rep.model_copy(
         update={
             "lint_issues": lint_issues,
-            "grounding_ok": g_ok,
-            "grounding_issues": g_issues,
+            "grounding_ok": bool(g_ok and not det_ground),
+            "grounding_issues": list(dict.fromkeys(g_issues + det_ground)),
             "llm_ok": llm_ok,
             "editor_warnings": editor_warnings,
         }

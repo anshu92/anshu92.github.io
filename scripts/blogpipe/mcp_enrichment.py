@@ -349,6 +349,8 @@ def run(
 
     title = primary.title
     abstract = primary.abstract
+    paper_digest = str(primary.extra.get("paper_digest") or "").strip()
+    planner_context = paper_digest[:4000] if paper_digest else abstract
     out = McpEnrichmentResult(calls_used=calls)
     c = calls
 
@@ -365,7 +367,7 @@ def run(
     if not use(1):
         return McpEnrichmentResult(calls_used=calls)
 
-    bks, qns = _planner_llm(title, abstract)
+    bks, qns = _planner_llm(title, planner_context)
     out.planner_buckets = bks
     out.planner_questions = qns
     _trace_append(trace, {"tool": "mcp_planner", "n_questions": len(qns), "n_buckets": len(bks)})
@@ -373,7 +375,7 @@ def run(
     if not use(1):
         out.calls_used = c
         return out
-    adv = _adversarial_llm(title, abstract)
+    adv = _adversarial_llm(title, planner_context)
     out.contradiction_notes = adv
     _trace_append(trace, {"tool": "mcp_adversarial", "n": len(adv)})
 

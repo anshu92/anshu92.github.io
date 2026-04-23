@@ -29,7 +29,20 @@ _GENERIC_H2 = re.compile(
     r"^##\s*(Introduction|Background|Overview|Results|Conclusion|Summary)\s*$",
     re.I | re.M,
 )
+_TEMPLATED_H2 = re.compile(
+    r"^##\s*(Changed Minds|Author Takeaway|Next Steps|Performance Comparison|"
+    r"Empirical Results|How (?:.+ )?Works|Why It Works|The Problem(?:\s*:.*)?|"
+    r"Limitations and Failure Modes)\s*$",
+    re.I | re.M,
+)
+_CODE_FENCE = re.compile(r"```[\s\S]*?```", re.M)
 _DIGITS = re.compile(r"\d")
+_NUMERIC_CLAIM = re.compile(
+    r"\b\d+(?:\.\d+)?(?:\s*-\s*\d+(?:\.\d+)?)?\s*(?:%|x|×|ms|s|gb|mb|kb|"
+    r"tokens?|words?|layers?|params?|parameters?|hours?|days?|"
+    r"[kmb](?:\s*-\s*\d+(?:\.\d+)?[kmb])?(?:-class)?)(?=\b|[^a-z0-9])",
+    re.I,
+)
 
 
 def count_digits(s: str) -> int:
@@ -62,6 +75,46 @@ def lint_generic_headings(body: str) -> list[str]:
     return ["generic_heading_used"] if bad else []
 
 
+def lint_templated_headings(body: str) -> list[str]:
+    """Catch blog-factory headings that usually signal weak, generic structure."""
+    return ["templated_heading_used"] if _TEMPLATED_H2.search(body or "") else []
+
+
+def _normalize_heading(text: str) -> str:
+    t = re.sub(r"[`*_#>\[\]\(\):]", "", text or "")
+    t = re.sub(r"\s+", " ", t).strip().lower()
+    return t
+
+
+def lint_duplicate_headings(body: str) -> list[str]:
+    seen: set[str] = set()
+    dup = False
+    for m in re.finditer(r"^##\s+(.+?)\s*$", body or "", re.M):
+        key = _normalize_heading(m.group(1))
+        if not key:
+            continue
+        if key in seen:
+            dup = True
+            break
+        seen.add(key)
+    return ["duplicate_heading"] if dup else []
+
+
+def lint_takeaway_repeated_as_heading(body: str) -> list[str]:
+    first = (body or "").split("\n", 1)[0].strip()
+    if not first:
+        return []
+    key = _normalize_heading(first)
+    if not key:
+        return []
+    for m in re.finditer(r"^##\s+(.+?)\s*$", body or "", re.M):
+        if m.start() == 0:
+            continue
+        if _normalize_heading(m.group(1)) == key:
+            return ["takeaway_repeated_as_heading"]
+    return []
+
+
 def lint_structure(body: str) -> list[str]:
     """Format-independent structural checks. Does not care about section titles."""
     issues: list[str] = []
@@ -73,6 +126,8 @@ def lint_structure(body: str) -> list[str]:
     if first and not re.search(r"\d", first):
         issues.append("takeaway_lacks_number")
     table_match = re.search(r"^\s*\|[^\n]*\bMethod\b[^\n]*\|", body, re.M)
+    if not table_match:
+        issues.append("no_results_table")
     if table_match:
         prose = body[: table_match.start()]
         table_part = body[table_match.start() :]
@@ -116,6 +171,15 @@ _POV_INTRO = re.compile(
 _FIRST_PERSON = re.compile(
     r"\b(I'|I\s|I’m|I'm|I think|I find|my view|in my view)\b", re.I
 )
+_COLLECTIVE_RESEARCH = re.compile(
+    r"\bwe\s+(introduce|present|propose|show|find|observe|use|model|evaluate|"
+    r"analyze|study|train|fine[- ]tune|adapt|apply|achieve|compare|extend|demonstrate|"
+    r"report|focus|design|identify|derive|select|benchmark|measure|test)\b"
+    r"|\bour\s+(method|methods|approach|approaches|model|models|results|experiments|study|"
+    r"paper|framework|analysis|system|systems|technique|techniques|baseline|baselines|"
+    r"llms?|μlms?)\b",
+    re.I,
+)
 
 
 def lint_pov_after_phrase(body: str) -> list[str]:
@@ -133,11 +197,61 @@ def lint_pov_after_phrase(body: str) -> list[str]:
     return []
 
 
+def lint_collective_research_voice(body: str) -> list[str]:
+    """Paper summaries should not claim the authors' work in first-person plural."""
+    return ["collective_research_voice"] if _COLLECTIVE_RESEARCH.search(body or "") else []
+
+
+def _strip_code_fences(text: str) -> str:
+    return _CODE_FENCE.sub("", text or "")
+
+
+def _normalize_claim(text: str) -> str:
+    t = (text or "").lower().replace("×", "x")
+    t = t.replace("–", "-").replace("—", "-")
+    t = re.sub(r"\bparameters?\b", "param", t)
+    t = re.sub(r"\bparams?\b", "param", t)
+    t = re.sub(r"\bwords?\b", "word", t)
+    t = re.sub(r"\blayers?\b", "layer", t)
+    t = re.sub(r"\btokens?\b", "token", t)
+    t = re.sub(r"\bhours?\b", "hour", t)
+    t = re.sub(r"\bdays?\b", "day", t)
+    t = re.sub(r"\s+", "", t)
+    return t
+
+
+def numeric_claims(text: str) -> list[str]:
+    """Extract normalized numeric phrases that should be grounded in the evidence."""
+    src = _strip_code_fences(text)
+    found: dict[str, str] = {}
+    for m in _NUMERIC_CLAIM.finditer(src):
+        raw = m.group(0).strip()
+        key = _normalize_claim(raw)
+        if key and key not in found:
+            found[key] = raw
+    return list(found.values())
+
+
+def unsupported_numeric_claims(body: str, evidence_text: str) -> list[str]:
+    """Claims with numbers/units that do not appear in the evidence text."""
+    evidence_found = {_normalize_claim(x) for x in numeric_claims(evidence_text)}
+    unsupported: list[str] = []
+    for claim in numeric_claims(body):
+        key = _normalize_claim(claim)
+        if key and key not in evidence_found:
+            unsupported.append(claim)
+    return unsupported
+
+
 def structural_issues(body: str) -> list[str]:
     """All structural lints in one list (used by editor gate)."""
     return (
         lint_structure(body)
         + lint_generic_headings(body)
+        + lint_templated_headings(body)
+        + lint_duplicate_headings(body)
+        + lint_takeaway_repeated_as_heading(body)
         + lint_empty_placeholders(body)
         + lint_pov_after_phrase(body)
+        + lint_collective_research_voice(body)
     )

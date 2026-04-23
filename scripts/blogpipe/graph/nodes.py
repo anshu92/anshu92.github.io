@@ -10,10 +10,10 @@ from typing import Any
 
 from .. import config, formats, lint, memory
 from ..draft import (
-    _apply_result_first_takeaway,
     _cleanup_missing_cites,
-    _ensure_mermaid,
+    _polish_body,
     _resolve_cites,
+    _sanitize_frontmatter_text,
     _strip_unresolved,
     _stub_body,
     _unwrap_markdown_fence,
@@ -248,11 +248,11 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
             if nblock.strip():
                 body = _replace_section_body(body, title, nblock)
 
-    body = _ensure_mermaid(body, bundle.primary.title, brief)
-    body = _apply_result_first_takeaway(body, bundle.primary.title)
+    body = _polish_body(body, bundle, brief)
     struct = lint.structural_issues(body)
+    unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
     print(
-        f"stage=draft_graph rewrites={rewrites} re_research={re_re} structural={len(struct)}",
+        f"stage=draft_graph rewrites={rewrites} re_research={re_re} structural={len(struct)} unsupported={len(unsupported)}",
         flush=True,
     )
     return {
@@ -260,6 +260,7 @@ def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
         "evidence": json.loads(bundle.model_dump_json()),
         "draft_lint": {
             "structural": struct,
+            "unsupported_numeric_claims": unsupported,
             "stage": "draft_graph",
         },
         "rewrites_applied": rewrites,
@@ -278,6 +279,7 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     rep = global_rubric(body)
     g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
     lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
+    det_ground = lint.unsupported_numeric_claims(body, ev_text)
     usage = get_llm_usage()
     need_llm = bool(config.llm_configured() and not config.dry_run())
     llm_ok = True
@@ -298,12 +300,24 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         rep = rep.model_copy(update={"pass_gate": False})
     if llm_ok and "generic_heading_used" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "collective_research_voice" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "templated_heading_used" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "duplicate_heading" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "takeaway_repeated_as_heading" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "no_results_table" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if det_ground:
+        rep = rep.model_copy(update={"pass_gate": False})
     if not llm_ok:
         rep = rep.model_copy(update={"pass_gate": False})
     d = rep.model_dump()
     d["lint_issues"] = lint_issues
-    d["grounding_ok"] = g_ok
-    d["grounding_issues"] = g_iss
+    d["grounding_ok"] = bool(g_ok and not det_ground)
+    d["grounding_issues"] = list(dict.fromkeys(g_iss + det_ground))
     d["llm_ok"] = llm_ok
     d["editor_warnings"] = ed_warn
     return {
@@ -332,18 +346,22 @@ def node_publish_and_write(state: dict[str, Any]) -> dict[str, Any]:
     u["supervisor_decisions"] = state.get("supervisor_decisions", [])
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     slug = _slugify(bundle.primary.title)
-    title = bundle.primary.title[:200]
-    takeaway = body.split("\n", 1)[0].strip()[:500] if body.strip() else "Draft"
+    title = _sanitize_frontmatter_text(bundle.primary.title, 200)
+    takeaway = (
+        _sanitize_frontmatter_text(body.split("\n", 1)[0].strip(), 500)
+        if body.strip()
+        else "Draft"
+    )
     fm = f"""---
 date: "{day}"
 draft: true
-title: "{title.replace(chr(34), "'")}"
-description: "{takeaway[:160].replace(chr(34), "'")}"
+title: "{title}"
+description: "{takeaway[:160]}"
 categories: ["Machine Learning"]
 tags: {json.dumps(bundle.primary.tags[:8] + ["blogpipe"])}
 math: true
 mermaid: true
-one_sentence_takeaway: "{takeaway[:300].replace(chr(34), "'")}"
+one_sentence_takeaway: "{takeaway[:300]}"
 image: /img/posts/{slug}/hero.png
 rubric_score: {score}
 ---

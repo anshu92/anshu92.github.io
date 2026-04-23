@@ -49,7 +49,7 @@ _CORE_GOALS = [
     "Describe the core method's intuition and how it differs from what came before",
     "Show at least one numeric result compared to a named baseline in both prose and a markdown table",
     "Discuss at least one honest limitation, failure mode, or reproduction barrier (not authors' ablations that validate the method)",
-    "Offer one concrete author opinion or takeaway the reader can steal",
+    "Include one first-person judgment and one concrete engineering habit the reader can steal",
     "Use [cite: id] for every external claim, matching one of the evidence ids provided",
     "Include exactly one mermaid diagram that clarifies the method",
 ]
@@ -62,7 +62,7 @@ _add(
         length_max=3500,
         required_sections=_CORE_GOALS
         + [
-            "Name who changed their mind after reading, and why",
+            "Name the assumption, baseline, or engineering habit this work should update",
         ],
         optional_sections=[
             "Appendix for implementation details if warranted",

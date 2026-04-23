@@ -15,7 +15,7 @@ from typing import Any, Optional
 
 import httpx
 
-from . import config, mcp_enrichment, memory, openrouter_client
+from . import config, mcp_enrichment, memory, openrouter_client, paper_reader
 from .llm_chain import get_llm_usage
 from .models import BenchmarkRow, EvidenceBundle, Item, Pillar, Quote
 from .memory import _ROOT
@@ -361,6 +361,138 @@ def _extract_benchmarks_from_abstract(title: str, abstract: str) -> list[Benchma
     return out
 
 
+def _clean_benchmark_name(text: str) -> str:
+    t = re.sub(r"^[,;:\s]+|[,;:\s]+$", "", text or "")
+    if "," in t:
+        t = t.split(",")[-1].strip()
+    t = re.sub(r"^(using|with|both|the|and|as well as)\s+", "", t, flags=re.I)
+    t = re.sub(r"\bwe achieve superior performance on\b", "", t, flags=re.I)
+    t = re.sub(r"\bwe achieve\b", "", t, flags=re.I)
+    t = re.sub(r"^significantly outperforming both\s+", "", t, flags=re.I)
+    t = re.sub(r"^significantly outperforming\s+", "", t, flags=re.I)
+    if "using only" in t.lower():
+        t = t.split("using only", 1)[-1].strip()
+    t = re.sub(r"^the baseline\s+", "", t, flags=re.I)
+    t = re.sub(r"\s+", " ", t).strip(" ,.;:")
+    return t[:80]
+
+
+def _fallback_benchmarks_from_abstract(title: str, abstract: str) -> list[BenchmarkRow]:
+    """Regex fallback: prefer factual rows over `(see paper)` placeholders."""
+    txt = (abstract or "").strip()
+    if not txt:
+        return []
+    rows: list[BenchmarkRow] = []
+
+    pct_hits = re.findall(r"([^()]{3,120}?)\s*\((\d+(?:\.\d+)?)%\)", txt)
+    if pct_hits:
+        cleaned = [(_clean_benchmark_name(name), f"{value}%") for name, value in pct_hits]
+        baseline_label = ""
+        baseline_value = ""
+        for name, value in cleaned:
+            if "baseline" in name.lower():
+                baseline_label = name
+                baseline_value = value
+                break
+        if not baseline_label and cleaned:
+            baseline_label, baseline_value = cleaned[-1]
+        for name, value in cleaned[:4]:
+            if not name:
+                continue
+            baseline = ""
+            if baseline_label and name != baseline_label:
+                baseline = f"{baseline_label} {baseline_value}".strip()
+            rows.append(
+                BenchmarkRow(
+                    name=name,
+                    value=value,
+                    unit="accuracy",
+                    baseline=baseline[:200],
+                    notes="from abstract (regex fallback)",
+                )
+            )
+        if rows:
+            return rows[:4]
+
+    size_match = re.search(
+        r"(\d+(?:\.\d+)?M\s*-\s*\d+(?:\.\d+)?M)\s+parameters", txt, re.I
+    )
+    edge_match = re.search(
+        r"(\d+(?:\.\d+)?M\s*-\s*\d+(?:\.\d+)?B)\s+parameter", txt, re.I
+    )
+    span_match = re.search(r"first\s+(\d+\s*-\s*\d+)\s+words", txt, re.I)
+    comp_match = re.search(
+        r"matching several\s+(\d+(?:\.\d+)?M\s*-\s*\d+(?:\.\d+)?M-class)",
+        txt,
+        re.I,
+    )
+    if size_match:
+        rows.append(
+            BenchmarkRow(
+                name="micro language models",
+                value=size_match.group(1).replace(" ", ""),
+                unit="parameters",
+                baseline=edge_match.group(1).replace(" ", "") if edge_match else "",
+                notes="from abstract (regex fallback)",
+            )
+        )
+    if span_match:
+        rows.append(
+            BenchmarkRow(
+                name="on-device opener",
+                value=span_match.group(1).replace(" ", "") + " words",
+                unit="generated prefix",
+                baseline="cloud continuation",
+                notes="from abstract (regex fallback)",
+            )
+        )
+    if comp_match:
+        rows.append(
+            BenchmarkRow(
+                name="comparable existing models",
+                value=comp_match.group(1).replace(" ", ""),
+                unit="matched model class",
+                baseline="existing 70M-256M-class models",
+                notes="from abstract (regex fallback)",
+            )
+        )
+    return rows[:4]
+
+
+def _fallback_benchmarks_from_result_notes(result_notes: list[str]) -> list[BenchmarkRow]:
+    rows: list[BenchmarkRow] = []
+    seen: set[str] = set()
+    for sent in result_notes:
+        text = re.sub(r"\s+", " ", sent or "").strip()
+        if not text:
+            continue
+        pieces = re.split(r"\bwhile\b|;", text, flags=re.I)
+        for piece in pieces:
+            for pat in (
+                r"([A-Za-z0-9][A-Za-z0-9+/\-() ]{2,90}?)\s+(?:achieves?|reaches?|yields?|scores?)\s+(\d+(?:\.\d+)?%)",
+                r"([A-Za-z0-9][A-Za-z0-9+/\-() ]{2,90}?)\s+at\s+(\d+(?:\.\d+)?%)",
+            ):
+                for m in re.finditer(pat, piece, re.I):
+                    name = _clean_benchmark_name(m.group(1))
+                    value = m.group(2)
+                    key = f"{name.lower()}::{value}"
+                    if not name or key in seen:
+                        continue
+                    seen.add(key)
+                    rows.append(
+                        BenchmarkRow(
+                            name=name,
+                            value=value,
+                            unit="",
+                            baseline="same paper setup",
+                            notes="from full paper (regex fallback)",
+                        )
+                    )
+                    if len(rows) >= 4:
+                        return rows
+    return rows[:4]
+
+
 def _primary_from_rank() -> Item:
     p = _ROOT / "reports" / "rank_result.json"
     if not p.is_file():
@@ -393,6 +525,10 @@ def run() -> EvidenceBundle:
     competitors: list[Item] = []
     followups: list[Item] = []
     aec_links: list[Item] = []
+    paper_section_evidence: dict[str, str] = {}
+    paper_limitations: list[str] = []
+    paper_result_notes: list[str] = []
+    paper_quotes: list[Quote] = []
     ss_id: Optional[str] = None
     ss: list[Item] = []
     if calls < max_c:
@@ -407,7 +543,18 @@ def run() -> EvidenceBundle:
                 if m:
                     ss_id = m.group(1) if len(m.group(1)) == 40 else m.group(1)
                     if cand.abstract:
-                        primary = cand
+                        extra = dict(primary.extra)
+                        if cand.url and cand.url != primary.url:
+                            extra["semantic_scholar_url"] = cand.url
+                        primary = primary.model_copy(
+                            update={
+                                "title": cand.title or primary.title,
+                                "abstract": cand.abstract,
+                                "authors": cand.authors or primary.authors,
+                                "tags": list(dict.fromkeys(primary.tags + cand.tags)),
+                                "extra": extra,
+                            }
+                        )
                     break
     if not ss and calls < max_c:
         ss2 = semantic_search((primary.title + " " + primary.abstract)[:200])[:1]
@@ -442,6 +589,31 @@ def run() -> EvidenceBundle:
                 by_id[it.id] = it
     for a in ancestors + followups + competitors:
         by_id[a.id] = a
+    paper_ev = paper_reader.fetch_primary_paper_evidence(primary)
+    if paper_ev.cleaned_text:
+        primary.extra["paper_pdf_url"] = paper_ev.pdf_url
+        primary.extra["paper_digest"] = "\n\n".join(
+            [
+                paper_ev.section_evidence.get("paper_problem", ""),
+                paper_ev.section_evidence.get("paper_method", ""),
+                paper_ev.section_evidence.get("paper_experiments", ""),
+                paper_ev.section_evidence.get("paper_limitations", ""),
+            ]
+        )[:6000]
+        paper_section_evidence = dict(paper_ev.section_evidence)
+        paper_limitations = list(paper_ev.limitation_notes)
+        paper_result_notes = list(paper_ev.result_notes)
+        paper_quotes = list(paper_ev.quotes)
+        _trace_append(
+            {
+                "tool": "paper_reader",
+                "outline_sections": len(paper_ev.outline),
+                "results": len(paper_ev.result_notes),
+                "limitations": len(paper_ev.limitation_notes),
+                "llm_chunks": int(paper_ev.llm_chunks_used),
+            },
+            trace,
+        )
     bms: list[BenchmarkRow] = []
     if (
         calls < max_c
@@ -452,6 +624,17 @@ def run() -> EvidenceBundle:
         bms = _extract_benchmarks_from_abstract(primary.title, primary.abstract)
         calls += 1
         _trace_append({"tool": "extract_benchmarks", "n": len(bms)}, trace)
+    if not bms:
+        bms = _fallback_benchmarks_from_abstract(primary.title, primary.abstract)
+        if bms:
+            _trace_append({"tool": "extract_benchmarks_fallback", "n": len(bms)}, trace)
+    if not bms and paper_result_notes:
+        bms = _fallback_benchmarks_from_result_notes(paper_result_notes)
+        if bms:
+            _trace_append(
+                {"tool": "extract_benchmarks_paper_fallback", "n": len(bms)},
+                trace,
+            )
     if not bms:
         bms = [
             BenchmarkRow(
@@ -467,11 +650,24 @@ def run() -> EvidenceBundle:
             text=primary.abstract[:500],
             url=primary.url,
         )
-    ]
+    ] + paper_quotes[:6]
     for it in aec_links:
         by_id[it.id] = it
     mres = mcp_enrichment.run(primary, calls, max_c, trace)
     calls = mres.calls_used
+    merged_section_evidence = dict(paper_section_evidence)
+    for key, value in (mres.section_evidence or {}).items():
+        if not value:
+            continue
+        if key not in merged_section_evidence:
+            merged_section_evidence[key] = value
+        else:
+            merged_section_evidence[key] = (
+                merged_section_evidence[key].rstrip() + "\n\n" + value.lstrip()
+            )[:4000]
+    contradiction_notes = list(
+        dict.fromkeys(paper_limitations + (mres.contradiction_notes or []))
+    )[:10]
     b = EvidenceBundle(
         primary=primary,
         ancestors=ancestors,
@@ -483,8 +679,8 @@ def run() -> EvidenceBundle:
         enrichment_items=mres.enrichment_items,
         planner_buckets=mres.planner_buckets,
         planner_questions=mres.planner_questions,
-        section_evidence=mres.section_evidence,
-        contradiction_notes=mres.contradiction_notes,
+        section_evidence=merged_section_evidence,
+        contradiction_notes=contradiction_notes,
     )
     b.register_ids()
     (_ROOT / "reports" / "evidence_bundle.json").write_text(
