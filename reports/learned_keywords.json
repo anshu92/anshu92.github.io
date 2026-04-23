@@ -1,0 +1,13 @@
+{
+  "llm_scaling": [
+    "rope scaling",
+    "diffusion-based",
+    "implicit shape decoders",
+    "closed-loop latent",
+    "prompting",
+    "re-generation cycle",
+    "actor-evaluator-self-reflection triad",
+    "iterative refinement",
+    "geometric instantiation"
+  ]
+}

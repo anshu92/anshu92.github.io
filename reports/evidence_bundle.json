@@ -1,0 +1,501 @@
+{
+  "primary": {
+    "id": "hf_2604.17472",
+    "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+    "url": "https://arxiv.org/abs/2604.17472",
+    "authors": [
+      "Peng Huang",
+      "Yifeng Chen",
+      "Zeyu Zhang",
+      "Hao Tang"
+    ],
+    "abstract": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+    "published_at": "2026-04-19T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.17472",
+          "authors": [
+            {
+              "_id": "69e830745f6b3d4e5af9ab7d",
+              "name": "Peng Huang",
+              "hidden": false
+            },
+            {
+              "_id": "69e830745f6b3d4e5af9ab7e",
+              "name": "Yifeng Chen",
+              "hidden": false
+            },
+            {
+              "_id": "69e830745f6b3d4e5af9ab7f",
+              "name": "Zeyu Zhang",
+              "hidden": false
+            },
+            {
+              "_id": "69e830745f6b3d4e5af9ab80",
+              "name": "Hao Tang",
+              "hidden": false
+            }
+          ],
+          "mediaUrls": [
+            "https://cdn-uploads.huggingface.co/production/uploads/64ec877bb93654d4ca5c92e9/lJk-UmnpOXeXEct_m-PT1.mp4"
+          ],
+          "publishedAt": "2026-04-19T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-22T00:52:01.595Z",
+          "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+          "submittedOnDailyBy": {
+            "_id": "64ec877bb93654d4ca5c92e9",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/64ec877bb93654d4ca5c92e9/GvHk_KSdE9Rhnk_o-NaZX.jpeg",
+            "isPro": false,
+            "fullname": "Zeyu Zhang",
+            "user": "SteveZeyuZhang",
+            "type": "user",
+            "name": "SteveZeyuZhang"
+          },
+          "summary": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+          "upvotes": 5,
+          "discussionId": "69e830755f6b3d4e5af9ab81",
+          "projectPage": "https://aigeeksgroup.github.io/UniMesh/",
+          "githubRepo": "https://github.com/AIGeeksGroup/UniMesh",
+          "githubRepoAddedBy": "user",
+          "ai_summary": "UniMesh presents a unified framework that combines 3D generation and understanding tasks through novel components including a Mesh Head, Chain of Mesh for iterative editing, and a self-reflection mechanism for error correction.",
+          "ai_keywords": [
+            "3D vision",
+            "diffusion based image generation",
+            "implicit shape decoders",
+            "Mesh Head",
+            "Chain of Mesh",
+            "iterative reasoning",
+            "semantic mesh editing",
+            "Actor Evaluator Self reflection triad",
+            "3D captioning"
+          ],
+          "githubStars": 10,
+          "organization": {
+            "_id": "61dcd8e344f59573371b5cb6",
+            "name": "PekingUniversity",
+            "fullname": "Peking University",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/noauth/vavgrBsnkSejriUF4lXDE.png"
+          }
+        },
+        "publishedAt": "2026-04-18T20:00:00.000Z",
+        "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+        "summary": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+        "mediaUrls": [
+          "https://cdn-uploads.huggingface.co/production/uploads/64ec877bb93654d4ca5c92e9/lJk-UmnpOXeXEct_m-PT1.mp4"
+        ],
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17472.png",
+        "numComments": 2,
+        "submittedBy": {
+          "_id": "64ec877bb93654d4ca5c92e9",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/64ec877bb93654d4ca5c92e9/GvHk_KSdE9Rhnk_o-NaZX.jpeg",
+          "fullname": "Zeyu Zhang",
+          "name": "SteveZeyuZhang",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 8,
+          "isUserFollowing": false
+        },
+        "organization": {
+          "_id": "61dcd8e344f59573371b5cb6",
+          "name": "PekingUniversity",
+          "fullname": "Peking University",
+          "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/noauth/vavgrBsnkSejriUF4lXDE.png"
+        },
+        "isAuthorParticipating": false
+      },
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.17472.pdf",
+      "paper_digest": "3D generation and understanding tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling.\n\nUniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture.\n\n- Building upon this architecture, TripoSR [49] further refines data processing and training strategies to achieve sub-second mesh generation with improved geometric fidelity.\n- UniMesh: Unifying 3D Mesh Understanding and Generation 5 While these methods achieve impressive results in either generation or reconstruction, they typically treat 3D understanding (e.g., semantic reasoning, structural analysis) as a separate downstream task.\n- During finetuning, we adopt LoRA (Low-Rank Adaptation) [16] to efficiently update only the query and value projections within the Mesh Head, with rankr= 4 and α= 8 , as we empirically found this configuration yields optimal performance while maintaining parameter efficiency.\n- While other methods (e.g., OpenLRM, 3DTopia-XL) achieve comparable scores, they often require larger models or specialized training data.\n\n- This ensures that the training signal is both visually representative and geometrically discriminative, facilitating robust generalization to unseen object categories.\n- 5 Limitation and Future Work\n\nAlthough Chain-of-Mesh enables semantic-aware editing, it relies on reference imagelatentratherthandirect3Dunderstanding.Similarly,theReflexionframework uses a BAGEL-based evaluator, whose limited 3D reasoning capability can lead to incorrect judgments and degrade self-reflection quality.\n- Future work includes: (1) training models to understand 3D objects directly in their native geometric representation; (2) improving the Reflexion framework with more reliable evaluation and reflection mechanisms.\n- Tang, H., Huang, T., Zhang, Z.: 3d coca v2: Contrastive learners with test-time\n\nsearch for generalizable spatial intelligence."
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_2854713006",
+      "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+      "url": "https://openalex.org/W7155082742",
+      "authors": [],
+      "abstract": "Recent advances in 3D vision have led to specialized models for either understanding (e.g., shape classification, segmentation, reconstruction) or generation synthesis, completion, and editing). However, these tasks are often tackled isolation, resulting fragmented architectures representations that hinder knowledge transfer holistic scene modeling. To address challenges, we propose UniMesh, a unified framework jointly learns within single architecture. First, introduce novel Mesh Head acts as cross model interface, bridging diffusion based image with implicit decoders. Second, develop Chain of (CoM), geometric instantiation iterative reasoning enables user driven semantic mesh editing through closed loop latent, prompting, re cycle. Third, incorporate self reflection mechanism on an Actor Evaluator Self triad diagnose correct failures high level like captioning. Experimental results demonstrate UniMesh not only achieves competitive performance standard benchmarks but also unlocks capabilities mutual enhancement between understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_2699782878",
+      "title": "MeshLab: an Open-Source Mesh Processing Tool",
+      "url": "https://openalex.org/W1569530544",
+      "authors": [],
+      "abstract": "The paper presents MeshLab, an open source, extensible, mesh processing system that has been developed at the Visual Computing Lab of ISTI-CNR with helps tens students. We will describe MeshLab architecture, its main features and design objectives discussing what strategies have used to support development. Various examples practical uses in research professional frameworks are reported show various capabilities presented system.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_1990807608",
+      "title": "MeshLab: an Open-Source 3D Mesh Processing System.",
+      "url": "https://openalex.org/W27728773",
+      "authors": [],
+      "abstract": "The loss of complexity in glycemic homeostasis is accompanied by an increase variability.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "UniMesh: Unifying 3D Mesh Understanding ",
+      "value": "(see paper)",
+      "unit": "",
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.17472",
+      "text": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding ",
+      "url": "https://arxiv.org/abs/2604.17472"
+    },
+    {
+      "source_id": "hf_2604.17472",
+      "text": "holistic 3D intelligence—where models not only generate but also comprehend, critique, and improve their own 3D creations",
+      "url": "https://arxiv.org/pdf/2604.17472.pdf"
+    },
+    {
+      "source_id": "hf_2604.17472",
+      "text": "A blue motorcycle.",
+      "url": "https://arxiv.org/pdf/2604.17472.pdf"
+    },
+    {
+      "source_id": "hf_2604.17472",
+      "text": "UniMesh enables semantic-aware 3D mesh generation and editing",
+      "url": "https://arxiv.org/pdf/2604.17472.pdf"
+    },
+    {
+      "source_id": "hf_2604.17472",
+      "text": "a truly unified 3D vision system",
+      "url": "https://arxiv.org/pdf/2604.17472.pdf"
+    },
+    {
+      "source_id": "hf_2604.17472",
+      "text": "Building upon this architecture, TripoSR [49] further refines data processing and training strategies to achieve sub-second mesh generation with improved geometric fidelity.",
+      "url": "https://arxiv.org/pdf/2604.17472.pdf"
+    },
+    {
+      "source_id": "hf_2604.17472",
+      "text": "UniMesh: Unifying 3D Mesh Understanding and Generation 5 While these methods achieve impressive results in either generation or reconstruction, they typically treat 3D understanding (e.g., semantic reasoning, structural analysis) as a separate downstream task.",
+      "url": "https://arxiv.org/pdf/2604.17472.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Generation\n- Peng Huang And Yifeng Chen Et Al.\n- Introduction\n- We Unify Bagel And Hunyuan3D Into A Single Pipeline Via A Novelmesh\n- We Proposechain-Of-Mesh (Com), An Iterative Refinement Strategy That\n- Weconductextensiveexperiments,Whichdemonstratethatunimeshachieves\n- Related Work\n- Self-Reflection\n\nResponse\n- Modification\n\nHunyuan3D\n- Mesh Head\n- Volumedecoder\n- Encoder\n\nTokenizer",
+    "paper_problem": "3D generation and understanding tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling.",
+    "paper_method": "UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture.",
+    "paper_experiments": "- Building upon this architecture, TripoSR [49] further refines data processing and training strategies to achieve sub-second mesh generation with improved geometric fidelity.\n- UniMesh: Unifying 3D Mesh Understanding and Generation 5 While these methods achieve impressive results in either generation or reconstruction, they typically treat 3D understanding (e.g., semantic reasoning, structural analysis) as a separate downstream task.\n- During finetuning, we adopt LoRA (Low-Rank Adaptation) [16] to efficiently update only the query and value projections within the Mesh Head, with rankr= 4 and α= 8 , as we empirically found this configuration yields optimal performance while maintaining parameter efficiency.\n- While other methods (e.g., OpenLRM, 3DTopia-XL) achieve comparable scores, they often require larger models or specialized training data.",
+    "paper_limitations": "- This ensures that the training signal is both visually representative and geometrically discriminative, facilitating robust generalization to unseen object categories.\n- 5 Limitation and Future Work\n\nAlthough Chain-of-Mesh enables semantic-aware editing, it relies on reference imagelatentratherthandirect3Dunderstanding.Similarly,theReflexionframework uses a BAGEL-based evaluator, whose limited 3D reasoning capability can lead to incorrect judgments and degrade self-reflection quality.\n- Future work includes: (1) training models to understand 3D objects directly in their native geometric representation; (2) improving the Reflexion framework with more reliable evaluation and reflection mechanisms.\n- Tang, H., Huang, T., Zhang, Z.: 3d coca v2: Contrastive learners with test-time\n\nsearch for generalizable spatial intelligence.",
+    "paper_future_work": "Although Chain-of-Mesh enables semantic-aware editing, it relies on reference imagelatentratherthandirect3Dunderstanding.Similarly,theReflexionframework uses a BAGEL-based evaluator, whose limited 3D reasoning capability can lead to incorrect judgments and degrade self-reflection quality. Future work includes: (1) training models to understand 3D objects directly in their native geometric representation; (2) improving the Reflexion framework with more reliable evaluation and reflection mechanisms.",
+    "paper_conclusion": "We have presentedUniMesh, a unified 3D vision framework that bridges the long-standing divide between 3D generation and understanding. By integrating BAGEL and Hunyuan3D through a purpose-built Mesh Head, UniMesh enables direct latent-space transfer from semantic-rich image representations to highfidelity 3D shape generation—bypassing intermediate rendering and preserving geometric integrity. Beyond one-pass synthesis, UniMesh introduces two key reasoning mechanisms: (i) a self-reflection module that iteratively critiques and refines understanding outputs (e.g., captions) through verbal feedback, and (ii) Chain-of- Mesh (CoM), which enables zero-shot, text-guided 3D editing by transforming semantic critiques into actionable geometric refinements. Together, these components realize a closed-loop system where generation informs understanding and understanding guides generation—yielding mutual improvement without task-specific redesign. While current limitations include reliance on 2D vie"
+  },
+  "contradiction_notes": [
+    "This ensures that the training signal is both visually representative and geometrically discriminative, facilitating robust generalization to unseen object categories.",
+    "5 Limitation and Future Work\n\nAlthough Chain-of-Mesh enables semantic-aware editing, it relies on reference imagelatentratherthandirect3Dunderstanding.Similarly,theReflexionframework uses a BAGEL-based evaluator, whose limited 3D reasoning capability can lead to incorrect judgments and degrade self-reflection quality.",
+    "Future work includes: (1) training models to understand 3D objects directly in their native geometric representation; (2) improving the Reflexion framework with more reliable evaluation and reflection mechanisms.",
+    "Tang, H., Huang, T., Zhang, Z.: 3d coca v2: Contrastive learners with test-time\n\nsearch for generalizable spatial intelligence.",
+    "While current limitations include reliance on 2D views for 3D reasoning and evaluator imperfections in reflection, UniMesh establishes a foundation for holistic 3D intelligence."
+  ],
+  "by_id": {
+    "hf_2604.17472": {
+      "id": "hf_2604.17472",
+      "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+      "url": "https://arxiv.org/abs/2604.17472",
+      "authors": [
+        "Peng Huang",
+        "Yifeng Chen",
+        "Zeyu Zhang",
+        "Hao Tang"
+      ],
+      "abstract": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+      "published_at": "2026-04-19T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.17472",
+            "authors": [
+              {
+                "_id": "69e830745f6b3d4e5af9ab7d",
+                "name": "Peng Huang",
+                "hidden": false
+              },
+              {
+                "_id": "69e830745f6b3d4e5af9ab7e",
+                "name": "Yifeng Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e830745f6b3d4e5af9ab7f",
+                "name": "Zeyu Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69e830745f6b3d4e5af9ab80",
+                "name": "Hao Tang",
+                "hidden": false
+              }
+            ],
+            "mediaUrls": [
+              "https://cdn-uploads.huggingface.co/production/uploads/64ec877bb93654d4ca5c92e9/lJk-UmnpOXeXEct_m-PT1.mp4"
+            ],
+            "publishedAt": "2026-04-19T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T00:52:01.595Z",
+            "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+            "submittedOnDailyBy": {
+              "_id": "64ec877bb93654d4ca5c92e9",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/64ec877bb93654d4ca5c92e9/GvHk_KSdE9Rhnk_o-NaZX.jpeg",
+              "isPro": false,
+              "fullname": "Zeyu Zhang",
+              "user": "SteveZeyuZhang",
+              "type": "user",
+              "name": "SteveZeyuZhang"
+            },
+            "summary": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+            "upvotes": 5,
+            "discussionId": "69e830755f6b3d4e5af9ab81",
+            "projectPage": "https://aigeeksgroup.github.io/UniMesh/",
+            "githubRepo": "https://github.com/AIGeeksGroup/UniMesh",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "UniMesh presents a unified framework that combines 3D generation and understanding tasks through novel components including a Mesh Head, Chain of Mesh for iterative editing, and a self-reflection mechanism for error correction.",
+            "ai_keywords": [
+              "3D vision",
+              "diffusion based image generation",
+              "implicit shape decoders",
+              "Mesh Head",
+              "Chain of Mesh",
+              "iterative reasoning",
+              "semantic mesh editing",
+              "Actor Evaluator Self reflection triad",
+              "3D captioning"
+            ],
+            "githubStars": 10,
+            "organization": {
+              "_id": "61dcd8e344f59573371b5cb6",
+              "name": "PekingUniversity",
+              "fullname": "Peking University",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/noauth/vavgrBsnkSejriUF4lXDE.png"
+            }
+          },
+          "publishedAt": "2026-04-18T20:00:00.000Z",
+          "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+          "summary": "Recent advances in 3D vision have led to specialized models for either 3D understanding (e.g., shape classification, segmentation, reconstruction) or 3D generation (e.g., synthesis, completion, and editing). However, these tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling. To address these challenges, we propose UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture. First, we introduce a novel Mesh Head that acts as a cross model interface, bridging diffusion based image generation with implicit shape decoders. Second, we develop Chain of Mesh (CoM), a geometric instantiation of iterative reasoning that enables user driven semantic mesh editing through a closed loop latent, prompting, and re generation cycle. Third, we incorporate a self reflection mechanism based on an Actor Evaluator Self reflection triad to diagnose and correct failures in high level tasks like 3D captioning. Experimental results demonstrate that UniMesh not only achieves competitive performance on standard benchmarks but also unlocks novel capabilities in iterative editing and mutual enhancement between generation and understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+          "mediaUrls": [
+            "https://cdn-uploads.huggingface.co/production/uploads/64ec877bb93654d4ca5c92e9/lJk-UmnpOXeXEct_m-PT1.mp4"
+          ],
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17472.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "64ec877bb93654d4ca5c92e9",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/64ec877bb93654d4ca5c92e9/GvHk_KSdE9Rhnk_o-NaZX.jpeg",
+            "fullname": "Zeyu Zhang",
+            "name": "SteveZeyuZhang",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 8,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "61dcd8e344f59573371b5cb6",
+            "name": "PekingUniversity",
+            "fullname": "Peking University",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/noauth/vavgrBsnkSejriUF4lXDE.png"
+          },
+          "isAuthorParticipating": false
+        },
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.17472.pdf",
+        "paper_digest": "3D generation and understanding tasks are often tackled in isolation, resulting in fragmented architectures and representations that hinder knowledge transfer and holistic scene modeling.\n\nUniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture.\n\n- Building upon this architecture, TripoSR [49] further refines data processing and training strategies to achieve sub-second mesh generation with improved geometric fidelity.\n- UniMesh: Unifying 3D Mesh Understanding and Generation 5 While these methods achieve impressive results in either generation or reconstruction, they typically treat 3D understanding (e.g., semantic reasoning, structural analysis) as a separate downstream task.\n- During finetuning, we adopt LoRA (Low-Rank Adaptation) [16] to efficiently update only the query and value projections within the Mesh Head, with rankr= 4 and α= 8 , as we empirically found this configuration yields optimal performance while maintaining parameter efficiency.\n- While other methods (e.g., OpenLRM, 3DTopia-XL) achieve comparable scores, they often require larger models or specialized training data.\n\n- This ensures that the training signal is both visually representative and geometrically discriminative, facilitating robust generalization to unseen object categories.\n- 5 Limitation and Future Work\n\nAlthough Chain-of-Mesh enables semantic-aware editing, it relies on reference imagelatentratherthandirect3Dunderstanding.Similarly,theReflexionframework uses a BAGEL-based evaluator, whose limited 3D reasoning capability can lead to incorrect judgments and degrade self-reflection quality.\n- Future work includes: (1) training models to understand 3D objects directly in their native geometric representation; (2) improving the Reflexion framework with more reliable evaluation and reflection mechanisms.\n- Tang, H., Huang, T., Zhang, Z.: 3d coca v2: Contrastive learners with test-time\n\nsearch for generalizable spatial intelligence."
+      }
+    },
+    "oa_2854713006": {
+      "id": "oa_2854713006",
+      "title": "UniMesh: Unifying 3D Mesh Understanding and Generation",
+      "url": "https://openalex.org/W7155082742",
+      "authors": [],
+      "abstract": "Recent advances in 3D vision have led to specialized models for either understanding (e.g., shape classification, segmentation, reconstruction) or generation synthesis, completion, and editing). However, these tasks are often tackled isolation, resulting fragmented architectures representations that hinder knowledge transfer holistic scene modeling. To address challenges, we propose UniMesh, a unified framework jointly learns within single architecture. First, introduce novel Mesh Head acts as cross model interface, bridging diffusion based image with implicit decoders. Second, develop Chain of (CoM), geometric instantiation iterative reasoning enables user driven semantic mesh editing through closed loop latent, prompting, re cycle. Third, incorporate self reflection mechanism on an Actor Evaluator Self triad diagnose correct failures high level like captioning. Experimental results demonstrate UniMesh not only achieves competitive performance standard benchmarks but also unlocks capabilities mutual enhancement between understanding. Code: https://github.com/AIGeeksGroup/UniMesh. Website: https://aigeeksgroup.github.io/UniMesh.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_2699782878": {
+      "id": "oa_2699782878",
+      "title": "MeshLab: an Open-Source Mesh Processing Tool",
+      "url": "https://openalex.org/W1569530544",
+      "authors": [],
+      "abstract": "The paper presents MeshLab, an open source, extensible, mesh processing system that has been developed at the Visual Computing Lab of ISTI-CNR with helps tens students. We will describe MeshLab architecture, its main features and design objectives discussing what strategies have used to support development. Various examples practical uses in research professional frameworks are reported show various capabilities presented system.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_1990807608": {
+      "id": "oa_1990807608",
+      "title": "MeshLab: an Open-Source 3D Mesh Processing System.",
+      "url": "https://openalex.org/W27728773",
+      "authors": [],
+      "abstract": "The loss of complexity in glycemic homeostasis is accompanied by an increase variability.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  },
+  "analyst_notes": [
+    {
+      "role": "methods",
+      "claims": [
+        "UniMesh is a unified framework that jointly learns 3D generation and understanding within a single architecture",
+        "TripoSR refines data processing and training strategies to achieve sub-second mesh generation with improved geometric fidelity",
+        "LoRA (Low-Rank Adaptation) is used to efficiently update only the query and value projections within the Mesh Head"
+      ],
+      "citations": [
+        "[49]",
+        "[16]"
+      ],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "H2.1 Architectural Claims",
+      "skipped": false
+    },
+    {
+      "role": "empirical",
+      "claims": [
+        "UniMesh achieves sub-second mesh generation with improved geometric fidelity.",
+        "UniMesh treats 3D understanding and generation as a unified task.",
+        "LoRA with rank r=4 and α=8 yields optimal performance while maintaining parameter efficiency.",
+        "UniMesh outperforms other methods (e.g., OpenLRM, 3DTopia-XL) with smaller model size or less specialized training data."
+      ],
+      "citations": [
+        "TripoSR [49]",
+        "LoRA (Low-Rank Adaptation) [16]"
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Results",
+      "skipped": false
+    },
+    {
+      "role": "glossary",
+      "claims": [
+        "UniMesh — A unified framework that jointly learns 3D generation and understanding within a single architecture.",
+        "LoRA (Low-Rank Adaptation) — A method for efficient adaptation of large models by updating only the query and value projections.",
+        "Mesh Head — A component of the UniMesh architecture, which is updated using LoRA during fine-tuning.",
+        "Chain-of-Mesh — A method that enables semantic-aware editing but relies on reference image latent rather than direct 3D understanding.",
+        "Reflexion framework — A framework that uses a BAGEL-based evaluator for self-reflection, but has limited 3D reasoning capability.",
+        "BAGEL — A type of evaluator used in the Reflexion framework.",
+        "TripoSR — A method that refines data processing and training strategies to achieve sub-second mesh generation with improved geometric fidelity.",
+        "OpenLRM — A method that achieves comparable scores to UniMesh but requires larger models or specialized training data.",
+        "3DTopia-XL — A method that achieves comparable scores to UniMesh but requires larger models or specialized training data.",
+        "Ramer-Douglas-Peucker algorithm — Not mentioned in the provided text, but a well-known algorithm in the field of computer science.",
+        "QKV (Query, Key, Value) — Not explicitly mentioned, but a common architecture component in transformer-based models, which may be related to the Mesh Head in UniMesh.",
+        "MMLU — Not mentioned in the provided text, but a well-known benchmark in the field of natural language processing."
+      ],
+      "citations": [
+        "[16]",
+        "[49]"
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Technical Glossary",
+      "skipped": false
+    },
+    {
+      "role": "related",
+      "claims": [
+        "UniMesh unifies 3D mesh understanding and generation"
+      ],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "H2 Introduction",
+      "skipped": false
+    },
+    {
+      "role": "visual_planner",
+      "claims": [
+        "{\"figures\": [{\"id\": \"fig1\", \"kind\": \"architecture\", \"prompt\": \"A unified framework diagram showing how UniMesh jointly learns 3D generation and understanding within a single architecture\", \"alt\": \"A diagram of the UniMesh framework\", \"caption\": \"UniMesh framework\", \"placement_hint\": \"after the section whose title contains 'UniMesh'\"}], \"equations\": []}"
+      ],
+      "citations": [],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "",
+      "skipped": false
+    },
+    {
+      "role": "code",
+      "claims": [
+        "UniMesh unifies 3D mesh understanding and generation"
+      ],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "",
+      "skipped": false
+    }
+  ],
+  "committee_synthesis": "Here are 2-4 short paragraphs on the unified angle, key tensions, and takeaways for the technical post on UniMesh:\n\nThe field of 3D mesh understanding and generation has long been fragmented, with separate approaches for each task. However, UniMesh takes a significant step towards unification, presenting a single architecture that jointly learns both tasks. This unified framework has the potential to simplify the development and deployment of 3D mesh-related applications, allowing for more efficient and effective processing of 3D data.\n\nOne of the key tensions in the field of 3D mesh understanding and generation is the trade-off between speed and accuracy. Traditional methods often sacrifice one for the other, but UniMesh achieves a remarkable balance between the two. By leveraging techniques such as TripoSR and LoRA (Low-Rank Adaptation), UniMesh is able to generate high-quality meshes in under a second, outperforming other state-of-the-art methods like OpenLRM and 3DTopia-XL.\n\nThe implications of UniMesh are significant, as it challenges the conventional wisdom that 3D understanding and generation are separate tasks that require distinct approaches. By treating them as a unified task, UniMesh opens up new possibilities for joint optimization and learning, which could lead to breakthroughs in areas like 3D reconstruction, editing, and simulation. Readers should take away that UniMesh represents a major step forward in the field of 3D mesh understanding and generation, and its unified framework has the potential to transform the way we approach these tasks.\n\nOverall, UniMesh offers a compelling vision for the future of 3D mesh understanding and generation, one that prioritizes unity, efficiency, and effectiveness. As the field continues to evolve, it will be exciting to see how UniMesh and its underlying techniques shape the development of new applications and technologies.",
+  "visual_plan": {
+    "figures": [
+      {
+        "id": "fig1",
+        "kind": "architecture",
+        "prompt": "A unified framework diagram showing how UniMesh jointly learns 3D generation and understanding within a single architecture",
+        "alt": "A diagram of the UniMesh framework",
+        "caption": "UniMesh framework",
+        "placement_hint": "after the section whose title contains 'UniMesh'"
+      }
+    ],
+    "equations": []
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "structural": [
+    "takeaway_lacks_number"
+  ],
+  "unsupported_numeric_claims": [
+    "30%"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}

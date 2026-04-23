@@ -1,0 +1,95 @@
+{
+  "rubric_score": 13,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 0
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "The field of 3D vision has long struggled with a siloed approach to understanding and generation tasks.",
+    "hard": "The challenge of unified 3D intelligence, where models can both generate and comprehend 3D creations.",
+    "tried": "UniMesh, a unified framework that jointly learns 3D generation and understanding within a single architecture.",
+    "outcomes": "UniMesh presents a unified approach to 3D vision, with benefits including enhanced generalizability and adaptability.",
+    "next": "It's crucial to consider the specific requirements and constraints of each application to determine the most suitable approach."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "takeaway_lacks_number"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "30%"
+  ],
+  "undefined_acronyms": [
+    "SOTA"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  }
+}
