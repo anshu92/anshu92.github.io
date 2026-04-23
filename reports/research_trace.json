@@ -1,0 +1,50 @@
+{
+  "calls": 7,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 1
+    },
+    {
+      "tool": "refs_cites",
+      "refs": 0,
+      "cites": 0
+    },
+    {
+      "tool": "openalex",
+      "q": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geo",
+      "n": 1
+    },
+    {
+      "tool": "paper_reader",
+      "outline_sections": 12,
+      "results": 6,
+      "limitations": 5,
+      "llm_chunks": 4
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "C-GenReg framework for 3D point cloud registration",
+      "n": 3
+    },
+    {
+      "tool": "openalex",
+      "q": "training-free 3D point cloud registration methods",
+      "n": 3
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 0
+    }
+  ],
+  "committee": true,
+  "ss_cache_hits": 0,
+  "ss_429": 2,
+  "llm_ok": 14,
+  "rewrites_applied": 2,
+  "re_research_applied": 0
+}

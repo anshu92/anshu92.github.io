@@ -1,0 +1,16 @@
+{
+  "llm_scaling": [
+    "geometry to image",
+    "probabilistic modalities",
+    "vision foundation models",
+    "fp16 inference",
+    "diffusion models",
+    "multi view consistent",
+    "3d point cloud",
+    "registration performance",
+    "cross domain generalization",
+    "geometric registration",
+    "world foundation model",
+    "dense correspondences"
+  ]
+}

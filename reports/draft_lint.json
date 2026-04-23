@@ -1,0 +1,18 @@
+{
+  "structural": [
+    "takeaway_lacks_number",
+    "citation_count_below_min",
+    "unresolved_source_alias",
+    "comparative_claim_missing_metric",
+    "missing_mechanism_section"
+  ],
+  "unsupported_numeric_claims": [
+    "90%",
+    "70%"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}
