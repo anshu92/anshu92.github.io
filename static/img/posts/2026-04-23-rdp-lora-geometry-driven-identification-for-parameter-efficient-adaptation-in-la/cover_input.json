@@ -1,0 +1,1 @@
+{"format": "paper_to_code", "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models", "takeaway": "RDP LoRA reaches 81.67% MMLU-Math, ahead of Full 36-layer adaptation at 79.32% MMLU-Math."}

@@ -1,0 +1,20 @@
+{
+  "ok": 21,
+  "fail": 17,
+  "blacklisted_skips": 259,
+  "blacklist_added": [
+    "groq:meta-llama/llama-4-scout-17b-16e-instruct",
+    "groq:llama-3.1-8b-instant",
+    "openrouter:z-ai/glm-4.5-air:free",
+    "openrouter:qwen/qwen3-coder:free"
+  ],
+  "llm_cap": 40,
+  "llm_calls": 38,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "research"
+  ]
+}

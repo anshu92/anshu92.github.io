@@ -1,0 +1,42 @@
+{
+  "calls": 5,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 1
+    },
+    {
+      "tool": "refs_cites",
+      "refs": 0,
+      "cites": 0
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "Low-Rank Adaptation",
+      "n": 3
+    },
+    {
+      "tool": "paper_reader",
+      "outline_sections": 12,
+      "results": 4,
+      "limitations": 2,
+      "llm_chunks": 4
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 4
+    }
+  ],
+  "ss_cache_hits": 0,
+  "ss_429": 2,
+  "ss_search_calls": 1,
+  "ss_ref_calls": 1,
+  "llm_ok": 6,
+  "llm_fail": 0,
+  "rewrites_applied": 3,
+  "re_research_applied": 1
+}

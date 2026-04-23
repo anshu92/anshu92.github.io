@@ -1,0 +1,95 @@
+{
+  "rubric_score": 11,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 0
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "The LLM fine-tuning conundrum: adapting models efficiently while understanding internal layer roles is hard, and heuristic layer selection leads to suboptimal performance.",
+    "hard": "Hidden-state geometry is high-dimensional and noisy; RDP may mis-identify critical breakpoints, especially under trajectory instability or non-monotonic layer importance.",
+    "tried": "Traditional heuristics/random layer selection (e.g., random 13-layer) and full 36-layer adaptation; authors propose RDP-driven layer selection as an alternative.",
+    "outcomes": "RDP LoRA achieves 81.67% MMLU-Math using 13 RDP-selected layers, outperforming random 13-layer (75.56%) and full 36-layer (79.32%) on Qwen3-8B-Base.",
+    "next": "Reproduce RDP LoRA on Qwen3-8B-Base/MMLU-Math with 13 RDP-selected layers and evaluate robustness across runs/datasets to validate breakpoint stability."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "templated_heading_used"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "RDP LoRA reaches 81.67% MMLU-Math",
+    "Full 36-layer adaptation achieves 79.32% MMLU-Math",
+    "Random 13-layer selection achieves 75.56% MMLU-Math",
+    "Qwen3-8B-Base achieves 74.25% MMLU-Math",
+    "RDP LoRA uses only 13 RDP-selected layers",
+    "RDP LoRA significantly outperforms full 36-layer adaptation",
+    "RDP LoRA significantly outperforms random 13-layer selection",
+    "RDP LoRA significantly outperforms the baseline Qwen3-8B-Base model"
+  ]
+}

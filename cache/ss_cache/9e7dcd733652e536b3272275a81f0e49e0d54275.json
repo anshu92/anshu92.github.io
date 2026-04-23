@@ -1,0 +1,28 @@
+{
+"kind": "search",
+"exp": 1776993004.1634238,
+"items": [
+{
+"id": "ss_f6db62ff524a80bc5cfe4038ef7d68e275edbd81",
+"title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+"url": "https://www.semanticscholar.org/paper/f6db62ff524a80bc5cfe4038ef7d68e275edbd81",
+"authors": [
+"Yusuf cCelebi",
+"Yaugiz Asker",
+"Ozay Ezerceli",
+"Mahmoud Elhussieni",
+"Selva Tacs",
+"Reyhan Bayraktar",
+"Fatma Betul Terziouglu"
+],
+"abstract": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+}
+]
+}

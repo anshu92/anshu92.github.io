@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "at": "2026-04-22T22:07:25.747499+00:00",
+      "format": "deep_dive",
+      "opener": "in_medias_res_scene",
+      "art": "editorial_illustration",
+      "diagram": "mermaid",
+      "slug": "2026-04-22-micro-language-models-enable-instant-responses"
+    },
+    {
+      "at": "2026-04-23T01:12:49.996240+00:00",
+      "format": "paper_to_code",
+      "opener": "contrarian_claim",
+      "art": "isometric_diagram",
+      "diagram": "mermaid",
+      "slug": "2026-04-23-rdp-lora-geometry-driven-identification-for-parameter-efficient-adaptation-in-la"
+    }
+  ]
+}

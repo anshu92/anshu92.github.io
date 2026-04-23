@@ -1,0 +1,405 @@
+{
+  "primary": {
+    "id": "hf_2604.19321",
+    "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+    "url": "https://arxiv.org/abs/2604.19321",
+    "authors": [
+      "Yusuf cCelebi",
+      "Yaugiz Asker",
+      "Ozay Ezerceli",
+      "Mahmoud Elhussieni",
+      "Selva Tacs",
+      "Reyhan Bayraktar",
+      "Fatma Betul Terziouglu"
+    ],
+    "abstract": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+    "published_at": "2026-04-21T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.19321",
+          "authors": [
+            {
+              "_id": "69e8d7c855c040b43a45a89c",
+              "name": "Yusuf Çelebi",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a89d",
+              "name": "Yağız Asker",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a89e",
+              "name": "Özay Ezerceli",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a89f",
+              "name": "Mahmoud ElHussieni",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a8a0",
+              "name": "Selva Taş",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a8a1",
+              "name": "Reyhan Bayraktar",
+              "hidden": false
+            },
+            {
+              "_id": "69e8d7c855c040b43a45a8a2",
+              "name": "Fatma Betül Terzioğlu",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-21T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-22T12:46:47.013Z",
+          "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+          "submittedOnDailyBy": {
+            "_id": "6422eab8e2029ade06eeee2c",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+            "isPro": false,
+            "fullname": "Mahmud ElHuseyni 🇵🇸",
+            "user": "MElHuseyni",
+            "type": "user",
+            "name": "MElHuseyni"
+          },
+          "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+          "upvotes": 4,
+          "discussionId": "69e8d7c855c040b43a45a8a3",
+          "ai_summary": "Using geometric trajectory analysis with the Ramer-Douglas-Peucker algorithm to select optimal layers for parameter-efficient fine-tuning of large language models, achieving better performance than full or random layer selection.",
+          "ai_keywords": [
+            "Large Language Models",
+            "Low-Rank Adaptation",
+            "hidden states",
+            "geometric trajectory",
+            "Ramer-Douglas-Peucker algorithm",
+            "parameter-efficient fine-tuning",
+            "layer selection",
+            "representation trajectories"
+          ]
+        },
+        "publishedAt": "2026-04-20T20:00:00.000Z",
+        "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+        "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19321.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "6422eab8e2029ade06eeee2c",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+          "fullname": "Mahmud ElHuseyni 🇵🇸",
+          "name": "MElHuseyni",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 27,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      },
+      "semantic_scholar_url": "https://www.semanticscholar.org/paper/f6db62ff524a80bc5cfe4038ef7d68e275edbd81",
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.19321.pdf",
+      "paper_digest": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain, and parameter-efficient methods such as Low-Rank Adaptation (LoRA) require better understanding of layer-specific roles of internal representations.\n\nThe Ramer–Douglas–Peucker (RDP) algorithm is used to identify critical breakpoints along the representation path, and these geometric pivots are used as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning.\n\n- The Geometry-Selected Sparse LoRA achieves 81.67% accuracy on MMLU-Math using only 13 RDP-selected layers.\n- The full 36-layer adaptation achieves 79.32% accuracy on MMLU-Math.\n- The random 13-layer selection achieves 75.56% accuracy on MMLU-Math.\n- The method is evaluated on the MMLU-Math subsets and OrcaMath dataset.\n\n- All reported results are obtained from a single run; variance analysis across multiple seeds is left for future work.\n- Semantic transformations concentrate in a limited subset, making layer selection a qualitative discrimination problem rather than a coverage problem."
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_564163475",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "url": "https://openalex.org/W3168867926",
+      "authors": [],
+      "abstract": "An important paradigm of natural language processing consists large-scale pre-training on general domain data and adaptation to particular tasks or domains. As we pre-train larger models, full fine-tuning, which retrains all model parameters, becomes less feasible. Using GPT-3 175B as an example -- deploying independent instances fine-tuned each with is prohibitively expensive. We propose Low-Rank Adaptation, LoRA, freezes the pre-trained weights injects trainable rank decomposition matrices into layer Transformer architecture, greatly reducing number parameters for downstream tasks. Compared Adam, LoRA can reduce by 10,000 times GPU memory requirement 3 times. performs on-par better than fine-tuning in quality RoBERTa, DeBERTa, GPT-2, GPT-3, despite having fewer a higher training throughput, and, unlike adapters, no additional inference latency. also provide empirical investigation rank-deficiency adaptation, sheds light efficacy LoRA. release package that facilitates integration PyTorch models our implementations checkpoints GPT-2 at https://github.com/microsoft/LoRA.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_358459807",
+      "title": "DyLoRA: Parameter-Efficient Tuning of Pre-trained Models using Dynamic Search-Free Low-Rank Adaptation",
+      "url": "https://openalex.org/W4386566659",
+      "authors": [],
+      "abstract": "With the ever-growing size of pretrained models (PMs), fine-tuning them has become more expensive and resource-hungry. As a remedy, low-rank adapters (LoRA) keep main weights model frozen just introduce some learnable truncated SVD modules (so-called LoRA blocks) to model. While blocks are parameter-efficient, they suffer from two major problems: first, these is fixed cannot be modified after training (for example, if we need change rank blocks, then re-train scratch); second, optimizing their requires an exhaustive search effort. In this work, dynamic adaptation (DyLoRA) technique address problems together. Our DyLoRA method trains for range ranks instead single by sorting representation learned adapter module at different during training. We evaluate our solution on natural language understanding (GLUE benchmark) generation tasks (E2E, DART WebNLG) using such as RoBERTa GPT with sizes. results show that can train search-free least 4 7 times (depending task) faster than without significantly compromising performance. Moreover, perform consistently well much larger compared LoRA.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_1637836325",
+      "title": "DoRA: Weight-Decomposed Low-Rank Adaptation",
+      "url": "https://openalex.org/W4391871574",
+      "authors": [],
+      "abstract": "Among the widely used parameter-efficient fine-tuning (PEFT) methods, LoRA and its variants have gained considerable popularity because of avoiding additional inference costs. However, there still often exists an accuracy gap between these methods full (FT). In this work, we first introduce a novel weight decomposition analysis to investigate inherent differences FT LoRA. Aiming resemble learning capacity from findings, propose Weight-Decomposed Low-Rank Adaptation (DoRA). DoRA decomposes pre-trained into two components, magnitude direction, for fine-tuning, specifically employing directional updates efficiently minimize number trainable parameters. By \\ours, enhance both training stability while any overhead. \\ours~consistently outperforms on LLaMA, LLaVA, VL-BART various downstream tasks, such as commonsense reasoning, visual instruction tuning, image/video-text understanding. Code is available at https://github.com/NVlabs/DoRA.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "RDP LoRA",
+      "value": "81.67%",
+      "unit": "MMLU-Math",
+      "baseline": "Qwen3-8B-Base (74.25%)",
+      "notes": "from abstract (LLM extract)"
+    },
+    {
+      "name": "Full 36-layer adaptation",
+      "value": "79.32%",
+      "unit": "MMLU-Math",
+      "baseline": "Qwen3-8B-Base (74.25%)",
+      "notes": "from abstract (LLM extract)"
+    },
+    {
+      "name": "Random 13-layer selection",
+      "value": "75.56%",
+      "unit": "MMLU-Math",
+      "baseline": "Qwen3-8B-Base (74.25%)",
+      "notes": "from abstract (LLM extract)"
+    },
+    {
+      "name": "Qwen3-8B-Base",
+      "value": "74.25%",
+      "unit": "MMLU-Math",
+      "baseline": "",
+      "notes": "from abstract (LLM extract)"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.19321",
+      "text": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification me",
+      "url": "https://arxiv.org/abs/2604.19321"
+    },
+    {
+      "source_id": "hf_2604.19321",
+      "text": "81.67%",
+      "url": "https://arxiv.org/pdf/2604.19321.pdf"
+    },
+    {
+      "source_id": "hf_2604.19321",
+      "text": "79.32%",
+      "url": "https://arxiv.org/pdf/2604.19321.pdf"
+    },
+    {
+      "source_id": "hf_2604.19321",
+      "text": "75.56%",
+      "url": "https://arxiv.org/pdf/2604.19321.pdf"
+    },
+    {
+      "source_id": "hf_2604.19321",
+      "text": "The motivation for using RDP for this context comes from its dependence on distance-based deviation as its sole operational principle.",
+      "url": "https://arxiv.org/pdf/2604.19321.pdf"
+    },
+    {
+      "source_id": "hf_2604.19321",
+      "text": "The Geometry-Selected Sparse LoRA achieves 81.67% accuracy on MMLU-Math using only 13 RDP-selected layers.",
+      "url": "https://arxiv.org/pdf/2604.19321.pdf"
+    },
+    {
+      "source_id": "hf_2604.19321",
+      "text": "The full 36-layer adaptation achieves 79.32% accuracy on MMLU-Math.",
+      "url": "https://arxiv.org/pdf/2604.19321.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Abstract\n- Introduction\n- Related Work\n- Methodology\n- Problem Definition And Setup\n- Ramer–Douglas–Peucker (Rdp) Algorithm\n- Dimension-Agnosticstructure And\n- Extension Tohigh-Dimensionaldata\n- Geometric Interpretation Of Embedding Sequences\n- Semanticskeletonextraction Viardp\n- Anddimension-Agnosticity\n- Layer-Wise Trajectory Extraction And",
+    "paper_problem": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain, and parameter-efficient methods such as Low-Rank Adaptation (LoRA) require better understanding of layer-specific roles of internal representations.",
+    "paper_method": "The Ramer–Douglas–Peucker (RDP) algorithm is used to identify critical breakpoints along the representation path, and these geometric pivots are used as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning.",
+    "paper_setup": "The RDP algorithm is integrated into LoRA fine-tuning of Qwen3-8B-Base, and experiments are conducted on MMLU-Math.",
+    "paper_experiments": "- The Geometry-Selected Sparse LoRA achieves 81.67% accuracy on MMLU-Math using only 13 RDP-selected layers.\n- The full 36-layer adaptation achieves 79.32% accuracy on MMLU-Math.\n- The random 13-layer selection achieves 75.56% accuracy on MMLU-Math.\n- The method is evaluated on the MMLU-Math subsets and OrcaMath dataset.",
+    "paper_limitations": "- All reported results are obtained from a single run; variance analysis across multiple seeds is left for future work.\n- Semantic transformations concentrate in a limited subset, making layer selection a qualitative discrimination problem rather than a coverage problem.",
+    "paper_conclusion": "We presented in this paper a geometry-driven framework for layer selection in LoRA adaptation of Transformer models. The method models hidden-state sequences as highdimensional representation trajectories and features structurally important layers with the Ramer–Douglas–Peucker (RDP) algorithm. By positioning the choice of layers in the representational geometry generated by the forward pass of the model, the method allows sparse adaptation and avoids dependence on gradients or task-specific training signals. Geometry-selected sparse LoRA improves over random layer selection and, in most instances, surpasses full adaptation or gets nearly as good performance at substantially fewer trainable parameters. These results suggest that the capability of LoRA-centric fine-tuned approaches for scaling up/down performance is not so much determined by the number of adapted layers as their structural locations in the hierarchy of the given model. Future work.While this study focuses on a static la",
+    "paper_reproducibility": "- We evaluate our geometric layer selection method (Section 3) on a high-capacity reference model,Qwen3-8B-Base, enabling controlled comparison before assessing transferability toQwen3-4B,Qwen3-14B,DeepSeek-LLM-7B, and Gemma-7B."
+  },
+  "contradiction_notes": [
+    "All reported results are obtained from a single run; variance analysis across multiple seeds is left for future work.",
+    "Semantic transformations concentrate in a limited subset, making layer selection a qualitative discrimination problem rather than a coverage problem."
+  ],
+  "by_id": {
+    "hf_2604.19321": {
+      "id": "hf_2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "url": "https://arxiv.org/abs/2604.19321",
+      "authors": [
+        "Yusuf cCelebi",
+        "Yaugiz Asker",
+        "Ozay Ezerceli",
+        "Mahmoud Elhussieni",
+        "Selva Tacs",
+        "Reyhan Bayraktar",
+        "Fatma Betul Terziouglu"
+      ],
+      "abstract": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.19321",
+            "authors": [
+              {
+                "_id": "69e8d7c855c040b43a45a89c",
+                "name": "Yusuf Çelebi",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89d",
+                "name": "Yağız Asker",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89e",
+                "name": "Özay Ezerceli",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a89f",
+                "name": "Mahmoud ElHussieni",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a0",
+                "name": "Selva Taş",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a1",
+                "name": "Reyhan Bayraktar",
+                "hidden": false
+              },
+              {
+                "_id": "69e8d7c855c040b43a45a8a2",
+                "name": "Fatma Betül Terzioğlu",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-22T12:46:47.013Z",
+            "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+            "submittedOnDailyBy": {
+              "_id": "6422eab8e2029ade06eeee2c",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+              "isPro": false,
+              "fullname": "Mahmud ElHuseyni 🇵🇸",
+              "user": "MElHuseyni",
+              "type": "user",
+              "name": "MElHuseyni"
+            },
+            "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+            "upvotes": 4,
+            "discussionId": "69e8d7c855c040b43a45a8a3",
+            "ai_summary": "Using geometric trajectory analysis with the Ramer-Douglas-Peucker algorithm to select optimal layers for parameter-efficient fine-tuning of large language models, achieving better performance than full or random layer selection.",
+            "ai_keywords": [
+              "Large Language Models",
+              "Low-Rank Adaptation",
+              "hidden states",
+              "geometric trajectory",
+              "Ramer-Douglas-Peucker algorithm",
+              "parameter-efficient fine-tuning",
+              "layer selection",
+              "representation trajectories"
+            ]
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+          "summary": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain despite parameter-efficient methods such as Low-Rank Adaptation (LoRA), as the layer-specific roles of internal representations are poorly understood, leading to heuristic decisions about where adaptation should be applied. We model the evolution of hidden states as a high-dimensional geometric trajectory and propose using the Ramer-Douglas-Peucker (RDP) algorithm, a parameter-free and training-free polygon simplification method that preserves global structural transitions while eliminating locally redundant changes, to identify critical breakpoints along the representation path. Crucially, we use these geometric pivots not merely for analysis, but as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning. By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, we achieve superior performance on MMLU-Math using only 13 RDP-selected layers (81.67%), significantly outperforming both full 36-layer adaptation (79.32%) and random 13-layer selection (75.56%), as well as the baseline Qwen3-8B-Base model (74.25%). These results demonstrate that leveraging the intrinsic geometry of representation trajectories provides a robust, interpretable, and training-free signal for optimizing layer selection during model adaptation.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19321.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "6422eab8e2029ade06eeee2c",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6422eab8e2029ade06eeee2c/Gai3BHr2WJ0YuhdumqQ_z.png",
+            "fullname": "Mahmud ElHuseyni 🇵🇸",
+            "name": "MElHuseyni",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 27,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        },
+        "semantic_scholar_url": "https://www.semanticscholar.org/paper/f6db62ff524a80bc5cfe4038ef7d68e275edbd81",
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.19321.pdf",
+        "paper_digest": "Fine-tuning Large Language Models (LLMs) remains structurally uncertain, and parameter-efficient methods such as Low-Rank Adaptation (LoRA) require better understanding of layer-specific roles of internal representations.\n\nThe Ramer–Douglas–Peucker (RDP) algorithm is used to identify critical breakpoints along the representation path, and these geometric pivots are used as a direct decision signal for determining which layers should be adapted during parameter-efficient fine-tuning.\n\n- The Geometry-Selected Sparse LoRA achieves 81.67% accuracy on MMLU-Math using only 13 RDP-selected layers.\n- The full 36-layer adaptation achieves 79.32% accuracy on MMLU-Math.\n- The random 13-layer selection achieves 75.56% accuracy on MMLU-Math.\n- The method is evaluated on the MMLU-Math subsets and OrcaMath dataset.\n\n- All reported results are obtained from a single run; variance analysis across multiple seeds is left for future work.\n- Semantic transformations concentrate in a limited subset, making layer selection a qualitative discrimination problem rather than a coverage problem."
+      }
+    },
+    "oa_564163475": {
+      "id": "oa_564163475",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "url": "https://openalex.org/W3168867926",
+      "authors": [],
+      "abstract": "An important paradigm of natural language processing consists large-scale pre-training on general domain data and adaptation to particular tasks or domains. As we pre-train larger models, full fine-tuning, which retrains all model parameters, becomes less feasible. Using GPT-3 175B as an example -- deploying independent instances fine-tuned each with is prohibitively expensive. We propose Low-Rank Adaptation, LoRA, freezes the pre-trained weights injects trainable rank decomposition matrices into layer Transformer architecture, greatly reducing number parameters for downstream tasks. Compared Adam, LoRA can reduce by 10,000 times GPU memory requirement 3 times. performs on-par better than fine-tuning in quality RoBERTa, DeBERTa, GPT-2, GPT-3, despite having fewer a higher training throughput, and, unlike adapters, no additional inference latency. also provide empirical investigation rank-deficiency adaptation, sheds light efficacy LoRA. release package that facilitates integration PyTorch models our implementations checkpoints GPT-2 at https://github.com/microsoft/LoRA.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_358459807": {
+      "id": "oa_358459807",
+      "title": "DyLoRA: Parameter-Efficient Tuning of Pre-trained Models using Dynamic Search-Free Low-Rank Adaptation",
+      "url": "https://openalex.org/W4386566659",
+      "authors": [],
+      "abstract": "With the ever-growing size of pretrained models (PMs), fine-tuning them has become more expensive and resource-hungry. As a remedy, low-rank adapters (LoRA) keep main weights model frozen just introduce some learnable truncated SVD modules (so-called LoRA blocks) to model. While blocks are parameter-efficient, they suffer from two major problems: first, these is fixed cannot be modified after training (for example, if we need change rank blocks, then re-train scratch); second, optimizing their requires an exhaustive search effort. In this work, dynamic adaptation (DyLoRA) technique address problems together. Our DyLoRA method trains for range ranks instead single by sorting representation learned adapter module at different during training. We evaluate our solution on natural language understanding (GLUE benchmark) generation tasks (E2E, DART WebNLG) using such as RoBERTa GPT with sizes. results show that can train search-free least 4 7 times (depending task) faster than without significantly compromising performance. Moreover, perform consistently well much larger compared LoRA.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_1637836325": {
+      "id": "oa_1637836325",
+      "title": "DoRA: Weight-Decomposed Low-Rank Adaptation",
+      "url": "https://openalex.org/W4391871574",
+      "authors": [],
+      "abstract": "Among the widely used parameter-efficient fine-tuning (PEFT) methods, LoRA and its variants have gained considerable popularity because of avoiding additional inference costs. However, there still often exists an accuracy gap between these methods full (FT). In this work, we first introduce a novel weight decomposition analysis to investigate inherent differences FT LoRA. Aiming resemble learning capacity from findings, propose Weight-Decomposed Low-Rank Adaptation (DoRA). DoRA decomposes pre-trained into two components, magnitude direction, for fine-tuning, specifically employing directional updates efficiently minimize number trainable parameters. By \\ours, enhance both training stability while any overhead. \\ours~consistently outperforms on LLaMA, LLaVA, VL-BART various downstream tasks, such as commonsense reasoning, visual instruction tuning, image/video-text understanding. Code is available at https://github.com/NVlabs/DoRA.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  }
+}

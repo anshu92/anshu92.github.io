@@ -1,0 +1,17 @@
+{
+"groq:llama-3.3-70b-versatile": 1776982010.1784449,
+"groq:qwen/qwen3-32b": 1776982019.2816591,
+"gemini:gemini-2.5-flash": 1776982032.493438,
+"openrouter:meta-llama/llama-3.3-70b-instruct:free": 1776982032.7490222,
+"openrouter:nousresearch/hermes-3-llama-3.1-405b:free": 1776982033.0519543,
+"openrouter:openrouter/free": 1776982033.7776513,
+"openrouter:google/gemma-4-31b-it:free": 1776982033.8861983,
+"openrouter:google/gemma-4-26b-a4b-it:free": 1776982033.9953282,
+"openrouter:nvidia/nemotron-3-super-120b-a12b:free": 1776982034.0785306,
+"openrouter:openai/gpt-oss-120b:free": 1776982034.3163366,
+"openrouter:qwen/qwen3-next-80b-a3b-instruct:free": 1776982034.5197165,
+"groq:meta-llama/llama-4-scout-17b-16e-instruct": 1776993021.1476765,
+"groq:llama-3.1-8b-instant": 1776993021.6626527,
+"openrouter:z-ai/glm-4.5-air:free": 1776993160.5595386,
+"openrouter:qwen/qwen3-coder:free": 1776993160.8976066
+}
