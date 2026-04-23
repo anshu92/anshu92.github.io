@@ -1,0 +1,171 @@
+{
+  "rubric_score": 5,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 1
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 0
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "Multimodal image generation often requires complex architectures with significant computational overhead.",
+    "hard": "The main challenge is reducing computational costs while maintaining high-quality synthesis.",
+    "tried": "The authors propose MMCORE, which leverages a pre-trained Vision-Language Model to predict semantic visual embeddings via learnable query tokens.",
+    "outcomes": "MMCORE achieves competitive performance on text-to-image synthesis and single/multi-image editing benchmarks, with lower computational costs.",
+    "next": "The author suggests testing MMCORE's performance on specific multimodal image generation tasks and considering the use of pre-trained VLMs as a starting point."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "takeaway_lacks_number",
+    "citation_count_below_min"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "MMCORE is interesting only if the concrete tradeoff survives contact with deployment.",
+    "The estimated cost of implementing MMCORE is substantially lower compared to training a model from scratch, mainly due to its efficient use of pre-trained models."
+  ],
+  "rubric_floor_applied": true,
+  "rubric_floor_reasons": [
+    "no_cites:cap=5",
+    "no_numbers:cap=5",
+    "low_util:score=0.1134:thr=0.2:cap=6"
+  ],
+  "rubric_score_raw": 13,
+  "evidence_utilization": {
+    "score": 0.1134,
+    "ratios": {
+      "numbers": 0.0,
+      "entities": 0.3478,
+      "quotes": 0.0,
+      "analyst_claims": 0.0455
+    },
+    "totals": {
+      "numbers": 15,
+      "entities": 23,
+      "quotes": 7,
+      "analyst_claims": 22
+    },
+    "used_counts": {
+      "numbers": 0,
+      "entities": 8,
+      "quotes": 0,
+      "analyst_claims": 1
+    },
+    "unused": {
+      "numbers": [
+        "1",
+        "2",
+        "59.14",
+        "4",
+        "69.24",
+        "84.42",
+        "78.2",
+        "57.67"
+      ],
+      "entities": [
+        "MMCORE: MultiModal COnnection with Repre",
+        "MMCOREGPT-Image",
+        "ImageFlux Kontext",
+        "Adding",
+        "Image Alignment",
+        "Image-Editing Consistency",
+        "Flow Matching",
+        "Unified Multimodal Models"
+      ],
+      "quotes": [
+        "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently ser",
+        "We present MMCORE, a unified framework designed for multimodal image generation and editing.",
+        "MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model.",
+        "Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+        "achieving competitive performance within a highly efficient and accessible training regime",
+        "Empirically, we demonstrate that relying solely on query tokens yields significantly weaker performance compared to utilizing the full context.",
+        "MMCOREGPT-Image-1Seedream 4.0Gemini 2.5Qwen ImageFlux Kontext 90Average accuracy (%) 84.42 80.69 78.2 69.24 59.14 57.67 (a)Text-to-image alignment."
+      ],
+      "analyst_claims": [
+        "MMCORE uses a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings",
+        "utilizing the full context yields better performance than relying solely on query tokens",
+        "adding flow matching yields only marginal improvements",
+        "relying solely on query tokens yields significantly weaker performance compared to utilizing the full context",
+        "MMCOREGPT-Image-1Seedream 4.",
+        "Adding flow matching\u2014which would require computationally expensive joint training\u2014yields only marginal improvements while significantly increasing training cost",
+        "VLM \u2014 A pre-trained Vision-Language Model that can understand and reason about visual and textual data.",
+        "Diffusion Model \u2014 A type of generative model that uses a process called diffusion-based image synthesis to generate images."
+      ]
+    }
+  },
+  "undefined_acronyms": [
+    "MMCORE",
+    "SOTA",
+    "FID",
+    "IS",
+    "PSNR",
+    "SSIM"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  }
+}

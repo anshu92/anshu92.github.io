@@ -1,0 +1,154 @@
+{
+  "ok": 25,
+  "fail": 12,
+  "blacklisted_skips": 94,
+  "blacklist_added": [
+    "openrouter:openrouter/free",
+    "openrouter:qwen/qwen3-next-80b-a3b-instruct:free",
+    "groq:qwen/qwen3-32b",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+    "groq:meta-llama/llama-4-scout-17b-16e-instruct",
+    "groq:llama-3.1-8b-instant",
+    "openrouter:openai/gpt-oss-120b:free",
+    "openrouter:z-ai/glm-4.5-air:free",
+    "openrouter:qwen/qwen3-coder:free"
+  ],
+  "tokens_in": 22767,
+  "tokens_out": 5901,
+  "usd_spent": 0.0,
+  "by_task": {
+    "supervisor_route": {
+      "calls": 1,
+      "tokens_in": 187,
+      "tokens_out": 57,
+      "usd": 0.0
+    },
+    "query_gen": {
+      "calls": 1,
+      "tokens_in": 191,
+      "tokens_out": 61,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "qwen/qwen3-32b": {
+      "calls": 2,
+      "tokens_in": 2412,
+      "tokens_out": 877,
+      "usd": 0.0
+    },
+    "meta-llama/llama-4-scout-17b-16e-instruct": {
+      "calls": 20,
+      "tokens_in": 18617,
+      "tokens_out": 4841,
+      "usd": 0.0
+    },
+    "llama-3.1-8b-instant": {
+      "calls": 3,
+      "tokens_in": 1738,
+      "tokens_out": 183,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 6,
+    "committee": 13,
+    "draft": 9,
+    "editor": 3,
+    "polish": 4
+  },
+  "llm_cap": 90,
+  "llm_calls": 37,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'visual_planner'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer"
+  ],
+  "committee_synthesis": {
+    "narrative": "MMCORE presents a novel approach to multimodal image generation and editing by leveraging a pre-trained Vision-Language Model to predict semantic visual embeddings. The framework's use of learnable query tokens to condition a diffusion model shows promise, but the results also highlight a key tension: the trade-off between performance and computational overhead. On one hand, utilizing the full context yields better performance, but on the other hand, relying solely on query tokens significantly weakens performance. This tension raises questions about the optimal balance between the two approaches.\n\nThe empirical results demonstrate MMCORE's competitive performance compared to other models, with notable accuracy rates across various metrics. However, the addition of flow matching, a technique that could potentially improve performance, yields only marginal improvements while significantly increasing training costs. This finding suggests that the benefits of flow matching may not outweigh the added computational expense. As the authors note, MMCORE reduces computational overhead, which is a significant advantage in the development of unified multimodal models.\n\nThe reader takeaway is that MMCORE offers a promising approach to multimodal image generation and editing, but its implementation requires careful consideration of the trade-offs between performance and computational resources. The framework's use of a pre-trained VLM and learnable query tokens provides a strong foundation, but further research is needed to optimize the balance between context utilization and computational efficiency. Ultimately, MMCORE's ability to reduce computational overhead while maintaining competitive performance makes it an attractive solution for applications requiring efficient and effective multimodal processing.",
+    "report": {
+      "narrative": "MMCORE presents a novel approach to multimodal image generation and editing by leveraging a pre-trained Vision-Language Model to predict semantic visual embeddings. The framework's use of learnable query tokens to condition a diffusion model shows promise, but the results also highlight a key tension: the trade-off between performance and computational overhead. On one hand, utilizing the full context yields better performance, but on the other hand, relying solely on query tokens significantly weakens performance. This tension raises questions about the optimal balance between the two approaches.\n\nThe empirical results demonstrate MMCORE's competitive performance compared to other models, with notable accuracy rates across various metrics. However, the addition of flow matching, a technique that could potentially improve performance, yields only marginal improvements while significantly increasing training costs. This finding suggests that the benefits of flow matching may not outweigh the added computational expense. As the authors note, MMCORE reduces computational overhead, which is a significant advantage in the development of unified multimodal models.\n\nThe reader takeaway is that MMCORE offers a promising approach to multimodal image generation and editing, but its implementation requires careful consideration of the trade-offs between performance and computational resources. The framework's use of a pre-trained VLM and learnable query tokens provides a strong foundation, but further research is needed to optimize the balance between context utilization and computational efficiency. Ultimately, MMCORE's ability to reduce computational overhead while maintaining competitive performance makes it an attractive solution for applications requiring efficient and effective multimodal processing.",
+      "n_analysts": 5,
+      "n_skipped": 0,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [
+            "MMCORE uses a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings",
+            "learnable query tokens condition a diffusion model for image generation and editing",
+            "utilizing the full context yields better performance than relying solely on query tokens",
+            "adding flow matching yields only marginal improvements"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "empirical",
+          "claims": [
+            "relying solely on query tokens yields significantly weaker performance compared to utilizing the full context",
+            "MMCOREGPT-Image-1Seedream 4.0Gemini 2.5Qwen ImageFlux Kontext 90Average accuracy (%) 84.42 80.69 78.2 69.24 59.14 57.67",
+            "MMCOREGPT-Image-1Seedream 4.0Gemini 2.5Qwen ImageFlux Kontext 80Average accuracy (%) 70.62 42.39 68.89 68.01 47.87 54.84",
+            "Adding flow matching\u2014which would require computationally expensive joint training\u2014yields only marginal improvements while significantly increasing training costs"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Results",
+          "skipped": false
+        },
+        {
+          "role": "glossary",
+          "claims": [
+            "VLM \u2014 A pre-trained Vision-Language Model that can understand and reason about visual and textual data.",
+            "Diffusion Model \u2014 A type of generative model that uses a process called diffusion-based image synthesis to generate images.",
+            "Query Tokens \u2014 Learnable tokens used to condition a diffusion model for image generation and editing.",
+            "Text-to-Image Alignment \u2014 A measure of how well a generated image aligns with a given text prompt.",
+            "Image-Editing Consistency \u2014 A measure of how consistent the edited image is with the original image and text prompt.",
+            "Flow Matching \u2014 A technique used to improve the performance of generative models, but requires computationally expensive joint training.",
+            "Unified Multimodal Models (UMMs) \u2014 Models that aim to unify understanding and generation capabilities across multiple modalities.",
+            "Omni-Tokenizer \u2014 A hypothetical unified visual representation that can support both pixel-perfect reconstruction and high-level semantic reasoning.",
+            "VAE \u2014 Variational Autoencoder, a type of model that can perform pixel-perfect reconstruction.",
+            "ViT \u2014 Vision Transformer, a type of model that can perform high-level semantic reasoning.",
+            "Understanding-Generation Trade-off \u2014 A challenge in UMMs where performance on pure understanding tasks degrades after generative alignment."
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Multimodal Models",
+          "skipped": false
+        },
+        {
+          "role": "related",
+          "claims": [
+            "MMCORE is a unified framework for multimodal image generation and editing",
+            "MMCORE leverages a pre-trained VLM to predict semantic visual embeddings",
+            "MMCORE reduces computational overhead"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "visual_planner",
+          "claims": [
+            "{\"figures\": [{\"id\": \"mmcore_framework\", \"kind\": \"architecture\", \"prompt\": \"MMCORE framework with pre-trained VLM, learnable query tokens, and diffusion model\", \"alt\": \"MMCORE framework architecture\", \"caption\": \"Overview of the MMCORE framework\", \"placement_hint\": \"top\"}, {\"id\": \"performance_comparison\", \"kind\": \"comparison\", \"prompt\": \"Performance comparison of MMCORE with other models on text-to-image alignment and image-editing consistency\", \"alt\": \"Performance comparison chart\", \"caption\": \"Performance comparison of MMCORE with other models\", \"placement_hint\": \"middle\"}], \"equations\": [{\"id\": \"vlm_prediction\", \"latex\": \"\\\\hat{e} = f_{VLM}(q, c)\", \"caption\": \"VLM prediction with learnable query tokens\", \"placement_hint\": \"top\"}]}"
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        }
+      ]
+    }
+  }
+}

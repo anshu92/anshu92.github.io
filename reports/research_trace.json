@@ -1,0 +1,45 @@
+{
+  "calls": 6,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+      "n": 0
+    },
+    {
+      "tool": "paper_reader",
+      "outline_sections": 12,
+      "results": 5,
+      "limitations": 3,
+      "llm_chunks": 4
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+      "n": 0
+    },
+    {
+      "tool": "openalex",
+      "q": "MMCORE unified framework multimodal image generation editing",
+      "n": 0
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 0
+    }
+  ],
+  "committee": true,
+  "ss_cache_hits": 0,
+  "ss_429": 2,
+  "llm_ok": 14,
+  "rewrites_applied": 2,
+  "re_research_applied": 0
+}

@@ -1,0 +1,12 @@
+{
+  "structural": [
+    "takeaway_lacks_number",
+    "citation_count_below_min"
+  ],
+  "unsupported_numeric_claims": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}
