@@ -1,0 +1,20 @@
+{
+  "structural": [
+    "takeaway_lacks_number",
+    "generic_heading_used",
+    "templated_heading_used",
+    "citation_count_below_min",
+    "comparative_claim_missing_metric",
+    "missing_mechanism_section",
+    "advice_without_traceability"
+  ],
+  "unsupported_numeric_claims": [
+    "85.2%",
+    "78.5%"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}

@@ -1,0 +1,11 @@
+{
+  "llm_scaling": [
+    "probabilistic modalities fusion",
+    "fp8 inference",
+    "generative priors",
+    "registration oriented",
+    "deep learning concepts",
+    "neural based registration",
+    "3d point cloud registration"
+  ]
+}

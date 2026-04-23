@@ -1,0 +1,65 @@
+{
+  "aec_ml": {
+    "keywords": [],
+    "updated": "2026-04-23T19:25:10+00:00"
+  },
+  "llm_scaling": {
+    "keywords": [
+      "representation aligned",
+      "diffusion model",
+      "vision-language model",
+      "semantic visual embeddings",
+      "learnable query tokens",
+      "pre-trained vlm",
+      "multimodal connection",
+      "latent embeddings",
+      "deep fusion",
+      "autoregressive models",
+      "rope scaling",
+      "diffusion-based",
+      "implicit shape decoders",
+      "closed-loop latent",
+      "prompting",
+      "re-generation cycle",
+      "actor-evaluator-self-reflection triad",
+      "iterative refinement",
+      "geometric instantiation",
+      "geometry to image",
+      "probabilistic modalities",
+      "vision foundation models",
+      "fp16 inference",
+      "diffusion models",
+      "multi view consistent",
+      "3d point cloud",
+      "registration performance",
+      "cross domain generalization",
+      "geometric registration",
+      "world foundation model",
+      "dense correspondences",
+      "probabilistic modalities fusion",
+      "fp8 inference",
+      "generative priors",
+      "registration oriented",
+      "deep learning concepts",
+      "neural based registration",
+      "3d point cloud registration"
+    ],
+    "updated": "2026-04-23T19:25:10+00:00"
+  },
+  "ml_engineering_deep_dive": {
+    "keywords": [],
+    "updated": "2026-04-23T19:25:10+00:00"
+  },
+  "new_models": {
+    "keywords": [],
+    "updated": "2026-04-23T19:25:10+00:00"
+  },
+  "problem_oriented_ml": {
+    "keywords": [],
+    "updated": "2026-04-23T19:25:10+00:00"
+  },
+  "training_recipes": {
+    "keywords": [],
+    "updated": "2026-04-23T19:25:10+00:00"
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "evidence_valid": false,
+  "draft_valid": false,
+  "render_valid": false,
+  "package_valid": false,
+  "render_checked": false,
+  "package_checked": false,
+  "overall_status": "blocked",
+  "blocking_reasons": [
+    {
+      "code": "grounding_issue",
+      "message": "85.2%",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "grounding_issue",
+      "message": "78.5%",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "lint:takeaway_lacks_number",
+      "message": "takeaway_lacks_number",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:generic_heading_used",
+      "message": "generic_heading_used",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:templated_heading_used",
+      "message": "templated_heading_used",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:citation_count_below_min",
+      "message": "citation_count_below_min",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:comparative_claim_missing_metric",
+      "message": "comparative_claim_missing_metric",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:missing_mechanism_section",
+      "message": "missing_mechanism_section",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:advice_without_traceability",
+      "message": "advice_without_traceability",
+      "stage": "draft",
+      "blocking": true
+    }
+  ],
+  "editor_report": {
+    "rubric_score": 5,
+    "rubric_items": [
+      {
+        "item": "sharp_takeaway",
+        "score": 1
+      },
+      {
+        "item": "intro_earns_attention",
+        "score": 1
+      },
+      {
+        "item": "concrete_problem",
+        "score": 1
+      },
+      {
+        "item": "inevitable_structure",
+        "score": 1
+      },
+      {
+        "item": "specific_language",
+        "score": 1
+      },
+      {
+        "item": "teaches_why",
+        "score": 1
+      },
+      {
+        "item": "strong_example",
+        "score": 1
+      },
+      {
+        "item": "tradeoffs_explicit",
+        "score": 0
+      },
+      {
+        "item": "claims_backed",
+        "score": 1
+      },
+      {
+        "item": "limitations_honest",
+        "score": 1
+      },
+      {
+        "item": "skimmable",
+        "score": 1
+      },
+      {
+        "item": "actionable_close",
+        "score": 1
+      },
+      {
+        "item": "diagrams_clarify",
+        "score": 1
+      },
+      {
+        "item": "honest_scope",
+        "score": 1
+      },
+      {
+        "item": "pov_present",
+        "score": 0
+      }
+    ],
+    "five_questions": {
+      "problem": "3D point cloud registration struggles with inconsistent registration across modalities, sampling differences, and environments.",
+      "hard": "Traditional methods struggle to generalize across different sensing modalities, sampling differences, and environments.",
+      "tried": "The authors propose C-GenReg, a training-free framework that leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs).",
+      "outcomes": "C-GenReg outperforms prior SOTA with a registration accuracy of 85.2% compared to 78.5%.",
+      "next": "The author suggests testing C-GenReg on a variety of point cloud datasets to evaluate its robustness and generalizability."
+    },
+    "five_questions_ok": true,
+    "critique": {
+      "missing": [],
+      "weak": [],
+      "cut": []
+    },
+    "pass_gate": false,
+    "llm_ok": true,
+    "editor_warnings": [],
+    "lint_issues": [
+      "takeaway_lacks_number",
+      "generic_heading_used",
+      "templated_heading_used",
+      "citation_count_below_min",
+      "comparative_claim_missing_metric",
+      "missing_mechanism_section",
+      "advice_without_traceability"
+    ],
+    "grounding_ok": false,
+    "grounding_issues": [
+      "85.2%",
+      "78.5%"
+    ],
+    "rubric_floor_applied": true,
+    "rubric_floor_reasons": [
+      "no_cites:cap=5",
+      "low_util:score=0.1519:thr=0.2:cap=6"
+    ],
+    "rubric_score_raw": 13,
+    "evidence_utilization": {
+      "score": 0.1519,
+      "ratios": {
+        "numbers": 0.0,
+        "entities": 0.4348,
+        "quotes": 0.0,
+        "analyst_claims": 0.1071
+      },
+      "totals": {
+        "numbers": 1,
+        "entities": 23,
+        "quotes": 7,
+        "analyst_claims": 28
+      },
+      "used_counts": {
+        "numbers": 0,
+        "entities": 10,
+        "quotes": 0,
+        "analyst_claims": 3
+      },
+      "unused": {
+        "numbers": [
+          "1"
+        ],
+        "entities": [
+          "Assessing the practical applicability of neural\u2010based point clouds registration algorithms: A comparative analysis",
+          "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabili",
+          "Review of deep learning: concepts, CNN architectures, challenges, applications, future directions",
+          "C-GenReg: Training-Free 3D Point Cloud R",
+          "Fuse",
+          "RoITr",
+          "Point-Pair-Feature",
+          "RGB-D"
+        ],
+        "quotes": [
+          "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3",
+          "C-GenReg is zeroshot and plug-and-play: all modules are pretrained and operate without fine-tuning.",
+          "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+          "A promising alternative is to transfer 3D geometry into the image modality,e.g. generating RGB views from depth or point clouds, so that registration can exploit the strong priors and semantically rich features of pretrained VFMs.",
+          "a plug-and-play module that enhances existing geometric registration pipelines",
+          "In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].",
+          "We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)."
+        ],
+        "analyst_claims": [
+          "C-GenReg uses a World Foundation Model to synthesize multi-view-consistent RGB representations",
+          "C-GenReg uses a Vision Foundation Model to extract dense correspondences",
+          "C-GenReg employs a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors",
+          "RoITr uses a transformer backbone with embedded Point-Pair-Feature coordinates to achieve rotation invariance",
+          "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+          "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+          "replacing a detailed scene description with a general one results in negligible degradation",
+          "even a minimal prompt maintains reasonably strong performance"
+        ]
+      }
+    }
+  },
+  "render_report": null,
+  "artifact_paths": {},
+  "llm_ok": true,
+  "pass_gate": false
+}

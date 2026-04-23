@@ -1,0 +1,16 @@
+{
+"openrouter:qwen/qwen3-235b-thinking:free": 1777000550.472392,
+"groq:llama-3.3-70b-versatile": 1777000553.0884655,
+"openrouter:deepseek/deepseek-r1-0528:free": 1777000559.9997294,
+"openrouter:nvidia/nemotron-3-super-120b-a12b:free": 1777000864.2035253,
+"openrouter:openrouter/free": 1777005050.9615197,
+"openrouter:openai/gpt-oss-120b:free": 1777005077.149902,
+"openrouter:z-ai/glm-4.5-air:free": 1777005077.2326195,
+"openrouter:google/gemma-3-27b-it:free": 1777005077.5407755,
+"openrouter:google/gemma-3-12b-it:free": 1777005077.6146665,
+"openrouter:nvidia/nemotron-nano-9b-v2:free": 1777005077.6939504,
+"openrouter:openai/gpt-oss-20b:free": 1777005078.0137947,
+"openrouter:qwen/qwen3-next-80b-a3b-instruct:free": 1776975889.3389196,
+"groq:qwen/qwen3-32b": 1776972890.8059537,
+"openrouter:meta-llama/llama-3.3-70b-instruct:free": 1776975894.911913
+}

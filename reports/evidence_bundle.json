@@ -1,0 +1,452 @@
+{
+  "primary": {
+    "id": "hf_2604.16680",
+    "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+    "url": "https://arxiv.org/abs/2604.16680",
+    "authors": [
+      "Yuval Haitman",
+      "Amit Efraim",
+      "J. Francos"
+    ],
+    "abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a\"Match-then-Fuse\"probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+    "published_at": "2026-04-17T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.16680",
+          "authors": [
+            {
+              "_id": "69ea5499a961c3f1b5f40bed",
+              "name": "Yuval Haitman",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5499a961c3f1b5f40bee",
+              "name": "Amit Efraim",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5499a961c3f1b5f40bef",
+              "name": "Joseph M. Francos",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-17T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-23T15:50:46.969Z",
+          "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+          "submittedOnDailyBy": {
+            "_id": "66f5d4c99ef08fe3c1ed5c2d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+            "isPro": false,
+            "fullname": "Yuval Haitman",
+            "user": "YuvalH9",
+            "type": "user",
+            "name": "YuvalH9"
+          },
+          "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+          "upvotes": 9,
+          "discussionId": "69ea5499a961c3f1b5f40bf0",
+          "projectPage": "https://yuvalh9.github.io/CGenReg/",
+          "githubRepo": "https://github.com/yuvalH9/CGenReg",
+          "githubRepoAddedBy": "user",
+          "ai_summary": "C-GenReg is a training-free 3D point cloud registration framework that uses generative priors and Vision Foundation Models to transfer matching problems to an image domain for improved cross-domain generalization.",
+          "ai_keywords": [
+            "3D point cloud registration",
+            "Vision Foundation Models",
+            "generative priors",
+            "multi-view-consistent RGB representations",
+            "dense correspondences",
+            "probabilistic cold-fusion scheme",
+            "zero-shot performance",
+            "cross-domain generalization"
+          ],
+          "githubStars": 2,
+          "organization": {
+            "_id": "63a327b28c0c89dcae3395c2",
+            "name": "Ben-Gurion-University",
+            "fullname": "Ben-Gurion University of the Negev",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+          }
+        },
+        "publishedAt": "2026-04-16T20:00:00.000Z",
+        "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+        "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.16680.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "66f5d4c99ef08fe3c1ed5c2d",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+          "fullname": "Yuval Haitman",
+          "name": "YuvalH9",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "isUserFollowing": false
+        },
+        "organization": {
+          "_id": "63a327b28c0c89dcae3395c2",
+          "name": "Ben-Gurion-University",
+          "fullname": "Ben-Gurion University of the Negev",
+          "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+        },
+        "isAuthorParticipating": false
+      },
+      "semantic_scholar_url": "https://www.semanticscholar.org/paper/9d598f65a9dbe906532b2e464500018ec4bcccdf",
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.16680.pdf",
+      "paper_digest": "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.\n\nC-GenReg transfers the matching problem into an auxiliary image domain using a World Foundation Model to synthesize multi-view-consistent RGB representations, and uses a Vision Foundation Model to extract dense correspondences. It employs a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors from the generated-RGB and raw geometric branches.\n\n- In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].\n- We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).\n- RoITr [33] embedded Point- Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.\n- 4, replacing a detailed scene description with a general one results in negligible degradation, while even a minimal prompt maintains reasonably strong performance; in contrast, a semantically incorrect prompt substantially degrades registration accuracy.\n\n- The method relies on the availability of pretrained modules, which may limit adaptability to novel or specific domains."
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_1446466243",
+      "title": "Assessing the practical applicability of neural‐based point clouds registration algorithms: A comparative analysis",
+      "url": "https://openalex.org/W4401768370",
+      "authors": [],
+      "abstract": "Abstract Point cloud registration is a vital task in three‐dimensional (3D) perception, with several different applications robotics. Recent advancements have introduced neural‐based techniques that promise enhanced accuracy and robustness. In this paper, we thoroughly evaluate well‐known point methods using the Clouds Registration Benchmark, which was developed to cover large variety of use cases. Our evaluation focuses on performance these when applied real‐complex data, presents more challenging realistic scenario than simpler experiments typically conducted by original authors. The results reveal considerable variability across techniques, highlighting importance assessing algorithms settings. Notably, 3DSmoothNet emerges as standout solution, demonstrating good consistent various data sets. Its efficacy, coupled relatively low graphics processing unit (GPU) memory footprint, makes it promising choice for robotics applications, even if not yet suitable real‐time due its execution time. Fully Convolutional Geometric Features also performs well, albeit greater among PREDATOR GeoTransformer are promising, but demand substantial GPU memory, handling clouds from Benchmark. A notable finding concerns Fast Feature Histograms, exhibit comparable best approaches while demanding minimal computational resources. Overall, comparative analysis provides valuable insights into strengths limitations both terms quality resources required. This helps researchers make informed decisions applications.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_3480038466",
+      "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+      "url": "https://openalex.org/W7155072448",
+      "authors": [],
+      "abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based methods struggle to generalize across sensing modalities, sampling differences, environments. Hence, C-GenReg augments geometric branch by transferring matching problem into an auxiliary image domain, where VFMs excel, using World Model synthesize multi-view-consistent RGB representations from input geometry. This transfer, preserves spatial coherence source target views without any fine-tuning. From these generated views, VFM pretrained finding dense correspondences extracts matches. The resulting pixel are lifted back via original depth maps. To further enhance robustness, we \"Match-then-Fuse\" probabilistic cold-fusion scheme combines two independent correspondence posteriors, generated-RGB with raw branch. principled fusion each modality inductive bias provides calibrated confidence additional learning. is zero-shot plug-and-play: all modules operate Extensive experiments on indoor (3DMatch, ScanNet) outdoor (Waymo) benchmarks demonstrate strong performance superior cross-domain generalization. For first time, operates successfully real LiDAR data, no imagery data available.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_3496806394",
+      "title": "Review of deep learning: concepts, CNN architectures, challenges, applications, future directions",
+      "url": "https://openalex.org/W3140854437",
+      "authors": [],
+      "abstract": "In the last few years, deep learning (DL) computing paradigm has been deemed Gold Standard in machine (ML) community. Moreover, it gradually become most widely used computational approach field of ML, thus achieving outstanding results on several complex cognitive tasks, matching or even beating those provided by human performance. One benefits DL is ability to learn massive amounts data. The grown fast years and extensively successfully address a wide range traditional applications. More importantly, outperformed well-known ML techniques many domains, e.g., cybersecurity, natural language processing, bioinformatics, robotics control, medical information among others. Despite contributed works reviewing State-of-the-Art DL, all them only tackled one aspect which leads an overall lack knowledge about it. Therefore, this contribution, we propose using more holistic order provide suitable starting point from develop full understanding DL. Specifically, review attempts comprehensive survey important aspects including enhancements recently added field. particular, paper outlines importance presents types networks. It then convolutional neural networks (CNNs) utilized network type describes development CNNs architectures together with their main features, AlexNet closing High-Resolution (HR.Net). Finally, further present challenges suggested solutions help researchers understand existing research gaps. followed list major Computational tools FPGA, GPU, CPU are summarized along description influence ends evolution matrix, benchmark datasets, summary conclusion.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "C-GenReg: Training-Free 3D Point Cloud R",
+      "value": "(see paper)",
+      "unit": "",
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.16680",
+      "text": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image dom",
+      "url": "https://arxiv.org/abs/2604.16680"
+    },
+    {
+      "source_id": "hf_2604.16680",
+      "text": "C-GenReg is zeroshot and plug-and-play: all modules are pretrained and operate without fine-tuning.",
+      "url": "https://arxiv.org/pdf/2604.16680.pdf"
+    },
+    {
+      "source_id": "hf_2604.16680",
+      "text": "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+      "url": "https://arxiv.org/pdf/2604.16680.pdf"
+    },
+    {
+      "source_id": "hf_2604.16680",
+      "text": "A promising alternative is to transfer 3D geometry into the image modality,e.g. generating RGB views from depth or point clouds, so that registration can exploit the strong priors and semantically rich features of pretrained VFMs.",
+      "url": "https://arxiv.org/pdf/2604.16680.pdf"
+    },
+    {
+      "source_id": "hf_2604.16680",
+      "text": "a plug-and-play module that enhances existing geometric registration pipelines",
+      "url": "https://arxiv.org/pdf/2604.16680.pdf"
+    },
+    {
+      "source_id": "hf_2604.16680",
+      "text": "In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].",
+      "url": "https://arxiv.org/pdf/2604.16680.pdf"
+    },
+    {
+      "source_id": "hf_2604.16680",
+      "text": "We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).",
+      "url": "https://arxiv.org/pdf/2604.16680.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Abstract\n- Introduction\n- Generated Rgb Branch\n- World Foundation Model\n\nGeometric Branch\n\nVisual Feature Matching\n- Vision Foundation Model\n\nGeometric Feature Extractor\n- Geometric Feature Matching\n\nProbabilistic Fusion\n- We Introducec-Genreg, A Two-Branch Framework That (I)\n- We Introduce A Probabilistic “Match-Then-Fuse” Scheme That\n- Our Pipeline Operates Fully Zero-Shot And Requires No Addi-\n- We Achieve Sota Zero-Shot Results Across Indoor Rgb-D\n- Related Work\n- World\n\nFoundation\n\nModel\n\nTask\n\nSpecific\n\nVfm\n\nGeometric",
+    "paper_problem": "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+    "paper_method": "C-GenReg transfers the matching problem into an auxiliary image domain using a World Foundation Model to synthesize multi-view-consistent RGB representations, and uses a Vision Foundation Model to extract dense correspondences. It employs a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors from the generated-RGB and raw geometric branches.",
+    "paper_experiments": "- In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].\n- We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).\n- RoITr [33] embedded Point- Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.\n- 4, replacing a detailed scene description with a general one results in negligible degradation, while even a minimal prompt maintains reasonably strong performance; in contrast, a semantically incorrect prompt substantially degrades registration accuracy.",
+    "paper_limitations": "- The method relies on the availability of pretrained modules, which may limit adaptability to novel or specific domains.",
+    "paper_conclusion": "We presentedC-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registrationoriented VFMs. Current learning-based 3D registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence,C-GenReg generates an auxiliary image channel, where VFMs excel, by employing a WFM to synthesize auxiliary multi-viewconsistent RGB representations from the input geometry. This generative transfer preserves spatial coherence across source and target views without any fine-tuning. From these generated views a VFM pretrained for dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps, producing a set of geometry-aware correspondences. We further introduce a “Match-then-Fuse” probabilistic cold-fusion scheme that combines independent correspondence posteriors from the generated-RGB and geometri"
+  },
+  "contradiction_notes": [
+    "The method relies on the availability of pretrained modules, which may limit adaptability to novel or specific domains."
+  ],
+  "by_id": {
+    "hf_2604.16680": {
+      "id": "hf_2604.16680",
+      "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+      "url": "https://arxiv.org/abs/2604.16680",
+      "authors": [
+        "Yuval Haitman",
+        "Amit Efraim",
+        "J. Francos"
+      ],
+      "abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a\"Match-then-Fuse\"probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+      "published_at": "2026-04-17T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.16680",
+            "authors": [
+              {
+                "_id": "69ea5499a961c3f1b5f40bed",
+                "name": "Yuval Haitman",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5499a961c3f1b5f40bee",
+                "name": "Amit Efraim",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5499a961c3f1b5f40bef",
+                "name": "Joseph M. Francos",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-17T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T15:50:46.969Z",
+            "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+            "submittedOnDailyBy": {
+              "_id": "66f5d4c99ef08fe3c1ed5c2d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+              "isPro": false,
+              "fullname": "Yuval Haitman",
+              "user": "YuvalH9",
+              "type": "user",
+              "name": "YuvalH9"
+            },
+            "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+            "upvotes": 9,
+            "discussionId": "69ea5499a961c3f1b5f40bf0",
+            "projectPage": "https://yuvalh9.github.io/CGenReg/",
+            "githubRepo": "https://github.com/yuvalH9/CGenReg",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "C-GenReg is a training-free 3D point cloud registration framework that uses generative priors and Vision Foundation Models to transfer matching problems to an image domain for improved cross-domain generalization.",
+            "ai_keywords": [
+              "3D point cloud registration",
+              "Vision Foundation Models",
+              "generative priors",
+              "multi-view-consistent RGB representations",
+              "dense correspondences",
+              "probabilistic cold-fusion scheme",
+              "zero-shot performance",
+              "cross-domain generalization"
+            ],
+            "githubStars": 2,
+            "organization": {
+              "_id": "63a327b28c0c89dcae3395c2",
+              "name": "Ben-Gurion-University",
+              "fullname": "Ben-Gurion University of the Negev",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+            }
+          },
+          "publishedAt": "2026-04-16T20:00:00.000Z",
+          "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+          "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.16680.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "66f5d4c99ef08fe3c1ed5c2d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+            "fullname": "Yuval Haitman",
+            "name": "YuvalH9",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "63a327b28c0c89dcae3395c2",
+            "name": "Ben-Gurion-University",
+            "fullname": "Ben-Gurion University of the Negev",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+          },
+          "isAuthorParticipating": false
+        },
+        "semantic_scholar_url": "https://www.semanticscholar.org/paper/9d598f65a9dbe906532b2e464500018ec4bcccdf",
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.16680.pdf",
+        "paper_digest": "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.\n\nC-GenReg transfers the matching problem into an auxiliary image domain using a World Foundation Model to synthesize multi-view-consistent RGB representations, and uses a Vision Foundation Model to extract dense correspondences. It employs a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors from the generated-RGB and raw geometric branches.\n\n- In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].\n- We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).\n- RoITr [33] embedded Point- Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.\n- 4, replacing a detailed scene description with a general one results in negligible degradation, while even a minimal prompt maintains reasonably strong performance; in contrast, a semantically incorrect prompt substantially degrades registration accuracy.\n\n- The method relies on the availability of pretrained modules, which may limit adaptability to novel or specific domains."
+      }
+    },
+    "oa_1446466243": {
+      "id": "oa_1446466243",
+      "title": "Assessing the practical applicability of neural‐based point clouds registration algorithms: A comparative analysis",
+      "url": "https://openalex.org/W4401768370",
+      "authors": [],
+      "abstract": "Abstract Point cloud registration is a vital task in three‐dimensional (3D) perception, with several different applications robotics. Recent advancements have introduced neural‐based techniques that promise enhanced accuracy and robustness. In this paper, we thoroughly evaluate well‐known point methods using the Clouds Registration Benchmark, which was developed to cover large variety of use cases. Our evaluation focuses on performance these when applied real‐complex data, presents more challenging realistic scenario than simpler experiments typically conducted by original authors. The results reveal considerable variability across techniques, highlighting importance assessing algorithms settings. Notably, 3DSmoothNet emerges as standout solution, demonstrating good consistent various data sets. Its efficacy, coupled relatively low graphics processing unit (GPU) memory footprint, makes it promising choice for robotics applications, even if not yet suitable real‐time due its execution time. Fully Convolutional Geometric Features also performs well, albeit greater among PREDATOR GeoTransformer are promising, but demand substantial GPU memory, handling clouds from Benchmark. A notable finding concerns Fast Feature Histograms, exhibit comparable best approaches while demanding minimal computational resources. Overall, comparative analysis provides valuable insights into strengths limitations both terms quality resources required. This helps researchers make informed decisions applications.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_3480038466": {
+      "id": "oa_3480038466",
+      "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+      "url": "https://openalex.org/W7155072448",
+      "authors": [],
+      "abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based methods struggle to generalize across sensing modalities, sampling differences, environments. Hence, C-GenReg augments geometric branch by transferring matching problem into an auxiliary image domain, where VFMs excel, using World Model synthesize multi-view-consistent RGB representations from input geometry. This transfer, preserves spatial coherence source target views without any fine-tuning. From these generated views, VFM pretrained finding dense correspondences extracts matches. The resulting pixel are lifted back via original depth maps. To further enhance robustness, we \"Match-then-Fuse\" probabilistic cold-fusion scheme combines two independent correspondence posteriors, generated-RGB with raw branch. principled fusion each modality inductive bias provides calibrated confidence additional learning. is zero-shot plug-and-play: all modules operate Extensive experiments on indoor (3DMatch, ScanNet) outdoor (Waymo) benchmarks demonstrate strong performance superior cross-domain generalization. For first time, operates successfully real LiDAR data, no imagery data available.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_3496806394": {
+      "id": "oa_3496806394",
+      "title": "Review of deep learning: concepts, CNN architectures, challenges, applications, future directions",
+      "url": "https://openalex.org/W3140854437",
+      "authors": [],
+      "abstract": "In the last few years, deep learning (DL) computing paradigm has been deemed Gold Standard in machine (ML) community. Moreover, it gradually become most widely used computational approach field of ML, thus achieving outstanding results on several complex cognitive tasks, matching or even beating those provided by human performance. One benefits DL is ability to learn massive amounts data. The grown fast years and extensively successfully address a wide range traditional applications. More importantly, outperformed well-known ML techniques many domains, e.g., cybersecurity, natural language processing, bioinformatics, robotics control, medical information among others. Despite contributed works reviewing State-of-the-Art DL, all them only tackled one aspect which leads an overall lack knowledge about it. Therefore, this contribution, we propose using more holistic order provide suitable starting point from develop full understanding DL. Specifically, review attempts comprehensive survey important aspects including enhancements recently added field. particular, paper outlines importance presents types networks. It then convolutional neural networks (CNNs) utilized network type describes development CNNs architectures together with their main features, AlexNet closing High-Resolution (HR.Net). Finally, further present challenges suggested solutions help researchers understand existing research gaps. followed list major Computational tools FPGA, GPU, CPU are summarized along description influence ends evolution matrix, benchmark datasets, summary conclusion.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  },
+  "analyst_notes": [
+    {
+      "role": "methods",
+      "claims": [
+        "C-GenReg uses a World Foundation Model to synthesize multi-view-consistent RGB representations",
+        "C-GenReg uses a Vision Foundation Model to extract dense correspondences",
+        "C-GenReg employs a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors",
+        "Vision Foundation Models achieve remarkable robustness by training on massive, heterogeneous datasets",
+        "RoITr uses a transformer backbone with embedded Point-Pair-Feature coordinates to achieve rotation invariance"
+      ],
+      "citations": [
+        "[1]",
+        "[33]"
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "empirical",
+      "claims": [
+        "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+        "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+        "replacing a detailed scene description with a general one results in negligible degradation",
+        "even a minimal prompt maintains reasonably strong performance",
+        "a semantically incorrect prompt substantially degrades registration accuracy"
+      ],
+      "citations": [
+        "[1]",
+        "[33]"
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "glossary",
+      "claims": [
+        "C-GenReg — A training-free 3D point cloud registration method that transfers the matching problem into an auxiliary image domain using a World Foundation Model and a Vision Foundation Model.",
+        "World Foundation Model — A model used to synthesize multi-view-consistent RGB representations.",
+        "Vision Foundation Model (VFM) — A model that achieves remarkable robustness by training on massive, heterogeneous datasets.",
+        "Match-then-Fuse — A probabilistic cold-fusion scheme used to combine correspondence posteriors from the generated-RGB and raw geometric branches.",
+        "RoITr — A method that embeds Point-Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.",
+        "3DMatch — An indoor RGB-D benchmark for 3D point cloud registration.",
+        "ScanNet — An indoor RGB-D benchmark for 3D point cloud registration.",
+        "Waymo — A real outdoor LiDAR dataset used for 3D point cloud registration.",
+        "Point-Pair-Feature — A feature used to achieve rotation invariance and distinctive geometric correspondences.",
+        "Cold-fusion — A scheme used to combine correspondence posteriors from different branches.",
+        "Zero-shot registration — A registration method that operates without any training data for a specific task.",
+        "Foundation Model — A large-scale model trained on a massive dataset to achieve robustness and generalization."
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "Methodology",
+      "skipped": false
+    },
+    {
+      "role": "related",
+      "claims": [
+        "C-GenReg is a training-free framework for 3D point cloud registration",
+        "C-GenReg leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs)",
+        "C-GenReg transfers the matching problem into an auxiliary image domain"
+      ],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "adversarial",
+      "claims": [
+        "C-GenReg is a training-free framework for 3D point cloud registration",
+        "C-GenReg leverages the strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs)",
+        "C-GenReg achieves strong zero-shot performance and superior cross-domain generalization",
+        "C-GenReg operates successfully on real outdoor LiDAR data without imagery data"
+      ],
+      "citations": [],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    }
+  ],
+  "committee_synthesis": "The C-GenReg method presents a significant advancement in 3D point cloud registration, achieving state-of-the-art zero-shot results across indoor RGB-D benchmarks and demonstrating successful operation on real outdoor LiDAR data. By leveraging a World Foundation Model and a Vision Foundation Model, C-GenReg transfers the matching problem into an auxiliary image domain, eliminating the need for training. The method's use of a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors enables robust registration.\n\nThe main tension lies in balancing the specificity of scene descriptions with the generalizability of the model. While C-GenReg shows negligible degradation when using general scene descriptions, semantically incorrect prompts substantially degrade registration accuracy. This highlights the importance of accurate scene understanding in facilitating effective registration. Furthermore, the reliance on foundation models trained on massive datasets raises questions about the limits of zero-shot learning and the potential for overfitting to specific data distributions.\n\nReaders should take away that C-GenReg offers a promising approach to training-free 3D point cloud registration, with significant potential for cross-domain generalization and real-world applications. However, further research is needed to fully understand the limitations and potential biases of this approach, particularly in scenarios with incomplete or inaccurate scene descriptions. As the field continues to evolve, it will be essential to address these challenges and explore the broader implications of leveraging foundation models for 3D registration tasks.",
+  "visual_plan": null
+}
