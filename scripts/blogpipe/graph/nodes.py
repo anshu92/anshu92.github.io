@@ -8,6 +8,8 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
+from langgraph.types import interrupt
+
 from .. import config, draft, formats, lint, memory
 from ..draft import (
     _cleanup_missing_cites,
@@ -369,6 +371,23 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         "pass_gate": bool(d.get("pass_gate", False)),
         "warnings": ed_warn,
         "_done_editor": True,
+    }
+
+
+def node_review_gate(state: dict[str, Any]) -> dict[str, Any]:
+    """HITL: pause for approval when the editor gate failed (requires checkpointer on graph)."""
+    if bool(state.get("pass_gate")) or config.auto_approve_editor_gate():
+        return {}
+    decision = interrupt(
+        {
+            "reason": "pass_gate_false",
+            "editor_report": state.get("editor_report"),
+        }
+    )
+    if isinstance(decision, dict) and decision.get("approve"):
+        return {"pass_gate": True}
+    return {
+        "warnings": list(state.get("warnings") or []) + ["human_rejected_publish"],
     }
 
 

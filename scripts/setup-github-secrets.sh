@@ -60,6 +60,7 @@ set_secret GROQ_API_KEY "Groq (optional; workflow passes it for parity with evr)
 set_secret SEMANTIC_SCHOLAR_API_KEY "Semantic Scholar (optional: higher rate limits for research)"
 set_secret FAL_API_KEY "Fal (optional: Flux image fallback)"
 set_secret HF_TOKEN "Hugging Face (optional: Inference API FLUX fallback for body figures; leave unset to use Imagen+Pollinations only)"
+set_secret LANGCHAIN_API_KEY "LangSmith (optional: set LANGCHAIN_TRACING_V2 var to true to trace blogpipe graph runs)"
 set_secret TAVILY_API_KEY "Tavily (optional: free-tier web search for BLOGPIPE_MCP_ENRICHMENT; use instead of paid Brave Search)"
 set_secret EMAIL_USERNAME "Gmail address used for SMTP (must match the account for the app password below)"
 set_secret EMAIL_PASSWORD "Gmail App Password ONLY: myaccount.google.com → Security → 2-Step Verification → App passwords (16 chars). Do NOT use your regular Gmail password — SMTP will return 534 if wrong."

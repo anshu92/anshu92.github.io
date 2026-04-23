@@ -6,6 +6,7 @@ import json
 import logging
 from typing import Any, Callable, Dict, List
 
+import httpx
 from langgraph.types import Send
 
 from .. import config, memory, openrouter_client, research
@@ -37,20 +38,6 @@ def _synthesize_narrative(notes: list[AnalystNote], pack: EvidencePack) -> str:
         )
         or ""
     )
-
-
-def run_committee_research_stages(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Sequential version of the committee path for `run_partial` (no graph Send)."""
-    s = dict(state)
-    s.update(node_scout(s))
-    acc: list[dict[str, Any]] = []
-    for n in config.committee_analysts():
-        if n in RUNNERS:
-            m = make_analyst_node(n)(s)
-            acc.extend(m.get("committee_notes") or [])
-    s["committee_notes"] = acc
-    s.update(node_synthesizer(s))
-    return s
 
 
 def node_scout(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -99,6 +86,8 @@ def make_analyst_node(name: str) -> Callable[[Dict[str, Any]], Dict[str, Any]]:
             }
         try:
             note = run(pack)
+        except (httpx.RequestError, json.JSONDecodeError) as e:
+            raise e
         except Exception as e:  # noqa: BLE001
             LOG.warning("analyst %s: %s", name, e)
             note = AnalystNote(role=name, claims=[], skipped=True)
@@ -169,12 +158,13 @@ def node_synthesizer(state: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def fan_to_analysts_from_scout(
+def fan_to_analysts_from_supervisor(
     state: Dict[str, Any],
 ) -> List[Send]:
-    """Return one Send per enabled analyst, or a single Send to synthesizer if the list is empty."""
+    """Map-reduce: one Send per selected analyst, or to synthesizer if nothing to run."""
     out: list[Send] = []
-    for n in config.committee_analysts():
+    pick = list(state.get("selected_analysts") or config.committee_analysts())
+    for n in pick:
         if n in RUNNERS:
             out.append(Send(f"analyst_{n}", state))
     if not out:

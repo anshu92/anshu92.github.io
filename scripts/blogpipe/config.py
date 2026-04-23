@@ -200,6 +200,36 @@ def committee_per_analyst_max_tokens() -> int:
     return max(256, min(v, 8192))
 
 
+def supervisor_enabled() -> bool:
+    """If false, run all config.committee_analysts (legacy); if true, LLM picks 2-4 optionals on top of core."""
+    return _get("BLOGPIPE_SUPERVISOR", "1") in ("1", "true", "yes", "on")
+
+
+def checkpointer_path() -> str:
+    """SQLite file for LangGraph checkpointer. Use :memory: to disable on-disk (tests)."""
+    p = _get("BLOGPIPE_CHECKPOINT_PATH", "")
+    if p:
+        return p
+    from . import memory as _m
+
+    return str(_m._ROOT / "cache" / "graph.sqlite")
+
+
+def auto_approve_editor_gate() -> bool:
+    """If true, do not call interrupt() when pass_gate is false (default for CI/PR)."""
+    return _get("BLOGPIPE_AUTO_APPROVE", "1") in ("1", "true", "yes", "on")
+
+
+def graph_stream_enabled() -> bool:
+    """Stream node updates to logs; set 0 to use invoke()."""
+    return _get("BLOGPIPE_STREAM", "1") in ("1", "true", "yes", "on")
+
+
+def graph_thread_id_override() -> str:
+    """If set, used as LangGraph thread_id (resume same run)."""
+    return _get("BLOGPIPE_THREAD_ID", "")
+
+
 def prefer_free_models() -> bool:
     return _get("BLOGPIPE_PREFER_FREE", "1") in ("1", "true", "yes", "on")
 

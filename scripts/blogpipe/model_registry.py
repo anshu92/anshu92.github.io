@@ -380,6 +380,19 @@ _TASKS: dict[str, TaskProfile] = {
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
         ),
     ),
+    "supervisor_route": TaskProfile(
+        "supervisor_route",
+        600,
+        _CAP_FAST | _CAP_ST,
+        _fc(
+            ("llama-3.1-8b-instant", "groq"),
+            ("openrouter/free", "openrouter"),
+        ),
+        _fc(
+            ("openai/gpt-4.1-mini", "openrouter"),
+            ("llama-3.1-8b-instant", "groq"),
+        ),
+    ),
 }
 
 _DEFAULT = _TASKS["draft_full"]

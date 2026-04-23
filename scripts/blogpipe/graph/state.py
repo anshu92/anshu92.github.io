@@ -16,6 +16,7 @@ class BlogState(TypedDict, total=False):
     primary: dict[str, Any]
     evidence: dict[str, Any]
     evidence_pack: dict[str, Any]
+    selected_analysts: List[str]
     committee_notes: Annotated[List[dict[str, Any]], operator.add]
     committee_synthesis: dict[str, Any]
     research_trace: dict[str, Any]

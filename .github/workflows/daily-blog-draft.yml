@@ -21,6 +21,12 @@ on:
   schedule:
     - cron: "30 0 * * *"
   workflow_dispatch:
+    inputs:
+      approve_thread_id:
+        description: "Optional LangGraph thread_id; if set, only runs blogpipe resume (HITL approval)"
+        required: false
+        type: string
+        default: ""
 
 concurrency:
   group: daily-blog-pipeline
@@ -76,6 +82,7 @@ jobs:
             cache/post_index.json
             cache/variety_ledger.json
             cache/llm_blacklist.json
+            cache/graph.sqlite
             cache/ss_cache
           key: blogpipe-durable-${{ hashFiles('scripts/blogpipe/**/*.py') }}-${{ github.run_id }}
           restore-keys: |
@@ -111,6 +118,7 @@ jobs:
         run: "test -f package.json && npm install || true"
 
       - name: Run pipeline
+        if: ${{ !github.event.inputs || github.event.inputs.approve_thread_id == '' }}
         working-directory: ${{ github.workspace }}
         env:
           # Source layout import (belt-and-suspenders if editable/install path differs on runner)
@@ -118,6 +126,8 @@ jobs:
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
           BLOGPIPE_MAX_TOKENS_FAST: ${{ vars.BLOGPIPE_MAX_TOKENS_FAST }}
           BLOGPIPE_MAX_TOKENS_SMART: ${{ vars.BLOGPIPE_MAX_TOKENS_SMART }}
+          BLOGPIPE_CHECKPOINT_PATH: ${{ github.workspace }}/cache/graph.sqlite
+          BLOGPIPE_THREAD_ID: gh-${{ github.run_id }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -130,8 +140,26 @@ jobs:
           BLOGPIPE_DRY_RUN: ${{ vars.BLOGPIPE_DRY_RUN || '0' }}
           BLOGPIPE_MCP_ENRICHMENT: ${{ vars.BLOGPIPE_MCP_ENRICHMENT || '0' }}
           BLOGPIPE_LLM_CALL_CAP: ${{ vars.BLOGPIPE_LLM_CALL_CAP }}
+          LANGCHAIN_TRACING_V2: ${{ vars.LANGCHAIN_TRACING_V2 || 'false' }}
+          LANGCHAIN_PROJECT: blogpipe
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
         run: |
           python -m blogpipe graph
+          python -m blogpipe visuals
+
+      - name: Resume graph (HITL)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.approve_thread_id != ''
+        working-directory: ${{ github.workspace }}
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts
+          BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
+          BLOGPIPE_CHECKPOINT_PATH: ${{ github.workspace }}/cache/graph.sqlite
+          BLOGPIPE_THREAD_ID: ${{ github.event.inputs.approve_thread_id }}
+          LANGCHAIN_TRACING_V2: ${{ vars.LANGCHAIN_TRACING_V2 || 'false' }}
+          LANGCHAIN_PROJECT: blogpipe
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+        run: |
+          python -m blogpipe resume "${{ github.event.inputs.approve_thread_id }}"
           python -m blogpipe visuals
 
       - name: Create branch, commit, open PR, email
@@ -205,6 +233,7 @@ jobs:
             cache/post_index.json
             cache/variety_ledger.json
             cache/llm_blacklist.json
+            cache/graph.sqlite
             cache/ss_cache
           key: blogpipe-durable-${{ hashFiles('scripts/blogpipe/**/*.py') }}-${{ github.run_id }}
 

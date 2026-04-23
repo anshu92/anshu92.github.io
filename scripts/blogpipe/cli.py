@@ -27,7 +27,14 @@ def main() -> int:
             "package",
             "graph",
             "run",
+            "resume",
         ],
+    )
+    p.add_argument(
+        "thread_id",
+        nargs="?",
+        default="",
+        help="for resume: LangGraph thread_id (or set BLOGPIPE_THREAD_ID)",
     )
     a = p.parse_args()
     try:
@@ -67,6 +74,16 @@ def main() -> int:
             from .graph import runner
 
             runner.run_graph_pipeline()
+        elif a.command == "resume":
+            from . import config
+
+            from .graph import runner
+
+            tid = (a.thread_id or "").strip() or config.graph_thread_id_override()
+            if not tid:
+                LOG.error("resume requires thread_id: blogpipe resume <thread_id>")
+                return 1
+            runner.resume_graph_after_interrupt(tid)
         elif a.command == "run":
             from .graph import runner
             from . import package, visuals
