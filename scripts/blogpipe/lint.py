@@ -49,6 +49,11 @@ def count_digits(s: str) -> int:
     return len(_DIGITS.findall(s))
 
 
+def has_numeric_claim(s: str) -> bool:
+    """True if `s` contains at least one number with a unit / percent / size suffix."""
+    return bool(_NUMERIC_CLAIM.search(s or ""))
+
+
 def lint_forbidden_phrases(body: str) -> list[str]:
     issues: list[str] = []
     if _BANNED.search(body):
@@ -139,6 +144,355 @@ def lint_structure(body: str) -> list[str]:
     if table_nums and prose_nums and not table_nums.intersection(prose_nums):
         issues.append("table_numbers_diverge_from_prose")
     return issues
+
+
+_H2_LINE = re.compile(r"^##\s+\S", re.M)
+_MERMAID_OPENER = re.compile(
+    r"^(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|"
+    r"gantt|pie|journey|gitGraph|mindmap|timeline|requirementDiagram|c4Context)\b",
+    re.M,
+)
+_CITE_TOKEN = re.compile(r"\[cite:\s*[^\]]+\]", re.I)
+
+
+def lint_h2_minimum(body: str, *, minimum: int = 2) -> list[str]:
+    """Body must contain at least ``minimum`` H2 sections (writer prompt mandates ##)."""
+    n = len(_H2_LINE.findall(body or ""))
+    return ["fewer_than_required_h2_sections"] if n < minimum else []
+
+
+def _outside_fence_spans(body: str) -> list[tuple[int, int]]:
+    """Index ranges that are NOT inside a fenced code block."""
+    out: list[tuple[int, int]] = []
+    cur = 0
+    for m in _CODE_FENCE.finditer(body or ""):
+        out.append((cur, m.start()))
+        cur = m.end()
+    out.append((cur, len(body or "")))
+    return out
+
+
+def lint_unfenced_mermaid(body: str) -> list[str]:
+    """Find bare mermaid diagram openers that are not inside a fenced code block."""
+    text = body or ""
+    spans = _outside_fence_spans(text)
+    for start, end in spans:
+        chunk = text[start:end]
+        if _MERMAID_OPENER.search(chunk):
+            return ["unfenced_mermaid_block"]
+    return []
+
+
+def lint_citation_minimum(body: str, *, minimum: int = 2) -> list[str]:
+    """Drafts should carry at least ``minimum`` ``[cite: id]`` markers (post-resolve, the markers stay as links)."""
+    text = body or ""
+    n = len(_CITE_TOKEN.findall(text))
+    if n >= minimum:
+        return []
+    # After _resolve_cites the [cite: id] markers become inline markdown links — count those too.
+    md_links = len(re.findall(r"\]\(https?://[^)]+\)", text))
+    if md_links >= minimum:
+        return []
+    return ["citation_count_below_min"]
+
+
+# --- Section redundancy ----------------------------------------------------
+
+_REDUNDANCY_STOPWORDS = frozenset(
+    {
+        "the", "and", "for", "with", "from", "that", "this", "these", "those",
+        "their", "they", "them", "have", "has", "had", "are", "was", "were",
+        "been", "but", "not", "into", "such", "also", "more", "most", "than",
+        "then", "there", "here", "when", "where", "which", "while", "what",
+        "who", "whom", "all", "any", "some", "one", "two", "can", "will",
+        "would", "should", "could", "may", "might", "must", "about", "over",
+        "between", "across", "within", "many", "much", "very", "just", "only",
+        "even", "ever", "still", "yet", "so", "as", "to", "of", "in", "on",
+        "by", "or", "an", "a", "is", "be", "it", "its", "his", "her", "our",
+        "we", "you", "i", "do", "does", "did", "no", "nor", "if", "because",
+    }
+)
+
+
+def _bigram_set(text: str) -> set[tuple[str, str]]:
+    """Adjacent lowercase non-stopword bigrams in `text`, fence-stripped."""
+    src = _strip_code_fences(text or "")
+    src = re.sub(r"\[cite:[^\]]+\]", " ", src)
+    words = [
+        w.lower()
+        for w in re.findall(r"[A-Za-z][A-Za-z\-]+", src)
+        if w.lower() not in _REDUNDANCY_STOPWORDS and len(w) > 2
+    ]
+    return {(words[i], words[i + 1]) for i in range(len(words) - 1)}
+
+
+def _h2_section_bodies(body: str) -> list[tuple[str, str]]:
+    """Return [(title, body_text), ...] split on `## ` boundaries."""
+    text = body or ""
+    out: list[tuple[str, str]] = []
+    matches = list(re.finditer(r"^##\s+(.+?)\s*$", text, re.M))
+    for i, m in enumerate(matches):
+        title = m.group(1).strip()
+        start = m.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        out.append((title, text[start:end].strip()))
+    return out
+
+
+def lint_section_redundancy(body: str, *, threshold: float = 0.55) -> list[str]:
+    """Adjacent H2 sections whose noun-bigram Jaccard >= threshold are flagged."""
+    sections = _h2_section_bodies(body)
+    if len(sections) < 2:
+        return []
+    sets = [_bigram_set(b) for _, b in sections]
+    for i in range(len(sets) - 1):
+        a, b = sets[i], sets[i + 1]
+        if not a or not b:
+            continue
+        inter = len(a & b)
+        union = len(a | b)
+        if union >= 8 and (inter / union) >= threshold:
+            return ["redundant_adjacent_sections"]
+    return []
+
+
+# --- Fake / prose-disguised results table ----------------------------------
+
+_TABLE_ROW = re.compile(r"^\s*\|.+\|\s*$", re.M)
+
+
+def _markdown_tables(body: str) -> list[str]:
+    """Return raw markdown table blocks (header + rows joined)."""
+    text = body or ""
+    if not text:
+        return []
+    row_re = re.compile(r"^\s*\|.+\|\s*$")
+    blocks: list[list[str]] = []
+    cur: list[str] = []
+    for line in text.splitlines():
+        if row_re.match(line):
+            cur.append(line.strip())
+            continue
+        if len(cur) >= 2:
+            blocks.append(cur)
+        cur = []
+    if len(cur) >= 2:
+        blocks.append(cur)
+    return ["\n".join(b) for b in blocks]
+
+
+def _table_has_numeric_rows(table_md: str, *, min_numeric_cells: int = 1) -> bool:
+    rows = table_md.splitlines()
+    for row in rows[2:]:  # skip header + separator
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        nums = sum(1 for c in cells if re.search(r"\d", c))
+        if nums >= min_numeric_cells:
+            return True
+    return False
+
+
+def lint_fake_results_table(body: str) -> list[str]:
+    """Body looks like it tries to claim a results table but no real numeric row exists."""
+    text = body or ""
+    has_method_metric = bool(
+        re.search(
+            r"\bmethod\b[\s\S]{0,200}?\bmetric\b[\s\S]{0,200}?\bbaseline\b",
+            text,
+            re.I,
+        )
+    )
+    if not has_method_metric:
+        return []
+    for tbl in _markdown_tables(text):
+        if (
+            re.search(r"\bmethod\b", tbl, re.I)
+            and re.search(r"\bmetric|baseline\b", tbl, re.I)
+            and _table_has_numeric_rows(tbl)
+        ):
+            return []
+    return ["fake_results_table"]
+
+
+# --- Mermaid diagram is a taxonomy, not a method flow ----------------------
+
+_MERMAID_FENCE = re.compile(r"```mermaid\s*\n([\s\S]*?)\n```", re.M)
+_EDGE_LINE = re.compile(
+    r"""
+    ^\s*
+    (?P<src>[A-Za-z0-9_]+)
+    (?:\s*\[[^\]]*\])?           # optional [label] on src
+    \s*-->                        # edge
+    (?:\s*\|(?P<lbl>[^|]+)\|)?   # optional |edge label|
+    \s*
+    (?P<dst>[A-Za-z0-9_]+)
+    """,
+    re.M | re.X,
+)
+_MEASURABLE_VERB = re.compile(
+    r"\b(reduce|cut|drop|shrink|lower|raise|increase|boost|grow|"
+    r"replace|swap|prune|select|train|fine[- ]tune|encode|decode|"
+    r"compute|measure|score|sample|batch|cache|quantize|distil|"
+    r"compress|"
+    r"\d+\s*(%|x|ms|s|gb|mb|tokens|layers|params))",
+    re.I,
+)
+
+
+def lint_mermaid_taxonomy(body: str) -> list[str]:
+    """Inside ```mermaid``` blocks, flag a single-sink diagram with no measurable edge labels."""
+    for m in _MERMAID_FENCE.finditer(body or ""):
+        diagram = m.group(1)
+        edges = list(_EDGE_LINE.finditer(diagram))
+        if len(edges) < 5:
+            continue
+        in_deg: dict[str, int] = {}
+        labels: list[str] = []
+        for e in edges:
+            dst = (e.group("dst") or "").strip()
+            in_deg[dst] = in_deg.get(dst, 0) + 1
+            lbl = (e.group("lbl") or "").strip()
+            if lbl:
+                labels.append(lbl)
+        if not in_deg:
+            continue
+        max_in = max(in_deg.values())
+        if max_in < 5:
+            continue
+        if any(_MEASURABLE_VERB.search(lbl) for lbl in labels):
+            continue
+        return ["mermaid_is_taxonomy"]
+    return []
+
+
+# --- Tradeoffs (named alternatives + contrastive markers) ------------------
+
+_CONTRAST_MARKERS = re.compile(
+    r"\b("
+    r"vs\.?|versus|"
+    r"compared (?:to|with)|in contrast (?:to|with)|"
+    r"as opposed to|"
+    r"instead of|rather than|in place of|"
+    r"in exchange for|at the cost of|in return for|"
+    r"alternative(?:ly|s)?|the alternative is|"
+    r"trade[- ]?off|"
+    r"unlike "
+    r")\b",
+    re.I,
+)
+
+
+def _expected_alternative_names(bundle) -> list[str]:
+    """Names the writer should be using as 'the road not taken'."""
+    out: list[str] = []
+    if bundle is None:
+        return out
+    for grp_name in ("competitors", "ancestors", "followups", "enrichment_items"):
+        for it in (getattr(bundle, grp_name, None) or [])[:6]:
+            t = (getattr(it, "title", "") or "").strip()
+            if t:
+                out.append(t)
+    for b in (getattr(bundle, "benchmarks", None) or [])[:8]:
+        nm = (getattr(b, "name", "") or "").strip()
+        if nm:
+            out.append(nm)
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for n in out:
+        k = re.sub(r"[^a-z0-9]+", "", n.lower())
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        deduped.append(n)
+    return deduped
+
+
+def _body_has_named_alternative(body: str, candidates: list[str]) -> bool:
+    if not candidates:
+        return False
+    body_lower = (body or "").lower()
+    for n in candidates:
+        head = n.lower().split(":", 1)[0].strip()
+        head = re.sub(r"\s+", " ", head)
+        if not head:
+            continue
+        if head[:60] in body_lower:
+            return True
+    return False
+
+
+def lint_tradeoffs_present(body: str, bundle=None) -> list[str]:
+    """Body must contain a paragraph with both a contrast marker AND a named alternative.
+
+    Bundle is optional; without it we accept any paragraph that has both a contrast
+    marker AND something that looks like a proper-noun alternative (capitalised
+    multi-word phrase or known method-style token).
+    """
+    text = body or ""
+    if not text.strip():
+        return []
+    paragraphs = re.split(r"\n{2,}", text)
+    candidates = _expected_alternative_names(bundle)
+    for p in paragraphs:
+        # A "## Heading\nbody..." block ends up in one paragraph; only score the body.
+        body_only = re.sub(r"^\s*##\s+[^\n]+\n?", "", p)
+        if not _CONTRAST_MARKERS.search(body_only):
+            continue
+        if candidates:
+            if _body_has_named_alternative(body_only, candidates):
+                return []
+        else:
+            # Fallback: at least one capitalised multi-word noun (e.g. "Full Fine-Tuning").
+            # Require space (not arbitrary whitespace) so we don't accept heading\nWord.
+            if re.search(
+                r"\b[A-Z][A-Za-z0-9]+(?:[- ][A-Z][A-Za-z0-9]+)+\b", body_only
+            ):
+                return []
+    return ["no_tradeoffs_paragraph"]
+
+
+# --- Improvement claims must sit next to a named baseline -------------------
+
+_IMPROVEMENT = re.compile(
+    r"\b(?:improve|reduc|cut|drop|lower|raise|boost|increase|outperform|"
+    r"beat|beats|surpass|achiev|reach|gain)\w*\s*[^.\n]{0,80}?"
+    r"\b\d+(?:\.\d+)?\s*(?:%|x|×|ms|s|gb|mb|tokens?|layers?|points?)?",
+    re.I,
+)
+_BASELINE_NEAR = re.compile(
+    r"\b(baseline[s]?|sota|state[- ]of[- ]the[- ]art|"
+    r"vs\.?|versus|compared (?:to|with)|in contrast (?:to|with)|"
+    r"over (?:the )?(?:prior|previous|baseline|sota)|"
+    r"against (?:the )?(?:prior|previous|baseline|sota))\b",
+    re.I,
+)
+
+
+def lint_baseline_pairing(
+    body: str, bundle=None, *, min_paired_ratio: float = 0.5
+) -> list[str]:
+    """Numeric improvement claims must sit next to a named baseline or named alternative."""
+    text = body or ""
+    if not text.strip():
+        return []
+    matches = list(_IMPROVEMENT.finditer(text))
+    if not matches:
+        return []
+    candidates = _expected_alternative_names(bundle)
+    paired = 0
+    for m in matches:
+        s = max(0, m.start() - 200)
+        e = min(len(text), m.end() + 200)
+        window = text[s:e]
+        if _BASELINE_NEAR.search(window):
+            paired += 1
+            continue
+        if candidates and _body_has_named_alternative(window, candidates):
+            paired += 1
+            continue
+    ratio = paired / float(len(matches))
+    if ratio < min_paired_ratio:
+        return ["unpaired_improvement_claims"]
+    return []
 
 
 _H2_BLOCK = re.compile(
@@ -345,9 +699,13 @@ def undefined_acronyms(body: str, glossary_terms: list[str] | None = None) -> li
     return out
 
 
-def structural_issues(body: str) -> list[str]:
-    """All structural lints in one list (used by editor gate)."""
-    return (
+def structural_issues(body: str, bundle=None) -> list[str]:
+    """All structural lints in one list (used by editor gate).
+
+    `bundle` is optional - lints that benefit from EvidenceBundle context
+    (`lint_tradeoffs_present`, `lint_baseline_pairing`) only run when given one.
+    """
+    out = (
         lint_structure(body)
         + lint_generic_headings(body)
         + lint_templated_headings(body)
@@ -356,4 +714,13 @@ def structural_issues(body: str) -> list[str]:
         + lint_empty_placeholders(body)
         + lint_pov_after_phrase(body)
         + lint_collective_research_voice(body)
+        + lint_h2_minimum(body)
+        + lint_unfenced_mermaid(body)
+        + lint_citation_minimum(body)
+        + lint_section_redundancy(body)
+        + lint_fake_results_table(body)
+        + lint_mermaid_taxonomy(body)
+        + lint_tradeoffs_present(body, bundle)
+        + lint_baseline_pairing(body, bundle)
     )
+    return list(dict.fromkeys(out))

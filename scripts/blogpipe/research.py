@@ -310,9 +310,8 @@ def openalex_search(q: str) -> list[Item]:
 def _competitor_queries(title: str, abstract: str) -> list[str]:
     """LLM: short OpenAlex search phrases for related methods. Caller must gate dry_run / no key."""
     raw = openrouter_client.llm_text(
-        'Output JSON only: {"queries": ["<q1>", "<q2>"]}. '
-        "Each query: 4-8 words naming a competing, adjacent, or ancestor method/line of work. "
-        "No generic words only.",
+        'JSON only: {"queries": ["4-8 word OpenAlex query", "second query"]}. '
+        "Name competing, adjacent, or ancestor methods—not generic filler.",
         f"Title: {title}\nAbstract: {abstract[:600]}",
         max_tokens=1536,
         task="query_gen",

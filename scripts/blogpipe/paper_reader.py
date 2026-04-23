@@ -411,16 +411,15 @@ def _parse_json_obj(raw: str) -> dict[str, Any]:
 
 def _llm_chunk_summary(primary: Item, headings: list[str], chunk_text: str) -> dict[str, Any]:
     system = (
-        "You read one chunk from a machine learning research paper and extract grounded notes. "
-        "Output JSON only with this shape: "
-        '{"problem":"","method":"","setup":"","results":[{"summary":"","support":""}],'
-        '"limitations":[{"summary":"","support":""}],"reproducibility":[{"summary":"","support":""}],'
-        '"quotes":[""]}. '
-        "Rules: use only facts present in CHUNK_TEXT; write summaries in neutral third-person, not "
-        "'we' or 'our'; support fields must be short verbatim spans copied from CHUNK_TEXT; "
-        "prefer benchmark results, named baselines, datasets, models, hardware, and explicit "
-        "limitations; if a field is absent in this chunk, return '' or []. Keep each summary to 1-2 "
-        "sentences. Max 3 results, 3 limitations, 3 reproducibility items, and 3 quotes."
+        "Read one paper chunk; extract grounded JSON. Shape: "
+        "problem, method, setup (strings); results, limitations, reproducibility (arrays of "
+        "{summary, support}); quotes (string array). "
+        "Only CHUNK_TEXT facts; third-person, not we/our; support = short verbatim spans from "
+        "CHUNK_TEXT. Prefer numbers, baselines, datasets, hardware, explicit limits. "
+        "If the chunk is only related work or thanks, return empty strings and []. Do not guess. "
+        "Max 3 entries per list; 1-2 sentence summaries. "
+        'Example: {"problem": "", "method": "", "setup": "", "results": [], "limitations": [], '
+        '"reproducibility": [], "quotes": []}'
     )
     user = (
         f"TITLE: {primary.title}\n"

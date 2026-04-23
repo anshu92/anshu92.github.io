@@ -88,6 +88,46 @@ def editor_min_score() -> int:
         return 8
 
 
+def rubric_floor_no_cites_max() -> int:
+    """Max rubric score allowed when the body has no [cite: ] markers / inline citation links."""
+    try:
+        return int(_get("BLOGPIPE_RUBRIC_FLOOR_NO_CITES_MAX", "5"))
+    except ValueError:
+        return 5
+
+
+def rubric_floor_no_numbers_max() -> int:
+    """Max rubric score allowed when the body has no numeric claim with units/percentages."""
+    try:
+        return int(_get("BLOGPIPE_RUBRIC_FLOOR_NO_NUMBERS_MAX", "5"))
+    except ValueError:
+        return 5
+
+
+def rubric_floor_low_util_max() -> int:
+    """Max rubric score allowed when the evidence-utilization score is below threshold."""
+    try:
+        return int(_get("BLOGPIPE_RUBRIC_FLOOR_LOW_UTIL_MAX", "6"))
+    except ValueError:
+        return 6
+
+
+def rubric_floor_low_util_threshold() -> float:
+    """Evidence utilization score below which the rubric is capped."""
+    try:
+        return float(_get("BLOGPIPE_RUBRIC_FLOOR_LOW_UTIL_THRESHOLD", "0.20"))
+    except ValueError:
+        return 0.20
+
+
+def rubric_floor_lint_max() -> int:
+    """Max rubric score allowed when key structural lints fire (fake table, taxonomy, no tradeoffs, redundancy)."""
+    try:
+        return int(_get("BLOGPIPE_RUBRIC_FLOOR_LINT_MAX", "6"))
+    except ValueError:
+        return 6
+
+
 def editor_max_loops() -> int:
     try:
         return int(_get("BLOGPIPE_EDITOR_MAX_LOOPS", "2"))

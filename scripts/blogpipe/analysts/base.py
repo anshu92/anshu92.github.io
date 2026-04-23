@@ -14,9 +14,9 @@ from ..models import AnalystNote
 LOG = logging.getLogger(__name__)
 
 _SCHEMA_HINT = (
-    "Reply with JSON only: "
+    "Output JSON only: "
     '{"claims": ["…"], "citations": ["…"], "confidence": "low|medium|high", '
-    '"contradictions": ["…"], "suggested_section": "H2 name or empty"}.'
+    '"contradictions": ["…"], "suggested_section": "H2 or empty"}.'
 )
 
 

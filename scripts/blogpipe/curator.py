@@ -16,6 +16,7 @@ from .config import art_cooldown, dry_run, force_format, format_cooldown, pillar
 from .models import EditorialBrief, Pillar, PostMeta
 from .memory import _ROOT, load_json, save_json
 from .openrouter_client import embed_text
+from .voice import get_anchor
 
 LOG = logging.getLogger(__name__)
 
@@ -346,8 +347,13 @@ def run() -> EditorialBrief:
         if isinstance(v, str) and "T-" in v:
             avoid.append(k[:200])
     voice = _build_voice_guide(metas)
+    anchor = get_anchor()
+    if anchor.voice_guide:
+        voice = anchor.voice_guide + "\n" + voice
     dominant = max(pweights.items(), key=lambda kv: kv[1])[0] if pweights else "research"
     fmt, opener, art, diagram, fr = _pick_format(metas, pweights, dominant_pillar=dominant)
+    if anchor.opener_hook:
+        opener = anchor.opener_hook
     brief = EditorialBrief(
         pillar_weights=pweights,
         recent_topics=recent,

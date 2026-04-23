@@ -55,10 +55,8 @@ def _trace_append(trace: list[dict[str, Any]], entry: dict[str, Any]) -> None:
 def _planner_llm(title: str, abstract: str) -> tuple[list[str], list[str]]:
     """Returns (buckets, questions). One LLM call."""
     raw = openrouter_client.llm_text(
-        "Output JSON only: "
-        '{"buckets": ["definition", "mechanism", "tradeoffs", "limitations", "competing_methods"], '
-        '"questions": ["<=8 short research questions for a technical blog"]}. '
-        "Questions must be answerable with web or paper evidence.",
+        "JSON only. Keys: buckets (string list of topic areas), questions (up to 8 short lines, each "
+        "answerable from web or paper evidence).",
         f"Title: {title}\nAbstract: {abstract[:1500]}",
         max_tokens=1536,
         task="mcp_planner",
@@ -79,8 +77,7 @@ def _planner_llm(title: str, abstract: str) -> tuple[list[str], list[str]]:
 def _adversarial_llm(title: str, abstract: str) -> list[str]:
     """Limitations / counterpoints to research in the draft planning layer."""
     raw = openrouter_client.llm_text(
-        "Output JSON only: {\"notes\": [\"<=5 short counterpoints, limitations, or falsification angles "
-        'for a technical blog — not paper ablation results]}.',
+        'JSON: {"notes": ["<=5 short counterpoints, limits, or falsification angles — not ablation results"]}.',
         f"Title: {title}\nAbstract: {abstract[:1500]}",
         max_tokens=1536,
         task="mcp_adversarial",

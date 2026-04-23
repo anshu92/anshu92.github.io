@@ -9,7 +9,8 @@ def run(pack: EvidencePack):
     return run_analyst_task(
         "adversarial",
         "analyst_adversarial",
-        f"Critically stress-test claims. Flag overclaim, missing baselines, and threats to validity. {_SCHEMA_HINT}",
+        f"Stress-test claims. Flag overclaim, missing baselines, and threats to validity. "
+        f"citations may be empty or used for short quoted spans. {_SCHEMA_HINT}",
         f"Title: {pack.primary.title}\nAbstract:\n{pack.primary.abstract[:4000]}\n\n"
         f"Stated limitations:\n{lims}\n",
     )

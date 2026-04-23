@@ -22,6 +22,7 @@ def run(pack: EvidencePack):
     return run_analyst_task(
         "empirical",
         "analyst_empirical",
-        f"You extract benchmarks, numbers, and ablation claims only from the text. {_SCHEMA_HINT}",
+        f"Extract benchmark numbers, ablations, and baselines that appear verbatim in the text. "
+        f"Do not infer metrics. {_SCHEMA_HINT}",
         f"Title: {pack.primary.title}\n\nResults / metrics:\n{blob}\n",
     )

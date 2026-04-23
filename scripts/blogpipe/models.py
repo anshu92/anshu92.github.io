@@ -198,6 +198,10 @@ class EditorReport(BaseModel):
     lint_issues: list[str] = Field(default_factory=list)
     grounding_ok: bool = True
     grounding_issues: list[str] = Field(default_factory=list)
+    rubric_floor_applied: bool = False
+    rubric_floor_reasons: list[str] = Field(default_factory=list)
+    rubric_score_raw: int = 0
+    evidence_utilization: dict[str, Any] = Field(default_factory=dict)
 
 
 # --- Requests for HTTP allow-lists (no user-controlled URLs) ---

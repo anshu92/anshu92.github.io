@@ -20,6 +20,7 @@ def run(pack: EvidencePack):
     return run_analyst_task(
         "methods",
         "analyst_methods",
-        f"You are a methods specialist. Extract algorithmic and architectural claims. {_SCHEMA_HINT}",
+        f"Methods: extract algorithmic and architectural claims; each claim should name a concrete "
+        f"component or step. {_SCHEMA_HINT}",
         f"Title: {pack.primary.title}\n\nExcerpts:\n{blob}\n",
     )

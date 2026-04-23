@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional, Tuple
 from .. import config, lint
 from ..llm_chain import GROQ_USER_CONTENT_BUDGET, is_llm_call_cap_reached
 from ..models import EditorReport
+from ..rubric_prompt import RUBRIC_SYSTEM, shrink_rubric_user
 from . import llm as gllm
 
 LOG = logging.getLogger(__name__)
@@ -18,13 +19,6 @@ _PLACEHOLDER = re.compile(
     r"^no [a-z]+ (information|reference|equation|code|content)\b",
     re.I | re.M,
 )
-
-
-def _shrink_for_groq_rubric_user(body: str) -> str:
-    b = (body or "")
-    if len(b) <= GROQ_USER_CONTENT_BUDGET:
-        return b
-    return b[:GROQ_USER_CONTENT_BUDGET].rsplit(" ", 1)[0].rstrip() + "\n"
 
 
 def _shrink_for_groq_grounding_user(body: str, evidence_text: str) -> str:
@@ -105,27 +99,20 @@ def section_critic_llm(
     if not allow_llm:
         return {"verdict": "ok", "query_hint": ""}, False
     system = (
-        "You review one section of a technical blog. The section title was chosen by the writer and "
-        "may be anything — do NOT penalise the title itself. Judge only the body against these "
-        "standards for a great technical blog:\n"
-        "- concrete: specific systems, numbers, constraints, failure modes (not 'scale' or "
-        "'performance' alone);\n"
-        "- teaches why, not just what; examples carry the argument;\n"
-        "- claims are backed by a number, baseline, or citation; no unsupported confidence;\n"
-        "- tradeoffs named where relevant (alternatives, what was given up);\n"
-        "- limitations and failure modes are shown when the section is about the method or results;\n"
-        "- POV: if an opinion lead-in phrase ('What I find', 'The remarkable thing') appears, it is "
-        "followed by a real opinion, not a hedge.\n"
-        "Output JSON only: "
-        '{"verdict": "ok" | "vague" | "no_pov" | "empty_placeholder" | "missing_number" | "no_tradeoffs" | "no_limits", '
-        '"query_hint": "short search query that would fix the gap, or empty"}. '
-        "empty_placeholder: body is a 'no ... information' placeholder, 'TBD'/'TODO', or trivially short. "
-        "vague: few specifics, few numbers, few named entities, reads like filler. "
-        "no_pov: lead-in phrase present but the opinion is missing or hedged into nothing. "
-        "missing_number: the section promises a numeric comparison or result but does not give one. "
-        "no_tradeoffs: the section discusses a design choice but does not name alternatives or costs. "
-        "no_limits: the section reports a result or method but does not acknowledge any limit, "
-        "assumption, or failure mode where one would be expected."
+        "You review one section of a technical blog. Ignore the specific section title; judge only the "
+        "body. Good sections are concrete, teach why with examples, back claims, name tradeoffs and "
+        "limits when relevant, and follow POV lead-ins with a real stance (not a hedge).\n"
+        "Verdicts: empty_placeholder = placeholder line, TBD, or trivially short. vague = few "
+        "numbers/entities, filler. no_pov = lead-in with no real opinion. missing_number = promised "
+        "numeric result missing. no_tradeoffs = design choice with no named alternative/cost. "
+        "no_limits = method/result with no expected limit. only_marketing_nouns = only abstract nouns, "
+        "no measurable mechanism. opinion_unsupported = I/we opinion not tied to a fact in the section. "
+        "no_named_alternatives = tradeoff language but no EVIDENCE-named alternative, only 'traditional "
+        "approaches' style vague refs.\n"
+        'Output JSON only. Example: {"verdict": "ok", "query_hint": ""}\n'
+        'Schema: {"verdict": "ok" | "vague" | "no_pov" | "empty_placeholder" | "missing_number" | '
+        '"no_tradeoffs" | "no_limits" | "only_marketing_nouns" | "opinion_unsupported" | '
+        '"no_named_alternatives", "query_hint": "short search query, or empty"}'
     )
     user = f"SECTION: ## {title}\n{body[:6000]}\n\nEVIDENCE_EXCERPT:\n{evidence_excerpt[:4000]}\n"
     raw = gllm.graph_llm_text(
@@ -153,22 +140,10 @@ def rewrite_section(
         return old_body
     system = (
         f"Rewrite ONLY the section '## {title}' for a technical blog. Issue: {reason}.\n"
-        "Standards you must hit in the rewrite:\n"
-        "- Be concrete: replace vague wording with specific systems, numbers, constraints, "
-        "failure modes, or named entities. Delete filler.\n"
-        "- Teach why, not just what. Use one tight example or before/after comparison if it "
-        "carries the point.\n"
-        "- Back every claim with a number, baseline, or [cite: id] from EVIDENCE. Do not invent "
-        "sources or numbers not in EVIDENCE.\n"
-        "- If the section is about a design choice: name the alternative and what was given up.\n"
-        "- If the section is about a method or result: name at least one honest limitation, broken "
-        "assumption, or failure mode (not an ablation that validates the method).\n"
-        "- If the issue is 'pov_phrase' or 'no_pov': keep or introduce one first-person opinion "
-        "sentence and follow it with an actual stance.\n"
-        "- Keep it skimmable: short paragraphs, descriptive sub-heads if you add any.\n"
-        "- Do NOT change the heading to a generic one (no 'Introduction', 'Background', "
-        "'Overview', 'Results', 'Summary', 'Conclusion').\n"
-        "Output only that section's markdown (include the ## line)."
+        "Concrete, skimmable paragraphs; [cite: id] and numbers from EVIDENCE only. Design section: "
+        "name the alternative and cost. Method/result section: one real limitation (not a validating "
+        "ablation). For no_pov: one first-person sentence with a stance. Keep a specific ## title, "
+        "not Introduction/Results/Conclusion. Output that section’s markdown with the ## line only."
     )
     return gllm.graph_llm_text(
         f"rewrite_{title[:20]}",
@@ -180,53 +155,142 @@ def rewrite_section(
     )
 
 
-def global_rubric(body: str) -> EditorReport:
-    """Editor rubric: match editor.json shape."""
+def rewrite_section_for_grounding(
+    title: str,
+    old_body: str,
+    bundle_excerpt: str,
+    unused_facts_text: str,
+    reason: str,
+) -> str:
+    """Targeted rewrite that injects unused facts (numbers, named entities, claims)."""
+    if config.dry_run():
+        return old_body
+    if is_llm_call_cap_reached():
+        return old_body
+    system = (
+        f"Rewrite ONLY the section '## {title}' for a senior-engineer blog. Critic: {reason}. "
+        "The draft was too abstract. Meet all of: (1) a number from UNUSED NUMBERS with a NAMED "
+        "baseline or alternative (no 'prior work' vagueness), (2) one UNUSED NAMED ENTITIES line "
+        "compared to the primary method on one axis (cost, accuracy, etc.), (3) any first-person line "
+        "tied to UNUSED ANALYST CLAIMS or quotes with [cite: id], (4) a named 'road not taken' with a "
+        "contrastive marker, (5) a falsification-style limitation (cheapest test that would break the "
+        "main claim). Keep existing concrete text. EVIDENCE and UNUSED only—no new facts. "
+        "Output the section including '## ' line only."
+    )
+    user = (
+        f"EVIDENCE:\n{(bundle_excerpt or '')[:8000]}\n\n"
+        f"UNUSED FACTS (pull from these; do not invent):\n{unused_facts_text or '(none)'}\n\n"
+        f"OLD SECTION:\n{(old_body or '')[:4000]}\n"
+    )
+    return gllm.graph_llm_text(
+        f"rewrite_grounded_{title[:20]}",
+        system,
+        user,
+        mode="fast",
+        max_tokens=2048,
+        task="draft_rewrite_section",
+    )
+
+
+_FLOOR_LINT_KEYS = {
+    "fake_results_table",
+    "mermaid_is_taxonomy",
+    "redundant_adjacent_sections",
+    "no_tradeoffs_paragraph",
+    "unpaired_improvement_claims",
+}
+
+
+def _apply_rubric_floor(
+    score: int,
+    body: str,
+    bundle,
+    lint_issues: list[str] | None,
+) -> tuple[int, list[str], dict | None]:
+    """Cap `score` based on deterministic measurements. Returns (new_score, reasons, util_report)."""
+    reasons: list[str] = []
+    floored = score
+    text = body or ""
+
+    def _apply(name: str, cap: int, extra: str = "") -> None:
+        nonlocal floored
+        # Always record the reason when a condition fires, even if a previous
+        # cap already dropped the score below this cap (so the editor report
+        # surfaces every contributing factor).
+        suffix = f":{extra}" if extra else ""
+        reasons.append(f"{name}{suffix}:cap={cap}")
+        if floored > cap:
+            floored = cap
+
+    has_cite_marker = bool(re.search(r"\[cite:\s*[^\]]+\]", text, re.I))
+    has_md_link = bool(re.search(r"\]\(https?://[^)]+\)", text))
+    if not has_cite_marker and not has_md_link:
+        _apply("no_cites", config.rubric_floor_no_cites_max())
+    if not lint.has_numeric_claim(text):
+        _apply("no_numbers", config.rubric_floor_no_numbers_max())
+    fired = sorted(set(lint_issues or []) & _FLOOR_LINT_KEYS)
+    if fired:
+        _apply("lints", config.rubric_floor_lint_max(), ",".join(fired))
+    util_report = None
+    if bundle is not None:
+        try:
+            from ..evidence_coverage import coverage_report
+
+            util_report = coverage_report(text, bundle)
+        except Exception:  # noqa: BLE001
+            util_report = None
+        if util_report is not None:
+            thr = config.rubric_floor_low_util_threshold()
+            if util_report.get("score", 1.0) < thr:
+                _apply(
+                    "low_util",
+                    config.rubric_floor_low_util_max(),
+                    f"score={util_report.get('score')}:thr={thr}",
+                )
+    return floored, reasons, util_report
+
+
+def global_rubric(
+    body: str,
+    *,
+    bundle=None,
+    lint_issues: list[str] | None = None,
+) -> EditorReport:
+    """Editor rubric: match editor.json shape, with deterministic floor."""
     from ..editor import _normalize_rubric_items
 
-    system = (
-        "You are a senior technical editor. Score the blog draft on 15 criteria, 1 point each if "
-        "the draft clearly meets the standard, 0 otherwise. Be strict.\n"
-        "CRITERIA: 1.sharp_takeaway (first sentence names a numeric result), "
-        "2.intro_earns_attention (problem/audience/value in first 3-5 sentences, no throat-clearing), "
-        "3.concrete_problem (real-world context, constraints, failure mode named), "
-        "4.inevitable_structure (problem -> approach -> results -> limits; no tangents), "
-        "5.specific_language (specific systems/components/numbers; no filler), "
-        "6.teaches_why (explains mechanism, not just what was done), "
-        "7.strong_example (inputs/outputs, before/after, or code that earns its place), "
-        "8.tradeoffs_explicit (alternatives and what was given up are named), "
-        "9.claims_backed (every speed/accuracy/cost claim has number or cite), "
-        "10.limitations_honest (where it breaks, assumptions, when NOT to use it), "
-        "11.skimmable (short paragraphs, descriptive sub-heads, key takeaways scannable), "
-        "12.actionable_close (reader knows what to try/avoid/run), "
-        "13.diagrams_clarify (mermaid/figure reduces cognitive load; 0 if absent), "
-        "14.honest_scope (local results not oversold as general laws), "
-        "15.pov_present (argues something; at least one first-person opinion).\n"
-        "Also fill five_questions: {problem, hard, tried, outcomes, next}, 1-3 sentences each, "
-        'from the text. If any cannot be answered, set that value to "CANNOT_DETERMINE". '
-        "five_questions_ok is true only if none are CANNOT_DETERMINE.\n"
-        "rubric_items: JSON array of 15 objects {item: criterion_name, score: 0 or 1}. "
-        'Output JSON only: {"rubric_score": N, "rubric_items": [...], "five_questions": {...}, '
-        '"five_questions_ok": true}'
-    )
-    if config.dry_run():
-        return EditorReport(
-            rubric_score=10,
-            five_questions_ok=True,
-            pass_gate=True,
+    def _finalize(
+        raw_score: int,
+        rubric_items: list,
+        fq_dict: dict,
+        ok: bool,
+    ) -> EditorReport:
+        floored, reasons, util = _apply_rubric_floor(
+            raw_score, body, bundle, lint_issues
         )
+        floor_applied = floored != raw_score
+        return EditorReport(
+            rubric_score=floored,
+            rubric_score_raw=raw_score,
+            rubric_items=rubric_items,
+            five_questions={str(k): str(v) for k, v in (fq_dict or {}).items()},
+            five_questions_ok=bool(ok),
+            pass_gate=floored >= config.editor_min_score() and bool(ok),
+            rubric_floor_applied=floor_applied,
+            rubric_floor_reasons=reasons,
+            evidence_utilization=util or {},
+        )
+
+    if config.dry_run():
+        return _finalize(10, [], {}, True)
     raw = gllm.graph_llm_text(
-        "rubric", system, _shrink_for_groq_rubric_user(body), mode="smart", task="editor_rubric"
+        "rubric", RUBRIC_SYSTEM, shrink_rubric_user(body), mode="smart", task="editor_rubric"
     )
     if not raw.strip():
-        return EditorReport(
-            rubric_score=9,
-            five_questions_ok=True,
-            pass_gate=True,
-        )
+        return _finalize(9, [], {}, True)
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
-        return EditorReport(rubric_score=8, pass_gate=True)
+        return _finalize(8, [], {}, True)
     try:
         d = json.loads(m.group(0))
         sc = int(d.get("rubric_score", 8))
@@ -235,16 +299,12 @@ def global_rubric(body: str) -> EditorReport:
             isinstance(fq.get(k), str) and "CANNOT" in str(fq.get(k, "")) for k in fq
         )
         ok = not bad and d.get("five_questions_ok", not bad)
-        return EditorReport(
-            rubric_score=sc,
-            rubric_items=_normalize_rubric_items(d.get("rubric_items")),
-            five_questions={str(k): str(v) for k, v in fq.items()},
-            five_questions_ok=bool(ok),
-            pass_gate=sc >= config.editor_min_score() and bool(ok),
+        return _finalize(
+            sc, _normalize_rubric_items(d.get("rubric_items")), fq, bool(ok)
         )
     except Exception as e:  # noqa: BLE001
         LOG.warning("rubric parse: %s", e)
-        return EditorReport(rubric_score=8, pass_gate=True)
+        return _finalize(8, [], {}, True)
 
 
 def grounding_check_node(body: str, evidence_text: str) -> tuple[bool, list[str], bool]:
@@ -268,7 +328,7 @@ def grounding_check_node(body: str, evidence_text: str) -> tuple[bool, list[str]
         d = json.loads(m.group(0))
         issues = [
             str(x).strip() for x in (d.get("unsupported_claims") or []) if str(x).strip()
-        ][:12]
+        ][:10]
         return (len(issues) == 0, issues, True)
     except (json.JSONDecodeError, TypeError):
         return True, [], True

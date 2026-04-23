@@ -69,16 +69,15 @@ def _llm_picks(
         return []
     pool = ", ".join(optional_pool)
     sys_ = (
-        "You are routing sub-analysts for a technical blog pipeline. "
-        "Pick EXACTLY 2-4 slugs from the allowed optional list only. "
-        "Output one JSON object: {\"picks\": [..], \"rationale\": \"..\"}."
+        "Route sub-analysts for a blog pipeline. Pick 2 to 4 slugs from the optional list; pick fewer "
+        "if the title clearly needs fewer, or the remaining slugs are a bad fit. "
+        'Output JSON only: {"picks": ["slug1", "slug2", ...]}. Example: {"picks": ["related", "code"]}.'
     )
     user = (
         f"Title: {item.title}\n"
-        f"Optional analysts (choose 2-4): [{pool}]\n"
-        "Prefer: related work and visuals for theory papers; code+web for systems; "
-        "adversarial+practitioner for applied claims. "
-        "You must not invent slugs; only from the list."
+        f"Optional slugs: [{pool}]\n"
+        "Heuristic: related+visuals for theory; code+web for systems; adversarial+practitioner for "
+        "strong applied claims. Slugs from the list only, no new names."
     )
     out = openrouter_client.llm_text(
         sys_,

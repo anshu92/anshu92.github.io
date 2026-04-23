@@ -34,7 +34,13 @@ from .critics import (
     global_rubric,
     grounding_check_node,
     rewrite_section,
+    rewrite_section_for_grounding,
     section_critic_llm,
+)
+from ..evidence_coverage import (
+    coverage_report,
+    render_unused_facts,
+    unused_facts_for_section,
 )
 from .state import evidence_model, brief_model
 
@@ -225,8 +231,8 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
         if _draft_looks_truncated_for_rescue(body) and not is_llm_call_cap_reached():
             cont = gllm.graph_llm_text(
                 "draft_continuation",
-                "Continue exactly where the draft stopped; do not repeat content; finish all "
-                "incomplete sections; output markdown only.",
+                "Continue from the end only; do not repeat prior lines; complete unfinished sections. "
+                "Output markdown only, no frontmatter, no retake of the first-line takeaway.",
                 f"So far (continue from the end, do not repeat):\n\n{body[-12000:]}",
                 mode="fast",
                 max_tokens=min(config.max_tokens_fast(), 4096),
@@ -241,7 +247,8 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
     if _strip_unresolved(body):
         rep_txt = gllm.graph_llm_text(
             "cite_repair",
-            "Fix [missing cite: ...] with paraphrase or remove. Output markdown body only, no fences.",
+            "Replace [missing cite: ...] with paraphrase or remove the line. Return the full body only, "
+            "no fences, no wrapper.",
             body[:12000],
             max_tokens=2048,
             task="draft_cite_repair",
@@ -259,6 +266,17 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
 
     headings = _discover_headings(body)
     critic_used = 0
+    grounding_rewrites_used = 0
+    _MAX_GROUNDING_REWRITES = 3
+    _GROUNDING_VERDICTS = {
+        "vague",
+        "missing_number",
+        "no_tradeoffs",
+        "no_named_alternatives",
+        "only_marketing_nouns",
+        "opinion_unsupported",
+        "no_limits",
+    }
     for idx, title in enumerate(headings):
         if re_re >= _MAX_RESEARCH_WINGS and rewrites >= _MAX_REWRITES:
             break
@@ -302,6 +320,25 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
             rewrites += 1
             if nblock.strip():
                 body = _replace_section_body(body, title, nblock)
+        elif (
+            verdict in _GROUNDING_VERDICTS
+            and grounding_rewrites_used < _MAX_GROUNDING_REWRITES
+            and rewrites < _MAX_REWRITES
+        ):
+            with budget.stage("polish"):
+                unused = unused_facts_for_section(title, body, bundle)
+                facts_text = render_unused_facts(unused)
+                nblock = rewrite_section_for_grounding(
+                    title,
+                    block,
+                    bundle.model_dump_json()[:18000],
+                    facts_text,
+                    verdict,
+                )
+            grounding_rewrites_used += 1
+            rewrites += 1
+            if nblock.strip():
+                body = _replace_section_body(body, title, nblock)
         elif rewrites < _MAX_REWRITES:
             nblock = rewrite_section(
                 title, block, bundle.model_dump_json()[:20000], verdict
@@ -314,7 +351,7 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
     body = embed_planned_visuals(
         body, bundle.visual_plan, _slugify(bundle.primary.title)
     )
-    struct = lint.structural_issues(body)
+    struct = lint.structural_issues(body, bundle)
     unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
     print(
         f"stage=draft_graph rewrites={rewrites} re_research={re_re} structural={len(struct)} unsupported={len(unsupported)}",
@@ -344,15 +381,21 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     evidence_json = state.get("evidence") or {}
     ev_text = json.dumps(evidence_json)[:22000] if evidence_json else "{}"
 
-    with budget.stage("editor"):
-        rep = global_rubric(body)
-        g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
     bundle_for_explainer: EvidenceBundle | None = None
     if isinstance(evidence_json, dict) and evidence_json:
         try:
             bundle_for_explainer = EvidenceBundle.model_validate(evidence_json)
         except Exception:
             bundle_for_explainer = None
+
+    pre_lint_issues = list(
+        dict.fromkeys(lint.structural_issues(body, bundle_for_explainer))
+    )
+    with budget.stage("editor"):
+        rep = global_rubric(
+            body, bundle=bundle_for_explainer, lint_issues=pre_lint_issues
+        )
+        g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
     with budget.stage("polish"):
         if bundle_for_explainer is not None:
             body = explain_undefined_terms(body, bundle_for_explainer)
@@ -368,7 +411,9 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         )
     else:
         undefined_after = lint.undefined_acronyms(body, [])
-    lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
+    lint_issues = list(
+        dict.fromkeys(lint.structural_issues(body, bundle_for_explainer))
+    )
     det_ground = lint.unsupported_numeric_claims(body, ev_text)
     usage = get_llm_usage()
     need_llm = bool(config.llm_configured() and not config.dry_run())
@@ -399,6 +444,22 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     if llm_ok and "takeaway_repeated_as_heading" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
     if llm_ok and "no_results_table" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "fewer_than_required_h2_sections" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "unfenced_mermaid_block" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "citation_count_below_min" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "redundant_adjacent_sections" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "fake_results_table" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "mermaid_is_taxonomy" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "no_tradeoffs_paragraph" in lint_issues:
+        rep = rep.model_copy(update={"pass_gate": False})
+    if llm_ok and "unpaired_improvement_claims" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
     if det_ground:
         rep = rep.model_copy(update={"pass_gate": False})

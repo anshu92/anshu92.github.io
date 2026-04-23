@@ -27,11 +27,11 @@ def _synthesize_narrative(notes: list[AnalystNote], pack: EvidencePack) -> str:
         + "\n".join(f"- {c}" for c in (n.claims or [])[:8])
         + ("\nCaveats: " + "; ".join(n.contradictions[:4]) if n.contradictions else "")
         for n in notes
-    )[:20000]
+    )[:10000]
     return (
         openrouter_client.llm_text(
-            "Write 2-4 short paragraphs: unified angle for a technical post, key tensions, "
-            "and what a reader should take away. Plain prose, no JSON.",
+            "Write 2-4 short paragraphs: editorial angle, main tensions, reader takeaway. "
+            "No preamble, no headings, no JSON.",
             f"Title: {pack.primary.title}\n\nAnalyst memos:\n{blob}\n",
             max_tokens=1800,
             task="committee_synthesis",

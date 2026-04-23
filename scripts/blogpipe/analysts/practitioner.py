@@ -11,9 +11,10 @@ def run(pack: EvidencePack):
     ser = "\n".join(
         f"- {it.title} {it.url}\n  {it.abstract[:240]}" for it in (items or [])[:5]
     )
+    abs_ = (pack.primary.abstract or "")[:600]
     return run_analyst_task(
         "practitioner",
         "analyst_practitioner",
-        f"You advise when and how a practitioner would adopt this. Use search snippets. {_SCHEMA_HINT}",
-        f"Paper: {pack.primary.title}\n\nWeb:\n{ser or '(no results)'}\n",
+        f"Adoption: fit, preconditions, gotchas, validation cost. Use search snippets. {_SCHEMA_HINT}",
+        f"Title: {pack.primary.title}\nAbstract:\n{abs_}\n\nWeb:\n{ser or '(no results)'}\n",
     )

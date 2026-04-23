@@ -6,15 +6,12 @@ from ..models import EvidencePack
 from .base import run_analyst_task
 
 _SCHEMA = (
-    "Reply with JSON only: "
+    "Output JSON only: "
     '{"claims": ["TERM — 1–2 sentence definition for an ML practitioner", ...], '
     '"citations": [], "confidence": "low|medium|high", '
     '"contradictions": [], "suggested_section": ""}. '
-    "Each claim MUST start with the term/acronym followed by ' — '. "
-    "Cover at most 12 terms. Pick: acronyms (e.g. RDP, MMLU, LoRA, QKV); domain methods "
-    "(e.g. Ramer-Douglas-Peucker algorithm, low-rank adaptation); benchmark names; and any "
-    "named architecture component the paper relies on. Definitions must be self-contained, "
-    "factual, and use the paper's wording where possible."
+    "Each claim starts with TERM — . At most 12 terms: acronyms, methods, benchmarks, named "
+    "components. Self-contained, factual, prefer paper wording."
 )
 
 
@@ -35,6 +32,6 @@ def run(pack: EvidencePack):
     return run_analyst_task(
         "glossary",
         "analyst_glossary",
-        f"You build a precise glossary for a technical blog. {_SCHEMA}",
+        f"Build a precise glossary. {_SCHEMA}",
         f"Title: {pack.primary.title}\n\nExcerpts:\n{blob}\n",
     )

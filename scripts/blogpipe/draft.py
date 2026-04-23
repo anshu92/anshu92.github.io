@@ -15,8 +15,36 @@ from . import config, formats, lint, memory, openrouter_client
 from .llm_chain import get_llm_usage
 from .models import EditorialBrief, EvidenceBundle, Item, VisualPlan
 from .memory import _ROOT
+from .voice import get_anchor
 
 LOG = logging.getLogger(__name__)
+
+
+def _voice_exemplar_block_for_prompt() -> str:
+    """Return the chosen voice anchor's WRITING EXEMPLAR text for the system prompt."""
+    try:
+        return get_anchor().exemplar_block or ""
+    except Exception:
+        return ""
+
+
+_DRAFT_REWRITE_SYSTEM = (
+    "Rewrite into a final markdown body about the PRIMARY paper only. No questions, no topic "
+    "swaps, no related-post pivots. Use story-specific ## headings, one ```mermaid``` block, and "
+    "grounded [cite: id] claims. Output markdown only, no outer frontmatter, no code fences around "
+    "the whole post."
+)
+
+_CITE_REPAIR_SYSTEM = (
+    "Fix [missing cite: ...] by paraphrase without a cite or by removing the sentence. Output the "
+    "full revised markdown body only, no commentary, no code fences."
+)
+
+_DRAFT_STRUCTURAL_REPAIR_SYSTEM = (
+    "Fix the listed issues while keeping the post on the PRIMARY paper. Do not ask questions. "
+    "Return the full markdown body with one mermaid block and story-specific ## headings. Ground "
+    "numbers in EVIDENCE. Output markdown only, no code fences around the whole post."
+)
 
 
 def _slugify(title: str) -> str:
@@ -90,7 +118,77 @@ def _has_result_signal(text: str) -> bool:
     return bool(lint.numeric_claims(text))
 
 
+_MERMAID_BARE_OPENER = re.compile(
+    r"^(?P<indent>[ \t]*)"
+    r"(?P<kw>graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|"
+    r"gantt|pie|journey|gitGraph|mindmap|timeline|requirementDiagram|c4Context)\b"
+    r"(?P<rest>[^\n]*)$",
+    re.M,
+)
+
+
+def _wrap_unfenced_mermaid_blocks(body: str) -> str:
+    """Wrap stray ``graph TD`` / ``flowchart …`` blocks (not inside a code fence) in ``mermaid`` fences."""
+    text = body or ""
+    if not text:
+        return text
+    fence_spans: list[tuple[int, int]] = []
+    for m in re.finditer(r"```[\s\S]*?```", text):
+        fence_spans.append((m.start(), m.end()))
+
+    def in_fence(idx: int) -> bool:
+        for s, e in fence_spans:
+            if s <= idx < e:
+                return True
+        return False
+
+    out_parts: list[str] = []
+    cur = 0
+    for m in _MERMAID_BARE_OPENER.finditer(text):
+        if in_fence(m.start()):
+            continue
+        line_start = m.start()
+        # Find end of block: first blank line or next H1-H6 heading or end of text.
+        rest = text[m.end():]
+        end_in_rest = len(rest)
+        for tail in re.finditer(r"\n[ \t]*\n|^#{1,6}\s+", rest, re.M):
+            if tail.start() == 0:
+                continue
+            end_in_rest = tail.start()
+            break
+        block_end = m.end() + end_in_rest
+        # Leave anything after the block alone and never swallow another fence.
+        for s, _ in fence_spans:
+            if line_start < s < block_end:
+                block_end = s
+                break
+        block = text[line_start:block_end].rstrip()
+        out_parts.append(text[cur:line_start])
+        out_parts.append("```mermaid\n" + block + "\n```")
+        cur = block_end
+    if cur == 0:
+        return text
+    out_parts.append(text[cur:])
+    return "".join(out_parts)
+
+
+def _promote_h3_when_no_h2(body: str) -> str:
+    """Writer mistake rescue: if there are zero ``## `` lines but >= 2 ``### `` lines, promote one level."""
+    text = body or ""
+    if not text:
+        return text
+    has_h2 = re.search(r"^##\s+\S", text, re.M) is not None
+    if has_h2:
+        return text
+    h3_count = len(re.findall(r"^###\s+\S", text, re.M))
+    if h3_count < 2:
+        return text
+    LOG.info("draft: no H2 sections; promoting %d H3s to H2", h3_count)
+    return re.sub(r"^###\s+", "## ", text, flags=re.M)
+
+
 def _ensure_mermaid(body: str, title: str, brief: EditorialBrief) -> str:
+    body = _wrap_unfenced_mermaid_blocks(body)
     if "```mermaid" in body:
         return body
     LOG.info("draft: no mermaid block; injecting diagram")
@@ -100,8 +198,8 @@ def _ensure_mermaid(body: str, title: str, brief: EditorialBrief) -> str:
             + "\n\n```mermaid\nflowchart LR\n  A[Input] --> B[Core method] --> C[Output]\n```\n"
         )
     raw = openrouter_client.llm_text(
-        "Output only a mermaid code block (```mermaid ... ```) — no explanation. "
-        f"Style: {brief.diagram_style}. Show the key method or process flow.",
+        f"Output one ```mermaid``` fenced block only, no prose. Style: {brief.diagram_style}. "
+        "Flow: main inputs → method steps → outputs.",
         f"Paper: {title}",
         max_tokens=1024,
         task="draft_rewrite_section",
@@ -118,8 +216,7 @@ def _apply_result_first_takeaway(body: str, title: str) -> str:
     if config.dry_run() or not config.llm_configured():
         return body
     fixed = openrouter_client.llm_text(
-        "Rewrite as ONE sentence takeaway that names the key result with a number. "
-        "Output only the sentence, no quotes.",
+        "One sentence, first line only: name the key result with a number. No quote marks, no preface.",
         f"Title: {title}\nCurrent first line: {line}",
         max_tokens=512,
         task="draft_rewrite_section",
@@ -564,16 +661,11 @@ def explain_undefined_terms(body: str, bundle: EvidenceBundle) -> str:
     LOG.info("explainer: %s undefined acronyms: %s", len(missing), missing)
     glossary = _glossary_block(terms)
     instruction = (
-        "Edit the markdown body to define the listed acronyms on their FIRST occurrence in PROSE. "
-        "Use the GLOSSARY for ground truth. Format: ACRONYM (expansion) followed by a brief clause, "
-        "or 'TERM — short definition'. "
-        "HARD CONSTRAINTS (any violation = return body unchanged): "
-        "(1) Never edit text inside a markdown link `[text](url)` — keep link anchors verbatim. "
-        "(2) Never edit headings (lines starting with `#`/`##`/`###`). "
-        "(3) Never edit the first line of the body (the takeaway sentence). "
-        "(4) Never edit numbers, the mermaid block, or `[cite: id]` tokens. "
-        "(5) Do not introduce new markdown links. "
-        "Return the FULL revised markdown body only — no commentary, no code fences."
+        "Define the listed acronyms on their first occurrence in prose. GLOSSARY is ground truth. "
+        "Format: ACRONYM (expansion) and a short clause, or 'TERM — short definition'.\n"
+        "Do not edit (or return the body unchanged): (1) text inside `[text](url)` links, "
+        "(2) heading lines, (3) the first body line, (4) numbers, the mermaid block, or [cite: id], "
+        "(5) do not add links. Return the full markdown body only, no commentary, no code fences."
     )
     user = (
         f"UNDEFINED_ACRONYMS:\n- " + "\n- ".join(missing[:12]) + "\n\n"
@@ -745,6 +837,7 @@ def _polish_body(body: str, bundle: EvidenceBundle, brief: EditorialBrief) -> st
     body = _ensure_grounded_takeaway(body, bundle)
     body = _dedupe_adjacent_lines(body)
     body = _strip_leading_title_echo_heading(body, bundle.primary.title)
+    body = _promote_h3_when_no_h2(body)
     body = _repair_or_inject_results_table(body, bundle)
     body = _drop_unsupported_numeric_paragraphs(body, bundle)
     body = _drop_orphan_headings(body)
@@ -773,25 +866,41 @@ def build_prompt(
         )
     if b_rows:
         ev.append(
-            "BENCHMARK rows from evidence — use ONLY these numbers in the table and prose; "
-            "do not invent other metrics:\n" + "\n".join(b_rows)
+            "BENCHMARKS_TABLE — use ONLY these numbers in the prose table and inline. "
+            "COVERAGE FLOOR: at least 4 distinct numbers from this list must appear in "
+            "the body, each paired with a named baseline or comparison. Do not invent "
+            "other metrics.\n" + "\n".join(b_rows)
         )
+    related_lines: list[str] = []
     for lab, items in (
         ("ANCESTORS", bundle.ancestors),
         ("COMPETITORS", bundle.competitors),
         ("FOLLOWUPS", bundle.followups),
     ):
         for it in items[:4]:
-            ev.append(f"{lab} {it.title} | {it.url}\n{it.abstract[:260]}")
-    if bundle.quotes:
+            head = (it.abstract or "").strip().split(". ", 1)[0][:200]
+            related_lines.append(f"- [{lab}] {it.title} — {head}")
+    if related_lines:
         ev.append(
-            "PAPER_EXCERPTS (use for grounded paraphrase; do not overquote):\n"
-            + "\n".join(
-                f"- {q.text[:260]} [{q.source_id}]"
-                for q in bundle.quotes[:6]
-                if (q.text or "").strip()
-            )
+            "RELATED_WORK_LIST — name >=2 of these entries by their literal title in "
+            "the tradeoffs section as 'the road not taken'. Comparing the primary "
+            "method to these is what makes the post useful:\n"
+            + "\n".join(related_lines[:10])
         )
+    if bundle.quotes:
+        quote_lines = []
+        for i, q in enumerate(bundle.quotes[:6], start=1):
+            txt = (q.text or "").strip()
+            if not txt:
+                continue
+            src = getattr(q, "source_id", "") or "primary"
+            quote_lines.append(f"{i}. \"{txt[:260]}\" [cite: {src}]")
+        if quote_lines:
+            ev.append(
+                "KEY_QUOTES_NUMBERED — anchor at least one first-person opinion "
+                "sentence in one of these quotes (paraphrase, then cite):\n"
+                + "\n".join(quote_lines)
+            )
     if bundle.planner_questions:
         ev.append(
             "RESEARCH_QUESTIONS (cover across sections where relevant):\n"
@@ -813,21 +922,30 @@ def build_prompt(
         )
     glossary_terms: list[str] = []
     if bundle.analyst_notes:
-        lines: list[str] = [
-            "COMMITTEE_NOTES (use to sharpen; resolve conflicts with EVIDENCE):"
-        ]
+        claim_lines: list[str] = []
+        skill_idx = 0
         for n in bundle.analyst_notes:
             if getattr(n, "skipped", False):
                 continue
             if n.role == "visual_planner":
                 continue
             role = n.role
-            cpart = "\n".join(f"- {c}" for c in (n.claims or [])[:6])
-            if cpart.strip():
-                lines.append(f"### {role}\n{cpart}")
+            for c in (n.claims or [])[:6]:
+                head = (c or "").strip().split("\n", 1)[0]
+                if not head:
+                    continue
+                skill_idx += 1
+                claim_lines.append(f"{skill_idx}. [{role}] {head[:240]}")
             if role == "glossary":
                 glossary_terms.extend(n.claims or [])
-        ev.append("\n\n".join(lines)[:5000])
+        if claim_lines:
+            ev.append(
+                "ANALYST_CLAIMS_NUMBERED — these are the committee's load-bearing "
+                "observations. COVERAGE FLOOR: surface at least 4 of these by name, "
+                "literally quoting the operative noun-phrase or number. Do NOT compress "
+                "them into one generic sentence:\n"
+                + "\n".join(claim_lines[:18])
+            )
     if glossary_terms:
         ev.append(
             "GLOSSARY (define each term on its FIRST mention in the body, inline and concise — "
@@ -860,141 +978,84 @@ def build_prompt(
             f"ENRICHMENT {it.source} {it.title} | {it.url}\n{it.abstract[:260]}"
         )
     ctx = "\n\n".join(ev)
-    if len(ctx) > 9000:
-        ctx = ctx[:9000] + "\n\n[EVIDENCE truncated to budget]\n"
+    if len(ctx) > 11000:
+        ctx = ctx[:11000] + "\n\n[EVIDENCE truncated to budget]\n"
     brief_json = brief.model_dump_json()
     system = (
-        "You write Hugo markdown blog posts for senior engineers and researchers. "
-        "You are a technical blogger dissecting someone else's paper after reading it closely. "
-        "Output ONLY the markdown body (no outer frontmatter — the tool will add it). "
-        "Do not emit YAML, a title line, or any heading that simply repeats the paper title. "
-        "A great technical blog does three things at once: it teaches something real, earns trust, "
-        "and respects the reader's time.\n"
+        "You write Hugo markdown for senior engineers. You dissect someone else's paper; output ONLY "
+        "the markdown body (the tool adds frontmatter). No YAML, no H1, no ## heading that merely "
+        "repeats the paper title. Teach something real, earn trust, save time.\n"
         "\nVOICE AND ATTRIBUTION:\n"
-        "- This is not written from the paper authors' point of view.\n"
-        "- For paper claims, use 'the authors', 'the paper', or the method name. "
-        "Do NOT write 'we' or 'our' for experiments, models, baselines, or results unless "
-        "EVIDENCE explicitly says we ran our own reproduction.\n"
-        "- Use first-person singular only for your own judgment: 'I buy this because...', "
-        "'I would test...', 'What I find convincing is...'.\n"
-        "- High-signal ML technical blogs usually open with a crisp thesis or operational pain point, "
-        "then explain why the experiment matters, walk through the mechanism, name the evaluation "
-        "setup, and close with lessons, caveats, and reproducibility status. Follow that standard "
-        "without turning it into a rigid template.\n"
-        "\nTHE 10 PRINCIPLES — follow all:\n"
-        "1. Start with a real problem the reader cares about. Not history. Not abstract theory.\n"
-        "2. Be concrete. Replace vague wording with specific systems, numbers, constraints, and failure "
-        "modes. 'We reduced p95 from 420 ms to 180 ms by batching requests and eliminating redundant "
-        "serialization' beats 'we improved performance'.\n"
-        "3. Clarity over cleverness. Flow should feel inevitable: context -> problem -> approach -> "
-        "implementation -> results -> limits. Do not hide the problem.\n"
-        "4. Teach through examples. Show before/after, inputs/outputs, edge cases, code that earns its "
-        "place, diagrams that reduce cognitive load.\n"
-        "5. Make tradeoffs explicit. Name the alternatives considered and what was given up "
-        "(latency, cost, simplicity, accuracy, maintainability, data availability, team maturity).\n"
-        "6. Show failures and limits. Name where the method breaks, the assumptions required, and when "
-        "NOT to use it. Credibility lives here. Do NOT present only the success path.\n"
-        "7. Back every claim (faster / cheaper / safer / more accurate / more robust) with a number, "
-        "benchmark, cited source, or explicit comparison against a named baseline. No unsupported "
-        "confidence.\n"
-        "7b. Do not smuggle in uncited ML folklore. If you mention layer roles, transfer behavior, "
-        "or architecture intuitions, they must be stated in EVIDENCE or omitted.\n"
-        "8. Tight narrative. Each section answers one question that leads to the next. Kill "
-        "throat-clearing, repeated caveats, and long background sections that delay the payoff.\n"
-        "9. Write for the reader's next action: a technique to try, a pitfall to avoid, a pattern to "
-        "steal, or a different way to think about the system.\n"
-        "10. Have a point of view. Argue why a design worked, why a common assumption is wrong, why a "
-        "tradeoff is underrated, or why a result will not generalise.\n"
-        "11. Define jargon on first use. Every acronym (e.g. RDP, MMLU, LoRA, PEFT, KV) must be "
-        "expanded inline the FIRST time it appears, with a one-clause working definition. Use the "
-        "GLOSSARY block as ground truth for definitions. Do not assume the reader recognizes "
-        "domain-specific terms; teach them in passing without slowing the narrative.\n"
-        "12. If a VISUAL_PLAN is present, follow it: insert each figure’s markdown and each "
-        "display equation ($$...$$) at the indicated placement, using those paths. Do not invent "
-        "extra figures, stock photos, or equations beyond the plan. You may skip a plan item only "
-        "if the section does not discuss that concept. Do not add decorative images.\n"
-        "\nTHE FIVE-QUESTION TEST — a smart reader must be able to answer these after one skim:\n"
-        "(a) What problem is being solved?\n"
-        "(b) Why is it hard?\n"
-        "(c) What was tried?\n"
-        "(d) What worked and what did NOT?\n"
+        "- Not the authors' voice. For their claims: 'the authors', 'the paper', or the method name. "
+        "No 'we/our' for their experiments unless EVIDENCE says you reproduced them.\n"
+        "- First person only for your judgment: 'I buy this because...', 'I would test...'.\n"
+        "- Strong posts open on thesis or pain, then mechanism, eval, lessons and reproducibility—"
+        "without a rigid template.\n"
+        "\nPRINCIPLES:\n"
+        "1. Real problem first, not history or abstract theory.\n"
+        "2. Be concrete: systems, numbers, constraints, failure modes (e.g. p95 420ms→180ms beats "
+        "'we improved performance').\n"
+        "3. Flow: context → problem → approach → results → limits.\n"
+        "4. Examples: before/after, I/O, edge cases, code and diagrams that earn their place.\n"
+        "5. Name tradeoffs: alternatives and what was given up (latency, cost, accuracy, etc.).\n"
+        "6. Name failures, assumptions, when not to use the method. Not only the success path.\n"
+        "7. Every speed/accuracy/robustness claim needs a number, benchmark, [cite: id], or named "
+        "baseline. Layer-role or transfer 'folklore' only if EVIDENCE supports it, else omit.\n"
+        "8. Tight sections: one question per section, no padding.\n"
+        "9. Close with a reader action grounded in the paper (repro, ablation, sanity check), not new "
+        "tools or thresholds the paper does not mention.\n"
+        "10. Point of view: why the result matters, what would change your mind.\n"
+        "11. Define jargon on first use (acronyms expanded once; GLOSSARY is ground truth).\n"
+        "12. If VISUAL_PLAN is present, insert those figures and $$...$$ as given; no extra images or "
+        "stock art.\n"
+        "\nFIVE-QUESTION TEST (skim must answer all):\n"
+        "(a) What problem? (b) Why hard? (c) What was tried? (d) What worked and what did not? "
         "(e) What should I do with this?\n"
-        "\nSTRUCTURE — no rigid template:\n"
-        "- Invent your own ## H2 headings that fit THIS story. Headings must be descriptive and "
-        "specific: '30% lower p95 at the cost of 2x memory', 'Where batched KV cache breaks'. "
-        "Generic headings are banned: Introduction, Background, Overview, Results, Summary, Conclusion.\n"
-        "- Use as many sections as the story needs. No fixed count, no fixed order. Each section "
-        "should earn its place by answering one clear question.\n"
-        "- Do NOT emit the CONTENT GOALS text as literal headings. They are objectives to cover, "
-        "not titles.\n"
-        "- First line of the body: a one-sentence takeaway with a concrete number (no heading on "
-        "that line).\n"
-        "- Never repeat the takeaway or the paper title as an immediate ## heading.\n"
-        "- Short paragraphs. Descriptive sub-heads. Highlight key takeaways with a leading bold "
-        "phrase or a one-sentence summary at the end of a section so the post is skimmable.\n"
+        "\nSTRUCTURE:\n"
+        "- Invent ## H2s for this story only; specific titles ('30% lower p95 at 2x memory'). Banned: "
+        "Introduction, Background, Overview, Results, Summary, Conclusion, and the meta/templated "
+        "headings called out in RED FLAGS below.\n"
+        "- Do not paste CONTENT GOALS as headings. First line: one-sentence takeaway with a number, "
+        "no ## on that line. Do not repeat the takeaway or title as the next heading.\n"
+        "- Short paragraphs; skimmable bold or closing one-liners per section where useful.\n"
         "\nHARD REQUIREMENTS:\n"
-        "- Every external claim uses [cite: ID] where ID is 'primary' or one of these exact ids: "
+        "- [cite: ID] for external claims; IDs: primary or "
         + ", ".join(bundle.by_id.keys())
         + ".\n"
-        "- Exactly one ```mermaid``` code block that clarifies a mechanism, data flow, or comparison. "
-        "A diagram must reduce cognitive load; if it needs a paragraph to decode, rewrite it.\n"
-        "- One markdown table with | Method | Metric | Baseline | where numbers are compared. "
-        "Numbers in the table MUST match the prose. If BENCHMARK rows are given in EVIDENCE, use "
-        "ONLY those values — do not invent metrics. If the evidence only gives model-size or "
-        "latency ranges rather than benchmark percentages, build the table from those grounded "
-        "numbers instead of fabricating scores.\n"
-        "- If ENRICHMENT or SECTION_EVIDENCE blocks are present, use those URLs/snippets for external "
-        "claims; do not invent other sources.\n"
-        "- Read the whole paper evidence, not just the abstract. If PAPER_EXCERPTS or paper_* "
-        "sections are present, use them to ground the mechanism, setup, results, and limitations.\n"
-        "- Do not paraphrase the abstract sentence by sentence. Synthesize the paper's argument "
-        "across setup, comparison, and failure modes.\n"
-        "- The topic is always the PRIMARY paper. Competitors, enrichment items, and related posts "
-        "are supporting context only. Never switch topics and never ask the reader for clarification.\n"
-        "- If the setup or reproduction details are incomplete in EVIDENCE, say they are incomplete. "
-        "Do not fill in missing hardware, code availability, dataset splits, or calibration steps.\n"
-        "- Never invent people, internal teams, or anecdotes not present in EVIDENCE.\n"
-        "- Name the evaluation setup when the paper gives it: model, dataset, benchmark, hardware, "
-        "or configuration. A strong technical blog tells the reader what was actually measured.\n"
-        "- State explicit tool / model / library versions wherever relevant (e.g. 'PyTorch 2.4', "
-        "'Transformers 4.40') so the post does not rot silently.\n"
-        "- At least one sentence of honest limitation or failure mode: a reproduction barrier "
-        "(hardware, missing code, compute), a broken assumption (model family, task type, scale), "
-        "or a failure the authors themselves mention. Ablations that validate the method do NOT "
-        "count as 'what did not work'.\n"
-        "- At least one first-person sentence of opinion ('What I find is...', 'In my view...', "
-        "'I think...', 'The remarkable thing here is...'). Follow the phrase with a real opinion, "
-        "not a hedge. First-person opinion may interpret significance, but it must not add new "
-        "transfer hypotheses or mechanism claims that are absent from EVIDENCE.\n"
-        "- Be honest about scope: if a result holds at one scale, one dataset, one team, say so. "
-        "Do not oversell a local finding as a general law.\n"
-        "- Close with a concrete next action the reader can take, but keep it grounded in EVIDENCE. "
-        "Do not introduce new tools, plots, datasets, prompt counts, thresholds, or procedures that "
-        "the paper does not mention. Prefer validation advice already implied by the paper, such as "
-        "replicating the reported setup or adding multi-seed evaluation.\n"
-        "- If there is a concrete construction / BIM / design-tool angle, name it in one sentence. "
-        "Otherwise omit — do NOT pad with generic 'implications for NLP / various applications'.\n"
-        "\nRED FLAGS — avoid these; they mark weak posts:\n"
-        "- Opening with a history lesson or 'In recent years...'.\n"
-        "- Marketing vocabulary: 'leveraged', 'seamless', 'powerful', 'game-changing', 'unlock', "
-        "'next-generation', 'cutting-edge', 'revolutionary', 'holistic', 'synergy'.\n"
-        "- Hiding the actual problem past the midpoint.\n"
-        "- Code with no explanation, or code pasted 'to look technical'.\n"
-        "- Only the success path — no limitations.\n"
-        "- Numbers in the prose that contradict the table.\n"
-        "- Writing as if we conducted the paper's experiments.\n"
-        "- Meta headings like 'Author Takeaway', 'Changed Minds', 'Next Steps', 'Performance "
-        "Comparison', or 'Empirical Results'. Rename them into story-specific headings or fold the "
-        "content into adjacent sections.\n"
-        "- Slang, snark, or casual put-downs such as 'slap adapters on every layer' or 'flops hard'.\n"
-        "- Impressive-sounding prose that teaches nothing reusable.\n"
-        "- Reading like an internal status update dressed up as an article.\n"
+        "- One ```mermaid``` block: mechanism, flow, or comparison. Rewrite if the diagram still "
+        "needs a paragraph to read.\n"
+        "- One | Method | Metric | Baseline | table; prose and table must match. Use only BENCHMARK "
+        "values from EVIDENCE; if only ranges exist, use those—no invented scores.\n"
+        "- Use SECTION_EVIDENCE / paper_* and ENRICHMENT URLs for claims; no invented sources. "
+        "Synthesize; do not abstract-copy. Primary topic only; no reader questions, no topic drift.\n"
+        "- Gaps in setup/repro: say so. No invented hardware, teams, or anecdotes. Name what was "
+        "measured. Versions (e.g. PyTorch) when the paper gives them.\n"
+        "- One real limitation: barrier, false assumption, or author-stated failure (not a validating "
+        "ablation). At least one first-person opinion with a stance; no new mechanisms from EVIDENCE. "
+        "State scope when relevant. One-sentence AEC/BIM only if real; no generic 'applications' padding.\n"
+        "\nEVIDENCE, TRADEOFFS, AND SPECIFICITY:\n"
+        "- EVIDENCE is a checklist. Meet COVERAGE FLOOR for BENCHMARKS and ANALYST_CLAIMS; shallow "
+        "drafts are rewritten.\n"
+        "- One paragraph must name a competing method or design from RELATED_WORK_LIST and contrast the "
+        "primary method (markers: vs, in contrast to, instead of, rather than, at the cost of, "
+        "unlike, compared to). Guessing the primary method's own cost alone is not a tradeoff. "
+        "Reframe a limitation as a falsifier: the cheapest test that would invalidate the main claim.\n"
+        "- Each numeric improvement in the same or next sentence names a baseline from BENCHMARKS or "
+        "RELATED_WORK (literal name), not 'prior work' in the abstract.\n"
+        "- Paragraphs that introduce a method, result, or design must include a number, named entity, "
+        "code/pseudo, or quote—or cut them. Reject swappable generic paragraphs that fit any paper.\n"
+        "\nRED FLAGS:\n"
+        "- 'In recent years' intros; marketing words (leveraged, seamless, unlock, holistic, ...).\n"
+        "- Buried lede, ornamental code, table/prose inconsistency, author voice for their lab work.\n"
+        "- Slangy put-downs; status-update tone; content-free polish.\n"
         "\nOpener style: "
         + brief.opener_hook
         + ". Voice: "
         + brief.voice_guide
         + " "
         + fmt.voice_override
+        + "\n\n"
+        + _voice_exemplar_block_for_prompt()
     )
     user = (
         f"CONTENT GOALS (cover across the post, in your own words and your own headings):\n{goals}\n\n"
@@ -1029,10 +1090,7 @@ def run() -> Path:
         elif not _looks_like_markdown_body(body):
             LOG.warning("draft: initial generation not usable; requesting grounded rewrite")
             rewrite = openrouter_client.llm_text(
-                "Rewrite the draft into a final markdown blog post about the PRIMARY paper only. "
-                "Do not ask questions, do not request clarification, do not mention topic confusion, "
-                "and do not switch to related posts or supporting context. Output only the final "
-                "markdown body with story-specific ## headings, one mermaid block, and grounded [cite: id] claims.",
+                _DRAFT_REWRITE_SYSTEM,
                 f"PRIMARY_TITLE: {bundle.primary.title}\n\nBAD_DRAFT:\n{body[:12000]}\n\nEVIDENCE:\n{user[:14000]}",
                 mode="smart",
                 max_tokens=config.max_tokens_smart(),
@@ -1046,9 +1104,7 @@ def run() -> Path:
     if _strip_unresolved(body):
         LOG.warning("draft: unresolved cites; attempting one repair")
         repair = openrouter_client.llm_text(
-            "Fix [missing cite: ...] markers by replacing them with paraphrase without external cite, "
-            "or remove the affected sentence. Output only the full revised markdown body, no commentary "
-            "and no code fences.",
+            _CITE_REPAIR_SYSTEM,
             body[:12000],
             max_tokens=2048,
             task="draft_cite_repair",
@@ -1069,9 +1125,7 @@ def run() -> Path:
     ):
         LOG.warning("draft: attempting rewrite for structural/grounding issues: %s / %s", struct, unsupported)
         rewrite = openrouter_client.llm_text(
-            "Revise the markdown body to fix the listed issues while keeping the topic fixed to the PRIMARY paper. "
-            "Do not ask questions. Do not switch topics. Keep all numbers grounded in EVIDENCE. "
-            "Return the full markdown body only, with one mermaid block and story-specific headings.",
+            _DRAFT_STRUCTURAL_REPAIR_SYSTEM,
             f"ISSUES:\n- " + "\n- ".join(struct + unsupported[:8]) + f"\n\nBODY:\n{body[:16000]}\n\nEVIDENCE:\n{user[:14000]}",
             mode="smart",
             max_tokens=config.max_tokens_smart(),
@@ -1141,6 +1195,30 @@ rubric_score: 0
     (_ROOT / "reports" / "draft_path.txt").write_text(str(out.relative_to(_ROOT)), encoding="utf-8")
     LOG.info("draft: wrote %s", out)
     return out
+
+
+def _named_alternative_for_stub(bundle: EvidenceBundle) -> str:
+    """Best-effort named alternative method for the stub tradeoff paragraph."""
+    for grp in ("competitors", "ancestors", "followups", "enrichment_items"):
+        items = getattr(bundle, grp, None) or []
+        for it in items[:4]:
+            t = (getattr(it, "title", "") or "").strip()
+            if t:
+                return t.split(":", 1)[0].strip()[:80]
+    primary_title = (bundle.primary.title or "").lower()
+    haystack = " ".join(
+        [
+            _section_text(bundle, "paper_experiments", "paper_method"),
+            bundle.primary.abstract or "",
+        ]
+    )
+    cap_re = re.compile(r"\b[A-Z][A-Za-z0-9]+(?:[- ][A-Z][A-Za-z0-9]+)+\b")
+    for m in cap_re.finditer(haystack):
+        cand = m.group(0)
+        if cand.lower() in primary_title:
+            continue
+        return cand
+    return "Full Fine-Tuning"
 
 
 def _stub_body(
@@ -1218,6 +1296,14 @@ def _stub_body(
         "In my view, that keeps the result in the 'update your priors' bucket rather than the "
         "'copy this blindly' bucket."
     )
+    alt_name = _named_alternative_for_stub(bundle)
+    tradeoff_line = (
+        f"The road not taken here is {alt_name}, which spends the full adaptation budget without "
+        "a structural rule. Choosing the structured variant over "
+        f"{alt_name} is the actual trade-off: you give up uniform coverage in exchange for a "
+        f"layer-selection rule that can be ablated against {alt_name} on the same benchmark. "
+        f"[cite: {primary_id}]"
+    )
     return (
         f"{takeaway}\n\n"
         "## The operating constraint the paper is actually fighting\n"
@@ -1234,6 +1320,8 @@ def _stub_body(
         f"{setup_line}\n\n"
         f"{result_line}\n\n"
         f"{table}\n\n"
+        "## The road not taken\n"
+        f"{tradeoff_line}\n\n"
         "## Why I still treat the win as local\n"
         f"{limit_line}\n\n"
         "## The next experiment worth stealing\n"

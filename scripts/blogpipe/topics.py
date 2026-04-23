@@ -325,13 +325,12 @@ def _extract_with_llm(plain: str, primary_title: str) -> list[str]:
     if config.dry_run() or not config.llm_configured():
         return []
     system = (
-        "Extract the technical keywords most distinctive of this ML/engineering blog post. "
-        "Return JSON only: {\"keywords\": [\"...\"]}. "
-        "Each keyword: 1-4 words, lowercase, technical (e.g. 'paged attention', 'fp8', "
-        "'rope scaling', 'scan-to-bim'). No generic words like 'model' or 'training'. "
-        "Max 15 keywords."
+        "Distinctive technical keywords for this ML/engineering post. "
+        "Return JSON only. Example: {\"keywords\": [\"paged attention\", \"fp8 inference\"]}. "
+        "Each: 1-4 words, lowercase, technical. No generic words (model, training, paper). "
+        "Max 15."
     )
-    user = f"TITLE: {primary_title[:200]}\n\nBODY:\n{plain[:6000]}"
+    user = f"TITLE: {primary_title[:200]}\n\nBODY:\n{plain[:4000]}"
     try:
         raw = openrouter_client.llm_text(
             system, user, max_tokens=400, task="keyword_extract"

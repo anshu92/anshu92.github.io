@@ -98,20 +98,20 @@ def _llm_rank(candidates: list[Item], brief: EditorialBrief) -> tuple[Item, str,
             candidates[1:6],
         )
     system = (
-        "You are an editorial ranker. Pick ONE best item for a technical blog. "
-        "Return JSON only: { \"pick_index\": 0, \"reasoning\": \"...\" }\n"
+        "Editorial ranker: pick the single best item for a technical blog. "
+        "Return JSON only, e.g. { \"pick_index\": 0, \"reasoning\": \"brief\" } (reasoning may be short).\n"
         f"Pillar weights: {brief.pillar_weights}.\n"
-        "Voice: Principal ML Engineer at Autodesk; prefer reproducible engineering depth, "
-        "AEC when relevant, LLM when core.\n"
+        "Voice: Principal ML Engineer at Autodesk; reproducible engineering depth, AEC when relevant, "
+        "LLM when core.\n"
         + topics.themes_prompt_block()
-        + "\nHARD RULE: pick_index MUST point to a candidate that fits at least one theme above. "
-        "If none fit, choose the one closest to a theme and explain the gap in `reasoning`."
+        + "\nPrefer a candidate that matches at least one theme. If none match well, pick the closest "
+        "and note the gap in reasoning."
     )
     lines: list[str] = []
     for i, c in enumerate(candidates[:20]):
         themes_str = ",".join(topics.matched_themes(c)) or "none"
         lines.append(
-            f"{i}. [{c.pillar}] themes=[{themes_str}] {c.title} | {c.source} | {c.url}\n  {c.abstract[:400]}"
+            f"{i}. [{c.pillar}] themes=[{themes_str}] {c.title} | {c.source} | {c.url}\n  {c.abstract[:240]}"
         )
     user = "Candidates:\n" + "\n".join(lines)
     try:

@@ -14,22 +14,13 @@ from ..models import AnalystNote, EvidencePack, VisualPlan, FigureSpec, Equation
 LOG = logging.getLogger(__name__)
 
 _BASE_SCHEMA = (
-    "Reply with JSON only, no other text: "
-    '{"figures": ['
-    '{"id": "fig1", "kind": "concept|architecture|comparison|plot", '
-    '"prompt": "one paragraph image prompt, abstract editorial, no text in image", '
-    '"alt": "<short alt text describing what the figure shows for screen readers>", "caption": "one line", '
-    '"placement_hint": "after the section whose title contains ..." }'
-    "], "
-    '"equations": ['
-    '{"id": "eq1", "latex": "valid LaTeX for KaTeX, escaped backslashes as needed", '
-    '"caption": "optional", "placement_hint": "in section about ..." }'
-    "], "
-    '"confidence": "low|medium|high"}. '
-    "Max 3 figures, max 3 equations. Empty arrays are valid. "
-    "Only include a figure if it explains a concept that prose alone cannot; zero figures is good. "
-    "Only include an equation that encodes a core definition or objective from the paper. "
-    "IDs: lowercase, alphanumeric+underscore, max 32 chars, unique."
+    "Output JSON only, no other text. "
+    "Shape: figures[] of {id, kind in concept|architecture|comparison|plot, prompt (no text in image), "
+    "alt, caption, placement_hint}; equations[] of {id, latex (KaTeX-escaped), caption, "
+    "placement_hint}; confidence low|medium|high. Up to 3 each; [] allowed. "
+    "Figure only if prose cannot carry the idea; equation only for a core definition or objective. "
+    "id: lowercase a-z0-9_, max 32, unique. "
+    'Example: {"figures": [], "equations": [], "confidence": "low"}.'
 )
 
 
@@ -121,7 +112,7 @@ def run(pack: EvidencePack) -> AnalystNote:
     )[:10000]
     if not blob.strip():
         blob = (pack.primary.abstract or "")[:6000]
-    system = f"You are a visual editor for a technical ML blog. {_BASE_SCHEMA}"
+    system = f"Visual plan for a technical ML post. {_BASE_SCHEMA}"
     user = f"Title: {pack.primary.title}\n\nExcerpts:\n{blob}\n"
     raw = openrouter_client.llm_text(
         system,
