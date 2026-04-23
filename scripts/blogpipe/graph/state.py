@@ -29,6 +29,10 @@ class BlogState(TypedDict, total=False):
     pass_gate: bool
     llm_ok: bool
     editor_report: dict[str, Any]
+    quality_report: dict[str, Any]
+    render_report: dict[str, Any]
+    blocking_reasons: List[dict[str, Any]]
+    overall_status: str
     draft_lint: dict[str, Any]
     slug: str
     out_path: str

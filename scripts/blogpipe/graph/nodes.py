@@ -10,7 +10,7 @@ from typing import Any
 
 from langgraph.types import interrupt
 
-from .. import config, draft, formats, lint, memory, topics
+from .. import config, draft, formats, lint, memory, quality, topics
 from ..draft import (
     _cleanup_missing_cites,
     _polish_body,
@@ -465,10 +465,17 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         rep = rep.model_copy(update={"pass_gate": False})
     if not llm_ok:
         rep = rep.model_copy(update={"pass_gate": False})
+    rep = rep.model_copy(
+        update={
+            "lint_issues": lint_issues,
+            "grounding_ok": bool(g_ok and not det_ground),
+            "grounding_issues": list(dict.fromkeys(g_iss + det_ground)),
+            "llm_ok": llm_ok,
+            "editor_warnings": ed_warn,
+        }
+    )
+    qrep = quality.from_editor(rep)
     d = rep.model_dump()
-    d["lint_issues"] = lint_issues
-    d["grounding_ok"] = bool(g_ok and not det_ground)
-    d["grounding_issues"] = list(dict.fromkeys(g_iss + det_ground))
     d["undefined_acronyms"] = undefined_after
     d["missing_planned_visuals"] = (
         lint.missing_planned_visuals(
@@ -477,12 +484,14 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         if bundle_for_explainer is not None
         else {"missing_figures": [], "missing_equations": []}
     )
-    d["llm_ok"] = llm_ok
-    d["editor_warnings"] = ed_warn
+    d["pass_gate"] = qrep.pass_gate
     return {
         "editor_report": d,
         "llm_ok": llm_ok,
-        "pass_gate": bool(d.get("pass_gate", False)),
+        "quality_report": qrep.model_dump(),
+        "blocking_reasons": [x.model_dump() for x in qrep.blocking_reasons],
+        "overall_status": qrep.overall_status,
+        "pass_gate": bool(qrep.pass_gate),
         "warnings": ed_warn,
         "_done_editor": True,
     }
@@ -568,6 +577,12 @@ rubric_score: {score}
         )
     ed_path = _ROOT / "reports" / "editor_report.json"
     ed_path.write_text(json.dumps(ed, indent=2), encoding="utf-8")
+    qd = state.get("quality_report") or {}
+    if qd:
+        (_ROOT / "reports" / "quality_report.json").write_text(
+            json.dumps(qd, indent=2),
+            encoding="utf-8",
+        )
     (_ROOT / "reports" / "llm_usage.json").write_text(
         json.dumps(u, indent=2), encoding="utf-8"
     )

@@ -1,7 +1,8 @@
-"""Build reports/daily_email.html and optional draft_post.pdf for notification."""
+"""Build review artifacts from the canonical quality report."""
 
 from __future__ import annotations
 
+import base64
 import html
 import json
 import logging
@@ -11,7 +12,9 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from . import quality, visuals
 from .memory import _ROOT
+from .models import ArtifactResult, EditorReport, QualityReport, RenderReport
 
 LOG = logging.getLogger(__name__)
 
@@ -38,19 +41,7 @@ def _split_frontmatter(text: str) -> tuple[dict, str]:
     return front, text[m.end() :]
 
 
-def _first_section(body: str, heading: str) -> str:
-    m = re.search(
-        rf"^##\s+{re.escape(heading)}\s*\n([\s\S]*?)(?=^##\s+|\Z)",
-        body,
-        re.MULTILINE,
-    )
-    if not m:
-        return ""
-    return m.group(1).strip()
-
-
 def _h2_sections(body: str, limit: int = 2) -> list[tuple[str, str]]:
-    """Return the first `limit` (heading, body) pairs in order — heading-agnostic."""
     out: list[tuple[str, str]] = []
     pat = re.compile(r"^##\s+(.+?)\s*\n([\s\S]*?)(?=^##\s+|\Z)", re.M)
     for m in pat.finditer(body or ""):
@@ -61,7 +52,6 @@ def _h2_sections(body: str, limit: int = 2) -> list[tuple[str, str]]:
 
 
 def _opening_prose(body: str) -> str:
-    """Grab everything before the first ## heading (the takeaway + lead paragraph)."""
     m = re.search(r"^##\s", body or "", re.M)
     head = body[: m.start()] if m else (body or "")
     return head.strip()
@@ -88,21 +78,336 @@ def _rubric_rows(items: list[dict]) -> list[str]:
     return rows
 
 
-def run() -> Path:
+def _remove_if_exists(path: Path) -> None:
+    try:
+        path.unlink(missing_ok=True)  # type: ignore[call-arg]
+    except OSError:
+        pass
+
+
+_PRINT_CSS = """
+@page { margin: 1.2cm; }
+html { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11pt; line-height: 1.45; color: #111; }
+h1 { font-size: 1.35rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25em; }
+h2, h3 { font-size: 1.1rem; margin-top: 1.2em; }
+p { margin: 0.5em 0; }
+code, pre { font-size: 0.88em; }
+pre { background: #f6f8fa; padding: 0.5em; overflow-x: auto; border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
+th, td { border: 1px solid #ccc; padding: 0.35em 0.5em; text-align: left; }
+img { max-width: 100%; height: auto; }
+figure { margin: 1rem 0; }
+figcaption { color: #444; font-size: 0.92em; }
+"""
+
+
+def _render_mermaid_blocks(body: str) -> tuple[str, list[str], bool]:
+    errors: list[str] = []
+    rendered_any = False
+
+    def repl(m: re.Match[str]) -> str:
+        nonlocal rendered_any
+        diagram = (m.group(1) or "").strip()
+        svg = visuals._kroki_svg(diagram, "mermaid")
+        if not svg:
+            errors.append("mermaid_render_failed")
+            return m.group(0)
+        rendered_any = True
+        data = base64.b64encode(svg).decode("ascii")
+        return (
+            '<figure class="diagram">'
+            '<img alt="Rendered mermaid diagram" '
+            f'src="data:image/svg+xml;base64,{data}"/>'
+            "<figcaption>Rendered mermaid diagram</figcaption>"
+            "</figure>"
+        )
+
+    out = re.sub(r"```mermaid\s*\n([\s\S]*?)\n```", repl, body or "", flags=re.I)
+    has_mermaid = "```mermaid" in (body or "")
+    return out, errors, (rendered_any or not has_mermaid)
+
+
+def _pandoc_md_to_html_fragment(md_body: str) -> str | None:
+    pandoc = shutil.which("pandoc")
+    if not pandoc:
+        return None
+    try:
+        r = subprocess.run(
+            [pandoc, "-f", "gfm", "-t", "html"],
+            input=md_body,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as e:
+        LOG.warning("pandoc failed: %s", e)
+        return None
+    return r.stdout or ""
+
+
+def _html_resolve_static_urls(text: str, root: Path) -> str:
+    def repl_img(m: re.Match[str]) -> str:
+        url = m.group(1) or ""
+        if not url.startswith("/img/"):
+            return m.group(0)
+        rel = url.removeprefix("/img/")
+        p = (root / "static" / "img" / rel).resolve()
+        if p.is_file():
+            return f'src="file://{p}"'
+        return m.group(0)
+
+    return re.sub(r'src="(/img/[^"]+)"', repl_img, text)
+
+
+def _validate_rendered_html(body: str, html_text: str) -> tuple[list[str], list[str], dict[str, bool]]:
+    errors: list[str] = []
+    warnings: list[str] = []
+    has_table_in_md = bool(re.search(r"^\|.+\|$", body or "", re.M))
+    html_has_table = "<table" in html_text.lower()
+    mermaid_raw = bool(
+        re.search(r"(language-mermaid|```mermaid|(?:graph|flowchart)\s+[A-Z]{1,3})", html_text, re.I)
+    )
+    tables_raw = "| Method | Metric | Baseline |" in html_text
+    images_resolved = True
+    captions_ok = True
+
+    for src in re.findall(r'src="([^"]+)"', html_text):
+        if src.startswith("data:image/"):
+            continue
+        if src.startswith("file://"):
+            path = Path(src.removeprefix("file://"))
+            if not path.is_file():
+                images_resolved = False
+                errors.append(f"missing_image:{path}")
+        elif src.startswith("/img/"):
+            path = (_ROOT / "static" / src.removeprefix("/")).resolve()
+            if not path.is_file():
+                images_resolved = False
+                errors.append(f"missing_image:{src}")
+
+    img_tags = re.findall(r"<img\b[^>]*>", html_text, re.I)
+    for tag in img_tags:
+        m = re.search(r'alt="([^"]*)"', tag, re.I)
+        alt = (m.group(1).strip() if m else "").lower()
+        if not alt or alt in {"image", "figure", "diagram", "accessibility", "placeholder"}:
+            captions_ok = False
+            errors.append("placeholder_image_alt")
+
+    density_ok = len(re.findall(r"\b\w+\b", body or "")) >= 120
+    if not density_ok:
+        errors.append("page_density_too_low")
+
+    if mermaid_raw:
+        errors.append("raw_mermaid_in_render")
+    if has_table_in_md and not html_has_table:
+        errors.append("results_table_not_rendered")
+    if tables_raw:
+        errors.append("raw_markdown_table_in_render")
+    if not has_table_in_md:
+        warnings.append("no_results_table_in_markdown")
+    flags = {
+        "mermaid_rendered": not mermaid_raw,
+        "tables_rendered": (not has_table_in_md) or html_has_table,
+        "images_resolved": images_resolved,
+        "captions_ok": captions_ok,
+        "density_ok": density_ok,
+    }
+    return errors, warnings, flags
+
+
+def _render_full_html(front: dict, body: str) -> tuple[str | None, list[str], list[str], dict[str, bool]]:
+    body_for_html, mermaid_errors, mermaid_ok = _render_mermaid_blocks(body)
+    frag = _pandoc_md_to_html_fragment(body_for_html)
+    if not frag:
+        flags = {
+            "mermaid_rendered": False,
+            "tables_rendered": False,
+            "images_resolved": False,
+            "captions_ok": False,
+            "density_ok": False,
+        }
+        return None, (mermaid_errors + ["pandoc_render_failed"]), [], flags
+    title = str(front.get("title") or "Draft post").strip()
+    full_html = f"""<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"/>
+<title>{html.escape(title)}</title>
+<style>{_PRINT_CSS}</style>
+</head><body>
+<article>
+<h1>{html.escape(title)}</h1>
+{_html_resolve_static_urls(frag, _ROOT)}
+</article>
+</body></html>"""
+    errors, warnings, flags = _validate_rendered_html(body, full_html)
+    flags["mermaid_rendered"] = flags["mermaid_rendered"] and mermaid_ok
+    errors = list(dict.fromkeys(mermaid_errors + errors))
+    return full_html, errors, warnings, flags
+
+
+def _render_pdf_from_html(html_path: Path, pdf_path: Path) -> ArtifactResult:
+    wk = shutil.which("wkhtmltopdf")
+    if not wk:
+        return ArtifactResult(
+            artifact_type="pdf",
+            ok=False,
+            artifact_path=str(pdf_path),
+            errors=["wkhtmltopdf_missing"],
+        )
+    try:
+        r = subprocess.run(
+            [
+                wk,
+                "--quiet",
+                "--print-media-type",
+                "--enable-local-file-access",
+                str(html_path),
+                str(pdf_path),
+            ],
+            capture_output=True,
+            text=True,
+        )
+    except OSError as e:
+        return ArtifactResult(
+            artifact_type="pdf",
+            ok=False,
+            artifact_path=str(pdf_path),
+            errors=[f"wkhtmltopdf_error:{e}"],
+        )
+    if r.returncode != 0 or not pdf_path.is_file():
+        _remove_if_exists(pdf_path)
+        return ArtifactResult(
+            artifact_type="pdf",
+            ok=False,
+            artifact_path=str(pdf_path),
+            errors=[f"wkhtmltopdf_failed:{(r.stderr or '')[:400]}"],
+        )
+    return ArtifactResult(artifact_type="pdf", ok=True, artifact_path=str(pdf_path))
+
+
+def _write_failure_notice_pdf(pdf_path: Path, message: str) -> ArtifactResult:
+    wk = shutil.which("wkhtmltopdf")
+    if not wk:
+        return ArtifactResult(
+            artifact_type="blocked_notice_pdf",
+            ok=False,
+            artifact_path=str(pdf_path),
+            errors=["wkhtmltopdf_missing"],
+        )
+    msg_html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Draft blocked</title>
+<style>body{{font-family:sans-serif;padding:1rem}}</style></head><body>
+<p>{html.escape(message)}</p>
+</body></html>"""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False, encoding="utf-8") as tmp:
+        tmp.write(msg_html)
+        tpath = Path(tmp.name)
+    try:
+        s = subprocess.run(
+            [wk, "--quiet", str(tpath), str(pdf_path)],
+            capture_output=True,
+            text=True,
+        )
+        if s.returncode == 0 and pdf_path.is_file():
+            return ArtifactResult(
+                artifact_type="blocked_notice_pdf",
+                ok=True,
+                artifact_path=str(pdf_path),
+            )
+    except OSError:
+        pass
+    finally:
+        _remove_if_exists(tpath)
+    return ArtifactResult(
+        artifact_type="blocked_notice_pdf",
+        ok=False,
+        artifact_path=str(pdf_path),
+        errors=["blocked_notice_pdf_failed"],
+    )
+
+
+def write_draft_print_pdf() -> RenderReport:
     rep = _ROOT / "reports"
-    out = rep / "daily_email.html"
-    brief = _read_json(rep / "editorial_brief.json")
-    editor = _read_json(rep / "editor_report.json")
-    rank = _read_json(rep / "rank_result.json")
-    rejected = rank.get("rejected") or []
     dpath = (rep / "draft_path.txt").read_text().strip() if (rep / "draft_path.txt").is_file() else ""
-    draft_rel = dpath.strip()
-    front: dict = {}
-    body = ""
-    if draft_rel:
-        draft_file = _ROOT / draft_rel
-        if draft_file.is_file():
-            front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
+    if not dpath:
+        return RenderReport(errors=["draft_path_missing"])
+    draft_file = _ROOT / dpath
+    if not draft_file.is_file():
+        return RenderReport(errors=["draft_file_missing"])
+    front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
+    full_html, errors, warnings, flags = _render_full_html(front, body)
+    html_artifact = ArtifactResult(
+        artifact_type="html",
+        ok=False,
+        artifact_path=str(rep / "draft_post.rendered.html"),
+    )
+    pdf_artifact = ArtifactResult(
+        artifact_type="pdf",
+        ok=False,
+        artifact_path=str(rep / "draft_post.pdf"),
+    )
+    if full_html is None:
+        return RenderReport(
+            html_valid=False,
+            pdf_valid=False,
+            errors=errors,
+            warnings=warnings,
+            artifacts=[html_artifact, pdf_artifact],
+            **flags,
+        )
+    html_path = rep / "draft_post.rendered.html"
+    html_path.write_text(full_html, encoding="utf-8")
+    html_artifact = ArtifactResult(
+        artifact_type="html",
+        ok=not errors,
+        artifact_path=str(html_path),
+        errors=list(errors),
+        warnings=list(warnings),
+    )
+    pdf_path = rep / "draft_post.pdf"
+    _remove_if_exists(pdf_path)
+    pdf_artifact = _render_pdf_from_html(html_path, pdf_path)
+    return RenderReport(
+        html_valid=not errors,
+        pdf_valid=pdf_artifact.ok,
+        errors=list(errors) + list(pdf_artifact.errors),
+        warnings=warnings + pdf_artifact.warnings,
+        artifacts=[html_artifact, pdf_artifact],
+        **flags,
+    )
+
+
+def _render_contract_summary(qrep: QualityReport) -> str:
+    rows = [
+        ("evidence_valid", qrep.evidence_valid),
+        ("draft_valid", qrep.draft_valid),
+        ("render_valid", qrep.render_valid if qrep.render_checked else "pending"),
+        ("package_valid", qrep.package_valid if qrep.package_checked else "pending"),
+        ("overall_status", qrep.overall_status),
+        ("pass_gate", qrep.pass_gate),
+    ]
+    html_rows = [
+        f"<tr><th>{html.escape(str(k))}</th><td>{html.escape(str(v))}</td></tr>"
+        for k, v in rows
+    ]
+    return "<table>" + "".join(html_rows) + "</table>"
+
+
+def _build_daily_email(
+    out: Path,
+    *,
+    brief: dict,
+    editor: dict,
+    quality_report: QualityReport,
+    rank: dict,
+    front: dict,
+    body: str,
+) -> None:
+    rejected = rank.get("rejected") or []
+    draft_rel = (
+        (_ROOT / "reports" / "draft_path.txt").read_text().strip()
+        if (_ROOT / "reports" / "draft_path.txt").is_file()
+        else ""
+    )
     title = front.get("title") or Path(draft_rel).stem
     takeaway = front.get("one_sentence_takeaway") or ""
     sections = _h2_sections(body, limit=2)
@@ -111,30 +416,30 @@ def run() -> Path:
     lead_body = _compact(sections[0][1], 700) if sections else ""
     second_heading = sections[1][0] if len(sections) > 1 else ""
     second_body = _compact(sections[1][1], 420) if len(sections) > 1 else ""
-    pr_url = (rep / "pr_url.txt").read_text().strip() if (rep / "pr_url.txt").is_file() else ""
-    branch = (rep / "branch.txt").read_text().strip() if (rep / "branch.txt").is_file() else ""
+    pr_url = ((_ROOT / "reports" / "pr_url.txt").read_text().strip() if (_ROOT / "reports" / "pr_url.txt").is_file() else "")
+    branch = ((_ROOT / "reports" / "branch.txt").read_text().strip() if (_ROOT / "reports" / "branch.txt").is_file() else "")
     lines = [
         "<!DOCTYPE html><html><head><meta charset='utf-8'/><title>Blog draft</title>",
-        "<style>body{font-family:system-ui,Segoe UI,sans-serif;max-width:800px;margin:2rem auto;padding:0 1rem;color:#111;}",
+        "<style>body{font-family:system-ui,Segoe UI,sans-serif;max-width:880px;margin:2rem auto;padding:0 1rem;color:#111;}",
         "table{border-collapse:collapse;width:100%} th,td{border:1px solid #ccc;padding:0.4rem;text-align:left;}",
         ".ok{background:#dff6dd}.bad{background:#fde2e1}.muted{color:#555} code{background:#f6f8fa;padding:0.1rem 0.25rem;border-radius:4px}</style></head><body>",
         "<h1>Review blog draft</h1>",
     ]
     if pr_url:
-        lines.append(
-            f"<p><strong>PR:</strong> <a href='{html.escape(pr_url)}'>{html.escape(pr_url)}</a></p>"
-        )
+        lines.append(f"<p><strong>PR:</strong> <a href='{html.escape(pr_url)}'>{html.escape(pr_url)}</a></p>")
     elif branch:
-        lines.append(
-            f"<p><strong>Branch pushed:</strong> <code>{html.escape(branch)}</code> "
-            "<span class='muted'>(PR was not created automatically)</span></p>"
-        )
-    else:
-        lines.append(
-            "<p><strong>PR status:</strong> <span class='muted'>not created</span></p>"
-        )
-    subj = f"[Blog Draft, rubric {editor.get('rubric_score', 0)}/15]"
-    lines.append(f"<p><strong>Subject line hint:</strong> {html.escape(subj)}</p>")
+        lines.append(f"<p><strong>Branch pushed:</strong> <code>{html.escape(branch)}</code></p>")
+    lines.append(f"<h2>Quality Contracts</h2>{_render_contract_summary(quality_report)}")
+    if quality_report.blocking_reasons:
+        lines.append("<h3>Blocking reasons</h3><ul>")
+        for reason in quality_report.blocking_reasons:
+            lines.append(
+                f"<li><strong>{html.escape(reason.stage or 'quality')}:</strong> "
+                f"{html.escape(reason.code)}"
+                + (f" — {html.escape(reason.message)}" if reason.message else "")
+                + "</li>"
+            )
+        lines.append("</ul>")
     if title:
         lines.append(f"<h2>{html.escape(str(title))}</h2>")
     if takeaway:
@@ -144,13 +449,9 @@ def run() -> Path:
     if opening:
         lines.append(f"<p>{html.escape(opening)}</p>")
     if lead_heading:
-        lines.append(
-            f"<h3>{html.escape(lead_heading)}</h3><p>{html.escape(lead_body)}</p>"
-        )
+        lines.append(f"<h3>{html.escape(lead_heading)}</h3><p>{html.escape(lead_body)}</p>")
     if second_heading:
-        lines.append(
-            f"<h3>{html.escape(second_heading)}</h3><p>{html.escape(second_body)}</p>"
-        )
+        lines.append(f"<h3>{html.escape(second_heading)}</h3><p>{html.escape(second_body)}</p>")
     if brief:
         summary_bits = []
         if brief.get("format_name"):
@@ -169,12 +470,10 @@ def run() -> Path:
             lines.append("<table><tr><th>Score</th><th>Criterion</th></tr>")
             lines.extend(rows)
             lines.append("</table>")
-        if editor.get("five_questions"):
-            lines.append("<h3>Five-question check</h3><ul>")
-            for key, value in (editor.get("five_questions") or {}).items():
-                lines.append(
-                    f"<li><strong>{html.escape(str(key))}:</strong> {html.escape(_compact(str(value), 220))}</li>"
-                )
+        if editor.get("grounding_issues"):
+            lines.append("<h3>Unsupported claims</h3><ul>")
+            for issue in editor.get("grounding_issues")[:8]:
+                lines.append(f"<li>{html.escape(str(issue))}</li>")
             lines.append("</ul>")
     if rejected:
         lines.append("<h2>Not selected</h2><ul>")
@@ -184,184 +483,91 @@ def run() -> Path:
                 source_text = html.escape(str(it.get("source", "")))
                 lines.append(f"<li>{title_text} <span class='muted'>({source_text})</span></li>")
         lines.append("</ul>")
-    lines.append("<p><em>Merge the PR to publish, or close it to discard the draft.</em></p>")
     lines.append("</body></html>")
     out.write_text("\n".join(lines), encoding="utf-8")
-    try:
-        write_draft_print_pdf()
-    except Exception as e:  # noqa: BLE001 — never block email HTML on PDF
-        LOG.warning("draft_post.pdf not created: %s", e)
-    # CI attaches draft_post.pdf; ensure a one-page file exists if wkhtmltopdf is available
-    _pdf = rep / "draft_post.pdf"
-    if shutil.which("wkhtmltopdf") and not _pdf.is_file():
-        _fallback_minimal_pdf(
-            _pdf,
-            "The draft was not available to render (see daily_email.html and the repository).",
-        )
-    return out
 
 
-_PRINT_CSS = """
-@page { margin: 1.2cm; }
-html { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11pt; line-height: 1.45; color: #111; }
-h1 { font-size: 1.35rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25em; }
-h2, h3 { font-size: 1.1rem; margin-top: 1.2em; }
-p { margin: 0.5em 0; }
-code, pre { font-size: 0.88em; }
-pre { background: #f6f8fa; padding: 0.5em; overflow-x: auto; border-radius: 4px; }
-table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
-th, td { border: 1px solid #ccc; padding: 0.35em 0.5em; text-align: left; }
-img { max-width: 100%; height: auto; }
-"""
-
-
-def _pandoc_md_to_html_fragment(md_body: str) -> str | None:
-    """Convert markdown (GFM) to an HTML body fragment; requires ``pandoc`` on PATH."""
-    pandoc = shutil.which("pandoc")
-    if not pandoc:
-        return None
-    try:
-        r = subprocess.run(
-            [pandoc, "-f", "gfm", "-t", "html"],
-            input=md_body,
-            text=True,
-            capture_output=True,
-            check=True,
-        )
-    except (OSError, subprocess.CalledProcessError) as e:
-        LOG.warning("pandoc failed: %s", e)
-        return None
-    return r.stdout or ""
-
-
-def _html_resolve_static_urls(html: str, root: Path) -> str:
-    """Map ``/img/...`` to ``file://.../static/img/...`` for local PDF renderers."""
-
-    def repl_img(m: re.Match[str]) -> str:
-        url = m.group(1) or ""
-        if not url.startswith("/img/"):
-            return m.group(0)
-        rel = url.removeprefix("/img/")
-        p = (root / "static" / "img" / rel).resolve()
-        if p.is_file():
-            return f'src="file://{p}"'
-        return m.group(0)
-
-    return re.sub(r'src="(/img/[^"]+)"', repl_img, html)
-
-
-def _try_write_draft_pdf(rep: Path, front: dict, body: str) -> Path | None:
-    """Build ``rep/draft_post.pdf`` if pandoc and wkhtmltopdf are available."""
-    wk = shutil.which("wkhtmltopdf")
-    if not wk:
-        LOG.info("wkhtmltopdf not on PATH; skip draft_post.pdf")
-        return None
-    frag = _pandoc_md_to_html_fragment(body)
-    if not frag:
-        if not shutil.which("pandoc"):
-            LOG.info("pandoc not on PATH; using minimal PDF note")
-        return _fallback_minimal_pdf(
-            pdf_path,
-            "Pandoc was not available to render the full draft. Open the PR or use the markdown in this repo.",
-        )
-    title = str(front.get("title") or "Draft post").strip()
-    full_html = f"""<!DOCTYPE html>
-<html><head>
-<meta charset="utf-8"/>
-<title>{html.escape(title)}</title>
-<style>{_PRINT_CSS}</style>
-</head><body>
-<article>
-<h1>{html.escape(title)}</h1>
-{_html_resolve_static_urls(frag, _ROOT)}
-</article>
-</body></html>"""
-    pdf_path = rep / "draft_post.pdf"
-    with tempfile.NamedTemporaryFile(
-        mode="w",
-        suffix=".html",
-        delete=False,
-        encoding="utf-8",
-    ) as tmp:
-        tmp.write(full_html)
-        tmp_path = tmp.name
-    r: subprocess.CompletedProcess[str] | None = None
-    try:
-        r = subprocess.run(
-            [
-                wk,
-                "--quiet",
-                "--print-media-type",
-                "--enable-local-file-access",
-                tmp_path,
-                str(pdf_path),
-            ],
-            capture_output=True,
-            text=True,
-        )
-    except OSError as e:
-        LOG.warning("wkhtmltopdf: %s", e)
-    finally:
-        try:
-            Path(tmp_path).unlink(missing_ok=True)  # type: ignore[call-arg]
-        except OSError:
-            pass
-    if r is None or r.returncode != 0 or not pdf_path.is_file():
-        if r is not None:
-            LOG.warning(
-                "wkhtmltopdf failed rc=%s stderr=%s",
-                r.returncode,
-                (r.stderr or "")[:1000],
-            )
-        if pdf_path.is_file():
-            try:
-                pdf_path.unlink()
-            except OSError:
-                pass
-        return _fallback_minimal_pdf(pdf_path, "Draft PDF render failed; view the markdown in the repo PR.")
-    return pdf_path
-
-
-def _fallback_minimal_pdf(pdf_path: Path, message: str) -> Path | None:
-    """One-page note when full render is unavailable; keeps email attachment path valid."""
-    wk = shutil.which("wkhtmltopdf")
-    if not wk:
-        return None
-    msg_html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Draft</title>
-<style>body{{font-family:sans-serif;padding:1rem}}</style></head><body>
-<p>{html.escape(message)}</p>
-</body></html>"""
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".html", delete=False, encoding="utf-8"
-    ) as tmp:
-        tmp.write(msg_html)
-        tpath = tmp.name
-    try:
-        s = subprocess.run(
-            [wk, "--quiet", tpath, str(pdf_path)],
-            capture_output=True,
-            text=True,
-        )
-        if s.returncode == 0 and pdf_path.is_file():
-            return pdf_path
-    except OSError:
-        pass
-    finally:
-        try:
-            Path(tpath).unlink(missing_ok=True)  # type: ignore[call-arg]
-        except OSError:
-            pass
-    return None
-
-
-def write_draft_print_pdf() -> Path | None:
-    """If ``draft_path.txt`` points at a post, render ``draft_post.pdf`` for email attachment."""
+def run() -> dict:
     rep = _ROOT / "reports"
+    out = rep / "daily_email.html"
+    brief = _read_json(rep / "editorial_brief.json")
+    editor_raw = _read_json(rep / "editor_report.json")
+    rank = _read_json(rep / "rank_result.json")
+    qrep = quality.load(rep / "quality_report.json")
+    if qrep is None:
+        editor_obj = EditorReport.model_validate(editor_raw) if editor_raw else EditorReport()
+        qrep = quality.from_editor(editor_obj)
     dpath = (rep / "draft_path.txt").read_text().strip() if (rep / "draft_path.txt").is_file() else ""
-    if not dpath:
-        return None
-    draft_file = _ROOT / dpath
-    if not draft_file.is_file():
-        return None
-    front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
-    return _try_write_draft_pdf(rep, front, body)
+    front: dict = {}
+    body = ""
+    if dpath:
+        draft_file = _ROOT / dpath
+        if draft_file.is_file():
+            front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
+
+    render_report = RenderReport(errors=["package_skipped_due_to_quality_gate"])
+    package_errors: list[str] = []
+    artifact_paths: dict[str, str] = {"daily_email_html": str(out)}
+    draft_pdf = rep / "draft_post.pdf"
+    _remove_if_exists(draft_pdf)
+
+    if qrep.pass_gate and body:
+        render_report = write_draft_print_pdf()
+        for artifact in render_report.artifacts:
+            if artifact.ok and artifact.artifact_path:
+                artifact_paths[artifact.artifact_type] = artifact.artifact_path
+    else:
+        package_errors.append("prepackage_quality_blocked")
+        blocked_notice = _write_failure_notice_pdf(
+            rep / "draft_post_blocked_notice.pdf",
+            "Draft packaging was blocked because the quality contracts did not pass. See quality_report.json.",
+        )
+        if blocked_notice.ok and blocked_notice.artifact_path:
+            artifact_paths["blocked_notice_pdf"] = blocked_notice.artifact_path
+
+    package_valid = bool(qrep.pass_gate and render_report.ok and out.parent.exists())
+    merged = quality.with_render(
+        qrep,
+        render_report,
+        package_valid=package_valid,
+        artifact_paths=artifact_paths,
+        package_errors=package_errors,
+    )
+    if not merged.pass_gate:
+        _remove_if_exists(draft_pdf)
+    _build_daily_email(
+        out,
+        brief=brief,
+        editor=editor_raw,
+        quality_report=merged,
+        rank=rank,
+        front=front,
+        body=body,
+    )
+    merged = quality.with_render(
+        qrep,
+        render_report,
+        package_valid=package_valid and out.is_file(),
+        artifact_paths={**artifact_paths, "daily_email_html": str(out)},
+        package_errors=package_errors,
+    )
+    if not merged.pass_gate:
+        _remove_if_exists(draft_pdf)
+    quality.save(rep / "quality_report.json", merged)
+    (rep / "package_result.json").write_text(
+        json.dumps(
+            {
+                "ok": merged.pass_gate,
+                "overall_status": merged.overall_status,
+                "artifact_paths": merged.artifact_paths,
+                "render_errors": merged.render_report.errors if merged.render_report else [],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    return {
+        "ok": merged.pass_gate,
+        "overall_status": merged.overall_status,
+        "artifact_paths": merged.artifact_paths,
+    }

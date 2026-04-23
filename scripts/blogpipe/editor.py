@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from . import config, draft, lint, memory, openrouter_client
+from . import config, draft, lint, memory, openrouter_client, quality
 from .llm_chain import get_llm_usage
 from .models import EditorReport, EvidenceBundle
 from .memory import _ROOT
@@ -284,7 +284,10 @@ def run() -> EditorReport:
             "editor_warnings": editor_warnings,
         }
     )
+    qrep = quality.from_editor(rep)
+    rep = rep.model_copy(update={"pass_gate": qrep.pass_gate})
     (_ROOT / "reports" / "editor_report.json").write_text(
         rep.model_dump_json(indent=2), encoding="utf-8"
     )
+    quality.save(_ROOT / "reports" / "quality_report.json", qrep)
     return rep

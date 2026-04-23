@@ -204,6 +204,63 @@ class EditorReport(BaseModel):
     evidence_utilization: dict[str, Any] = Field(default_factory=dict)
 
 
+class FailureReason(BaseModel):
+    code: str
+    message: str = ""
+    stage: str = ""
+    blocking: bool = True
+
+
+class ArtifactResult(BaseModel):
+    artifact_type: str
+    ok: bool = False
+    artifact_path: str = ""
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class RenderReport(BaseModel):
+    html_valid: bool = False
+    pdf_valid: bool = False
+    mermaid_rendered: bool = False
+    tables_rendered: bool = False
+    images_resolved: bool = True
+    captions_ok: bool = True
+    density_ok: bool = True
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    artifacts: list[ArtifactResult] = Field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        return (
+            self.html_valid
+            and self.pdf_valid
+            and self.mermaid_rendered
+            and self.tables_rendered
+            and self.images_resolved
+            and self.captions_ok
+            and self.density_ok
+            and not self.errors
+        )
+
+
+class QualityReport(BaseModel):
+    evidence_valid: bool = False
+    draft_valid: bool = False
+    render_valid: bool = False
+    package_valid: bool = False
+    render_checked: bool = False
+    package_checked: bool = False
+    overall_status: str = "blocked"
+    blocking_reasons: list[FailureReason] = Field(default_factory=list)
+    editor_report: Optional[EditorReport] = None
+    render_report: Optional[RenderReport] = None
+    artifact_paths: dict[str, str] = Field(default_factory=dict)
+    llm_ok: bool = True
+    pass_gate: bool = False
+
+
 # --- Requests for HTTP allow-lists (no user-controlled URLs) ---
 
 ALLOWED_FETCH_HOSTS = frozenset(

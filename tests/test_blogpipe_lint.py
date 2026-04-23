@@ -147,6 +147,41 @@ class StructuralLintAdditionsTests(unittest.TestCase):
         )
         self.assertEqual([], lint.lint_citation_minimum(body))
 
+    def test_unresolved_source_alias_is_flagged(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## A\nClaim [hf_2604.19902].\n\n"
+            "## B\nMore prose.\n"
+        )
+        self.assertIn("unresolved_source_alias", lint.structural_issues(body))
+
+    def test_comparative_claim_requires_metric(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Why this works\nThe method beats prior work across settings.\n\n"
+            "## Should you use it\nOnly for specific tasks.\n"
+        )
+        self.assertIn("comparative_claim_missing_metric", lint.structural_issues(body))
+
+    def test_required_mechanism_and_decision_sections(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Intro\nPlain setup only.\n\n"
+            "## Results\nNumbers.\n"
+        )
+        issues = lint.structural_issues(body)
+        self.assertIn("missing_mechanism_section", issues)
+        self.assertIn("missing_decision_section", issues)
+
+    def test_advice_without_traceability_is_flagged(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Why this works\nMechanism text.\n\n"
+            "## Steal This\nUse this in production immediately.\n\n"
+            "## When to use\nEverywhere.\n"
+        )
+        self.assertIn("advice_without_traceability", lint.structural_issues(body))
+
 
 class PolishRescueTests(unittest.TestCase):
     def test_promote_h3_when_no_h2_promotes_all(self) -> None:

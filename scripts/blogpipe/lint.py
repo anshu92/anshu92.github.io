@@ -153,6 +153,24 @@ _MERMAID_OPENER = re.compile(
     re.M,
 )
 _CITE_TOKEN = re.compile(r"\[cite:\s*[^\]]+\]", re.I)
+_UNRESOLVED_SOURCE_ALIAS = re.compile(r"\[(?:hf|arxiv|pwc)_[^\]]+\]")
+_COMPARATIVE_CLAIM = re.compile(
+    r"\b(outperform(?:s|ed|ing)?|beat(?:s|en)?|improv(?:e|es|ed|ement)|"
+    r"reduce(?:s|d)?|lower(?:s|ed)?|higher|better|worse)\b",
+    re.I,
+)
+_DECISION_HINT = re.compile(
+    r"\b(when to use|when not to use|should you use|decision|adopt|deploy|production|steal this|next steps|engineering habit|next experiment|before i would copy)\b",
+    re.I,
+)
+_MECHANISM_HINT = re.compile(
+    r"\b(why this works|how it works|mechanism|causal|decision signal|trajectory|conditioning)\b",
+    re.I,
+)
+_ADVICE_HINT = re.compile(
+    r"^##\s+(.+)$|(?:^|\n)\s*(?:I'd|I would|Try|Use|Start with|Steal This|Engineering habit)",
+    re.I | re.M,
+)
 
 
 def lint_h2_minimum(body: str, *, minimum: int = 2) -> list[str]:
@@ -194,6 +212,47 @@ def lint_citation_minimum(body: str, *, minimum: int = 2) -> list[str]:
     if md_links >= minimum:
         return []
     return ["citation_count_below_min"]
+
+
+def lint_unresolved_source_aliases(body: str) -> list[str]:
+    return ["unresolved_source_alias"] if _UNRESOLVED_SOURCE_ALIAS.search(body or "") else []
+
+
+def lint_comparative_claims(body: str) -> list[str]:
+    issues: list[str] = []
+    for para in re.split(r"\n\s*\n", body or ""):
+        if not _COMPARATIVE_CLAIM.search(para):
+            continue
+        if has_numeric_claim(para):
+            continue
+        if re.search(r"\b(than|over|versus|vs\.?|baseline|random|dense|full)\b", para, re.I):
+            continue
+        if re.search(r"\b(fid|psnr|ssim|accuracy|latency|benchmark|mmlu|bleu|loss)\b", para, re.I):
+            continue
+        issues.append("comparative_claim_missing_metric")
+        break
+    return issues
+
+
+def lint_required_sections(body: str) -> list[str]:
+    text = body or ""
+    issues: list[str] = []
+    if not _MECHANISM_HINT.search(text):
+        issues.append("missing_mechanism_section")
+    if not _DECISION_HINT.search(text):
+        issues.append("missing_decision_section")
+    return issues
+
+
+def lint_advice_traceability(body: str) -> list[str]:
+    text = body or ""
+    if not _ADVICE_HINT.search(text):
+        return []
+    if re.search(r"\b(In my view|I think|I would|I buy this|author synthesis)\b", text, re.I):
+        return []
+    if _CITE_TOKEN.search(text) or re.search(r"\]\(https?://[^)]+\)", text):
+        return []
+    return ["advice_without_traceability"]
 
 
 # --- Section redundancy ----------------------------------------------------
@@ -717,6 +776,10 @@ def structural_issues(body: str, bundle=None) -> list[str]:
         + lint_h2_minimum(body)
         + lint_unfenced_mermaid(body)
         + lint_citation_minimum(body)
+        + lint_unresolved_source_aliases(body)
+        + lint_comparative_claims(body)
+        + lint_required_sections(body)
+        + lint_advice_traceability(body)
         + lint_section_redundancy(body)
         + lint_fake_results_table(body)
         + lint_mermaid_taxonomy(body)
