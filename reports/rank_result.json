@@ -1,0 +1,739 @@
+{
+  "primary": {
+    "id": "hf_2604.19734",
+    "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "authors": [
+      "Boyu Chen",
+      "Yi Chen",
+      "Lu Qiu",
+      "Jerry Bai",
+      "Yuying Ge",
+      "Yixiao Ge"
+    ],
+    "abstract": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+    "published_at": "2026-04-21T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.19734",
+          "authors": [
+            {
+              "_id": "69ea5363a961c3f1b5f40be4",
+              "name": "Boyu Chen",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5363a961c3f1b5f40be5",
+              "name": "Yi Chen",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5363a961c3f1b5f40be6",
+              "name": "Lu Qiu",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5363a961c3f1b5f40be7",
+              "name": "Jerry Bai",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5363a961c3f1b5f40be8",
+              "name": "Yuying Ge",
+              "hidden": false
+            },
+            {
+              "_id": "69ea5363a961c3f1b5f40be9",
+              "name": "Yixiao Ge",
+              "hidden": false
+            }
+          ],
+          "mediaUrls": [
+            "https://cdn-uploads.huggingface.co/production/uploads/60d045c4778bafd0fbcfa3f5/aLHNTvySjchHnca61-M-l.jpeg"
+          ],
+          "publishedAt": "2026-04-21T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-24T00:53:51.931Z",
+          "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+          "submittedOnDailyBy": {
+            "_id": "60d045c4778bafd0fbcfa3f5",
+            "avatarUrl": "/avatars/0cc0c2739c1934430ea09df7e9668c80.svg",
+            "isPro": false,
+            "fullname": "Yi Chen",
+            "user": "ChenYi99",
+            "type": "user",
+            "name": "ChenYi99"
+          },
+          "summary": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+          "upvotes": 18,
+          "discussionId": "69ea5364a961c3f1b5f40bea",
+          "projectPage": "https://xpeng-robotics.github.io/unit/",
+          "githubRepo": "https://github.com/xpeng-robotics/UniT",
+          "githubRepoAddedBy": "user",
+          "ai_summary": "UniT enables human-to-humanoid transfer by creating a unified visual-language representation that bridges kinematic differences through cross-reconstruction mechanisms and shared latent spaces.",
+          "ai_keywords": [
+            "UniT",
+            "unified latent action tokenizer",
+            "visual anchoring",
+            "tri-branch cross-reconstruction mechanism",
+            "fusion branch",
+            "discrete latent space",
+            "embodiment-agnostic physical intents",
+            "policy learning",
+            "world modeling",
+            "cross-embodiment dynamics",
+            "t-SNE visualization"
+          ],
+          "githubStars": 19,
+          "organization": {
+            "_id": "69c9fb20951b511f5c41dd0d",
+            "name": "xpeng-robotics",
+            "fullname": "xpeng-robotics",
+            "avatar": "https://www.gravatar.com/avatar/b3437743db998befe15fce93ec62355f?d=retro&size=100"
+          }
+        },
+        "publishedAt": "2026-04-20T20:00:00.000Z",
+        "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+        "summary": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+        "mediaUrls": [
+          "https://cdn-uploads.huggingface.co/production/uploads/60d045c4778bafd0fbcfa3f5/aLHNTvySjchHnca61-M-l.jpeg"
+        ],
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19734.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "60d045c4778bafd0fbcfa3f5",
+          "avatarUrl": "/avatars/0cc0c2739c1934430ea09df7e9668c80.svg",
+          "fullname": "Yi Chen",
+          "name": "ChenYi99",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 7,
+          "isUserFollowing": false
+        },
+        "organization": {
+          "_id": "69c9fb20951b511f5c41dd0d",
+          "name": "xpeng-robotics",
+          "fullname": "xpeng-robotics",
+          "avatar": "https://www.gravatar.com/avatar/b3437743db998befe15fce93ec62355f?d=retro&size=100"
+        },
+        "isAuthorParticipating": false
+      }
+    }
+  },
+  "score": 1.0,
+  "rejected": [
+    {
+      "id": "hf_2604.16680",
+      "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+      "url": "https://arxiv.org/abs/2604.16680",
+      "authors": [
+        "Yuval Haitman",
+        "Amit Efraim",
+        "Joseph M. Francos"
+      ],
+      "abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+      "published_at": "2026-04-17T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.16680",
+            "authors": [
+              {
+                "_id": "69ea5499a961c3f1b5f40bed",
+                "name": "Yuval Haitman",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5499a961c3f1b5f40bee",
+                "name": "Amit Efraim",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5499a961c3f1b5f40bef",
+                "name": "Joseph M. Francos",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-17T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T15:50:46.969Z",
+            "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+            "submittedOnDailyBy": {
+              "_id": "66f5d4c99ef08fe3c1ed5c2d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+              "isPro": false,
+              "fullname": "Yuval Haitman",
+              "user": "YuvalH9",
+              "type": "user",
+              "name": "YuvalH9"
+            },
+            "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+            "upvotes": 10,
+            "discussionId": "69ea5499a961c3f1b5f40bf0",
+            "projectPage": "https://yuvalh9.github.io/CGenReg/",
+            "githubRepo": "https://github.com/yuvalH9/CGenReg",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "C-GenReg is a training-free 3D point cloud registration framework that uses generative priors and Vision Foundation Models to transfer matching problems to an image domain for improved cross-domain generalization.",
+            "ai_keywords": [
+              "3D point cloud registration",
+              "Vision Foundation Models",
+              "generative priors",
+              "multi-view-consistent RGB representations",
+              "dense correspondences",
+              "probabilistic cold-fusion scheme",
+              "zero-shot performance",
+              "cross-domain generalization"
+            ],
+            "githubStars": 2,
+            "organization": {
+              "_id": "63a327b28c0c89dcae3395c2",
+              "name": "Ben-Gurion-University",
+              "fullname": "Ben-Gurion University of the Negev",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+            }
+          },
+          "publishedAt": "2026-04-16T20:00:00.000Z",
+          "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+          "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.16680.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "66f5d4c99ef08fe3c1ed5c2d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+            "fullname": "Yuval Haitman",
+            "name": "YuvalH9",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 1,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "63a327b28c0c89dcae3395c2",
+            "name": "Ben-Gurion-University",
+            "fullname": "Ben-Gurion University of the Negev",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.19902",
+      "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+      "url": "https://arxiv.org/abs/2604.19902",
+      "authors": [
+        "Zijie Li",
+        "Yichun Shi",
+        "Jingxiang Sun",
+        "Ye Wang",
+        "Yixuan Huang",
+        "Zhiyao Guo",
+        "Xiaochen Lian",
+        "Peihao Zhu",
+        "Yu Tian",
+        "Zhonghua Zhai",
+        "Peng Wang"
+      ],
+      "abstract": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.19902",
+            "authors": [
+              {
+                "_id": "69e97d84d49e77f7389b4065",
+                "name": "Zijie Li",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4066",
+                "name": "Yichun Shi",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4067",
+                "name": "Jingxiang Sun",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4068",
+                "name": "Ye Wang",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b4069",
+                "name": "Yixuan Huang",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406a",
+                "name": "Zhiyao Guo",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406b",
+                "name": "Xiaochen Lian",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406c",
+                "name": "Peihao Zhu",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406d",
+                "name": "Yu Tian",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406e",
+                "name": "Zhonghua Zhai",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d84d49e77f7389b406f",
+                "name": "Peng Wang",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T00:31:43.348Z",
+            "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+            "submittedOnDailyBy": {
+              "_id": "6039478ab3ecf716b1a5fd4d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+              "isPro": true,
+              "fullname": "taesiri",
+              "user": "taesiri",
+              "type": "user",
+              "name": "taesiri"
+            },
+            "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+            "upvotes": 1,
+            "discussionId": "69e97d85d49e77f7389b4070",
+            "ai_summary": "MMCORE is a unified framework for multimodal image generation and editing that uses a pre-trained Vision-Language Model to predict semantic visual embeddings for diffusion model conditioning, enabling efficient high-fidelity visual synthesis.",
+            "ai_keywords": [
+              "Vision-Language Model",
+              "diffusion model",
+              "semantic visual embeddings",
+              "learnable query tokens",
+              "text-to-image synthesis",
+              "image generation",
+              "visual grounding",
+              "multimodal comprehension",
+              "high-fidelity synthesis"
+            ]
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "MMCORE: MultiModal COnnection with Representation Aligned Latent Embeddings",
+          "summary": "We present MMCORE, a unified framework designed for multimodal image generation and editing. MMCORE leverages a pre-trained Vision-Language Model (VLM) to predict semantic visual embeddings via learnable query tokens, which subsequently serve as conditioning signals for a diffusion model. This streamlined design effectively transfers the rich understanding and reasoning capabilities of VLMs into the visual generation process. By obviating the need for deep fusion between autoregressive and diffusion models or training from scratch, MMCORE significantly reduces computational overhead while maintaining high-fidelity synthesis.\n  MMCORE seamlessly integrates text-to-image synthesis with interleaved image generation, demonstrating robust multimodal comprehension in complex scenarios such as spatial reasoning and visual grounding. Comprehensive evaluations indicate that MMCORE consistently outperforms state-of-the-art baselines across a broad spectrum of text-to-image and single/multi-image editing benchmarks.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19902.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "fullname": "taesiri",
+            "name": "taesiri",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 280,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.21689",
+      "title": "StyleID: A Perception-Aware Dataset and Metric for Stylization-Agnostic Facial Identity Recognition",
+      "url": "https://arxiv.org/abs/2604.21689",
+      "authors": [
+        "Kwan Yun",
+        "Changmin Lee",
+        "Ayeong Jeong",
+        "Youngseo Kim",
+        "Seungmi Lee",
+        "Junyong Noh"
+      ],
+      "abstract": "Creative face stylization aims to render portraits in diverse visual idioms such as cartoons, sketches, and paintings while retaining recognizable identity. However, current identity encoders, which are typically trained and calibrated on natural photographs, exhibit severe brittleness under stylization. They often mistake changes in texture or color palette for identity drift or fail to detect geometric exaggerations. This reveals the lack of a style-agnostic framework to evaluate and supervise identity consistency across varying styles and strengths. To address this gap, we introduce StyleID, a human perception-aware dataset and evaluation framework for facial identity under stylization. StyleID comprises two datasets: (i) StyleBench-H, a benchmark that captures human same-different verification judgments across diffusion- and flow-matching-based stylization at multiple style strengths, and (ii) StyleBench-S, a supervision set derived from psychometric recognition-strength curves obtained through controlled two-alternative forced-choice (2AFC) experiments. Leveraging StyleBench-S, we fine-tune existing semantic encoders to align their similarity orderings with human perception across styles and strengths. Experiments demonstrate that our calibrated models yield significantly higher correlation with human judgments and enhanced robustness for out-of-domain, artist drawn portraits. All of our datasets, code, and pretrained models are publicly available at https://kwanyun.github.io/StyleID_page/",
+      "published_at": "2026-04-23T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.21689",
+            "authors": [
+              {
+                "_id": "69ead908a961c3f1b5f40d66",
+                "name": "Kwan Yun",
+                "hidden": false
+              },
+              {
+                "_id": "69ead908a961c3f1b5f40d67",
+                "name": "Changmin Lee",
+                "hidden": false
+              },
+              {
+                "_id": "69ead908a961c3f1b5f40d68",
+                "name": "Ayeong Jeong",
+                "hidden": false
+              },
+              {
+                "_id": "69ead908a961c3f1b5f40d69",
+                "name": "Youngseo Kim",
+                "hidden": false
+              },
+              {
+                "_id": "69ead908a961c3f1b5f40d6a",
+                "name": "Seungmi Lee",
+                "hidden": false
+              },
+              {
+                "_id": "69ead908a961c3f1b5f40d6b",
+                "name": "Junyong Noh",
+                "hidden": false
+              }
+            ],
+            "mediaUrls": [
+              "https://cdn-uploads.huggingface.co/production/uploads/639d445524af4747d8d2af52/ixnWIkjEuKtAqnWhbZhPW.png"
+            ],
+            "publishedAt": "2026-04-23T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-24T01:16:16.073Z",
+            "title": "StyleID: A Perception-Aware Dataset and Metric for Stylization-Agnostic Facial Identity Recognition",
+            "submittedOnDailyBy": {
+              "_id": "639d445524af4747d8d2af52",
+              "avatarUrl": "/avatars/6ca870edc993fd3db6b0db4e4848ef7a.svg",
+              "isPro": false,
+              "fullname": "kwan yun",
+              "user": "kwanY",
+              "type": "user",
+              "name": "kwanY"
+            },
+            "summary": "Creative face stylization aims to render portraits in diverse visual idioms such as cartoons, sketches, and paintings while retaining recognizable identity. However, current identity encoders, which are typically trained and calibrated on natural photographs, exhibit severe brittleness under stylization. They often mistake changes in texture or color palette for identity drift or fail to detect geometric exaggerations. This reveals the lack of a style-agnostic framework to evaluate and supervise identity consistency across varying styles and strengths. To address this gap, we introduce StyleID, a human perception-aware dataset and evaluation framework for facial identity under stylization. StyleID comprises two datasets: (i) StyleBench-H, a benchmark that captures human same-different verification judgments across diffusion- and flow-matching-based stylization at multiple style strengths, and (ii) StyleBench-S, a supervision set derived from psychometric recognition-strength curves obtained through controlled two-alternative forced-choice (2AFC) experiments. Leveraging StyleBench-S, we fine-tune existing semantic encoders to align their similarity orderings with human perception across styles and strengths. Experiments demonstrate that our calibrated models yield significantly higher correlation with human judgments and enhanced robustness for out-of-domain, artist drawn portraits. All of our datasets, code, and pretrained models are publicly available at https://kwanyun.github.io/StyleID_page/",
+            "upvotes": 3,
+            "discussionId": "69ead908a961c3f1b5f40d6c",
+            "projectPage": "https://kwanyun.github.io/StyleID_page/",
+            "githubRepo": "https://github.com/kwanyun/StyleID",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "StyleID presents a human perception-aware dataset and evaluation framework for facial identity preservation under stylization, featuring two datasets derived from psychometric experiments and calibrated semantic encoders that improve correlation with human judgments.",
+            "ai_keywords": [
+              "style-agnostic framework",
+              "identity encoders",
+              "stylization",
+              "diffusion models",
+              "flow-matching-based stylization",
+              "psychometric recognition-strength curves",
+              "two-alternative forced-choice (2AFC) experiments",
+              "semantic encoders",
+              "human perception-aware dataset",
+              "StyleBench-H",
+              "StyleBench-S"
+            ],
+            "githubStars": 3
+          },
+          "publishedAt": "2026-04-22T20:00:00.000Z",
+          "title": "StyleID: A Perception-Aware Dataset and Metric for Stylization-Agnostic Facial Identity Recognition",
+          "summary": "Creative face stylization aims to render portraits in diverse visual idioms such as cartoons, sketches, and paintings while retaining recognizable identity. However, current identity encoders, which are typically trained and calibrated on natural photographs, exhibit severe brittleness under stylization. They often mistake changes in texture or color palette for identity drift or fail to detect geometric exaggerations. This reveals the lack of a style-agnostic framework to evaluate and supervise identity consistency across varying styles and strengths. To address this gap, we introduce StyleID, a human perception-aware dataset and evaluation framework for facial identity under stylization. StyleID comprises two datasets: (i) StyleBench-H, a benchmark that captures human same-different verification judgments across diffusion- and flow-matching-based stylization at multiple style strengths, and (ii) StyleBench-S, a supervision set derived from psychometric recognition-strength curves obtained through controlled two-alternative forced-choice (2AFC) experiments. Leveraging StyleBench-S, we fine-tune existing semantic encoders to align their similarity orderings with human perception across styles and strengths. Experiments demonstrate that our calibrated models yield significantly higher correlation with human judgments and enhanced robustness for out-of-domain, artist drawn portraits. All of our datasets, code, and pretrained models are publicly available at https://kwanyun.github.io/StyleID_page/",
+          "mediaUrls": [
+            "https://cdn-uploads.huggingface.co/production/uploads/639d445524af4747d8d2af52/ixnWIkjEuKtAqnWhbZhPW.png"
+          ],
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.21689.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "639d445524af4747d8d2af52",
+            "avatarUrl": "/avatars/6ca870edc993fd3db6b0db4e4848ef7a.svg",
+            "fullname": "kwan yun",
+            "name": "kwanY",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.20720",
+      "title": "COMPASS: COntinual Multilingual PEFT with Adaptive Semantic Sampling",
+      "url": "https://arxiv.org/abs/2604.20720",
+      "authors": [
+        "Noah Flynn"
+      ],
+      "abstract": "Large language models (LLMs) often exhibit performance disparities across languages, with naive multilingual fine-tuning frequently degrading performance due to negative cross-lingual interference. To address this, we introduce COMPASS (COntinual Multilingual PEFT with Adaptive Semantic Sampling), a novel data-centric framework for adapting LLMs to target languages. COMPASS leverages parameter-efficient fine-tuning (PEFT) by training lightweight, language-specific adapters on a judiciously selected subset of auxiliary multilingual data. The core of our method is a distribution-aware sampling strategy that uses multilingual embeddings and clustering to identify semantic gaps between existing training data and a target usage distribution. By prioritizing auxiliary data from under-represented semantic clusters, COMPASS maximizes positive cross-lingual transfer while minimizing interference. We extend this into a continual learning framework, COMPASS-ECDA, which monitors for data distribution shifts in production and dynamically updates adapters to prevent model staleness, balancing adaptation to new data with the preservation of existing knowledge. Across three different model architectures (Phi-4-Mini, Llama-3.1-8B, and Qwen2.5-7B) and multiple challenging multilingual benchmarks (Global-MMLU, MMLU-ProX), including unseen long-context tasks (OneRuler), we demonstrate that COMPASS consistently outperforms baseline methods guided by linguistic similarity, providing an effective, efficient, and sustainable solution for developing and maintaining high-performing multilingual models in dynamic environments.",
+      "published_at": "2026-04-22T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.20720",
+            "authors": [
+              {
+                "_id": "69ea4241a961c3f1b5f40ba5",
+                "name": "Noah Flynn",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-22T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T14:32:03.744Z",
+            "title": "COMPASS: COntinual Multilingual PEFT with Adaptive Semantic Sampling",
+            "submittedOnDailyBy": {
+              "_id": "6747a1f6f8cab58c22d81529",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/2E09TB1t6uSKaAv5ihERy.png",
+              "isPro": false,
+              "fullname": "Noah Flynn",
+              "user": "noaflynn",
+              "type": "user",
+              "name": "noaflynn"
+            },
+            "summary": "Large language models (LLMs) often exhibit performance disparities across languages, with naive multilingual fine-tuning frequently degrading performance due to negative cross-lingual interference. To address this, we introduce COMPASS (COntinual Multilingual PEFT with Adaptive Semantic Sampling), a novel data-centric framework for adapting LLMs to target languages. COMPASS leverages parameter-efficient fine-tuning (PEFT) by training lightweight, language-specific adapters on a judiciously selected subset of auxiliary multilingual data. The core of our method is a distribution-aware sampling strategy that uses multilingual embeddings and clustering to identify semantic gaps between existing training data and a target usage distribution. By prioritizing auxiliary data from under-represented semantic clusters, COMPASS maximizes positive cross-lingual transfer while minimizing interference. We extend this into a continual learning framework, COMPASS-ECDA, which monitors for data distribution shifts in production and dynamically updates adapters to prevent model staleness, balancing adaptation to new data with the preservation of existing knowledge. Across three different model architectures (Phi-4-Mini, Llama-3.1-8B, and Qwen2.5-7B) and multiple challenging multilingual benchmarks (Global-MMLU, MMLU-ProX), including unseen long-context tasks (OneRuler), we demonstrate that COMPASS consistently outperforms baseline methods guided by linguistic similarity, providing an effective, efficient, and sustainable solution for developing and maintaining high-performing multilingual models in dynamic environments.",
+            "upvotes": 0,
+            "discussionId": "69ea4241a961c3f1b5f40ba6",
+            "ai_summary": "COMPASS is a data-centric framework for multilingual language model adaptation that uses parameter-efficient fine-tuning with adaptive semantic sampling to improve performance across languages while preventing negative cross-lingual interference.",
+            "ai_keywords": [
+              "parameter-efficient fine-tuning",
+              "multilingual embeddings",
+              "clustering",
+              "semantic gaps",
+              "cross-lingual transfer",
+              "continual learning",
+              "distribution-aware sampling",
+              "adapter tuning",
+              "multilingual benchmarks",
+              "neural network architectures"
+            ],
+            "organization": {
+              "_id": "66b1baeff10262fc4fa61961",
+              "name": "UCBerkeley",
+              "fullname": "University of California, Berkeley",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/63f425c3a096536aeab42dea/bxNKEkprdm5JI1wkjmNAL.png"
+            }
+          },
+          "publishedAt": "2026-04-21T20:00:00.000Z",
+          "title": "COMPASS: COntinual Multilingual PEFT with Adaptive Semantic Sampling",
+          "summary": "Large language models (LLMs) often exhibit performance disparities across languages, with naive multilingual fine-tuning frequently degrading performance due to negative cross-lingual interference. To address this, we introduce COMPASS (COntinual Multilingual PEFT with Adaptive Semantic Sampling), a novel data-centric framework for adapting LLMs to target languages. COMPASS leverages parameter-efficient fine-tuning (PEFT) by training lightweight, language-specific adapters on a judiciously selected subset of auxiliary multilingual data. The core of our method is a distribution-aware sampling strategy that uses multilingual embeddings and clustering to identify semantic gaps between existing training data and a target usage distribution. By prioritizing auxiliary data from under-represented semantic clusters, COMPASS maximizes positive cross-lingual transfer while minimizing interference. We extend this into a continual learning framework, COMPASS-ECDA, which monitors for data distribution shifts in production and dynamically updates adapters to prevent model staleness, balancing adaptation to new data with the preservation of existing knowledge. Across three different model architectures (Phi-4-Mini, Llama-3.1-8B, and Qwen2.5-7B) and multiple challenging multilingual benchmarks (Global-MMLU, MMLU-ProX), including unseen long-context tasks (OneRuler), we demonstrate that COMPASS consistently outperforms baseline methods guided by linguistic similarity, providing an effective, efficient, and sustainable solution for developing and maintaining high-performing multilingual models in dynamic environments.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.20720.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "6747a1f6f8cab58c22d81529",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/2E09TB1t6uSKaAv5ihERy.png",
+            "fullname": "Noah Flynn",
+            "name": "noaflynn",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "66b1baeff10262fc4fa61961",
+            "name": "UCBerkeley",
+            "fullname": "University of California, Berkeley",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/63f425c3a096536aeab42dea/bxNKEkprdm5JI1wkjmNAL.png"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.15093",
+      "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+      "url": "https://arxiv.org/abs/2604.15093",
+      "authors": [
+        "Kanzhi Cheng",
+        "Zehao Li",
+        "Zheng Ma",
+        "Nuo Chen",
+        "Jialin Cao",
+        "Qiushi Sun",
+        "Zichen Ding",
+        "Fangzhi Xu",
+        "Hang Yan",
+        "Jiajun Chen",
+        "Anh Tuan Luu",
+        "Jianbing Zhang",
+        "Lewei Lu",
+        "Dahua Lin"
+      ],
+      "abstract": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+      "published_at": "2026-04-16T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.15093",
+            "authors": [
+              {
+                "_id": "69e306ad7b74ca69e497df8a",
+                "name": "Kanzhi Cheng",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8b",
+                "name": "Zehao Li",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8c",
+                "name": "Zheng Ma",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8d",
+                "name": "Nuo Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8e",
+                "name": "Jialin Cao",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8f",
+                "name": "Qiushi Sun",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df90",
+                "name": "Zichen Ding",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df91",
+                "name": "Fangzhi Xu",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df92",
+                "name": "Hang Yan",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df93",
+                "name": "Jiajun Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df94",
+                "name": "Anh Tuan Luu",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df95",
+                "name": "Jianbing Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df96",
+                "name": "Lewei Lu",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df97",
+                "name": "Dahua Lin",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-16T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T12:50:33.992Z",
+            "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+            "submittedOnDailyBy": {
+              "_id": "63340dbbd92c5842ae71d1e9",
+              "avatarUrl": "/avatars/3a3182996bd41b526dcbfa8687d91963.svg",
+              "isPro": false,
+              "fullname": "Kanzhi Cheng",
+              "user": "cckevinn",
+              "type": "user",
+              "name": "cckevinn"
+            },
+            "summary": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+            "upvotes": 26,
+            "discussionId": "69e306ae7b74ca69e497df98",
+            "projectPage": "https://njucckevin.github.io/openmobile/",
+            "githubRepo": "https://github.com/njucckevin/OpenMobile-Code",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "An open-source framework for mobile agent training that synthesizes task instructions and trajectories through scalable pipelines and policy-switching strategies, achieving superior performance on AndroidWorld benchmarks.",
+            "ai_keywords": [
+              "vision-language models",
+              "mobile agents",
+              "task synthesis pipeline",
+              "global environment memory",
+              "policy-switching strategy",
+              "trajectory rollout",
+              "imitation learning",
+              "AndroidWorld",
+              "Qwen2.5-VL",
+              "Qwen3-VL"
+            ],
+            "githubStars": 27
+          },
+          "publishedAt": "2026-04-15T20:00:00.000Z",
+          "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+          "summary": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.15093.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "63340dbbd92c5842ae71d1e9",
+            "avatarUrl": "/avatars/3a3182996bd41b526dcbfa8687d91963.svg",
+            "fullname": "Kanzhi Cheng",
+            "name": "cckevinn",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 13,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    }
+  ],
+  "reasoning": " UniT aligns with multiple themes (llm_scaling, training_recipes, aec_ml, new_models, problem_oriented_ml, ml_engineering_deep_dive) and addresses a specific challenge in humanoid policy learning and world modeling, making it a strong candidate for a technical blog."
+}

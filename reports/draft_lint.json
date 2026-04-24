@@ -1,0 +1,16 @@
+{
+  "structural": [
+    "takeaway_lacks_number",
+    "no_results_table",
+    "fewer_than_required_h2_sections",
+    "citation_count_below_min",
+    "advice_without_traceability",
+    "evaluative_paragraph_without_citation"
+  ],
+  "unsupported_numeric_claims": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}

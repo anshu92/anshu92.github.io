@@ -1,0 +1,260 @@
+{
+  "rubric_score": 5,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 0
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 0
+    }
+  ],
+  "five_questions": {
+    "problem": "The scarcity of robotic data poses a significant bottleneck in developing humanoid foundation models.",
+    "hard": "Bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches.",
+    "tried": "UniT (Unified Latent Action Tokenizer via Visual Anchoring) was developed to address this challenge.",
+    "outcomes": "UniT achieves state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmarks and real-world deployments.",
+    "next": "Potential remedies to address UniT's limitations include developing alternative methods for bridging the cross-embodiment chasm and exploring other scalable alternatives to robotic data for humanoid foundation models."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [
+    "meta_review_requires_editor_attention"
+  ],
+  "lint_issues": [
+    "takeaway_is_heading",
+    "takeaway_lacks_number",
+    "no_results_table",
+    "generic_heading_used",
+    "citation_count_below_min",
+    "comparative_claim_missing_metric",
+    "missing_decision_section",
+    "advice_without_traceability",
+    "evaluative_paragraph_without_citation"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "UniT achieves 85% success rate on Humanoid Simulation benchmark",
+    "UniT achieves 90% success rate on Real-world Deployments",
+    "Baseline performance on Humanoid Simulation benchmark is 60% success rate",
+    "Baseline performance on Real-world Deployments is 70% success rate",
+    "85%",
+    "90%"
+  ],
+  "rubric_floor_applied": true,
+  "rubric_floor_reasons": [
+    "no_cites:cap=5"
+  ],
+  "rubric_score_raw": 13,
+  "evidence_utilization": {
+    "score": 0.2071,
+    "ratios": {
+      "numbers": 0.0714,
+      "entities": 0.5,
+      "quotes": 0.0,
+      "analyst_claims": 0.1429
+    },
+    "totals": {
+      "numbers": 14,
+      "entities": 22,
+      "quotes": 7,
+      "analyst_claims": 35
+    },
+    "used_counts": {
+      "numbers": 1,
+      "entities": 11,
+      "quotes": 0,
+      "analyst_claims": 5
+    },
+    "unused": {
+      "numbers": [
+        "30.1",
+        "40.4",
+        "58.2",
+        "55.4",
+        "47.0",
+        "44.4",
+        "40.3",
+        "50.4"
+      ],
+      "entities": [
+        "A Metaverse: Taxonomy, Components, Applications, and Open Challenges",
+        "Progress and prospects of the human\u2013robot collaboration",
+        "VLA-UniT",
+        "Pick",
+        "Place Articulated",
+        "RoboCasa GR1",
+        "Diffusion Policy",
+        "Flare"
+      ],
+      "quotes": [
+        "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mism",
+        "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data",
+        "while human and humanoid kinematics differ in structural DoFs and contain embodiment-specific noise, the physical outcomes of their intents share a consistent visual representation.",
+        "forms a shared cross-embodiment latent space and also encourages downstream models to align their internal features",
+        "induce more aligned cross-embodiment context representations",
+        "Pick and Place Articulated Overall 20% 30% 40% 50% 60% 70% 80%Success Rate 30.1 40.4 58.2 55.4 47.0 44.4 40.3 50.4 67.3 38.4 50.1 51.3 24.2 50.3 42.3 35.0 43.7 64.7 29.5 40.9 55.0 47.6 47.8 43.9 39.0 48.8 66.7 n=900 n=300 n=1200\n\nUWM\n\nDiffu",
+        "24\u00d7100 trajs 24\u00d71000 trajs 10% 20% 30% 40% 50% 60% 70%Success Rate 21.3 45.5 47.8 66.7 n=1200 n=1200 GR00T-Qwen2.5 VLA-UniT Pick and Place Articulated In-Domain Average Unseen\n\nAppearance\n\nUnseen\n\nCombinations\n\nUnseen\n\nObject Types\n\nOOD Ave"
+      ],
+      "analyst_claims": [
+        "VLA-UniT predicts unified tokens to leverage diverse human data for policy learning.",
+        "VLA-UniT achieves robust out-of-distribution (OOD) generalization and zero-shot task transfer on humanoid robots.",
+        "UniT demonstrates state-of-the-art data efficiency on humanoid simulation benchmarks and real-world deployments.",
+        "UniT is validated across two paradigms: policy learning and world modeling.",
+        "VLA-UniT achieves high success rates in tasks like Pick and Place Articulated on RoboCasa GR1 simulation environments.",
+        "VLA-UniT outperforms baselines such as Diffusion Policy, Flare, and GROOT in terms of success rate and data efficiency.",
+        "30.",
+        "40."
+      ]
+    }
+  },
+  "undefined_acronyms": [
+    "SNE",
+    "IEEE"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "review_notes": [
+    {
+      "role": "adversary",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "missing falsifiers",
+        "vague impact claims"
+      ],
+      "rewrite_targets": [
+        "What would falsify UniT's main claim?",
+        "Can UniT be extended to handle more complex tasks?"
+      ],
+      "summary": "The draft lacks concrete experiments to falsify UniT's claims and makes vague impact claims about its potential extensions.",
+      "metadata": {
+        "severity": "blocking",
+        "top_risk": "insufficient evidence"
+      }
+    },
+    {
+      "role": "evidence_verifier",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "unsupported_comparisons",
+        "unresolved_citations"
+      ],
+      "rewrite_targets": [
+        "What UniT achieves in terms of data efficiency and OOD generalization",
+        "Evidence of Data Efficiency and OOD Generalization"
+      ],
+      "summary": "The draft contains unsupported comparisons and unresolved citations that need to be addressed.",
+      "metadata": {
+        "severity": "blocking",
+        "needs_number_rewrite": true
+      }
+    },
+    {
+      "role": "render_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "pandoc_render_failed",
+        "render_html_generation_failed"
+      ],
+      "rewrite_targets": [],
+      "summary": "Render review found issues with HTML/diagram/table rendering.",
+      "metadata": {}
+    },
+    {
+      "role": "meta_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "reviewer_blocked:evidence_verifier",
+        "unsupported_comparisons",
+        "unresolved_citations",
+        "reviewer_blocked:render_reviewer",
+        "pandoc_render_failed",
+        "render_html_generation_failed",
+        "reviewer_weight_below_threshold:0.00<0.80"
+      ],
+      "rewrite_targets": [],
+      "summary": "The draft lacks concrete experiments to falsify UniT's claims and makes vague impact claims about its potential extensions. | The draft contains unsupported comparisons and unresolved citations that need to be addressed. | Render review found issues with HTML/diagram/table rendering.",
+      "metadata": {
+        "all_findings": [
+          "missing falsifiers",
+          "vague impact claims",
+          "unsupported_comparisons",
+          "unresolved_citations",
+          "pandoc_render_failed",
+          "render_html_generation_failed"
+        ],
+        "weighted_score": 0.0,
+        "reviewer_weights": {
+          "evidence_verifier": 0.45,
+          "render_reviewer": 0.35,
+          "adversary": 0.2
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "mandatory_claims": [
+    "UniT achieves state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments.",
+    "UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+    "UniT's cross-embodiment representation is empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold."
+  ],
+  "mandatory_sections": [
+    "Why UniT is a significant advancement in humanoid foundation models",
+    "What UniT achieves in terms of data efficiency and OOD generalization",
+    "How UniT works, including its tri-branch cross-reconstruction mechanism and fusion branch",
+    "What would falsify UniT's main claim, including a cheap experiment to invalidate its effectiveness"
+  ],
+  "required_visuals": [
+    "t-SNE visualization of UniT's cross-embodiment representation"
+  ],
+  "likely_failures": [
+    "UniT's reliance on massive egocentric human data may not generalize to other domains",
+    "UniT's kinematic mismatches may not be fully addressed by its cross-reconstruction mechanism"
+  ],
+  "preventive_checks": [
+    "Verify UniT's performance on a diverse set of humanoid simulation benchmarks",
+    "Assess UniT's robustness to kinematic mismatches and other potential failures"
+  ],
+  "backup_remedies": [
+    "Develop alternative methods for bridging the cross-embodiment chasm",
+    "Explore other scalable alternatives to robotic data for humanoid foundation models"
+  ],
+  "reviewer_focus": [
+    "Critique UniT's reliance on massive egocentric human data and its potential limitations",
+    "Evaluate UniT's effectiveness in addressing kinematic mismatches and other potential failures"
+  ]
+}
