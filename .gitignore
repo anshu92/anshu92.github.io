@@ -31,3 +31,6 @@ npm-debug.log*
 # blogpipe local artifacts
 /reports/
 /cache/
+
+# Local API keys (loaded by blogpipe config; never commit)
+.env.local

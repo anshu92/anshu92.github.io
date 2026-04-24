@@ -4,6 +4,33 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
+
+
+def _load_dotenv_local() -> None:
+    """Populate os.environ from repo-root ``.env.local`` if present (never committed).
+
+    Existing environment variables win; only missing keys are set.
+    """
+    try:
+        root = Path(__file__).resolve().parent.parent.parent
+        p = root / ".env.local"
+        if not p.is_file():
+            return
+        for raw in p.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            key = key.strip()
+            val = val.strip().strip("'").strip('"')
+            if key and val and key not in os.environ:
+                os.environ[key] = val
+    except OSError:
+        return
+
+
+_load_dotenv_local()
 
 
 def _get(name: str, default: str = "") -> str:

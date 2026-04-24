@@ -1,4 +1,8 @@
-"""Task → model selection for OpenRouter / Groq / Gemini. Pure dispatch, no I/O."""
+"""Task → model selection for OpenRouter / Groq / Gemini.
+
+When ``GEMINI_API_KEY`` is set, high-impact tasks prefer the native Gemini API
+(``gemini-2.5-flash``) first, then paid OpenRouter/Groq fallbacks.
+"""
 
 from __future__ import annotations
 
@@ -100,20 +104,27 @@ _TASKS: dict[str, TaskProfile] = {
         400,
         _CAP_FAST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.1-8b-instant", "groq"),
             ("openrouter/free", "openrouter"),
         ),
-        _fc(("openai/gpt-5-nano", "openrouter"), ("llama-3.1-8b-instant", "groq")),
+        _fc(
+            ("gemini-2.5-flash", "gemini"),
+            ("openai/gpt-5-nano", "openrouter"),
+            ("llama-3.1-8b-instant", "groq"),
+        ),
     ),
     "paper_chunk_summary": TaskProfile(
         "paper_chunk_summary",
         600,
         _CAP_LC,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("qwen/qwen3-next-80b-a3b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("qwen/qwen3-next-80b-a3b-instruct:free", "openrouter"),
         ),
@@ -123,10 +134,12 @@ _TASKS: dict[str, TaskProfile] = {
         500,
         _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
         ),
@@ -136,10 +149,12 @@ _TASKS: dict[str, TaskProfile] = {
         500,
         _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
         ),
@@ -149,10 +164,12 @@ _TASKS: dict[str, TaskProfile] = {
         1500,
         _CAP_RE | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.3-70b-versatile", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("llama-3.3-70b-versatile", "groq"),
         ),
@@ -162,10 +179,12 @@ _TASKS: dict[str, TaskProfile] = {
         1200,
         _CAP_LC | _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("qwen/qwen3-235b-thinking:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.5-flash", "openrouter"),
             ("qwen/qwen3-235b-thinking:free", "openrouter"),
         ),
@@ -175,10 +194,12 @@ _TASKS: dict[str, TaskProfile] = {
         900,
         _CAP_LC | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -188,10 +209,12 @@ _TASKS: dict[str, TaskProfile] = {
         800,
         _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("anthropic/claude-3-5-haiku-20241022", "openrouter"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
         ),
@@ -201,10 +224,12 @@ _TASKS: dict[str, TaskProfile] = {
         900,
         _CAP_LC,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -214,10 +239,12 @@ _TASKS: dict[str, TaskProfile] = {
         600,
         _CAP_FAST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.1-8b-instant", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("llama-3.1-8b-instant", "groq"),
         ),
@@ -227,10 +254,12 @@ _TASKS: dict[str, TaskProfile] = {
         700,
         _CAP_CD,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("qwen/qwen3-coder:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("qwen/qwen3-coder:free", "openrouter"),
         ),
@@ -240,10 +269,12 @@ _TASKS: dict[str, TaskProfile] = {
         600,
         _CAP_FAST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.1-8b-instant", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-5-nano", "openrouter"),
             ("llama-3.1-8b-instant", "groq"),
         ),
@@ -253,10 +284,12 @@ _TASKS: dict[str, TaskProfile] = {
         1000,
         _CAP_LC | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -266,10 +299,12 @@ _TASKS: dict[str, TaskProfile] = {
         1500,
         _CAP_LC | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -279,11 +314,13 @@ _TASKS: dict[str, TaskProfile] = {
         2000,
         _CAP_LC,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("llama-3.3-70b-versatile", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -293,11 +330,13 @@ _TASKS: dict[str, TaskProfile] = {
         1800,
         _CAP_LC | _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("qwen/qwen3-235b-thinking:free", "openrouter"),
             ("nvidia/nemotron-3-super-120b-a12b:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("anthropic/claude-3-5-haiku-20241022", "openrouter"),
             ("qwen/qwen3-235b-thinking:free", "openrouter"),
         ),
@@ -307,10 +346,12 @@ _TASKS: dict[str, TaskProfile] = {
         4096,
         _CAP_LC,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.5-flash", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -320,10 +361,12 @@ _TASKS: dict[str, TaskProfile] = {
         600,
         _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("qwen/qwen3-32b", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("qwen/qwen3-32b", "groq"),
         ),
@@ -333,10 +376,12 @@ _TASKS: dict[str, TaskProfile] = {
         1200,
         _CAP_FAST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.3-70b-versatile", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("google/gemini-2.0-flash-001", "openrouter"),
             ("llama-3.3-70b-versatile", "groq"),
         ),
@@ -346,10 +391,12 @@ _TASKS: dict[str, TaskProfile] = {
         1500,
         _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("meta-llama/llama-3.3-70b-instruct:free", "openrouter"),
         ),
@@ -359,10 +406,12 @@ _TASKS: dict[str, TaskProfile] = {
         900,
         _CAP_RE,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.3-70b-versatile", "groq"),
             ("google/gemini-2.5-flash", "openrouter"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
@@ -373,10 +422,12 @@ _TASKS: dict[str, TaskProfile] = {
         900,
         _CAP_RE | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("deepseek/deepseek-r1-0528:free", "openrouter"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.3-70b-versatile", "groq"),
             ("google/gemini-2.5-flash", "openrouter"),
             ("anthropic/claude-3-5-haiku-20241022", "openrouter"),
@@ -388,12 +439,29 @@ _TASKS: dict[str, TaskProfile] = {
         600,
         _CAP_FAST | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.1-8b-instant", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("llama-3.1-8b-instant", "groq"),
+        ),
+    ),
+    "planning_brief": TaskProfile(
+        "planning_brief",
+        1800,
+        _CAP_LC | _CAP_ST | _CAP_RE,
+        _fc(
+            ("gemini-2.5-flash", "gemini"),
+            ("llama-3.3-70b-versatile", "groq"),
+            ("openrouter/free", "openrouter"),
+        ),
+        _fc(
+            ("gemini-2.5-flash", "gemini"),
+            ("google/gemini-2.5-flash", "openrouter"),
+            ("llama-3.3-70b-versatile", "groq"),
         ),
     ),
     "keyword_extract": TaskProfile(
@@ -401,10 +469,12 @@ _TASKS: dict[str, TaskProfile] = {
         400,
         _CAP_FAST | _CAP_ST,
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("llama-3.1-8b-instant", "groq"),
             ("openrouter/free", "openrouter"),
         ),
         _fc(
+            ("gemini-2.5-flash", "gemini"),
             ("openai/gpt-4.1-mini", "openrouter"),
             ("llama-3.1-8b-instant", "groq"),
         ),

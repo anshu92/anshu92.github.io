@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import unittest
 
+from unittest.mock import MagicMock
+
 from blogpipe.llm_chain import (
     _BLACKLIST_TTL_DAILY,
     _BLACKLIST_TTL_MED,
     _BLACKLIST_TTL_SHORT,
     _blacklist_ttl_for_body,
+    _retry_delay_seconds_429,
 )
 
 
@@ -47,6 +50,14 @@ class BlacklistTtlTests(unittest.TestCase):
 
     def test_unknown_status_is_none(self) -> None:
         self.assertIsNone(_blacklist_ttl_for_body(200, "ok"))
+
+    def test_retry_delay_parses_gemini_message(self) -> None:
+        r = MagicMock()
+        r.headers = {}
+        r.text = 'Please retry in 12.5s. Quota exceeded.'
+        d = _retry_delay_seconds_429(r)
+        self.assertGreaterEqual(d, 12.5)
+        self.assertLessEqual(d, 90.0)
 
 
 if __name__ == "__main__":

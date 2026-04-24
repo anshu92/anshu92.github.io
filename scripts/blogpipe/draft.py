@@ -824,6 +824,10 @@ def embed_planned_visuals(body: str, plan: VisualPlan | None, slug: str) -> str:
 
 def _polish_body(body: str, bundle: EvidenceBundle, brief: EditorialBrief) -> str:
     body = _unwrap_markdown_fence(body)
+    # Structural / cite-repair LLM steps can emit [cite: …] ids that are not bundle items;
+    # resolve + strip here so every path through polish leaves valid links or no marker.
+    bundle.register_ids()
+    body = _resolve_cites(body, bundle)
     body = _cleanup_missing_cites(body)
     body = _normalize_research_attribution(body)
     body = _normalize_takeaway_line(body)
@@ -995,6 +999,8 @@ def build_prompt(
         "6. Name failures, assumptions, when not to use the method. Not only the success path.\n"
         "7. Every speed/accuracy/robustness claim needs a number, benchmark, [cite: id], or named "
         "baseline. Layer-role or transfer 'folklore' only if EVIDENCE supports it, else omit.\n"
+        "7a. Never use collective lab voice for the authors: ban 'We propose', 'We introduce', "
+        "'Our method', 'Our framework' — use 'The authors propose …' / 'The paper introduces …'.\n"
         "7b. Do not invent derived arithmetic summaries. If the paper reports 81.67% and 75.56%, you may "
         "cite both numbers, but do not turn them into a new unsupported claim like 'up to 6 points' unless "
         "that delta itself appears in EVIDENCE.\n"
@@ -1015,7 +1021,8 @@ def build_prompt(
         "Introduction, Background, Overview, Results, Summary, Conclusion, and the meta/templated "
         "headings called out in RED FLAGS below.\n"
         "- Do not paste CONTENT GOALS as headings. First line: one-sentence takeaway with a number, "
-        "no ## on that line. Do not repeat the takeaway or title as the next heading.\n"
+        "plain text only (no leading # or ## on that line). Put a blank line before the first real "
+        "## section. Do not repeat the takeaway or title as the next heading.\n"
         "- Short paragraphs; skimmable bold or closing one-liners per section where useful.\n"
         "\nHARD REQUIREMENTS:\n"
         "- [cite: ID] for external claims; IDs: primary or "

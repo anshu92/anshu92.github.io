@@ -164,6 +164,8 @@ class DraftPolishTests(unittest.TestCase):
         self.assertIn("do not turn them into a new unsupported claim", system)
         self.assertIn("How to apply in real-world scenarios", system)
         self.assertIn("game-changer", system)
+        self.assertIn("The authors propose", system)
+        self.assertIn("plain text only", system)
 
     def test_soften_unsupported_numeric_claims_rewrites_derived_delta(self) -> None:
         body = (
@@ -234,6 +236,20 @@ class DraftPolishTests(unittest.TestCase):
         bundle.section_evidence["paper_experiments"] = ""
         repaired = _repair_or_inject_results_table(body, bundle)
         self.assertNotIn("| Method | Metric | Baseline |", repaired)
+
+    def test_polish_body_removes_unknown_cite_markers(self) -> None:
+        """LLM rewrites sometimes use evidence section keys as [cite: …]; those are not item ids."""
+        body = (
+            "Takeaway 81.67%.\n\n"
+            "## Why this works\nMechanism. [cite: paper_method]\n\n"
+            "```mermaid\nflowchart LR\nA --> B\n```\n\n"
+            "| Method | Metric | Baseline |\n"
+            "| --- | --- | --- |\n"
+            "| x | 81.67% | n/a |\n"
+        )
+        polished = _polish_body(body, self.bundle, self.brief)
+        self.assertNotIn("[cite: paper_method]", polished)
+        self.assertNotIn("[missing cite:", polished)
 
 
 if __name__ == "__main__":

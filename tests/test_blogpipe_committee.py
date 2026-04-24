@@ -28,6 +28,51 @@ def test_select_chain_returns_models():
     assert all(len(p) == 2 for p in ch)
 
 
+def test_planning_brief_chain_prefers_native_gemini_when_only_gemini_key():
+    from blogpipe import model_registry
+
+    keys = ("GEMINI_API_KEY", "OPENROUTER_API_KEY", "GROQ_API_KEY", "OPENAI_API_KEY")
+    saved = {k: os.environ.get(k) for k in keys}
+    try:
+        for k in keys:
+            os.environ.pop(k, None)
+        os.environ["GEMINI_API_KEY"] = "test-gemini-only"
+        ch = model_registry.select_chain(
+            "planning_brief", 4000, prefer_free=True, usd_budget_remaining=0.0
+        )
+        assert ch
+        assert ch[0] == ("gemini-2.5-flash", "gemini")
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
+def test_draft_full_chain_prefers_native_gemini_when_only_gemini_key():
+    """Gemini-only setups must not depend on OpenRouter slugs for Google models."""
+    from blogpipe import model_registry
+
+    keys = ("GEMINI_API_KEY", "OPENROUTER_API_KEY", "GROQ_API_KEY", "OPENAI_API_KEY")
+    saved = {k: os.environ.get(k) for k in keys}
+    try:
+        for k in keys:
+            os.environ.pop(k, None)
+        os.environ["GEMINI_API_KEY"] = "test-gemini-only"
+        ch = model_registry.select_chain(
+            "draft_full", 2000, prefer_free=True, usd_budget_remaining=0.0
+        )
+        assert ch
+        assert ch[0] == ("gemini-2.5-flash", "gemini")
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
 def test_parse_analyst_json():
     from blogpipe.analysts.base import _parse_json_note
 

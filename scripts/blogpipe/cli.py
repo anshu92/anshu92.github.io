@@ -27,6 +27,7 @@ def main() -> int:
             "package",
             "benchmark",
             "graph",
+            "partial",
             "run",
             "resume",
         ],
@@ -35,7 +36,7 @@ def main() -> int:
         "thread_id",
         nargs="?",
         default="",
-        help="for resume: LangGraph thread_id (or set BLOGPIPE_THREAD_ID)",
+        help="for resume: thread_id (or BLOGPIPE_THREAD_ID); for partial: stop-after stage name",
     )
     a = p.parse_args()
     try:
@@ -79,6 +80,11 @@ def main() -> int:
             from .graph import runner
 
             runner.run_graph_pipeline()
+        elif a.command == "partial":
+            from .graph import runner
+
+            stop = (a.thread_id or "").strip() or "draft"
+            runner.run_partial(stop)
         elif a.command == "resume":
             from . import config
 

@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+import random
+import re
 import time
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -21,6 +23,8 @@ _TIMEOUT = httpx.Timeout(120.0, connect=15.0)
 # (model_id, provider). OpenRouter slugs are from https://openrouter.ai/api/v1/models — use :free
 # only where the API lists that id (no paid-only ids with a fake :free suffix).
 _FAST_MODEL_CHAIN: list[tuple[str, str]] = [
+    # Native Gemini first when GEMINI_API_KEY is set (task-agnostic fast fallback).
+    ("gemini-2.5-flash", "gemini"),
     # Groq (verified live ids; see https://console.groq.com/docs/models)
     ("llama-3.3-70b-versatile", "groq"),
     ("qwen/qwen3-32b", "groq"),
@@ -462,6 +466,21 @@ def _record_token_usage(
         _USAGE["by_task"] = bt
 
 
+def _retry_delay_seconds_429(response: httpx.Response) -> float:
+    """Bounded wait before retrying a rate-limited chat request."""
+    try:
+        ra = (response.headers.get("retry-after") or "").strip()
+        if ra:
+            return min(90.0, max(2.0, float(ra)))
+    except ValueError:
+        pass
+    txt = (response.text or "")[:4000]
+    m = re.search(r"retry in ([0-9]+(?:\.[0-9]+)?)\s*s", txt, re.I)
+    if m:
+        return min(90.0, max(2.0, float(m.group(1))))
+    return min(45.0, 6.0 + random.random() * 6.0)
+
+
 def _one_chat(
     entry: dict[str, Any],
     messages: list[dict[str, str]],
@@ -490,8 +509,24 @@ def _one_chat(
     }
     if prov == "openrouter":
         h.update(_openrouter_headers())
-    with httpx.Client(verify=True, timeout=_TIMEOUT) as cl:
-        r = cl.post(url, headers=h, content=json.dumps(body).encode("utf-8"))
+    r: httpx.Response | None = None
+    for attempt in range(3):
+        with httpx.Client(verify=True, timeout=_TIMEOUT) as cl:
+            r = cl.post(url, headers=h, content=json.dumps(body).encode("utf-8"))
+        if r.status_code != 429:
+            break
+        if attempt >= 2:
+            break
+        delay = _retry_delay_seconds_429(r)
+        LOG.warning(
+            "llm 429, sleeping %.1fs then retry (%d/2) model=%s provider=%s",
+            delay,
+            attempt + 1,
+            m,
+            prov,
+        )
+        time.sleep(delay)
+    assert r is not None
     if r.is_error:
         err_body = (r.text or "")[:2000]
         LOG.warning(

@@ -388,7 +388,7 @@ def node_planning_brief(state: dict[str, Any]) -> dict[str, Any]:
             user,
             mode="smart",
             max_tokens=1600,
-            task="supervisor_route",
+            task="planning_brief",
             temperature=config.verifier_temperature(),
         )
         plan = _parse_planning_brief(raw, bundle)
