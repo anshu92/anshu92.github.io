@@ -271,3 +271,33 @@ def test_grounding_prompt_distinguishes_blocking_vs_advisory(monkeypatch) -> Non
     grounding_check_node("Takeaway 81.67%.", '{"primary":{"id":"p"}}')
     assert "Do NOT flag" in captured["system"]
     assert "derived arithmetic restatements" in captured["system"]
+
+
+def test_node_editor_recomputes_grounding_on_final_polished_body(monkeypatch) -> None:
+    from blogpipe.graph import nodes
+
+    seen = {}
+
+    def _fake_global_rubric(body, bundle=None, lint_issues=None):  # noqa: ANN001
+        from blogpipe.models import EditorReport
+        seen.setdefault("rubric_bodies", []).append(body)
+        return EditorReport(rubric_score=10, five_questions_ok=True, pass_gate=True, llm_ok=True)
+
+    def _fake_grounding_check(body, evidence_text):  # noqa: ANN001
+        seen["grounding_body"] = body
+        return True, [], True
+
+    monkeypatch.setattr(nodes, "global_rubric", _fake_global_rubric)
+    monkeypatch.setattr(nodes, "grounding_check_node", _fake_grounding_check)
+    monkeypatch.setattr(nodes, "explain_undefined_terms", lambda body, bundle: body.replace("## Conclusion", "## What I would test next"))
+    monkeypatch.setattr(nodes, "embed_planned_visuals", lambda body, plan, slug: body)
+
+    state = _state()
+    state["body"] = (
+        "Takeaway 81.67%.\n\n"
+        "## Why this works\nMechanism. [cite: primary]\n\n"
+        "## Conclusion\nClose. [cite: primary]\n"
+    )
+    out = nodes.node_editor(state)
+    assert "## What I would test next" in seen["grounding_body"]
+    assert out["editor_report"]["grounding_issues"] == []

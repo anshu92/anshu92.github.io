@@ -190,7 +190,6 @@ def run() -> EditorReport:
             body = _unwrap_markdown_fence(fix)
             path.write_text(front + body, encoding="utf-8")
         rep = _rubric_llm(body)
-    g_ok, g_issues, g_llm = _grounding_check(body)
     ev_p = _ROOT / "reports" / "evidence_bundle.json"
     ev_text = ev_p.read_text(encoding="utf-8")[:22000] if ev_p.is_file() else ""
     bundle_for_explainer: EvidenceBundle | None = None
@@ -208,6 +207,8 @@ def run() -> EditorReport:
         )
         path.write_text(front + body, encoding="utf-8")
     lint_issues = list(dict.fromkeys(lint.structural_issues(body)))
+    rep = _rubric_llm(body)
+    g_ok, g_issues, g_llm = _grounding_check(body)
     det_ground = lint.unsupported_numeric_claims(body, ev_text) if ev_text else []
     if (
         (g_issues or det_ground)

@@ -82,6 +82,8 @@ def _humanize_reason(reason: FailureReason) -> str:
     code = (reason.code or "").strip()
     if code.startswith("lint:"):
         code = code.split(":", 1)[1]
+    if code == "grounding_issue" and reason.message:
+        return f"Unsupported claim: {reason.message}"
     label = _REASON_LABELS.get(code)
     if label:
         return label

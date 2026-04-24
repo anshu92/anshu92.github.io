@@ -161,6 +161,8 @@ class DraftPolishTests(unittest.TestCase):
         system, _user = build_prompt(self.bundle, self.brief, formats.FORMATS["deep_dive"])
         self.assertIn("Do not invent derived arithmetic summaries", system)
         self.assertIn("do not turn them into a new unsupported claim", system)
+        self.assertIn("How to apply in real-world scenarios", system)
+        self.assertIn("game-changer", system)
 
     def test_soften_unsupported_numeric_claims_rewrites_derived_delta(self) -> None:
         body = (
@@ -193,6 +195,20 @@ class DraftPolishTests(unittest.TestCase):
         self.assertIn("81.67%", out)
         self.assertIn("75.56%", out)
         self.assertEqual([], lint.unsupported_numeric_claims(out, self.bundle.model_dump_json()))
+
+    def test_polish_body_normalizes_generic_advice_headings(self) -> None:
+        body = (
+            "Takeaway 81.67%.\n\n"
+            "## Why OpenMobile is a game-changer in mobile agent research\nBody. [cite: primary]\n\n"
+            "## How to apply OpenMobile in real-world scenarios\nAdvice. [cite: primary]\n\n"
+            "## Conclusion\nClose. [cite: primary]\n"
+        )
+        polished = _polish_body(body, self.bundle, self.brief)
+        self.assertIn("## Why this matters in practice", polished)
+        self.assertIn("## What a practitioner should test next", polished)
+        self.assertIn("## What I would test next", polished)
+        self.assertNotIn("game-changer", polished.lower())
+        self.assertNotIn("real-world scenarios", polished.lower())
 
 
 if __name__ == "__main__":

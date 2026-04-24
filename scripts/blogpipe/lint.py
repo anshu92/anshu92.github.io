@@ -32,7 +32,8 @@ _GENERIC_H2 = re.compile(
 _TEMPLATED_H2 = re.compile(
     r"^##\s*(Changed Minds|Author Takeaway|Next Steps|Performance Comparison|"
     r"Empirical Results|How (?:.+ )?Works|Why It Works|The Problem(?:\s*:.*)?|"
-    r"Limitations and Failure Modes)\s*$",
+    r"Limitations and Failure Modes|How to apply.+|How to use.+|.*real-world scenarios.*|"
+    r"Why .+game[- ]changer.+)\s*$",
     re.I | re.M,
 )
 _CODE_FENCE = re.compile(r"```[\s\S]*?```", re.M)
@@ -171,6 +172,11 @@ _ADVICE_HINT = re.compile(
     r"^##\s+(.+)$|(?:^|\n)\s*(?:I'd|I would|Try|Use|Start with|Steal This|Engineering habit)",
     re.I | re.M,
 )
+_EVALUATIVE_PARA = re.compile(
+    r"\b(game[- ]chang(?:er|ing)|competitive|impressive|strong|weak|useful|valuable|"
+    r"important|matters|real-world|production-ready|significant(?:ly)?|clearly|obvious(?:ly)?)\b",
+    re.I,
+)
 
 
 def lint_h2_minimum(body: str, *, minimum: int = 2) -> list[str]:
@@ -253,6 +259,23 @@ def lint_advice_traceability(body: str) -> list[str]:
     if _CITE_TOKEN.search(text) or re.search(r"\]\(https?://[^)]+\)", text):
         return []
     return ["advice_without_traceability"]
+
+
+def lint_evaluative_paragraph_citations(body: str) -> list[str]:
+    for para in re.split(r"\n\s*\n", body or ""):
+        p = (para or "").strip()
+        if not p or p.startswith("```") or p.startswith("|"):
+            continue
+        if p.startswith("## "):
+            p = re.sub(r"^##\s+.*?\n", "", p, count=1, flags=re.M).strip()
+            if not p:
+                continue
+        if not _EVALUATIVE_PARA.search(p):
+            continue
+        if _CITE_TOKEN.search(p) or re.search(r"\]\(https?://[^)]+\)", p):
+            continue
+        return ["evaluative_paragraph_without_citation"]
+    return []
 
 
 # --- Section redundancy ----------------------------------------------------
@@ -794,6 +817,7 @@ def structural_issues(body: str, bundle=None) -> list[str]:
         + lint_comparative_claims(body)
         + lint_required_sections(body)
         + lint_advice_traceability(body)
+        + lint_evaluative_paragraph_citations(body)
         + lint_section_redundancy(body)
         + lint_fake_results_table(body)
         + lint_mermaid_taxonomy(body)

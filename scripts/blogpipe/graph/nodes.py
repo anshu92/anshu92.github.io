@@ -828,14 +828,6 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         except Exception:
             bundle_for_explainer = None
 
-    pre_lint_issues = list(
-        dict.fromkeys(lint.structural_issues(body, bundle_for_explainer))
-    )
-    with budget.stage("editor"):
-        rep = global_rubric(
-            body, bundle=bundle_for_explainer, lint_issues=pre_lint_issues
-        )
-        g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
     with budget.stage("polish"):
         if bundle_for_explainer is not None:
             body = explain_undefined_terms(body, bundle_for_explainer)
@@ -845,15 +837,21 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
                 _slugify(bundle_for_explainer.primary.title),
             )
             state["body"] = body
+    final_lint_issues = list(
+        dict.fromkeys(lint.structural_issues(body, bundle_for_explainer))
+    )
+    with budget.stage("editor"):
+        rep = global_rubric(
+            body, bundle=bundle_for_explainer, lint_issues=final_lint_issues
+        )
+        g_ok, g_iss, g_llm = grounding_check_node(body, ev_text)
     if bundle_for_explainer is not None:
         undefined_after = lint.undefined_acronyms(
             body, draft._glossary_terms_from_bundle(bundle_for_explainer)
         )
     else:
         undefined_after = lint.undefined_acronyms(body, [])
-    lint_issues = list(
-        dict.fromkeys(lint.structural_issues(body, bundle_for_explainer))
-    )
+    lint_issues = final_lint_issues
     det_ground = lint.unsupported_numeric_claims(body, ev_text)
     usage = get_llm_usage()
     need_llm = bool(config.llm_configured() and not config.dry_run())

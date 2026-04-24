@@ -414,6 +414,26 @@ def _strip_leading_title_echo_heading(body: str, title: str) -> str:
     return "\n".join(out).strip() + "\n"
 
 
+def _normalize_generic_section_headings(body: str) -> str:
+    lines = body.splitlines()
+    out: list[str] = []
+    for line in lines:
+        if re.match(r"^##\s*Conclusion\s*$", line, re.I):
+            out.append("## What I would test next")
+            continue
+        if re.match(r"^##\s*How to (?:apply|use).*$", line, re.I) or re.search(
+            r"^##\s*.*real-world scenarios.*$", line,
+            re.I,
+        ):
+            out.append("## What a practitioner should test next")
+            continue
+        if re.match(r"^##\s*Why .*(game[- ]changer).*$", line, re.I):
+            out.append("## Why this matters in practice")
+            continue
+        out.append(line)
+    return "\n".join(out).strip() + "\n"
+
+
 def _split_sentences(text: str) -> list[str]:
     raw = re.split(r"(?<=[.!?])\s+", (text or "").strip())
     return [x.strip() for x in raw if x and x.strip()]
@@ -850,6 +870,7 @@ def _polish_body(body: str, bundle: EvidenceBundle, brief: EditorialBrief) -> st
     body = _normalize_research_attribution(body)
     body = _normalize_takeaway_line(body)
     body = _ensure_grounded_takeaway(body, bundle)
+    body = _normalize_generic_section_headings(body)
     body = _dedupe_adjacent_lines(body)
     body = _strip_leading_title_echo_heading(body, bundle.primary.title)
     body = _promote_h3_when_no_h2(body)
@@ -1022,6 +1043,8 @@ def build_prompt(
         "8. Tight sections: one question per section, no padding.\n"
         "9. Close with a reader action grounded in the paper (repro, ablation, sanity check), not new "
         "tools, counts, seeds, or thresholds the paper does not mention.\n"
+        "9b. Do not use generic blog headings or product language like 'Conclusion', 'How to apply in real-world scenarios', "
+        "'How to use this in production', or 'game-changer'. Replace them with specific, practitioner-facing headings.\n"
         "10. Point of view: why the result matters, what would change your mind.\n"
         "11. Define jargon on first use (acronyms expanded once; GLOSSARY is ground truth).\n"
         "12. If VISUAL_PLAN is present, insert those figures and $$...$$ as given; no extra images or "
@@ -1065,6 +1088,8 @@ def build_prompt(
         "\nRED FLAGS:\n"
         "- 'In recent years' intros; marketing words (leveraged, seamless, unlock, holistic, ...).\n"
         "- Buried lede, ornamental code, table/prose inconsistency, author voice for their lab work.\n"
+        "- Generic summary headings ('Conclusion', 'Results', 'How to apply...') or hype phrases like "
+        "'game-changer', 'competitive results', or 'real-world scenarios' without a cited concrete claim.\n"
         "- Slangy put-downs; status-update tone; content-free polish.\n"
         "\nOpener style: "
         + brief.opener_hook

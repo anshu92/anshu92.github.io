@@ -169,7 +169,7 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
     assert "Body." not in email_html
     assert "render_valid</th><td>not attempted" in email_html
     assert "package_valid</th><td>not attempted" in email_html
-    assert "Unsupported claim" in email_html
+    assert "Unsupported claim: unsupported claim" in email_html
     assert "Benchmark Harness" in email_html
     assert "blocked_render_raw_mermaid" in email_html
     assert "Quality Contracts" in rejected_html
@@ -177,6 +177,14 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
     assert "blocked_render_raw_mermaid" in rejected_html
     assert "Rejected draft review copy" in rejected_html
     assert "Body." in rejected_html
+
+
+def test_humanize_reason_shows_specific_grounding_claim() -> None:
+    from blogpipe.models import FailureReason
+    from blogpipe.package import _humanize_reason
+
+    reason = FailureReason(code="grounding_issue", message="invented 85% benchmark score", stage="editor")
+    assert _humanize_reason(reason) == "Unsupported claim: invented 85% benchmark score"
 
 
 def test_write_draft_print_pdf_requires_rendered_mermaid(monkeypatch, tmp_path: Path) -> None:

@@ -191,6 +191,22 @@ class StructuralLintAdditionsTests(unittest.TestCase):
         )
         self.assertIn("advice_without_traceability", lint.structural_issues(body))
 
+    def test_evaluative_paragraph_without_citation_is_flagged(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Why this matters in practice\nThis is a competitive result for real-world scenarios.\n\n"
+            "## What a practitioner should test next\nTry the benchmark.\n"
+        )
+        self.assertIn("evaluative_paragraph_without_citation", lint.structural_issues(body))
+
+    def test_evaluative_paragraph_with_citation_passes(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Why this matters in practice\nThis is a competitive result for real-world scenarios. [cite: primary]\n\n"
+            "## What a practitioner should test next\nTry the benchmark.\n"
+        )
+        self.assertNotIn("evaluative_paragraph_without_citation", lint.structural_issues(body))
+
 
 class PolishRescueTests(unittest.TestCase):
     def test_promote_h3_when_no_h2_promotes_all(self) -> None:
