@@ -14,7 +14,7 @@ from .committee import (
     node_scout,
     node_synthesizer,
 )
-from .retry_policies import ANALYST_RETRY, DEFAULT_RETRY
+from .retry_policies import ANALYST_RETRY, DEFAULT_RETRY, add_node_with_retry
 from .state import BlogState
 from .supervisor import node_supervisor
 
@@ -22,13 +22,11 @@ from .supervisor import node_supervisor
 def build_committee_graph() -> StateGraph:
     """Uncompiled committee map-reduce."""
     g: StateGraph = StateGraph(BlogState)
-    g.add_node("scout", node_scout, retry_policy=DEFAULT_RETRY)
-    g.add_node("supervisor", node_supervisor, retry_policy=DEFAULT_RETRY)
-    g.add_node("synthesizer", node_synthesizer, retry_policy=DEFAULT_RETRY)
+    add_node_with_retry(g, "scout", node_scout, DEFAULT_RETRY)
+    add_node_with_retry(g, "supervisor", node_supervisor, DEFAULT_RETRY)
+    add_node_with_retry(g, "synthesizer", node_synthesizer, DEFAULT_RETRY)
     for name in RUNNERS:
-        g.add_node(
-            f"analyst_{name}", make_analyst_node(name), retry_policy=ANALYST_RETRY
-        )
+        add_node_with_retry(g, f"analyst_{name}", make_analyst_node(name), ANALYST_RETRY)
     g.add_edge(START, "scout")
     g.add_edge("scout", "supervisor")
     g.add_conditional_edges("supervisor", fan_to_analysts_from_supervisor)

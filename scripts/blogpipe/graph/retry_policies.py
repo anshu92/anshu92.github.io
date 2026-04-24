@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import inspect
 import json
+from typing import Any
 
 import httpx
 from langgraph.types import RetryPolicy
@@ -35,3 +37,12 @@ ANALYST_RETRY = RetryPolicy(
     jitter=True,
     retry_on=_TRANSIENT,
 )
+
+
+def add_node_with_retry(graph: Any, name: str, node: Any, policy: RetryPolicy) -> None:
+    """Version-compatible StateGraph.add_node wrapper for `retry` vs `retry_policy`."""
+    params = inspect.signature(graph.add_node).parameters
+    if "retry_policy" in params:
+        graph.add_node(name, node, retry_policy=policy)
+        return
+    graph.add_node(name, node, retry=policy)
