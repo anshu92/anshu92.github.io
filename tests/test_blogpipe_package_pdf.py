@@ -83,6 +83,28 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
             )
         ),
     )
+    (reports / "benchmark_report.json").write_text(
+        json.dumps(
+            {
+                "ok": False,
+                "total_cases": 4,
+                "passed_cases": 3,
+                "failed_cases": 1,
+                "cases": [
+                    {
+                        "name": "blocked_render_raw_mermaid",
+                        "ok": False,
+                        "actual": {
+                            "overall_status": "blocked",
+                            "blocking_codes": ["render_error"],
+                        },
+                    }
+                ],
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     stale_pdf = reports / "draft_post.pdf"
     stale_pdf.write_bytes(b"stale")
 
@@ -94,12 +116,19 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
     payload = json.loads((reports / "package_result.json").read_text(encoding="utf-8"))
     assert payload["ok"] is False
     assert (reports / "daily_email.html").is_file()
+    assert (reports / "draft_post_blocked_notice.html").is_file()
     email_html = (reports / "daily_email.html").read_text(encoding="utf-8")
+    blocked_html = (reports / "draft_post_blocked_notice.html").read_text(encoding="utf-8")
     assert "Draft excerpt withheld" in email_html
     assert "Body." not in email_html
     assert "render_valid</th><td>not attempted" in email_html
     assert "package_valid</th><td>not attempted" in email_html
     assert "Unsupported claim" in email_html
+    assert "Benchmark Harness" in email_html
+    assert "blocked_render_raw_mermaid" in email_html
+    assert "Quality Contracts" in blocked_html
+    assert "Benchmark Harness" in blocked_html
+    assert "blocked_render_raw_mermaid" in blocked_html
 
 
 def test_write_draft_print_pdf_requires_rendered_mermaid(monkeypatch, tmp_path: Path) -> None:

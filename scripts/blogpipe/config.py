@@ -372,3 +372,38 @@ def failure_memory_limit() -> int:
 
 def reviewer_consensus_required() -> bool:
     return _get("BLOGPIPE_REVIEWER_CONSENSUS", "1") in ("1", "true", "yes", "on")
+
+
+def reviewer_weights() -> dict[str, float]:
+    raw = _get("BLOGPIPE_REVIEWER_WEIGHTS", "")
+    default = {
+        "evidence_verifier": 0.45,
+        "render_reviewer": 0.35,
+        "adversary": 0.20,
+    }
+    if not raw:
+        return default
+    try:
+        parsed = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return default
+    if not isinstance(parsed, dict):
+        return default
+    out = dict(default)
+    for key, value in parsed.items():
+        try:
+            out[str(key)] = max(0.0, min(float(value), 1.0))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def reviewer_min_pass_score() -> float:
+    try:
+        return max(0.0, min(float(_get("BLOGPIPE_REVIEWER_MIN_PASS_SCORE", "0.80")), 1.0))
+    except ValueError:
+        return 0.80
+
+
+def benchmark_fixture_path() -> str:
+    return _get("BLOGPIPE_BENCHMARK_FIXTURE", "")

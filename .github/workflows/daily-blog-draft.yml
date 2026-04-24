@@ -148,6 +148,15 @@ jobs:
           python -m blogpipe graph
           python -m blogpipe visuals
 
+      - name: Run benchmark harness
+        if: ${{ success() && (!github.event.inputs || github.event.inputs.approve_thread_id == '') }}
+        working-directory: ${{ github.workspace }}
+        env:
+          PYTHONPATH: ${{ github.workspace }}/scripts
+          BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
+        run: |
+          python -m blogpipe benchmark
+
       - name: Resume graph (HITL)
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.approve_thread_id != ''
         working-directory: ${{ github.workspace }}
@@ -162,6 +171,7 @@ jobs:
         run: |
           python -m blogpipe resume "${{ github.event.inputs.approve_thread_id }}"
           python -m blogpipe visuals
+          python -m blogpipe benchmark
 
       - name: Create branch, commit, open PR, email
         id: cpr
@@ -214,6 +224,29 @@ jobs:
           mkdir -p reports
           [ -f reports/research_trace.json ] || echo '{}' > reports/research_trace.json
           [ -f reports/editor_report.json ] || echo '{"rubric_score":0}' > reports/editor_report.json
+          [ -f reports/quality_report.json ] || echo '{"overall_status":"blocked","pass_gate":false}' > reports/quality_report.json
+          [ -f reports/benchmark_report.json ] || echo '{"ok":false,"total_cases":0,"failed_cases":0}' > reports/benchmark_report.json
+
+      - name: Compute email attachments
+        if: success() && vars.BLOGPIPE_DRY_RUN != '1'
+        id: mail_attachments
+        run: |
+          set -euo pipefail
+          ATTACHMENTS=""
+          if [ -f reports/draft_post.pdf ]; then
+            ATTACHMENTS="${GITHUB_WORKSPACE}/reports/draft_post.pdf"
+          elif [ -f reports/draft_post_blocked_notice.pdf ]; then
+            ATTACHMENTS="${GITHUB_WORKSPACE}/reports/draft_post_blocked_notice.pdf"
+          fi
+          for f in reports/research_trace.json reports/editor_report.json reports/quality_report.json reports/benchmark_report.json; do
+            if [ -f "$f" ]; then
+              if [ -n "$ATTACHMENTS" ]; then
+                ATTACHMENTS="${ATTACHMENTS},"
+              fi
+              ATTACHMENTS="${ATTACHMENTS}${GITHUB_WORKSPACE}/$f"
+            fi
+          done
+          echo "attachments=$ATTACHMENTS" >> "$GITHUB_OUTPUT"
 
       - name: Send approval email
         if: success() && vars.BLOGPIPE_DRY_RUN != '1'
@@ -229,7 +262,7 @@ jobs:
           to: ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
           from: Blogpipe <${{ secrets.EMAIL_USERNAME }}>
           html_body: file://${{ github.workspace }}/reports/daily_email.html
-          attachments: ${{ github.workspace }}/reports/draft_post.pdf,${{ github.workspace }}/reports/research_trace.json,${{ github.workspace }}/reports/editor_report.json
+          attachments: ${{ steps.mail_attachments.outputs.attachments }}
 
       - name: Save blogpipe cache
         if: always()

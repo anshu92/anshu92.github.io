@@ -192,9 +192,11 @@ class ReviewNote(BaseModel):
 
     role: str
     pass_review: bool = True
+    reviewer_weight: float = 1.0
     findings: list[str] = Field(default_factory=list)
     rewrite_targets: list[str] = Field(default_factory=list)
     summary: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class RankResult(BaseModel):

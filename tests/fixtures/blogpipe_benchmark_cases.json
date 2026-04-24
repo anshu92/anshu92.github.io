@@ -1,0 +1,143 @@
+[
+  {
+    "name": "blocked_unsupported_claim",
+    "body": "Takeaway 81.67% versus 79.32% for Full LoRA.\\n\\n## Why this works\\nSelector.\\n\\n## Should you use it\\nMaybe.",
+    "editor_report": {
+      "rubric_score": 10,
+      "five_questions_ok": true,
+      "llm_ok": true,
+      "grounding_ok": false,
+      "grounding_issues": ["unsupported numeric claim"]
+    },
+    "expect_pass_gate": false,
+    "expect_overall_status": "blocked",
+    "expect_blocking_contains": ["grounding_issue"]
+  },
+  {
+    "name": "blocked_render_raw_mermaid",
+    "body": "Takeaway 81.67%.\\n\\n## Why this works\\n```mermaid\\nflowchart LR\\nA-->B\\n```\\n\\n## Should you use it\\n| Method | Metric | Baseline |\\n| --- | --- | --- |\\n| X | 81.67% | Y |",
+    "html": "<html><body><pre><code class='language-mermaid'>flowchart LR A-->B</code></pre>| Method | Metric | Baseline |</body></html>",
+    "editor_report": {
+      "rubric_score": 10,
+      "five_questions_ok": true,
+      "llm_ok": true,
+      "grounding_ok": true,
+      "grounding_issues": []
+    },
+    "expect_pass_gate": false,
+    "expect_overall_status": "blocked",
+    "expect_blocking_contains": ["render_error"]
+  },
+  {
+    "name": "blocked_weighted_meta_review",
+    "editor_report": {
+      "rubric_score": 10,
+      "five_questions_ok": true,
+      "llm_ok": true,
+      "grounding_ok": true,
+      "grounding_issues": []
+    },
+    "review_notes": [
+      {
+        "role": "adversary",
+        "pass_review": false,
+        "findings": ["missing_falsifier_language"],
+        "summary": "Need a falsifier."
+      },
+      {
+        "role": "evidence_verifier",
+        "pass_review": false,
+        "findings": ["citation_count_below_min"],
+        "summary": "Evidence is weak."
+      },
+      {
+        "role": "render_reviewer",
+        "pass_review": true,
+        "findings": [],
+        "summary": "Render looks fine."
+      }
+    ],
+    "expect_pass_gate": false,
+    "expect_overall_status": "blocked",
+    "expect_blocking_contains": ["meta:reviewer_blocked:evidence_verifier"]
+  },
+  {
+    "name": "passed_full_contract",
+    "body": "Takeaway 81.67% versus 79.32% on MMLU for the latency-sensitive setting. This draft explains the mechanism, the tradeoff, the baseline, and the deployment boundary in concrete terms so the review artifact has enough density to count as a real page instead of a placeholder. The selector chooses one adapter instead of activating every path, which cuts wasted compute, preserves the relevant specialization, and keeps the routing decision interpretable for debugging. The blog also makes the comparison target explicit, names the benchmark, and ties the recommendation to a narrow operational context.\\n\\n## Why this works\\nThe selector chooses the right adapter for the input and avoids paying the cost of full activation. That preserves the benefit of specialization while keeping the inference path short enough for production latency budgets. The mechanism paragraph is intentionally concrete, names the baseline, and keeps the causal story close to the evidence. [cite: primary]\\n\\n## Should you use it\\nUse it when latency matters, when the task family is stable enough to justify routing logic, and when you can measure the effect against a dense baseline or Full LoRA on the same benchmark. Do not use it if the deployment environment cannot tolerate routing mistakes or if the workload changes too often to keep the selector calibrated. [cite: primary]\\n\\n| Method | Metric | Baseline |\\n| --- | --- | --- |\\n| Selector | 81.67% | Full LoRA 79.32% |",
+    "html": "<html><body><h2>Why this works</h2><p>The selector chooses the right adapter.</p><h2>Should you use it</h2><p>Use it when latency matters.</p><table><tr><th>Method</th><th>Metric</th><th>Baseline</th></tr><tr><td>Selector</td><td>81.67%</td><td>Full LoRA 79.32%</td></tr></table><figure><img alt=\"Benchmark result table\" src=\"data:image/png;base64,abc\"/></figure></body></html>",
+    "editor_report": {
+      "rubric_score": 10,
+      "five_questions_ok": true,
+      "llm_ok": true,
+      "grounding_ok": true,
+      "grounding_issues": []
+    },
+    "review_notes": [
+      {
+        "role": "adversary",
+        "pass_review": true,
+        "findings": [],
+        "summary": "Tradeoffs are present."
+      },
+      {
+        "role": "evidence_verifier",
+        "pass_review": true,
+        "findings": [],
+        "summary": "Evidence is grounded."
+      },
+      {
+        "role": "render_reviewer",
+        "pass_review": true,
+        "findings": [],
+        "summary": "Render looks fine."
+      }
+    ],
+    "expect_pass_gate": true,
+    "expect_overall_status": "passed",
+    "expect_blocking_contains": []
+  },
+  {
+    "name": "blocked_review_summary_only",
+    "title": "Blocked Review Summary Only",
+    "takeaway": "Takeaway 81.67%.",
+    "body": "Takeaway 81.67%.\\n\\nThis draft body should stay hidden in blocked review artifacts because the quality contracts failed before packaging.\\n\\n## Why this works\\nLeaked body content should not appear in the blocked summary.\\n\\n## Should you use it\\nNo.",
+    "editor_report": {
+      "rubric_score": 8,
+      "five_questions_ok": true,
+      "llm_ok": true,
+      "grounding_ok": false,
+      "grounding_issues": ["unsupported claim"],
+      "lint_issues": ["generic_heading_used"]
+    },
+    "benchmark_report": {
+      "ok": false,
+      "total_cases": 4,
+      "passed_cases": 3,
+      "failed_cases": 1,
+      "cases": [
+        {
+          "name": "blocked_render_raw_mermaid",
+          "ok": false,
+          "actual": {
+            "overall_status": "blocked",
+            "blocking_codes": ["render_error"]
+          }
+        }
+      ]
+    },
+    "expect_pass_gate": false,
+    "expect_overall_status": "blocked",
+    "expect_blocking_contains": ["grounding_issue", "lint:generic_heading_used"],
+    "expect_email_contains": [
+      "Draft excerpt withheld",
+      "The draft still uses generic section headings.",
+      "Benchmark Harness",
+      "blocked_render_raw_mermaid"
+    ],
+    "expect_email_not_contains": [
+      "Leaked body content should not appear",
+      "lint:generic_heading_used",
+      "format:"
+    ]
+  }
+]

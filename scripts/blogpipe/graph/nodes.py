@@ -92,7 +92,47 @@ def _parse_planning_brief(raw: str, bundle: EvidenceBundle) -> PlanningBrief:
         return _fallback_planning_brief(bundle)
 
 
-def _failure_memory_snapshot() -> list[dict[str, Any]]:
+def _failure_memory_query(state: dict[str, Any]) -> str:
+    primary = state.get("primary") or {}
+    evidence = state.get("evidence") or {}
+    draft_lint = state.get("draft_lint") or {}
+    brief = state.get("brief") or {}
+    chunks: list[str] = []
+    if isinstance(primary, dict):
+        chunks.extend(
+            [
+                str(primary.get("title") or ""),
+                str(primary.get("abstract") or ""),
+                " ".join(str(x) for x in (primary.get("tags") or [])[:8]),
+            ]
+        )
+    if isinstance(evidence, dict):
+        chunks.extend(str(x) for x in (evidence.get("contradiction_notes") or [])[:6])
+    if isinstance(draft_lint, dict):
+        chunks.extend(str(x) for x in (draft_lint.get("structural") or [])[:8])
+        chunks.extend(str(x) for x in (draft_lint.get("unsupported_numeric_claims") or [])[:6])
+    if isinstance(brief, dict):
+        chunks.extend(
+            [
+                str(brief.get("format_name") or ""),
+                str(brief.get("diagram_style") or ""),
+                str(brief.get("opener_hook") or ""),
+            ]
+        )
+    body = str(state.get("body") or "")
+    if body:
+        headings = re.findall(r"^##\s+(.+?)\s*$", body, re.M)
+        chunks.extend(headings[:6])
+    return "\n".join(x for x in chunks if x).strip()
+
+
+def _failure_memory_snapshot(state: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    if state:
+        return memory.retrieve_similar_json_items(
+            "failure_memory.json",
+            _failure_memory_query(state),
+            limit=config.failure_memory_limit(),
+        )
     data = memory.load_json("failure_memory.json", [])
     if not isinstance(data, list):
         return []
@@ -116,6 +156,18 @@ def _record_failure_memory(state: dict[str, Any]) -> None:
         "title": ((state.get("primary") or {}).get("title") if isinstance(state.get("primary"), dict) else "") or "",
         "overall_status": str(qd.get("overall_status") or ""),
         "codes": codes[:10],
+        "query_text": _failure_memory_query(state),
+        "signals": {
+            "format_name": ((state.get("brief") or {}).get("format_name") if isinstance(state.get("brief"), dict) else "") or "",
+            "diagram_style": ((state.get("brief") or {}).get("diagram_style") if isinstance(state.get("brief"), dict) else "") or "",
+            "blocking_stages": sorted(
+                {
+                    str(reason.get("stage") or "").strip()
+                    for reason in reasons
+                    if isinstance(reason, dict) and str(reason.get("stage") or "").strip()
+                }
+            ),
+        },
     }
     memory.append_json_list(
         "failure_memory.json",
@@ -305,7 +357,7 @@ def node_planning_brief(state: dict[str, Any]) -> dict[str, Any]:
     """Create an explicit pre-draft plan for required claims, sections, and likely failure modes."""
     bundle = evidence_model(state["evidence"])
     brief = brief_model(state["brief"])
-    failure_memory = _failure_memory_snapshot()
+    failure_memory = _failure_memory_snapshot(state)
     if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
         plan = _fallback_planning_brief(bundle)
     else:
@@ -541,7 +593,7 @@ def node_adversary_review(state: dict[str, Any]) -> dict[str, Any]:
     body = state.get("body") or ""
     bundle = evidence_model(state["evidence"])
     planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
-    failure_memory = _failure_memory_snapshot()
+    failure_memory = _failure_memory_snapshot(state)
     findings: list[str] = []
     lint_issues = lint.structural_issues(body, bundle)
     for key in ("no_tradeoffs_paragraph", "missing_decision_section", "advice_without_traceability"):
@@ -585,7 +637,7 @@ def node_evidence_verifier(state: dict[str, Any]) -> dict[str, Any]:
     body = state.get("body") or ""
     bundle = evidence_model(state["evidence"])
     planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
-    failure_memory = _failure_memory_snapshot()
+    failure_memory = _failure_memory_snapshot(state)
     findings = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
     lint_issues = lint.structural_issues(body, bundle)
     if "unresolved_source_alias" in lint_issues:
@@ -661,34 +713,56 @@ def node_render_reviewer(state: dict[str, Any]) -> dict[str, Any]:
 
 def node_meta_review(state: dict[str, Any]) -> dict[str, Any]:
     """Meta reviewer: synthesize reviewer notes into a final pre-editor summary."""
-    body = state.get("body") or ""
     notes = [ReviewNote.model_validate(x) for x in (state.get("review_notes") or [])]
-    findings: list[str] = []
+    all_findings: list[str] = []
+    blocking_findings: list[str] = []
     summaries: list[str] = []
     by_role = {note.role: note for note in notes}
+    weights = config.reviewer_weights()
     for note in notes:
-        findings.extend(note.findings)
+        all_findings.extend(note.findings)
         if note.summary:
             summaries.append(note.summary)
-    findings = list(dict.fromkeys(findings))
+    all_findings = list(dict.fromkeys(all_findings))
+    weighted_score = 0.0
     if config.reviewer_consensus_required():
         required_roles = {"evidence_verifier", "render_reviewer", "adversary"}
         missing_roles = sorted(required_roles - set(by_role))
         for role in missing_roles:
-            findings.append(f"missing_required_reviewer:{role}")
+            blocking_findings.append(f"missing_required_reviewer:{role}")
         for role in ("evidence_verifier", "render_reviewer"):
             note = by_role.get(role)
             if note is not None and not note.pass_review:
-                findings.append(f"reviewer_blocked:{role}")
+                blocking_findings.append(f"reviewer_blocked:{role}")
+                blocking_findings.extend(note.findings)
+        total_weight = sum(weights.get(role, 1.0) for role in required_roles)
+        passed_weight = sum(
+            weights.get(role, 1.0)
+            for role in required_roles
+            if (note := by_role.get(role)) is not None and note.pass_review
+        )
+        weighted_score = (passed_weight / total_weight) if total_weight > 0 else 0.0
+        threshold = config.reviewer_min_pass_score()
+        if weighted_score < threshold:
+            blocking_findings.append(
+                f"reviewer_weight_below_threshold:{weighted_score:.2f}<{threshold:.2f}"
+            )
+    blocking_findings = list(dict.fromkeys(blocking_findings))
     meta = ReviewNote(
         role="meta_reviewer",
-        pass_review=not bool(findings),
-        findings=findings,
+        pass_review=not bool(blocking_findings),
+        reviewer_weight=1.0,
+        findings=blocking_findings,
         rewrite_targets=[],
         summary=" | ".join(summaries[:3]) if summaries else "Meta review found no additional issues.",
+        metadata={
+            "all_findings": all_findings,
+            "weighted_score": weighted_score,
+            "reviewer_weights": weights,
+        },
     )
     warnings = list(state.get("warnings") or [])
-    if findings:
+    if blocking_findings:
         warnings.append("meta_review_requires_editor_attention")
     return {
         "meta_review": meta.model_dump(),

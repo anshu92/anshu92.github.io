@@ -22,12 +22,12 @@ from .supervisor import node_supervisor
 def build_committee_graph() -> StateGraph:
     """Uncompiled committee map-reduce."""
     g: StateGraph = StateGraph(BlogState)
-    g.add_node("scout", node_scout, retry=DEFAULT_RETRY)
-    g.add_node("supervisor", node_supervisor, retry=DEFAULT_RETRY)
-    g.add_node("synthesizer", node_synthesizer, retry=DEFAULT_RETRY)
+    g.add_node("scout", node_scout, retry_policy=DEFAULT_RETRY)
+    g.add_node("supervisor", node_supervisor, retry_policy=DEFAULT_RETRY)
+    g.add_node("synthesizer", node_synthesizer, retry_policy=DEFAULT_RETRY)
     for name in RUNNERS:
         g.add_node(
-            f"analyst_{name}", make_analyst_node(name), retry=ANALYST_RETRY
+            f"analyst_{name}", make_analyst_node(name), retry_policy=ANALYST_RETRY
         )
     g.add_edge(START, "scout")
     g.add_edge("scout", "supervisor")

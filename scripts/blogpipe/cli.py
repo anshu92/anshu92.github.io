@@ -25,6 +25,7 @@ def main() -> int:
             "edit",
             "visuals",
             "package",
+            "benchmark",
             "graph",
             "run",
             "resume",
@@ -70,6 +71,10 @@ def main() -> int:
             from . import package
 
             package.run()
+        elif a.command == "benchmark":
+            from . import benchmark
+
+            benchmark.run()
         elif a.command == "graph":
             from .graph import runner
 

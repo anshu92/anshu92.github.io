@@ -9,7 +9,6 @@ import logging
 import re
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 
 from . import quality, visuals
@@ -314,7 +313,52 @@ def _render_pdf_from_html(html_path: Path, pdf_path: Path) -> ArtifactResult:
     return ArtifactResult(artifact_type="pdf", ok=True, artifact_path=str(pdf_path))
 
 
-def _write_failure_notice_pdf(pdf_path: Path, message: str) -> ArtifactResult:
+def _build_blocked_notice_html(
+    *,
+    message: str,
+    quality_report: QualityReport | None = None,
+    benchmark_report: dict | None = None,
+) -> str:
+    parts = [
+        "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/><title>Draft blocked</title>",
+        "<style>body{font-family:sans-serif;padding:1rem;max-width:880px;margin:0 auto} "
+        "table{border-collapse:collapse;width:100%} th,td{border:1px solid #ccc;padding:0.4rem;text-align:left;} "
+        "code{background:#f6f8fa;padding:0.1rem 0.25rem;border-radius:4px}</style></head><body>",
+        "<h1>Draft blocked</h1>",
+        f"<p>{html.escape(message)}</p>",
+    ]
+    if quality_report is not None:
+        parts.append(f"<h2>Quality Contracts</h2>{_render_contract_summary(quality_report)}")
+        if quality_report.blocking_reasons:
+            parts.append("<h3>Blocking reasons</h3><ul>")
+            for reason in quality_report.blocking_reasons:
+                parts.append(
+                    f"<li><strong>{html.escape(reason.stage or 'quality')}:</strong> "
+                    f"{html.escape(_humanize_reason(reason))}</li>"
+                )
+            parts.append("</ul>")
+    if benchmark_report:
+        parts.append(f"<h2>Benchmark Harness</h2>{_render_benchmark_summary(benchmark_report)}")
+    parts.append("</body></html>")
+    return "".join(parts)
+
+
+def _write_failure_notice_pdf(
+    pdf_path: Path,
+    message: str,
+    *,
+    quality_report: QualityReport | None = None,
+    benchmark_report: dict | None = None,
+) -> ArtifactResult:
+    html_path = pdf_path.with_suffix(".html")
+    html_path.write_text(
+        _build_blocked_notice_html(
+            message=message,
+            quality_report=quality_report,
+            benchmark_report=benchmark_report,
+        ),
+        encoding="utf-8",
+    )
     wk = shutil.which("wkhtmltopdf")
     if not wk:
         return ArtifactResult(
@@ -323,16 +367,9 @@ def _write_failure_notice_pdf(pdf_path: Path, message: str) -> ArtifactResult:
             artifact_path=str(pdf_path),
             errors=["wkhtmltopdf_missing"],
         )
-    msg_html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Draft blocked</title>
-<style>body{{font-family:sans-serif;padding:1rem}}</style></head><body>
-<p>{html.escape(message)}</p>
-</body></html>"""
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False, encoding="utf-8") as tmp:
-        tmp.write(msg_html)
-        tpath = Path(tmp.name)
     try:
         s = subprocess.run(
-            [wk, "--quiet", str(tpath), str(pdf_path)],
+            [wk, "--quiet", str(html_path), str(pdf_path)],
             capture_output=True,
             text=True,
         )
@@ -344,8 +381,6 @@ def _write_failure_notice_pdf(pdf_path: Path, message: str) -> ArtifactResult:
             )
     except OSError:
         pass
-    finally:
-        _remove_if_exists(tpath)
     return ArtifactResult(
         artifact_type="blocked_notice_pdf",
         ok=False,
@@ -421,12 +456,52 @@ def _render_contract_summary(qrep: QualityReport) -> str:
     return "<table>" + "".join(html_rows) + "</table>"
 
 
+def _render_benchmark_summary(report: dict) -> str:
+    if not isinstance(report, dict) or not report:
+        return "<p class='muted'>Benchmark report not available.</p>"
+    total = int(report.get("total_cases", 0) or 0)
+    passed = int(report.get("passed_cases", 0) or 0)
+    failed = int(report.get("failed_cases", 0) or 0)
+    ok = bool(report.get("ok", False))
+    rows = [
+        ("benchmark_ok", ok),
+        ("total_cases", total),
+        ("passed_cases", passed),
+        ("failed_cases", failed),
+    ]
+    html_rows = [
+        f"<tr><th>{html.escape(str(k))}</th><td>{html.escape(str(v))}</td></tr>"
+        for k, v in rows
+    ]
+    lines = ["<table>" + "".join(html_rows) + "</table>"]
+    cases = report.get("cases") or []
+    failed_cases = [
+        c for c in cases
+        if isinstance(c, dict) and not bool(c.get("ok", False))
+    ]
+    if failed_cases:
+        lines.append("<h3>Benchmark failures</h3><ul>")
+        for case in failed_cases[:5]:
+            name = str(case.get("name") or "unnamed_case")
+            actual = case.get("actual") or {}
+            status = str(actual.get("overall_status") or "")
+            codes = ", ".join(str(x) for x in (actual.get("blocking_codes") or [])[:4])
+            lines.append(
+                f"<li><strong>{html.escape(name)}</strong>"
+                f" <span class='muted'>({html.escape(status)})</span>"
+                f"{': ' + html.escape(codes) if codes else ''}</li>"
+            )
+        lines.append("</ul>")
+    return "".join(lines)
+
+
 def _build_daily_email(
     out: Path,
     *,
     brief: dict,
     editor: dict,
     quality_report: QualityReport,
+    benchmark_report: dict,
     rank: dict,
     front: dict,
     body: str,
@@ -460,6 +535,7 @@ def _build_daily_email(
     elif branch:
         lines.append(f"<p><strong>Branch pushed:</strong> <code>{html.escape(branch)}</code></p>")
     lines.append(f"<h2>Quality Contracts</h2>{_render_contract_summary(quality_report)}")
+    lines.append(f"<h2>Benchmark Harness</h2>{_render_benchmark_summary(benchmark_report)}")
     if quality_report.blocking_reasons:
         lines.append("<h3>Blocking reasons</h3><ul>")
         for reason in quality_report.blocking_reasons:
@@ -526,6 +602,7 @@ def run() -> dict:
     brief = _read_json(rep / "editorial_brief.json")
     editor_raw = _read_json(rep / "editor_report.json")
     rank = _read_json(rep / "rank_result.json")
+    benchmark_report = _read_json(rep / "benchmark_report.json")
     qrep = quality.load(rep / "quality_report.json")
     if qrep is None:
         editor_obj = EditorReport.model_validate(editor_raw) if editor_raw else EditorReport()
@@ -559,9 +636,14 @@ def run() -> dict:
         blocked_notice = _write_failure_notice_pdf(
             rep / "draft_post_blocked_notice.pdf",
             "Draft packaging was blocked because the quality contracts did not pass. See quality_report.json.",
+            quality_report=qrep,
+            benchmark_report=benchmark_report,
         )
         if blocked_notice.ok and blocked_notice.artifact_path:
             artifact_paths["blocked_notice_pdf"] = blocked_notice.artifact_path
+        blocked_notice_html = rep / "draft_post_blocked_notice.html"
+        if blocked_notice_html.is_file():
+            artifact_paths["blocked_notice_html"] = str(blocked_notice_html)
 
     package_valid = bool(qrep.pass_gate and render_report.ok and out.parent.exists())
     merged = quality.with_render(
@@ -580,6 +662,7 @@ def run() -> dict:
         brief=brief,
         editor=editor_raw,
         quality_report=merged,
+        benchmark_report=benchmark_report,
         rank=rank,
         front=front,
         body=body,

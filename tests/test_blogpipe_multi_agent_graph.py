@@ -84,8 +84,9 @@ def test_meta_review_aggregates_prior_findings() -> None:
     meta = out["meta_review"]
     assert meta["role"] == "meta_reviewer"
     assert not meta["pass_review"]
-    assert "missing_falsifier_language" in meta["findings"]
+    assert "reviewer_blocked:evidence_verifier" in meta["findings"]
     assert "citation_count_below_min" in meta["findings"]
+    assert "missing_falsifier_language" in meta["metadata"]["all_findings"]
 
 
 def test_meta_review_requires_render_reviewer_consensus(monkeypatch) -> None:
@@ -153,10 +154,70 @@ def test_failure_memory_record_and_snapshot(monkeypatch, tmp_path) -> None:
         },
     }
     nodes._record_failure_memory(state)
-    snap = nodes._failure_memory_snapshot()
+    snap = nodes._failure_memory_snapshot(state)
     assert snap
     assert snap[-1]["overall_status"] == "blocked"
     assert "draft:lint:generic_heading_used" in snap[-1]["codes"]
+
+
+def test_failure_memory_similarity_prefers_related_items(monkeypatch, tmp_path) -> None:
+    from blogpipe.graph import nodes
+    from blogpipe import memory
+
+    monkeypatch.setattr(memory, "CACHE", tmp_path)
+    memory.save_json(
+        "failure_memory.json",
+        [
+            {
+                "title": "Vision model draft",
+                "codes": ["render:raw_mermaid_in_render"],
+                "query_text": "vision model mermaid render benchmark",
+            },
+            {
+                "title": "Database indexing post",
+                "codes": ["draft:generic_heading_used"],
+                "query_text": "database indexing benchmark table",
+            },
+        ],
+    )
+    state = _state()
+    state["body"] += "\n```mermaid\nflowchart LR\nA-->B\n```"
+    snap = nodes._failure_memory_snapshot(state)
+    assert snap
+    assert snap[0]["title"] == "Vision model draft"
+
+
+def test_meta_review_weighted_policy_allows_optional_adversary_failure(monkeypatch) -> None:
+    from blogpipe.graph.nodes import node_meta_review
+
+    monkeypatch.setenv("BLOGPIPE_REVIEWER_CONSENSUS", "1")
+    monkeypatch.setenv("BLOGPIPE_REVIEWER_MIN_PASS_SCORE", "0.80")
+    state = _state()
+    state["review_notes"] = [
+        {
+            "role": "adversary",
+            "pass_review": False,
+            "findings": ["missing_falsifier_language"],
+            "summary": "Need a falsifier.",
+        },
+        {
+            "role": "evidence_verifier",
+            "pass_review": True,
+            "findings": [],
+            "summary": "Evidence is fine.",
+        },
+        {
+            "role": "render_reviewer",
+            "pass_review": True,
+            "findings": [],
+            "summary": "Render is fine.",
+        },
+    ]
+    out = node_meta_review(state)
+    meta = out["meta_review"]
+    assert meta["pass_review"] is True
+    assert meta["metadata"]["weighted_score"] >= 0.8
+    assert "missing_falsifier_language" in meta["metadata"]["all_findings"]
 
 
 def test_build_graph_contains_multi_agent_review_nodes() -> None:
