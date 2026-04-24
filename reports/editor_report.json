@@ -1,0 +1,240 @@
+{
+  "rubric_score": 13,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 1
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 0
+    },
+    {
+      "item": "pov_present",
+      "score": 0
+    }
+  ],
+  "five_questions": {
+    "problem": "Mobile agents powered by vision-language models have shown impressive capabilities in automating mobile tasks, but existing systems have kept their training data closed and remained opaque about their task and trajectory synthesis recipes.",
+    "hard": "The challenge lies in constructing high-quality task instructions and agent trajectories for mobile agents.",
+    "tried": "OpenMobile provides an open-source framework for synthesizing high-quality task instructions and agent trajectories, using a task synthesis pipeline and policy-switching strategy.",
+    "outcomes": "OpenMobile's fine-tuned Qwen2.5-VL and Qwen3-VL models achieve 51.7% and 64.7% on AndroidWorld, respectively, competitive results compared to existing open-data approaches.",
+    "next": "To apply OpenMobile in real-world scenarios, practitioners can follow the steps outlined in the post, including exploring and constructing environment memory, generating instructions and trajectories, and fine-tuning models."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [
+    "meta_review_requires_editor_attention"
+  ],
+  "lint_issues": [
+    "takeaway_is_heading",
+    "takeaway_lacks_number",
+    "no_results_table",
+    "generic_heading_used",
+    "collective_research_voice",
+    "citation_count_below_min",
+    "missing_decision_section"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "Existing Open-Data Approaches < 30%",
+    "30%"
+  ],
+  "rubric_floor_applied": false,
+  "rubric_floor_reasons": [],
+  "rubric_score_raw": 13,
+  "evidence_utilization": {
+    "score": 0.4576,
+    "ratios": {
+      "numbers": 0.5,
+      "entities": 0.6842,
+      "quotes": 0.1429,
+      "analyst_claims": 0.1905
+    },
+    "totals": {
+      "numbers": 8,
+      "entities": 19,
+      "quotes": 7,
+      "analyst_claims": 21
+    },
+    "used_counts": {
+      "numbers": 4,
+      "entities": 13,
+      "quotes": 1,
+      "analyst_claims": 4
+    },
+    "unused": {
+      "numbers": [
+        "9.4",
+        "7b",
+        "8b",
+        "17.4"
+      ],
+      "entities": [
+        "Context-Aware UPnP-AV Services for Adaptive Home Multimedia Systems",
+        "Render for CNN: Viewpoint Estimation in Images Using CNNs Trained with Rendered 3D Model Views",
+        "Fine-tuned Qwen3-VL",
+        "MobileWorld",
+        "Task Success",
+        "Generalization"
+      ],
+      "quotes": [
+        "We release data and code at OpenMobile to bridge the data gap and facilitate broader mobile agent research.",
+        "Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and64.7% on AndroidWorld, far surpassing existing open-data approaches.",
+        "Notably, our fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on the challenging MobileWorld from 9.4% to 17.4%, competitive with leading closed-data solutions and larger foundation m",
+        "4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchma",
+        "Beyond this widening performance gap, the opacity prevents the community from understanding what data properties drive strong performance and generalization\u2014leaving the open-source community unable to study, reproduce, or build upon these a",
+        "4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchma"
+      ],
+      "analyst_claims": [
+        "Fine-tuned Qwen2.",
+        "OpenMobile data substantially improves mobile agent performance with strong generalization",
+        "Agents trained on OpenMobile data achieve competitive results across three dynamic mobile agent benchmarks",
+        "Agents trained on OpenMobile data achieve competitive performance with closed-data systems",
+        "OpenMobile \u2014 an open-source framework for building open mobile agents with task and trajectory synthesis",
+        "Qwen2.",
+        "Qwen3-VL \u2014 a fine-tuned model achieving 64.",
+        "AndroidWorld \u2014 a dynamic mobile agent benchmark"
+      ]
+    }
+  },
+  "undefined_acronyms": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "review_notes": [
+    {
+      "role": "adversary",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "missing falsifiers",
+        "vague impact claims",
+        "generic recommendations"
+      ],
+      "rewrite_targets": [
+        "What would falsify OpenMobile's main claim",
+        "One concrete engineering habit readers can steal"
+      ],
+      "summary": "The draft is missing specific falsifiers, makes vague impact claims, and provides generic recommendations.",
+      "metadata": {
+        "severity": "blocking",
+        "top_risk": "Lack of concrete evidence to support OpenMobile's claims"
+      }
+    },
+    {
+      "role": "evidence_verifier",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "unsupported_comparison"
+      ],
+      "rewrite_targets": [
+        "OpenMobile Achieves Competitive Results"
+      ],
+      "summary": "The claim that OpenMobile's fine-tuned Qwen2.5-VL and Qwen3-VL models reach 51.7% and 64.7% on AndroidWorld, surpassing existing open-data approaches, lacks concrete evidence for the comparison.",
+      "metadata": {
+        "severity": "blocking",
+        "needs_number_rewrite": false
+      }
+    },
+    {
+      "role": "render_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "pandoc_render_failed",
+        "render_html_generation_failed"
+      ],
+      "rewrite_targets": [],
+      "summary": "Render review found issues with HTML/diagram/table rendering.",
+      "metadata": {}
+    },
+    {
+      "role": "meta_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "reviewer_blocked:evidence_verifier",
+        "unsupported_comparison",
+        "reviewer_blocked:render_reviewer",
+        "pandoc_render_failed",
+        "render_html_generation_failed",
+        "reviewer_weight_below_threshold:0.00<0.80"
+      ],
+      "rewrite_targets": [],
+      "summary": "The draft is missing specific falsifiers, makes vague impact claims, and provides generic recommendations. | The claim that OpenMobile's fine-tuned Qwen2.5-VL and Qwen3-VL models reach 51.7% and 64.7% on AndroidWorld, surpassing existing open-data approaches, lacks concrete evidence for the comparison. | Render review found issues with HTML/diagram/table rendering.",
+      "metadata": {
+        "all_findings": [
+          "missing falsifiers",
+          "vague impact claims",
+          "generic recommendations",
+          "unsupported_comparison",
+          "pandoc_render_failed",
+          "render_html_generation_failed"
+        ],
+        "weighted_score": 0.0,
+        "reviewer_weights": {
+          "evidence_verifier": 0.45,
+          "render_reviewer": 0.35,
+          "adversary": 0.2
+        }
+      }
+    }
+  ]
+}

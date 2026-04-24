@@ -1,0 +1,50 @@
+{
+  "calls": 8,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 0
+    },
+    {
+      "tool": "refs_cites",
+      "refs": 0,
+      "cites": 0
+    },
+    {
+      "tool": "openalex",
+      "q": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+      "n": 2
+    },
+    {
+      "tool": "paper_reader",
+      "outline_sections": 12,
+      "results": 6,
+      "limitations": 5,
+      "llm_chunks": 4
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "OpenMobile framework",
+      "n": 3
+    },
+    {
+      "tool": "openalex",
+      "q": "scalable task synthesis pipeline",
+      "n": 3
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 3
+    }
+  ],
+  "committee": true,
+  "ss_cache_hits": 0,
+  "ss_429": 4,
+  "llm_ok": 14,
+  "rewrites_applied": 0,
+  "re_research_applied": 0
+}

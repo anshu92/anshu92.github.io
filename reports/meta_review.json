@@ -1,0 +1,31 @@
+{
+  "role": "meta_reviewer",
+  "pass_review": false,
+  "reviewer_weight": 1.0,
+  "findings": [
+    "reviewer_blocked:evidence_verifier",
+    "unsupported_comparison",
+    "reviewer_blocked:render_reviewer",
+    "pandoc_render_failed",
+    "render_html_generation_failed",
+    "reviewer_weight_below_threshold:0.00<0.80"
+  ],
+  "rewrite_targets": [],
+  "summary": "The draft is missing specific falsifiers, makes vague impact claims, and provides generic recommendations. | The claim that OpenMobile's fine-tuned Qwen2.5-VL and Qwen3-VL models reach 51.7% and 64.7% on AndroidWorld, surpassing existing open-data approaches, lacks concrete evidence for the comparison. | Render review found issues with HTML/diagram/table rendering.",
+  "metadata": {
+    "all_findings": [
+      "missing falsifiers",
+      "vague impact claims",
+      "generic recommendations",
+      "unsupported_comparison",
+      "pandoc_render_failed",
+      "render_html_generation_failed"
+    ],
+    "weighted_score": 0.0,
+    "reviewer_weights": {
+      "evidence_verifier": 0.45,
+      "render_reviewer": 0.35,
+      "adversary": 0.2
+    }
+  }
+}

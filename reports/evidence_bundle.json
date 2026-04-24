@@ -1,0 +1,577 @@
+{
+  "primary": {
+    "id": "hf_2604.15093",
+    "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+    "url": "https://arxiv.org/abs/2604.15093",
+    "authors": [
+      "Kanzhi Cheng",
+      "Zehao Li",
+      "Zheng Ma",
+      "Nuo Chen",
+      "Jialin Cao",
+      "Qiushi Sun",
+      "Zichen Ding",
+      "Fangzhi Xu",
+      "Hang Yan",
+      "Jiajun Chen",
+      "Anh Tuan Luu",
+      "Jianbing Zhang",
+      "Lewei Lu",
+      "Dahua Lin"
+    ],
+    "abstract": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+    "published_at": "2026-04-16T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.15093",
+          "authors": [
+            {
+              "_id": "69e306ad7b74ca69e497df8a",
+              "name": "Kanzhi Cheng",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df8b",
+              "name": "Zehao Li",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df8c",
+              "name": "Zheng Ma",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df8d",
+              "name": "Nuo Chen",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df8e",
+              "name": "Jialin Cao",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df8f",
+              "name": "Qiushi Sun",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df90",
+              "name": "Zichen Ding",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df91",
+              "name": "Fangzhi Xu",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df92",
+              "name": "Hang Yan",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df93",
+              "name": "Jiajun Chen",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df94",
+              "name": "Anh Tuan Luu",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df95",
+              "name": "Jianbing Zhang",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df96",
+              "name": "Lewei Lu",
+              "hidden": false
+            },
+            {
+              "_id": "69e306ad7b74ca69e497df97",
+              "name": "Dahua Lin",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-16T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-23T12:50:33.992Z",
+          "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+          "submittedOnDailyBy": {
+            "_id": "63340dbbd92c5842ae71d1e9",
+            "avatarUrl": "/avatars/3a3182996bd41b526dcbfa8687d91963.svg",
+            "isPro": false,
+            "fullname": "Kanzhi Cheng",
+            "user": "cckevinn",
+            "type": "user",
+            "name": "cckevinn"
+          },
+          "summary": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+          "upvotes": 26,
+          "discussionId": "69e306ae7b74ca69e497df98",
+          "projectPage": "https://njucckevin.github.io/openmobile/",
+          "githubRepo": "https://github.com/njucckevin/OpenMobile-Code",
+          "githubRepoAddedBy": "user",
+          "ai_summary": "An open-source framework for mobile agent training that synthesizes task instructions and trajectories through scalable pipelines and policy-switching strategies, achieving superior performance on AndroidWorld benchmarks.",
+          "ai_keywords": [
+            "vision-language models",
+            "mobile agents",
+            "task synthesis pipeline",
+            "global environment memory",
+            "policy-switching strategy",
+            "trajectory rollout",
+            "imitation learning",
+            "AndroidWorld",
+            "Qwen2.5-VL",
+            "Qwen3-VL"
+          ],
+          "githubStars": 27
+        },
+        "publishedAt": "2026-04-15T20:00:00.000Z",
+        "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+        "summary": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.15093.png",
+        "numComments": 2,
+        "submittedBy": {
+          "_id": "63340dbbd92c5842ae71d1e9",
+          "avatarUrl": "/avatars/3a3182996bd41b526dcbfa8687d91963.svg",
+          "fullname": "Kanzhi Cheng",
+          "name": "cckevinn",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 13,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      },
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.15093.pdf",
+      "paper_digest": "Mobile agents powered by vision-language models face limitations due to closed training data and opaque task/trajectory synthesis methods, hindering broader research and development.\n\nOpenMobile introduces an open-source framework with two key components: (1) a scalable task synthesis pipeline that constructs a global environment memory for generating diverse and grounded instructions, and (2) a policy-switching strategy that alternates between learner and expert models to capture essential error-recovery data.\n\n- Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and64.7% on AndroidWorld, far surpassing existing open-data approaches.\n- Notably, our fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on the challenging MobileWorld from 9.4% to 17.4%, competitive with leading closed-data solutions and larger foundation models (Bai et al., 2025).\n- 4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.\n- Agents trained on our data achieve competitive performance with closed-data systems.\n\n- Beyond this widening performance gap, the opacity prevents the community from understanding what data properties drive strong performance and generalization—leaving the open-source community unable to study, reproduce, or build upon these advances.\n- 4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.\n- Notably, although OpenMobile data is collected within the AndroidWorld environment, the resulting models generalize well to unseen settings, including novel apps in AndroidLab and long-horizon cross-app tasks in MobileWorld, e.g., achieving over 50% relative improvement on the latter.\n- Agents trained on OpenMobile data achieve strong performance and generalize well to unseen dynamic environments, substantially narrowing the gap with closed-data industrial systems."
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_3436940675",
+      "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+      "url": "https://openalex.org/W7154864798",
+      "authors": [],
+      "abstract": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about task trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality instructions agent trajectories, two key components: (1) The first is scalable pipeline constructs global environment memory from exploration, then leverages it to generate diverse grounded instructions. (2) policy-switching strategy for rollout. By alternating between learner expert models, captures essential error-recovery often missing standard imitation learning. Agents trained our achieve competitive results across three dynamic benchmarks: notably, fine-tuned Qwen2.5-VL Qwen3-VL reach 51.7% 64.7% AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses the overlap synthetic benchmark test sets, verify gains stem broad functionality coverage rather than overfitting. release code at https://njucckevin.github.io/openmobile/ bridge gap facilitate broader research.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_1831920905",
+      "title": "Context-Aware UPnP-AV Services for Adaptive Home Multimedia Systems",
+      "url": "https://openalex.org/W2056189461",
+      "authors": [],
+      "abstract": "One possibility to provide mobile multimedia in domestic systems is the use of Universal Plug and Play Audio Visual (UPnP-AV) devices. In a standard UPnP-AV scenario, content provided by Media Server device streamed Renderer devices initiation Control Point. However, there no provisioning context-aware customization. This paper presents an enhancement services for home environments regarding context awareness. It comes up with profile definitions, shows how this information can be queried from Renderers, illustrates Point tailor media stream one or more Renderers. Moreover, since implementation only queries at time, global view on all Servers network. also approach integration side that provides fast search Finally, number performance measurements show overhead costs our enhancements order achieve benefits.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_1159758915",
+      "title": "Render for CNN: Viewpoint Estimation in Images Using CNNs Trained with Rendered 3D Model Views",
+      "url": "https://openalex.org/W1591870335",
+      "authors": [],
+      "abstract": "Object viewpoint estimation from 2D images is an essential task in computer vision. However, two issues hinder its progress: scarcity of training data with annotations, and a lack powerful features. Inspired by the growing availability 3D models, we propose framework to address both combining render-based image synthesis CNNs (Convolutional Neural Networks). We believe that models have potential generating large number high variation, which can be well exploited deep CNN learning capacity. Towards this goal, scalable overfit-resistant pipeline, together novel specifically tailored for task. Experimentally, show our pipeline significantly outperform state-of-the-art methods on PASCAL 3D+ benchmark.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "Fine-tuned Qwen2.5-VL",
+      "value": "51.7%",
+      "unit": "Success rate on AndroidWorld",
+      "baseline": "Existing open-data approaches",
+      "notes": "from abstract (LLM extract)"
+    },
+    {
+      "name": "Fine-tuned Qwen3-VL",
+      "value": "64.7%",
+      "unit": "Success rate on AndroidWorld",
+      "baseline": "Existing open-data approaches",
+      "notes": "from abstract (LLM extract)"
+    },
+    {
+      "name": "Recent leading models",
+      "value": "70%",
+      "unit": "Success rate on AndroidWorld",
+      "baseline": "",
+      "notes": "from abstract (LLM extract)"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.15093",
+      "text": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The",
+      "url": "https://arxiv.org/abs/2604.15093"
+    },
+    {
+      "source_id": "hf_2604.15093",
+      "text": "We release data and code at OpenMobile to bridge the data gap and facilitate broader mobile agent research.",
+      "url": "https://arxiv.org/pdf/2604.15093.pdf"
+    },
+    {
+      "source_id": "hf_2604.15093",
+      "text": "Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and64.7% on AndroidWorld, far surpassing existing open-data approaches.",
+      "url": "https://arxiv.org/pdf/2604.15093.pdf"
+    },
+    {
+      "source_id": "hf_2604.15093",
+      "text": "Notably, our fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on the challenging MobileWorld from 9.4% to 17.4%, competitive with leading closed-data solutions and larger foundation models (Bai et al., 2025).",
+      "url": "https://arxiv.org/pdf/2604.15093.pdf"
+    },
+    {
+      "source_id": "hf_2604.15093",
+      "text": "4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.",
+      "url": "https://arxiv.org/pdf/2604.15093.pdf"
+    },
+    {
+      "source_id": "hf_2604.15093",
+      "text": "Beyond this widening performance gap, the opacity prevents the community from understanding what data properties drive strong performance and generalization—leaving the open-source community unable to study, reproduce, or build upon these advances.",
+      "url": "https://arxiv.org/pdf/2604.15093.pdf"
+    },
+    {
+      "source_id": "hf_2604.15093",
+      "text": "4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.",
+      "url": "https://arxiv.org/pdf/2604.15093.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Trajectory Synthesis\n- Abstract\n- Errorawareness\n\nErrordiagnosis\n\nErrorcorrection\n- Introduction\n- Related Work\n- Openmobile\n- Env\n\nEnvironmentexplorationglobal Environment Memorytasksynthesis\n\nHigh-Qualityinstructionsgroundeddiversecomplex\n\nEnv\n- Instructionslocaltrajectory Expert Distillself-Evolve\n\nRandom Switch\n\nError-Interventionswitch\n\nTrajectoryrolloutstrategy\n- Scalable Task Synthesis\n- Policy-Switching Rollout\n- The Openmobile Dataset\n- Experiments",
+    "paper_problem": "Mobile agents powered by vision-language models face limitations due to closed training data and opaque task/trajectory synthesis methods, hindering broader research and development.",
+    "paper_method": "OpenMobile introduces an open-source framework with two key components: (1) a scalable task synthesis pipeline that constructs a global environment memory for generating diverse and grounded instructions, and (2) a policy-switching strategy that alternates between learner and expert models to capture essential error-recovery data.",
+    "paper_setup": "The operating environment is a virtual device with no network connection. The OpenMobile dataset and evaluation benchmarks are used for experiments.",
+    "paper_experiments": "- Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and64.7% on AndroidWorld, far surpassing existing open-data approaches.\n- Notably, our fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on the challenging MobileWorld from 9.4% to 17.4%, competitive with leading closed-data solutions and larger foundation models (Bai et al., 2025).\n- 4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.\n- Agents trained on our data achieve competitive performance with closed-data systems.",
+    "paper_limitations": "- Beyond this widening performance gap, the opacity prevents the community from understanding what data properties drive strong performance and generalization—leaving the open-source community unable to study, reproduce, or build upon these advances.\n- 4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.\n- Notably, although OpenMobile data is collected within the AndroidWorld environment, the resulting models generalize well to unseen settings, including novel apps in AndroidLab and long-horizon cross-app tasks in MobileWorld, e.g., achieving over 50% relative improvement on the latter.\n- Agents trained on OpenMobile data achieve strong performance and generalize well to unseen dynamic environments, substantially narrowing the gap with closed-data industrial systems.",
+    "paper_conclusion": "We presented OpenMobile, an open data synthesis framework for building competitive mobile agents. Our framework addresses two key aspects of trajectory synthesis: (1) decoupling exploration from instruction generation to produce diverse, high-quality tasks, and (2) policy-switching rollout to enrich trajectories with error-recovery signals. Agents trained on OpenMobile data achieve strong performance and generalize well to unseen dynamic environments, substantially narrowing the gap with closed-data industrial systems. We also conduct transparent analyses on the overlap between synthetic and test instructions, confirming that these gains stem from broad functionality coverage and enhanced errorrecovery capability rather than benchmark overfitting. We release all data and code with the hope that OpenMobile serves as a foundation for broader open mobile agent research."
+  },
+  "contradiction_notes": [
+    "Beyond this widening performance gap, the opacity prevents the community from understanding what data properties drive strong performance and generalization—leaving the open-source community unable to study, reproduce, or build upon these advances.",
+    "4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.",
+    "Notably, although OpenMobile data is collected within the AndroidWorld environment, the resulting models generalize well to unseen settings, including novel apps in AndroidLab and long-horizon cross-app tasks in MobileWorld, e.g., achieving over 50% relative improvement on the latter.",
+    "Agents trained on OpenMobile data achieve strong performance and generalize well to unseen dynamic environments, substantially narrowing the gap with closed-data industrial systems.",
+    "This dependency limits diversity to what a single local trajectory reveals."
+  ],
+  "by_id": {
+    "hf_2604.15093": {
+      "id": "hf_2604.15093",
+      "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+      "url": "https://arxiv.org/abs/2604.15093",
+      "authors": [
+        "Kanzhi Cheng",
+        "Zehao Li",
+        "Zheng Ma",
+        "Nuo Chen",
+        "Jialin Cao",
+        "Qiushi Sun",
+        "Zichen Ding",
+        "Fangzhi Xu",
+        "Hang Yan",
+        "Jiajun Chen",
+        "Anh Tuan Luu",
+        "Jianbing Zhang",
+        "Lewei Lu",
+        "Dahua Lin"
+      ],
+      "abstract": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+      "published_at": "2026-04-16T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.15093",
+            "authors": [
+              {
+                "_id": "69e306ad7b74ca69e497df8a",
+                "name": "Kanzhi Cheng",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8b",
+                "name": "Zehao Li",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8c",
+                "name": "Zheng Ma",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8d",
+                "name": "Nuo Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8e",
+                "name": "Jialin Cao",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df8f",
+                "name": "Qiushi Sun",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df90",
+                "name": "Zichen Ding",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df91",
+                "name": "Fangzhi Xu",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df92",
+                "name": "Hang Yan",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df93",
+                "name": "Jiajun Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df94",
+                "name": "Anh Tuan Luu",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df95",
+                "name": "Jianbing Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df96",
+                "name": "Lewei Lu",
+                "hidden": false
+              },
+              {
+                "_id": "69e306ad7b74ca69e497df97",
+                "name": "Dahua Lin",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-16T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T12:50:33.992Z",
+            "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+            "submittedOnDailyBy": {
+              "_id": "63340dbbd92c5842ae71d1e9",
+              "avatarUrl": "/avatars/3a3182996bd41b526dcbfa8687d91963.svg",
+              "isPro": false,
+              "fullname": "Kanzhi Cheng",
+              "user": "cckevinn",
+              "type": "user",
+              "name": "cckevinn"
+            },
+            "summary": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+            "upvotes": 26,
+            "discussionId": "69e306ae7b74ca69e497df98",
+            "projectPage": "https://njucckevin.github.io/openmobile/",
+            "githubRepo": "https://github.com/njucckevin/OpenMobile-Code",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "An open-source framework for mobile agent training that synthesizes task instructions and trajectories through scalable pipelines and policy-switching strategies, achieving superior performance on AndroidWorld benchmarks.",
+            "ai_keywords": [
+              "vision-language models",
+              "mobile agents",
+              "task synthesis pipeline",
+              "global environment memory",
+              "policy-switching strategy",
+              "trajectory rollout",
+              "imitation learning",
+              "AndroidWorld",
+              "Qwen2.5-VL",
+              "Qwen3-VL"
+            ],
+            "githubStars": 27
+          },
+          "publishedAt": "2026-04-15T20:00:00.000Z",
+          "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+          "summary": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading models achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about their task and trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality task instructions and agent trajectories, with two key components: (1) The first is a scalable task synthesis pipeline that constructs a global environment memory from exploration, then leverages it to generate diverse and grounded instructions. and (2) a policy-switching strategy for trajectory rollout. By alternating between learner and expert models, it captures essential error-recovery data often missing in standard imitation learning. Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses on the overlap between our synthetic instructions and benchmark test sets, and verify that performance gains stem from broad functionality coverage rather than benchmark overfitting. We release data and code at https://njucckevin.github.io/openmobile/ to bridge the data gap and facilitate broader mobile agent research.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.15093.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "63340dbbd92c5842ae71d1e9",
+            "avatarUrl": "/avatars/3a3182996bd41b526dcbfa8687d91963.svg",
+            "fullname": "Kanzhi Cheng",
+            "name": "cckevinn",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 13,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        },
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.15093.pdf",
+        "paper_digest": "Mobile agents powered by vision-language models face limitations due to closed training data and opaque task/trajectory synthesis methods, hindering broader research and development.\n\nOpenMobile introduces an open-source framework with two key components: (1) a scalable task synthesis pipeline that constructs a global environment memory for generating diverse and grounded instructions, and (2) a policy-switching strategy that alternates between learner and expert models to capture essential error-recovery data.\n\n- Agents trained on our data achieve competitive results across three dynamic mobile agent benchmarks: notably, our fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and64.7% on AndroidWorld, far surpassing existing open-data approaches.\n- Notably, our fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on the challenging MobileWorld from 9.4% to 17.4%, competitive with leading closed-data solutions and larger foundation models (Bai et al., 2025).\n- 4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.\n- Agents trained on our data achieve competitive performance with closed-data systems.\n\n- Beyond this widening performance gap, the opacity prevents the community from understanding what data properties drive strong performance and generalization—leaving the open-source community unable to study, reproduce, or build upon these advances.\n- 4.3 Main Results\n\nOpenMobile data substantially improves mobile agent performance with strong generalization.As shown in Table 1, models fine-tuned on OpenMobile data significantly outperform corresponding baselines across all three benchmarks.\n- Notably, although OpenMobile data is collected within the AndroidWorld environment, the resulting models generalize well to unseen settings, including novel apps in AndroidLab and long-horizon cross-app tasks in MobileWorld, e.g., achieving over 50% relative improvement on the latter.\n- Agents trained on OpenMobile data achieve strong performance and generalize well to unseen dynamic environments, substantially narrowing the gap with closed-data industrial systems."
+      }
+    },
+    "oa_3436940675": {
+      "id": "oa_3436940675",
+      "title": "OpenMobile: Building Open Mobile Agents with Task and Trajectory Synthesis",
+      "url": "https://openalex.org/W7154864798",
+      "authors": [],
+      "abstract": "Mobile agents powered by vision-language models have demonstrated impressive capabilities in automating mobile tasks, with recent leading achieving a marked performance leap, e.g., nearly 70% success on AndroidWorld. However, these systems keep their training data closed and remain opaque about task trajectory synthesis recipes. We present OpenMobile, an open-source framework that synthesizes high-quality instructions agent trajectories, two key components: (1) The first is scalable pipeline constructs global environment memory from exploration, then leverages it to generate diverse grounded instructions. (2) policy-switching strategy for rollout. By alternating between learner expert models, captures essential error-recovery often missing standard imitation learning. Agents trained our achieve competitive results across three dynamic benchmarks: notably, fine-tuned Qwen2.5-VL Qwen3-VL reach 51.7% 64.7% AndroidWorld, far surpassing existing open-data approaches. Furthermore, we conduct transparent analyses the overlap synthetic benchmark test sets, verify gains stem broad functionality coverage rather than overfitting. release code at https://njucckevin.github.io/openmobile/ bridge gap facilitate broader research.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_1831920905": {
+      "id": "oa_1831920905",
+      "title": "Context-Aware UPnP-AV Services for Adaptive Home Multimedia Systems",
+      "url": "https://openalex.org/W2056189461",
+      "authors": [],
+      "abstract": "One possibility to provide mobile multimedia in domestic systems is the use of Universal Plug and Play Audio Visual (UPnP-AV) devices. In a standard UPnP-AV scenario, content provided by Media Server device streamed Renderer devices initiation Control Point. However, there no provisioning context-aware customization. This paper presents an enhancement services for home environments regarding context awareness. It comes up with profile definitions, shows how this information can be queried from Renderers, illustrates Point tailor media stream one or more Renderers. Moreover, since implementation only queries at time, global view on all Servers network. also approach integration side that provides fast search Finally, number performance measurements show overhead costs our enhancements order achieve benefits.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_1159758915": {
+      "id": "oa_1159758915",
+      "title": "Render for CNN: Viewpoint Estimation in Images Using CNNs Trained with Rendered 3D Model Views",
+      "url": "https://openalex.org/W1591870335",
+      "authors": [],
+      "abstract": "Object viewpoint estimation from 2D images is an essential task in computer vision. However, two issues hinder its progress: scarcity of training data with annotations, and a lack powerful features. Inspired by the growing availability 3D models, we propose framework to address both combining render-based image synthesis CNNs (Convolutional Neural Networks). We believe that models have potential generating large number high variation, which can be well exploited deep CNN learning capacity. Towards this goal, scalable overfit-resistant pipeline, together novel specifically tailored for task. Experimentally, show our pipeline significantly outperform state-of-the-art methods on PASCAL 3D+ benchmark.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  },
+  "analyst_notes": [
+    {
+      "role": "methods",
+      "claims": [
+        "The task synthesis pipeline constructs a global environment memory for generating diverse and grounded instructions",
+        "The policy-switching strategy alternates between learner and expert models to capture essential error-recovery data",
+        "Fine-tuned Qwen2.5-VL and Qwen3-VL achieve 51.7% and 64.7% on AndroidWorld",
+        "Fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B improve on MobileWorld from 9.4% to 17.4%",
+        "OpenMobile data substantially improves mobile agent performance with strong generalization"
+      ],
+      "citations": [
+        "Bai et al., 2025"
+      ],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "empirical",
+      "claims": [
+        "Agents trained on OpenMobile data achieve competitive results across three dynamic mobile agent benchmarks",
+        "fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld",
+        "fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on MobileWorld from 9.4% to 17.4%",
+        "OpenMobile data substantially improves mobile agent performance with strong generalization",
+        "Agents trained on OpenMobile data achieve competitive performance with closed-data systems"
+      ],
+      "citations": [
+        "Bai et al., 2025"
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "glossary",
+      "claims": [
+        "OpenMobile — an open-source framework for building open mobile agents with task and trajectory synthesis",
+        "Task Synthesis Pipeline — a scalable pipeline that constructs a global environment memory for generating diverse and grounded instructions",
+        "Policy-Switching Strategy — a strategy that alternates between learner and expert models to capture essential error-recovery data",
+        "Qwen2.5-VL — a fine-tuned model achieving 51.7% task success on AndroidWorld",
+        "Qwen3-VL — a fine-tuned model achieving 64.7% task success on AndroidWorld",
+        "AndroidWorld — a dynamic mobile agent benchmark",
+        "MobileWorld — a challenging mobile agent benchmark",
+        "Task Success — a metric measuring the success rate of mobile agents in completing tasks",
+        "Generalization — the ability of models to perform well in unseen environments or settings",
+        "Vision-Language Models — models that combine computer vision and natural language processing capabilities",
+        "Error-Recovery Data — data collected to improve the ability of models to recover from errors"
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "AI Glossary",
+      "skipped": false
+    },
+    {
+      "role": "related",
+      "claims": [
+        "OpenMobile is an open-source framework for synthesizing task instructions and agent trajectories for mobile agents powered by vision-language models.",
+        "OpenMobile has a scalable task synthesis pipeline and a global environment memory."
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "code",
+      "claims": [
+        "OpenMobile is an open-source framework for synthesizing task instructions and agent trajectories for mobile agents.",
+        "OpenMobile has a scalable task synthesis pipeline and a trajectory synthesis component."
+      ],
+      "citations": [],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    }
+  ],
+  "committee_synthesis": "The development of OpenMobile, an open-source framework for building open mobile agents with task and trajectory synthesis, marks a significant advancement in the field of mobile agent research. At its core, OpenMobile aims to enhance the capabilities of mobile agents by leveraging vision-language models to synthesize complex tasks and trajectories. This approach addresses a critical challenge in mobile agent development: the need for diverse and grounded instructions that can guide agents through a wide range of tasks and environments.\n\nThe main tension in OpenMobile's development lies in balancing the need for data efficiency with the requirement for high performance across various benchmarks. The framework's task synthesis pipeline and policy-switching strategy are designed to optimize data usage while improving task success rates. By constructing a global environment memory, OpenMobile generates diverse instructions, and by alternating between learner and expert models, it captures essential error-recovery data. The fine-tuning of models such as Qwen2.5-VL and Qwen3-VL on OpenMobile data results in substantial performance improvements, with task success rates of 51.7% and 64.7% on AndroidWorld, respectively.\n\nThe reader takeaway from OpenMobile's achievements is that open-source frameworks can significantly advance the state-of-the-art in mobile agent research by providing scalable and efficient solutions for task and trajectory synthesis. OpenMobile's competitive performance across dynamic mobile agent benchmarks, including its ability to generalize across different environments, underscores its potential to democratize access to high-quality mobile agent development tools. As the field continues to evolve, the emphasis on open-source frameworks like OpenMobile will likely play a crucial role in driving innovation and accessibility in mobile agent research.",
+  "visual_plan": null
+}

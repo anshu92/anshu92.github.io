@@ -1,0 +1,89 @@
+{
+  "committee_synthesis": {
+    "narrative": "The development of OpenMobile, an open-source framework for building open mobile agents with task and trajectory synthesis, marks a significant advancement in the field of mobile agent research. At its core, OpenMobile aims to enhance the capabilities of mobile agents by leveraging vision-language models to synthesize complex tasks and trajectories. This approach addresses a critical challenge in mobile agent development: the need for diverse and grounded instructions that can guide agents through a wide range of tasks and environments.\n\nThe main tension in OpenMobile's development lies in balancing the need for data efficiency with the requirement for high performance across various benchmarks. The framework's task synthesis pipeline and policy-switching strategy are designed to optimize data usage while improving task success rates. By constructing a global environment memory, OpenMobile generates diverse instructions, and by alternating between learner and expert models, it captures essential error-recovery data. The fine-tuning of models such as Qwen2.5-VL and Qwen3-VL on OpenMobile data results in substantial performance improvements, with task success rates of 51.7% and 64.7% on AndroidWorld, respectively.\n\nThe reader takeaway from OpenMobile's achievements is that open-source frameworks can significantly advance the state-of-the-art in mobile agent research by providing scalable and efficient solutions for task and trajectory synthesis. OpenMobile's competitive performance across dynamic mobile agent benchmarks, including its ability to generalize across different environments, underscores its potential to democratize access to high-quality mobile agent development tools. As the field continues to evolve, the emphasis on open-source frameworks like OpenMobile will likely play a crucial role in driving innovation and accessibility in mobile agent research.",
+    "n_analysts": 5,
+    "n_skipped": 0,
+    "analysts": [
+      {
+        "role": "methods",
+        "claims": [
+          "The task synthesis pipeline constructs a global environment memory for generating diverse and grounded instructions",
+          "The policy-switching strategy alternates between learner and expert models to capture essential error-recovery data",
+          "Fine-tuned Qwen2.5-VL and Qwen3-VL achieve 51.7% and 64.7% on AndroidWorld",
+          "Fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B improve on MobileWorld from 9.4% to 17.4%",
+          "OpenMobile data substantially improves mobile agent performance with strong generalization"
+        ],
+        "citations": [
+          "Bai et al., 2025"
+        ],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "empirical",
+        "claims": [
+          "Agents trained on OpenMobile data achieve competitive results across three dynamic mobile agent benchmarks",
+          "fine-tuned Qwen2.5-VL and Qwen3-VL reach 51.7% and 64.7% on AndroidWorld",
+          "fine-tuned Qwen2.5-VL-7B and Qwen3-VL-8B achieve 51.7% and 64.7% task success on AndroidWorld and improve on MobileWorld from 9.4% to 17.4%",
+          "OpenMobile data substantially improves mobile agent performance with strong generalization",
+          "Agents trained on OpenMobile data achieve competitive performance with closed-data systems"
+        ],
+        "citations": [
+          "Bai et al., 2025"
+        ],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "glossary",
+        "claims": [
+          "OpenMobile \u2014 an open-source framework for building open mobile agents with task and trajectory synthesis",
+          "Task Synthesis Pipeline \u2014 a scalable pipeline that constructs a global environment memory for generating diverse and grounded instructions",
+          "Policy-Switching Strategy \u2014 a strategy that alternates between learner and expert models to capture essential error-recovery data",
+          "Qwen2.5-VL \u2014 a fine-tuned model achieving 51.7% task success on AndroidWorld",
+          "Qwen3-VL \u2014 a fine-tuned model achieving 64.7% task success on AndroidWorld",
+          "AndroidWorld \u2014 a dynamic mobile agent benchmark",
+          "MobileWorld \u2014 a challenging mobile agent benchmark",
+          "Task Success \u2014 a metric measuring the success rate of mobile agents in completing tasks",
+          "Generalization \u2014 the ability of models to perform well in unseen environments or settings",
+          "Vision-Language Models \u2014 models that combine computer vision and natural language processing capabilities",
+          "Error-Recovery Data \u2014 data collected to improve the ability of models to recover from errors"
+        ],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "AI Glossary",
+        "skipped": false
+      },
+      {
+        "role": "related",
+        "claims": [
+          "OpenMobile is an open-source framework for synthesizing task instructions and agent trajectories for mobile agents powered by vision-language models.",
+          "OpenMobile has a scalable task synthesis pipeline and a global environment memory."
+        ],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "code",
+        "claims": [
+          "OpenMobile is an open-source framework for synthesizing task instructions and agent trajectories for mobile agents.",
+          "OpenMobile has a scalable task synthesis pipeline and a trajectory synthesis component."
+        ],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      }
+    ]
+  },
+  "narrative": "The development of OpenMobile, an open-source framework for building open mobile agents with task and trajectory synthesis, marks a significant advancement in the field of mobile agent research. At its core, OpenMobile aims to enhance the capabilities of mobile agents by leveraging vision-language models to synthesize complex tasks and trajectories. This approach addresses a critical challenge in mobile agent development: the need for diverse and grounded instructions that can guide agents through a wide range of tasks and environments.\n\nThe main tension in OpenMobile's development lies in balancing the need for data efficiency with the requirement for high performance across various benchmarks. The framework's task synthesis pipeline and policy-switching strategy are designed to optimize data usage while improving task success rates. By constructing a global environment memory, OpenMobile generates diverse instructions, and by alternating between learner and expert models, it captures essential error-recovery data. The fine-tuning of models such as Qwen2.5-VL and Qwen3-VL on OpenMobile data results in substantial performance improvements, with task success rates of 51.7% and 64.7% on AndroidWorld, respectively.\n\nThe reader takeaway from OpenMobile's achievements is that open-source frameworks can significantly advance the state-of-the-art in mobile agent research by providing scalable and efficient solutions for task and trajectory synthesis. OpenMobile's competitive performance across dynamic mobile agent benchmarks, including its ability to generalize across different environments, underscores its potential to democratize access to high-quality mobile agent development tools. As the field continues to evolve, the emphasis on open-source frameworks like OpenMobile will likely play a crucial role in driving innovation and accessibility in mobile agent research."
+}

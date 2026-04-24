@@ -1,0 +1,32 @@
+{
+  "mandatory_claims": [
+    "OpenMobile achieves competitive results across three dynamic mobile agent benchmarks",
+    "OpenMobile's fine-tuned Qwen2.5-VL and Qwen3-VL models reach 51.7% and 64.7% on AndroidWorld",
+    "OpenMobile's performance gains stem from broad functionality coverage rather than benchmark overfitting"
+  ],
+  "mandatory_sections": [
+    "Why OpenMobile is a game-changer in mobile agent research",
+    "What OpenMobile does and how it works",
+    "How to apply OpenMobile in real-world scenarios",
+    "What would falsify OpenMobile's main claim"
+  ],
+  "required_visuals": [
+    "A flowchart illustrating OpenMobile's task synthesis pipeline and policy-switching strategy"
+  ],
+  "likely_failures": [
+    "Overfitting to the benchmark test sets",
+    "Insufficient data quality or quantity for training the models"
+  ],
+  "preventive_checks": [
+    "Verifying the overlap between synthetic instructions and benchmark test sets",
+    "Conducting transparent analyses on the performance gains"
+  ],
+  "backup_remedies": [
+    "Using alternative models or architectures to improve performance",
+    "Collecting more data or fine-tuning the models for better results"
+  ],
+  "reviewer_focus": [
+    "Evaluating the validity of OpenMobile's claims and results",
+    "Assessing the potential applications and limitations of OpenMobile"
+  ]
+}

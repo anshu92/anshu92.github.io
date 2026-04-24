@@ -1,0 +1,13 @@
+{
+  "llm_scaling": [
+    "task synthesis",
+    "policy-switching strategy",
+    "vision-language models",
+    "androidworld performance",
+    "environment memory",
+    "trajectory rollout",
+    "learner model",
+    "expert model",
+    "mobile agents"
+  ]
+}
