@@ -1,0 +1,164 @@
+{
+  "ok": 28,
+  "fail": 6,
+  "blacklisted_skips": 94,
+  "blacklist_added": [
+    "openrouter:qwen/qwen3-next-80b-a3b-instruct:free",
+    "groq:qwen/qwen3-32b",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+    "openrouter:qwen/qwen3-coder:free"
+  ],
+  "tokens_in": 26482,
+  "tokens_out": 9158,
+  "usd_spent": 0.0,
+  "by_task": {
+    "supervisor_route": {
+      "calls": 2,
+      "tokens_in": 1690,
+      "tokens_out": 1627,
+      "usd": 0.0
+    },
+    "query_gen": {
+      "calls": 1,
+      "tokens_in": 214,
+      "tokens_out": 132,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "qwen/qwen3-32b": {
+      "calls": 2,
+      "tokens_in": 2298,
+      "tokens_out": 596,
+      "usd": 0.0
+    },
+    "meta-llama/llama-4-scout-17b-16e-instruct": {
+      "calls": 23,
+      "tokens_in": 22280,
+      "tokens_out": 6803,
+      "usd": 0.0
+    },
+    "llama-3.1-8b-instant": {
+      "calls": 3,
+      "tokens_in": 1904,
+      "tokens_out": 1759,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 6,
+    "committee": 13,
+    "draft": 7,
+    "polish": 2,
+    "editor": 2
+  },
+  "llm_cap": 90,
+  "llm_calls": 34,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'code'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer",
+    "planning_brief",
+    "adversary_review",
+    "evidence_verifier",
+    "render_reviewer",
+    "meta_review"
+  ],
+  "committee_synthesis": {
+    "narrative": "The C-GenReg method presents a significant advancement in 3D point cloud registration, achieving state-of-the-art zero-shot results across indoor RGB-D benchmarks and demonstrating success with real outdoor LiDAR data. By leveraging a World Foundation Model to synthesize multi-view-consistent RGB representations and a pretrained Vision Foundation Model to extract dense correspondences, C-GenReg effectively transfers the matching problem into an auxiliary image domain. This approach enables a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors, yielding robust registration results.\n\nThe main tension lies in balancing the specificity of scene descriptions with the generalizability of the model. While C-GenReg shows negligible degradation when using a general scene description, a semantically incorrect prompt substantially degrades registration accuracy. This highlights the importance of accurate scene understanding in facilitating effective registration. Moreover, the reliance on pretrained foundation models underscores the need for high-quality training data and robust model architectures.\n\nReaders should take away that C-GenReg offers a promising training-free framework for 3D point cloud registration, capitalizing on the strengths of world-scale generative priors and registration-oriented Vision Foundation Models. Its ability to operate effectively in both indoor and outdoor settings, with minimal degradation under general scene descriptions, positions it as a versatile solution for various applications. However, the method's sensitivity to semantically incorrect prompts emphasizes the need for careful consideration of scene understanding and prompt engineering in practical deployments.",
+    "report": {
+      "narrative": "The C-GenReg method presents a significant advancement in 3D point cloud registration, achieving state-of-the-art zero-shot results across indoor RGB-D benchmarks and demonstrating success with real outdoor LiDAR data. By leveraging a World Foundation Model to synthesize multi-view-consistent RGB representations and a pretrained Vision Foundation Model to extract dense correspondences, C-GenReg effectively transfers the matching problem into an auxiliary image domain. This approach enables a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors, yielding robust registration results.\n\nThe main tension lies in balancing the specificity of scene descriptions with the generalizability of the model. While C-GenReg shows negligible degradation when using a general scene description, a semantically incorrect prompt substantially degrades registration accuracy. This highlights the importance of accurate scene understanding in facilitating effective registration. Moreover, the reliance on pretrained foundation models underscores the need for high-quality training data and robust model architectures.\n\nReaders should take away that C-GenReg offers a promising training-free framework for 3D point cloud registration, capitalizing on the strengths of world-scale generative priors and registration-oriented Vision Foundation Models. Its ability to operate effectively in both indoor and outdoor settings, with minimal degradation under general scene descriptions, positions it as a versatile solution for various applications. However, the method's sensitivity to semantically incorrect prompts emphasizes the need for careful consideration of scene understanding and prompt engineering in practical deployments.",
+      "n_analysts": 5,
+      "n_skipped": 0,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [
+            "C-GenReg uses a World Foundation Model to synthesize multi-view-consistent RGB representations from input geometry",
+            "C-GenReg uses a pretrained Vision Foundation Model (VFM) to extract dense correspondences from generated views",
+            "C-GenReg uses a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors",
+            "Vision Foundation Models (VFMs) achieve remarkable robustness by training on massive, heterogeneous datasets",
+            "RoITr embedded Point-Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences"
+          ],
+          "citations": [
+            "[1]",
+            "[33]"
+          ],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "empirical",
+          "claims": [
+            "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+            "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+            "replacing a detailed scene description with a general one results in negligible degradation",
+            "even a minimal prompt maintains reasonably strong performance",
+            "a semantically incorrect prompt substantially degrades registration accuracy"
+          ],
+          "citations": [
+            "[1]",
+            "[33]"
+          ],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Results",
+          "skipped": false
+        },
+        {
+          "role": "glossary",
+          "claims": [
+            "C-GenReg \u2014 A training-free 3D point cloud registration method that transfers the matching problem into an auxiliary image domain using a World Foundation Model.",
+            "World Foundation Model \u2014 A model used to synthesize multi-view-consistent RGB representations from input geometry.",
+            "Vision Foundation Model (VFM) \u2014 A model that achieves remarkable robustness by training on massive, heterogeneous datasets and is used to extract dense correspondences from generated views.",
+            "Match-then-Fuse \u2014 A probabilistic cold-fusion scheme that combines correspondence posteriors from the generated-RGB and raw geometric branches.",
+            "3DMatch \u2014 An indoor RGB-D benchmark used to evaluate 3D point cloud registration methods.",
+            "ScanNet \u2014 An indoor RGB-D benchmark used to evaluate 3D point cloud registration methods.",
+            "Waymo \u2014 An outdoor LiDAR benchmark used to evaluate 3D point cloud registration methods.",
+            "RoITr \u2014 A method that embedded Point-Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.",
+            "Point-Pair-Feature \u2014 A feature used to achieve rotation invariance and distinctive geometric correspondences.",
+            "Zero-shot learning \u2014 A setting where a model is evaluated on a new task or domain without any additional training.",
+            "Cross-domain generalization \u2014 The ability of a model to generalize across different domains, such as indoor and outdoor scenes, or different sensors."
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "Related Work",
+          "skipped": false
+        },
+        {
+          "role": "related",
+          "claims": [
+            "C-GenReg is a training-free framework for 3D point cloud registration",
+            "C-GenReg leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs)",
+            "C-GenReg transfers the matching problem into an auxiliary image domain"
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "code",
+          "claims": [
+            "C-GenReg is a training-free framework for 3D point cloud registration",
+            "C-GenReg leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs)",
+            "C-GenReg transfers the matching problem into an auxiliary image domain"
+          ],
+          "citations": [],
+          "confidence": "low",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "llm_scaling": [
+    "zero shot performance",
+    "training free",
+    "modalities fusion"
+  ]
+}

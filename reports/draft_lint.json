@@ -1,0 +1,21 @@
+{
+  "structural": [
+    "takeaway_lacks_number",
+    "generic_heading_used",
+    "citation_count_below_min",
+    "comparative_claim_missing_metric",
+    "missing_mechanism_section",
+    "unpaired_improvement_claims"
+  ],
+  "unsupported_numeric_claims": [
+    "85.6%",
+    "90.3%",
+    "88.1%",
+    "65.6%"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}

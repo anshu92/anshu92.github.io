@@ -1,0 +1,18 @@
+[
+  {
+    "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+    "overall_status": "blocked",
+    "codes": [
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "draft:lint:takeaway_lacks_number",
+      "draft:lint:generic_heading_used",
+      "draft:lint:citation_count_below_min",
+      "draft:lint:comparative_claim_missing_metric"
+    ]
+  }
+]

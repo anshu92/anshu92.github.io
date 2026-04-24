@@ -1,0 +1,37 @@
+[
+  {
+    "role": "adversary",
+    "pass_review": true,
+    "findings": [],
+    "rewrite_targets": [],
+    "summary": ""
+  },
+  {
+    "role": "evidence_verifier",
+    "pass_review": true,
+    "findings": [],
+    "rewrite_targets": [],
+    "summary": ""
+  },
+  {
+    "role": "render_reviewer",
+    "pass_review": false,
+    "findings": [
+      "pandoc_render_failed",
+      "render_html_generation_failed"
+    ],
+    "rewrite_targets": [],
+    "summary": "Render review found issues with HTML/diagram/table rendering."
+  },
+  {
+    "role": "meta_reviewer",
+    "pass_review": false,
+    "findings": [
+      "pandoc_render_failed",
+      "render_html_generation_failed",
+      "reviewer_blocked:render_reviewer"
+    ],
+    "rewrite_targets": [],
+    "summary": "Render review found issues with HTML/diagram/table rendering."
+  }
+]
