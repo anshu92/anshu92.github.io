@@ -165,11 +165,12 @@ def test_build_graph_contains_multi_agent_review_nodes() -> None:
     g = build_graph()
     nodes = set(g.get_graph().nodes.keys())
     for expected in {
-        "planning_brief",
+        "planner",
         "draft_refine",
         "adversary_review",
         "evidence_verifier",
-        "meta_review",
+        "render_reviewer",
+        "meta_reviewer",
         "editor",
     }:
         assert expected in nodes
