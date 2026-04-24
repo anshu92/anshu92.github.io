@@ -1,0 +1,13 @@
+{
+  "llm_scaling": [
+    "geometry-to-image generation",
+    "zero-shot performance",
+    "cross-domain generalization",
+    "fine-tuned models",
+    "learning-based approach",
+    "rgb representations",
+    "computational costs",
+    "3dmatch",
+    "scannet"
+  ]
+}

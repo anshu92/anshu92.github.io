@@ -1,0 +1,243 @@
+{
+  "evidence_valid": false,
+  "draft_valid": false,
+  "render_valid": false,
+  "package_valid": false,
+  "render_checked": false,
+  "package_checked": false,
+  "overall_status": "blocked",
+  "blocking_reasons": [
+    {
+      "code": "grounding_issue",
+      "message": "C-GenReg achieves 85% accuracy with 100ms computational cost",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "grounding_issue",
+      "message": "Prior SOTA has 65% accuracy with 200ms computational cost",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "grounding_issue",
+      "message": "85%",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "grounding_issue",
+      "message": "100ms",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "grounding_issue",
+      "message": "65%",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "grounding_issue",
+      "message": "200ms",
+      "stage": "editor",
+      "blocking": true
+    },
+    {
+      "code": "lint:takeaway_lacks_number",
+      "message": "takeaway_lacks_number",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:fewer_than_required_h2_sections",
+      "message": "fewer_than_required_h2_sections",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:citation_count_below_min",
+      "message": "citation_count_below_min",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:comparative_claim_missing_metric",
+      "message": "comparative_claim_missing_metric",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:missing_mechanism_section",
+      "message": "missing_mechanism_section",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:missing_decision_section",
+      "message": "missing_decision_section",
+      "stage": "draft",
+      "blocking": true
+    }
+  ],
+  "editor_report": {
+    "rubric_score": 13,
+    "rubric_items": [
+      {
+        "item": "sharp_takeaway",
+        "score": 1
+      },
+      {
+        "item": "intro_earns_attention",
+        "score": 1
+      },
+      {
+        "item": "concrete_problem",
+        "score": 1
+      },
+      {
+        "item": "inevitable_structure",
+        "score": 1
+      },
+      {
+        "item": "specific_language",
+        "score": 1
+      },
+      {
+        "item": "teaches_why",
+        "score": 1
+      },
+      {
+        "item": "strong_example",
+        "score": 1
+      },
+      {
+        "item": "tradeoffs_explicit",
+        "score": 1
+      },
+      {
+        "item": "claims_backed",
+        "score": 1
+      },
+      {
+        "item": "limitations_honest",
+        "score": 1
+      },
+      {
+        "item": "skimmable",
+        "score": 1
+      },
+      {
+        "item": "actionable_close",
+        "score": 1
+      },
+      {
+        "item": "diagrams_clarify",
+        "score": 1
+      },
+      {
+        "item": "honest_scope",
+        "score": 0
+      },
+      {
+        "item": "pov_present",
+        "score": 1
+      }
+    ],
+    "five_questions": {
+      "problem": "The problem is accurately aligning two point clouds from different views or sensors, crucial for applications like robotics, autonomous driving, and 3D reconstruction.",
+      "hard": "Current learning-based methods struggle to generalize across different sensing modalities, sampling differences, and environments.",
+      "tried": "The authors propose C-GenReg, a training-free framework that leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs).",
+      "outcomes": "C-GenReg achieves 85% accuracy with 100ms computational cost, compared to prior SOTA's 65% accuracy with 200ms computational cost.",
+      "next": "The authors suggest exploring the use of Vision Foundation Models for other computer vision tasks that require robust feature extraction."
+    },
+    "five_questions_ok": true,
+    "critique": {
+      "missing": [],
+      "weak": [],
+      "cut": []
+    },
+    "pass_gate": false,
+    "llm_ok": true,
+    "editor_warnings": [],
+    "lint_issues": [
+      "takeaway_lacks_number",
+      "fewer_than_required_h2_sections",
+      "citation_count_below_min",
+      "comparative_claim_missing_metric",
+      "missing_mechanism_section",
+      "missing_decision_section"
+    ],
+    "grounding_ok": false,
+    "grounding_issues": [
+      "C-GenReg achieves 85% accuracy with 100ms computational cost",
+      "Prior SOTA has 65% accuracy with 200ms computational cost",
+      "85%",
+      "100ms",
+      "65%",
+      "200ms"
+    ],
+    "rubric_floor_applied": false,
+    "rubric_floor_reasons": [],
+    "rubric_score_raw": 13,
+    "evidence_utilization": {
+      "score": 0.2106,
+      "ratios": {
+        "numbers": 0.0,
+        "entities": 0.5909,
+        "quotes": 0.0,
+        "analyst_claims": 0.1667
+      },
+      "totals": {
+        "numbers": 1,
+        "entities": 22,
+        "quotes": 7,
+        "analyst_claims": 24
+      },
+      "used_counts": {
+        "numbers": 0,
+        "entities": 13,
+        "quotes": 0,
+        "analyst_claims": 4
+      },
+      "unused": {
+        "numbers": [
+          "1"
+        ],
+        "entities": [
+          "Assessing the practical applicability of neural\u2010based point clouds registration algorithms: A comparative analysis",
+          "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabili",
+          "Registration of large-scale terrestrial laser scanner point clouds: A review and benchmark",
+          "C-GenReg: Training-Free 3D Point Cloud R",
+          "Fuse",
+          "RoITr",
+          "Point-Pair-Feature",
+          "RGB-D"
+        ],
+        "quotes": [
+          "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3",
+          "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+          "multi-view\u2013consistent image generation out of the box",
+          "In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].",
+          "We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).",
+          "RoITr [33] embedded Point- Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.",
+          "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments."
+        ],
+        "analyst_claims": [
+          "C-GenReg uses a World Foundation Model to synthesize multi-view-consistent RGB representations",
+          "C-GenReg uses a Vision Foundation Model (VFM) to extract dense correspondences",
+          "C-GenReg uses a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors",
+          "RoITr embedded Point-Pair-Feature coordinates into a transformer backbone",
+          "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+          "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+          "replacing a detailed scene description with a general one results in negligible degradation",
+          "even a minimal prompt maintains reasonably strong performance"
+        ]
+      }
+    }
+  },
+  "render_report": null,
+  "artifact_paths": {},
+  "llm_ok": true,
+  "pass_gate": false
+}
