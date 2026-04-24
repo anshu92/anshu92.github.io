@@ -23,6 +23,7 @@ from ..draft import (
     build_prompt,
     embed_planned_visuals,
     explain_undefined_terms,  # editor-only explainer
+    soften_unsupported_numeric_claims,
 )
 from ..llm_chain import budget, get_llm_usage, is_llm_call_cap_reached
 from ..memory import _ROOT
@@ -362,15 +363,24 @@ def node_planning_brief(state: dict[str, Any]) -> dict[str, Any]:
         plan = _fallback_planning_brief(bundle)
     else:
         system = (
-            "You are a planning agent for a technical blog pipeline. Create a structured brief before writing. "
-            "Focus on: mandatory claims with numbers or baselines, mandatory section intents, required visuals, "
-            "likely failure modes, preventive checks before writing, backup remedies if a failure occurs, "
-            "and reviewer focus areas. Output JSON only."
+            "You are the pre-write planning agent for a technical blog pipeline.\n"
+            "Create a concise execution brief before drafting.\n"
+            "Rules:\n"
+            "1. Be specific: prefer concrete claims, baselines, benchmarks, and failure modes.\n"
+            "2. Use only evidence-supported requirements or failure patterns seen in memory.\n"
+            "3. Name what the draft must prove, what reviewers must attack, and what should be cut if unsupported.\n"
+            "4. Output JSON only. No prose before or after the JSON.\n"
+            '5. Exact schema: {"mandatory_claims":[str], "mandatory_sections":[str], "required_visuals":[str], '
+            '"likely_failures":[str], "preventive_checks":[str], "backup_remedies":[str], "reviewer_focus":[str]}.\n'
+            "6. Keep each list short and high-signal."
         )
         user = (
-            f"EDITORIAL_BRIEF:\n{brief.model_dump_json(indent=2)}\n\n"
-            f"EVIDENCE_JSON:\n{bundle.model_dump_json()[:18000]}\n\n"
-            f"RECENT_FAILURE_MEMORY:\n{json.dumps(failure_memory, indent=2)[:4000]}"
+            "### EDITORIAL_BRIEF\n"
+            f'"""\n{brief.model_dump_json(indent=2)}\n"""\n\n'
+            "### EVIDENCE_JSON\n"
+            f'"""\n{bundle.model_dump_json()[:18000]}\n"""\n\n'
+            "### RECENT_FAILURE_MEMORY\n"
+            f'"""\n{json.dumps(failure_memory, indent=2)[:4000]}\n"""'
         )
         raw = gllm.graph_llm_text(
             "planning_brief",
@@ -607,13 +617,24 @@ def node_adversary_review(state: dict[str, Any]) -> dict[str, Any]:
         raw = gllm.graph_llm_text(
             "adversary_review",
             (
-                "You are an adversarial reviewer for a technical blog. Find weak tradeoffs, unsupported advice, "
-                "missing falsifiers, and vague 'why it matters' sections. Output JSON only."
+                "You are the adversarial reviewer for a technical blog draft.\n"
+                "Look for the highest-value weaknesses first: missing tradeoffs, missing falsifiers, vague impact claims, "
+                "generic recommendations, and advice that exceeds the evidence.\n"
+                "Do not flag a paragraph just because it contains author synthesis or a recommendation. "
+                "Flag it only if the recommendation is generic, unsupported, or not story-specific.\n"
+                "Output JSON only with this exact schema:\n"
+                '{"role":"adversary","pass_review":true,"findings":["short_code"],"rewrite_targets":["section title"],'
+                '"summary":"one sentence","metadata":{"severity":"blocking|advisory","top_risk":"..."}}'
             ),
             (
-                f"PLANNING_BRIEF:\n{planning.model_dump_json(indent=2)}\n\n"
-                f"RECENT_FAILURE_MEMORY:\n{json.dumps(failure_memory, indent=2)[:3000]}\n\n"
-                f"DRAFT_MD:\n{body[:12000]}\n\nEVIDENCE_JSON:\n{bundle.model_dump_json()[:12000]}"
+                "### PLANNING_BRIEF\n"
+                f'"""\n{planning.model_dump_json(indent=2)}\n"""\n\n'
+                "### RECENT_FAILURE_MEMORY\n"
+                f'"""\n{json.dumps(failure_memory, indent=2)[:3000]}\n"""\n\n'
+                "### DRAFT_MD\n"
+                f'"""\n{body[:12000]}\n"""\n\n'
+                "### EVIDENCE_JSON\n"
+                f'"""\n{bundle.model_dump_json()[:12000]}\n"""'
             ),
             mode="smart",
             max_tokens=1200,
@@ -638,23 +659,44 @@ def node_evidence_verifier(state: dict[str, Any]) -> dict[str, Any]:
     bundle = evidence_model(state["evidence"])
     planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
     failure_memory = _failure_memory_snapshot(state)
-    findings = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
-    lint_issues = lint.structural_issues(body, bundle)
-    if "unresolved_source_alias" in lint_issues:
-        findings.append("unresolved_source_alias")
-    if "citation_count_below_min" in lint_issues:
-        findings.append("citation_count_below_min")
+    def _verifier_findings(text: str) -> list[str]:
+        out = lint.unsupported_numeric_claims(text, bundle.model_dump_json())
+        lint_issues_local = lint.structural_issues(text, bundle)
+        if "unresolved_source_alias" in lint_issues_local:
+            out.append("unresolved_source_alias")
+        if "citation_count_below_min" in lint_issues_local:
+            out.append("citation_count_below_min")
+        return out
+
+    findings = _verifier_findings(body)
+    if findings:
+        softened = soften_unsupported_numeric_claims(body, bundle.model_dump_json())
+        if softened != body:
+            body = softened
+            findings = _verifier_findings(body)
     if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
         note = _parse_review_note("", role="evidence_verifier", fallback_findings=findings)
     else:
         raw = gllm.graph_llm_text(
             "evidence_verifier",
             (
-                "You are an evidence verifier. Check for unsupported numeric claims, missing citations, "
-                "and unresolved source aliases. Output JSON only."
+                "You are the evidence verifier for a technical blog draft.\n"
+                "Catch unsupported factual claims, unresolved citations, and source-alias mistakes.\n"
+                "Blocking: invented benchmark numbers, unsupported comparisons, contradictions with evidence.\n"
+                "Advisory only: author synthesis, reproducibility suggestions, implementation sketches, or recommendations "
+                "that are not presented as paper-reported facts.\n"
+                "If a claim is a derived arithmetic restatement of reported table numbers, prefer asking for a rewrite into "
+                "the underlying cited numbers instead of flagging a hard contradiction unless the wording exaggerates the claim.\n"
+                "Output JSON only with this exact schema:\n"
+                '{"role":"evidence_verifier","pass_review":true,"findings":["short_code"],"rewrite_targets":["section title"],'
+                '"summary":"one sentence","metadata":{"severity":"blocking|advisory","needs_number_rewrite":true}}'
             ),
-            f"RECENT_FAILURE_MEMORY:\n{json.dumps(failure_memory, indent=2)[:3000]}\n\n"
-            f"DRAFT_MD:\n{body[:14000]}\n\nEVIDENCE_JSON:\n{bundle.model_dump_json()[:16000]}",
+            "### RECENT_FAILURE_MEMORY\n"
+            f'"""\n{json.dumps(failure_memory, indent=2)[:3000]}\n"""\n\n'
+            "### DRAFT_MD\n"
+            f'"""\n{body[:14000]}\n"""\n\n'
+            "### EVIDENCE_JSON\n"
+            f'"""\n{bundle.model_dump_json()[:16000]}\n"""',
             mode="smart",
             max_tokens=1200,
             task="editor_grounding",

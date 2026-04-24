@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import textwrap
 import unittest
+from unittest.mock import patch
 
 from blogpipe import formats, lint
 from blogpipe.draft import (
     _glossary_terms_from_bundle,
     _polish_body,
     _stub_body,
+    build_prompt,
     explain_undefined_terms,
+    soften_unsupported_numeric_claims,
 )
 from blogpipe.models import AnalystNote, EditorialBrief, EvidenceBundle, Item, Pillar
 
@@ -153,6 +156,43 @@ class DraftPolishTests(unittest.TestCase):
         self.assertNotIn("We model", stub)
         self.assertEqual([], lint.structural_issues(stub))
         self.assertEqual([], lint.unsupported_numeric_claims(stub, self.bundle.model_dump_json()))
+
+    def test_build_prompt_forbids_derived_arithmetic_summaries(self) -> None:
+        system, _user = build_prompt(self.bundle, self.brief, formats.FORMATS["deep_dive"])
+        self.assertIn("Do not invent derived arithmetic summaries", system)
+        self.assertIn("do not turn them into a new unsupported claim", system)
+
+    def test_soften_unsupported_numeric_claims_rewrites_derived_delta(self) -> None:
+        body = (
+            "Takeaway 81.67%.\n\n"
+            "## Why this works\n"
+            "Picking the wrong subset tanks math reasoning scores by up to 6 points.[cite: primary]\n\n"
+            "## Numbers on Qwen3-8B-Base\n"
+            "| Method | Metric | Baseline |\n"
+            "| --- | --- | --- |\n"
+            "| RDP-selected layers | 81.67 MMLU-Math | n/a |\n"
+            "| random 13-layer selection | 75.56 MMLU-Math | n/a |\n"
+        )
+        rewritten = (
+            "Takeaway 81.67%.\n\n"
+            "## Why this works\n"
+            "The reported setup shows 81.67% for RDP-selected layers versus 75.56% for random 13-layer selection.[cite: primary]\n\n"
+            "## Numbers on Qwen3-8B-Base\n"
+            "| Method | Metric | Baseline |\n"
+            "| --- | --- | --- |\n"
+            "| RDP-selected layers | 81.67 MMLU-Math | n/a |\n"
+            "| random 13-layer selection | 75.56 MMLU-Math | n/a |\n"
+        )
+        with (
+            patch("blogpipe.config.llm_configured", return_value=True),
+            patch("blogpipe.config.dry_run", return_value=False),
+            patch("blogpipe.openrouter_client.llm_text", return_value=rewritten),
+        ):
+            out = soften_unsupported_numeric_claims(body, self.bundle.model_dump_json())
+        self.assertNotIn("up to 6 points", out)
+        self.assertIn("81.67%", out)
+        self.assertIn("75.56%", out)
+        self.assertEqual([], lint.unsupported_numeric_claims(out, self.bundle.model_dump_json()))
 
 
 if __name__ == "__main__":

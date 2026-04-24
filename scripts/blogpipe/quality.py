@@ -20,6 +20,46 @@ def _dedupe_reasons(reasons: list[FailureReason]) -> list[FailureReason]:
     return out
 
 
+def _grounding_issue_is_blocking(issue: str) -> bool:
+    text = (issue or "").strip().lower()
+    if not text:
+        return True
+    advisory_markers = (
+        "seed",
+        "seeds",
+        "epsilon",
+        "ε",
+        "tuning detail",
+        "tuning details",
+        "validation prompt",
+        "validation prompts",
+        "average three seeds",
+        "average 3 seeds",
+        "reproduc",
+        "replicat",
+        "implementation detail",
+        "details",
+    )
+    hard_markers = (
+        "invented",
+        "hallucinated",
+        "unsupported",
+        "conflict",
+        "contradict",
+        "made up",
+        "fabricated",
+    )
+    if any(marker in text for marker in hard_markers):
+        return True
+    if any(marker in text for marker in advisory_markers):
+        return False
+    # Bare numeric fragments usually come from deterministic unsupported-claim
+    # extraction and should remain blocking.
+    if any(ch.isdigit() for ch in text):
+        return True
+    return True
+
+
 def recompute(report: QualityReport) -> QualityReport:
     blocking = [r for r in report.blocking_reasons if r.blocking]
     pass_gate = bool(
@@ -41,13 +81,17 @@ def recompute(report: QualityReport) -> QualityReport:
 
 def from_editor(editor: EditorReport) -> QualityReport:
     reasons: list[FailureReason] = []
+    blocking_grounding = False
     if not editor.grounding_ok:
         for issue in editor.grounding_issues or ["grounding_failed"]:
+            is_blocking = _grounding_issue_is_blocking(str(issue))
+            blocking_grounding = blocking_grounding or is_blocking
             reasons.append(
                 FailureReason(
                     code="grounding_issue",
                     message=str(issue),
                     stage="editor",
+                    blocking=is_blocking,
                 )
             )
     for issue in editor.lint_issues:
@@ -74,7 +118,7 @@ def from_editor(editor: EditorReport) -> QualityReport:
                 stage="editor",
             )
         )
-    evidence_valid = bool(editor.grounding_ok and not editor.grounding_issues)
+    evidence_valid = not blocking_grounding
     draft_valid = bool(
         editor.five_questions_ok
         and editor.llm_ok

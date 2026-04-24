@@ -61,6 +61,15 @@ class LintRegressionTests(unittest.TestCase):
         self.assertIn("88%", unsupported)
         self.assertIn("90%", unsupported)
 
+    def test_unsupported_numeric_claims_ignore_reproduction_advice_counts(self) -> None:
+        body = (
+            "Takeaway 81.67%.\n\n"
+            "## Why this works\nThe method reaches 81.67% on the benchmark.\n\n"
+            "## Steal This\nTo try it yourself, run 100 validation prompts and average three seeds.\n"
+        )
+        unsupported = lint.unsupported_numeric_claims(body, "The method reaches 81.67% on the benchmark.")
+        self.assertEqual([], unsupported)
+
     def test_collective_research_voice_is_flagged(self) -> None:
         body = (
             "We introduce a geometry-driven adapter policy that beats the baseline.\n\n"

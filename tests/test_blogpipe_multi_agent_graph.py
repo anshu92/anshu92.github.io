@@ -235,3 +235,39 @@ def test_build_graph_contains_multi_agent_review_nodes() -> None:
         "editor",
     }:
         assert expected in nodes
+
+
+def test_planning_brief_prompt_uses_explicit_schema_and_delimiters(monkeypatch) -> None:
+    from blogpipe.graph.nodes import node_planning_brief
+
+    captured = {}
+
+    def _fake_graph_llm_text(name, system, user, **kwargs):  # noqa: ANN001
+        captured["system"] = system
+        captured["user"] = user
+        return "{}"
+
+    monkeypatch.setenv("BLOGPIPE_DRY_RUN", "0")
+    monkeypatch.setattr("blogpipe.config.llm_configured", lambda: True)
+    monkeypatch.setattr("blogpipe.graph.nodes.gllm.graph_llm_text", _fake_graph_llm_text)
+    node_planning_brief(_state())
+    assert "Exact schema" in captured["system"]
+    assert '### EDITORIAL_BRIEF' in captured["user"]
+    assert '"""' in captured["user"]
+
+
+def test_grounding_prompt_distinguishes_blocking_vs_advisory(monkeypatch) -> None:
+    from blogpipe.graph.critics import grounding_check_node
+
+    captured = {}
+
+    def _fake_graph_llm_text(name, system, user, **kwargs):  # noqa: ANN001
+        captured["system"] = system
+        return '{"unsupported_claims":[]}'
+
+    monkeypatch.setenv("BLOGPIPE_DRY_RUN", "0")
+    monkeypatch.setattr("blogpipe.config.llm_configured", lambda: True)
+    monkeypatch.setattr("blogpipe.graph.critics.gllm.graph_llm_text", _fake_graph_llm_text)
+    grounding_check_node("Takeaway 81.67%.", '{"primary":{"id":"p"}}')
+    assert "Do NOT flag" in captured["system"]
+    assert "derived arithmetic restatements" in captured["system"]

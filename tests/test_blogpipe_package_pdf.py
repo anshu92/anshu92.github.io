@@ -26,6 +26,23 @@ def test_quality_report_from_editor_blocks_grounding_contradictions() -> None:
     assert qrep.overall_status == "blocked"
 
 
+def test_quality_report_from_editor_does_not_block_advisory_grounding_details() -> None:
+    from blogpipe.models import EditorReport
+    from blogpipe.quality import from_editor
+
+    rep = EditorReport(
+        rubric_score=10,
+        five_questions_ok=True,
+        llm_ok=True,
+        grounding_ok=False,
+        grounding_issues=["seed lists", "epsilon tuning details", "average three seeds"],
+    )
+    qrep = from_editor(rep)
+    assert qrep.evidence_valid
+    assert qrep.pass_gate
+    assert qrep.overall_status == "passed"
+
+
 def test_validate_rendered_html_flags_raw_mermaid_and_raw_table() -> None:
     from blogpipe.package import _validate_rendered_html
 

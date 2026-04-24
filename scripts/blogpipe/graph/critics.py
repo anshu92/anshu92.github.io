@@ -109,12 +109,18 @@ def section_critic_llm(
         "no measurable mechanism. opinion_unsupported = I/we opinion not tied to a fact in the section. "
         "no_named_alternatives = tradeoff language but no EVIDENCE-named alternative, only 'traditional "
         "approaches' style vague refs.\n"
+        "Use a fair prompting standard: if the evidence is mixed, prefer the narrowest critique over a broad one.\n"
         'Output JSON only. Example: {"verdict": "ok", "query_hint": ""}\n'
         'Schema: {"verdict": "ok" | "vague" | "no_pov" | "empty_placeholder" | "missing_number" | '
         '"no_tradeoffs" | "no_limits" | "only_marketing_nouns" | "opinion_unsupported" | '
         '"no_named_alternatives", "query_hint": "short search query, or empty"}'
     )
-    user = f"SECTION: ## {title}\n{body[:6000]}\n\nEVIDENCE_EXCERPT:\n{evidence_excerpt[:4000]}\n"
+    user = (
+        "### SECTION\n"
+        f'"""\n## {title}\n{body[:6000]}\n"""\n\n'
+        "### EVIDENCE_EXCERPT\n"
+        f'"""\n{evidence_excerpt[:4000]}\n"""'
+    )
     raw = gllm.graph_llm_text(
         "section_critic", system, user, mode="smart", task="draft_section_critic"
         , temperature=config.verifier_temperature()
@@ -315,12 +321,22 @@ def grounding_check_node(body: str, evidence_text: str) -> tuple[bool, list[str]
         return True, [], False
     raw = gllm.graph_llm_text(
         "grounding",
-        "You compare a blog draft to EVIDENCE JSON. If analyst_notes or contradictions in "
-        "EVIDENCE conflict with a draft claim, flag it. Output JSON only: "
-        '{"unsupported_claims": ["short label", ...]}. Max 10; [] if none.',
+        "You compare a blog draft to EVIDENCE JSON.\n"
+        "Flag only unsupported factual claims that materially conflict with, overstate, or invent evidence.\n"
+        "Do NOT flag:\n"
+        "- author synthesis that is clearly labeled as judgment,\n"
+        "- reproducibility suggestions or implementation sketches that are not presented as paper-reported facts,\n"
+        "- derived arithmetic restatements when the underlying benchmark numbers are cited and the wording does not exaggerate the claim.\n"
+        "Do flag:\n"
+        "- invented metrics or counts,\n"
+        "- unsupported comparative claims,\n"
+        "- contradictions with analyst_notes or contradiction notes,\n"
+        "- setup details stated as factual but absent from evidence.\n"
+        'Output JSON only with this schema: {"unsupported_claims": ["short factual label", ...]}. Max 10.',
         _shrink_for_groq_grounding_user(body, evidence_text),
         mode="smart",
         task="editor_grounding",
+        temperature=config.verifier_temperature(),
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:

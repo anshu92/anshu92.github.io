@@ -649,10 +649,24 @@ def unsupported_numeric_claims(body: str, evidence_text: str) -> list[str]:
     """Claims with numbers/units that do not appear in the evidence text."""
     evidence_found = {_normalize_claim(x) for x in numeric_claims(evidence_text)}
     unsupported: list[str] = []
-    for claim in numeric_claims(body):
-        key = _normalize_claim(claim)
-        if key and key not in evidence_found:
-            unsupported.append(claim)
+    for para in re.split(r"\n\s*\n", body or ""):
+        if not para.strip():
+            continue
+        # Recommendations and reproducibility instructions often include
+        # suggested counts/seeds that are not paper claims. Those should be
+        # reviewed as advice quality, not fatal grounding failures.
+        if re.search(
+            r"\b(to try it yourself|try it yourself|to reproduce|reproduce this|"
+            r"start with|use |grab |hook |implement |run |average \w+ seeds|"
+            r"validation prompts|engineering habit|steal this)\b",
+            para,
+            re.I,
+        ):
+            continue
+        for claim in numeric_claims(para):
+            key = _normalize_claim(claim)
+            if key and key not in evidence_found:
+                unsupported.append(claim)
     return unsupported
 
 

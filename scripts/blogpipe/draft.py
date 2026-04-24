@@ -46,6 +46,21 @@ _DRAFT_STRUCTURAL_REPAIR_SYSTEM = (
     "numbers in EVIDENCE. Output markdown only, no code fences around the whole post."
 )
 
+_DRAFT_GROUNDING_SOFTENER_SYSTEM = (
+    "Revise the full markdown body to remove unsupported numeric claims while keeping the same paper, "
+    "sections, and main thesis. Rules: (1) do not invent any new numbers, thresholds, seeds, or setup "
+    "details, (2) if a sentence uses derived arithmetic like 'up to 6 points' and that exact delta is "
+    "not explicitly in EVIDENCE, rewrite it to cite the underlying benchmark numbers instead, "
+    "(3) if a recommendation includes exact counts like prompts or seeds that are not in EVIDENCE, "
+    "generalize the recommendation rather than fabricating specifics, (4) keep citations or add them "
+    "where needed, (5) output markdown only."
+)
+
+_DERIVED_ARITHMETIC_HINT = re.compile(
+    r"\b(?:up to|about|roughly|nearly|almost|around)\s+\d+(?:\.\d+)?\s+points?\b",
+    re.I,
+)
+
 
 def _slugify(title: str) -> str:
     s = re.sub(r"[^\w\s-]", "", title.lower())
@@ -1001,9 +1016,12 @@ def build_prompt(
         "6. Name failures, assumptions, when not to use the method. Not only the success path.\n"
         "7. Every speed/accuracy/robustness claim needs a number, benchmark, [cite: id], or named "
         "baseline. Layer-role or transfer 'folklore' only if EVIDENCE supports it, else omit.\n"
+        "7b. Do not invent derived arithmetic summaries. If the paper reports 81.67% and 75.56%, you may "
+        "cite both numbers, but do not turn them into a new unsupported claim like 'up to 6 points' unless "
+        "that delta itself appears in EVIDENCE.\n"
         "8. Tight sections: one question per section, no padding.\n"
         "9. Close with a reader action grounded in the paper (repro, ablation, sanity check), not new "
-        "tools or thresholds the paper does not mention.\n"
+        "tools, counts, seeds, or thresholds the paper does not mention.\n"
         "10. Point of view: why the result matters, what would change your mind.\n"
         "11. Define jargon on first use (acronyms expanded once; GLOSSARY is ground truth).\n"
         "12. If VISUAL_PLAN is present, insert those figures and $$...$$ as given; no extra images or "
@@ -1065,6 +1083,49 @@ def build_prompt(
         f"{brief.recent_topics[:5]}\n"
     )
     return system, user
+
+
+def soften_unsupported_numeric_claims(
+    body: str,
+    evidence_text: str,
+) -> str:
+    unsupported = lint.unsupported_numeric_claims(body, evidence_text)
+    derived_hints = list(dict.fromkeys(m.group(0).strip() for m in _DERIVED_ARITHMETIC_HINT.finditer(body or "")))
+    issues = list(dict.fromkeys(unsupported + derived_hints))
+    if not issues:
+        return body
+    if config.dry_run() or not config.llm_configured():
+        return body
+    issue_lines = "\n".join(f"- {x}" for x in issues[:8])
+    revised = openrouter_client.llm_text(
+        _DRAFT_GROUNDING_SOFTENER_SYSTEM,
+        f"UNSUPPORTED_NUMERIC_CLAIMS:\n{issue_lines}\n\nDRAFT_MD:\n{body[:16000]}\n\nEVIDENCE:\n{evidence_text[:16000]}",
+        mode="smart",
+        max_tokens=config.max_tokens_smart(),
+        task="draft_full",
+        temperature=config.verifier_temperature(),
+    )
+    if not revised.strip():
+        return body
+    out = _unwrap_markdown_fence(revised)
+    low = out.lower().strip()
+    if "## " not in out or low.startswith(
+        (
+            "i've identified",
+            "i identified",
+            "here's the revised",
+            "here is the revised",
+            "i replaced",
+            "i removed",
+        )
+    ):
+        return body
+    try:
+        bundle = EvidenceBundle.model_validate_json(evidence_text)
+        out = _resolve_cites(out, bundle)
+    except Exception:
+        pass
+    return out if out.strip() else body
 
 
 def run() -> Path:
@@ -1133,6 +1194,12 @@ def run() -> Path:
         )
         if rewrite.strip() and _looks_like_markdown_body(rewrite):
             body = _polish_body(_unwrap_markdown_fence(rewrite), bundle, brief)
+            struct = lint.structural_issues(body)
+            unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
+    if unsupported:
+        softened = soften_unsupported_numeric_claims(body, bundle.model_dump_json())
+        if softened != body:
+            body = _polish_body(softened, bundle, brief)
             struct = lint.structural_issues(body)
             unsupported = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
     post_slug = _slugify(bundle.primary.title)
