@@ -493,51 +493,7 @@ def _fallback_benchmark_rows(bundle: EvidenceBundle) -> list[tuple[str, str, str
     paper_rows = _paper_result_rows(bundle)
     if paper_rows:
         return paper_rows[:4]
-    abstract = bundle.primary.abstract
-    pct_hits = re.findall(r"([^()]{3,120}?)\s*\((\d+(?:\.\d+)?)%\)", abstract)
-    if pct_hits:
-        cleaned = []
-        for name, value in pct_hits[:4]:
-            method = _clean_fallback_row_name(name)
-            cleaned.append((method[:80], f"{value}%", "from abstract"))
-        return cleaned[:4]
-    size_match = re.search(
-        r"(\d+(?:\.\d+)?M\s*-\s*\d+(?:\.\d+)?M)\s+parameters", abstract, re.I
-    )
-    edge_match = re.search(
-        r"(\d+(?:\.\d+)?M\s*-\s*\d+(?:\.\d+)?B)\s+parameter", abstract, re.I
-    )
-    words_match = re.search(r"first\s+(\d+\s*-\s*\d+)\s+words", abstract, re.I)
-    comp_match = re.search(
-        r"matching several\s+(\d+(?:\.\d+)?M\s*-\s*\d+(?:\.\d+)?M-class)",
-        abstract,
-        re.I,
-    )
-    if size_match:
-        rows.append(
-            (
-                "micro language models",
-                f"{size_match.group(1).replace(' ', '')} parameters",
-                edge_match.group(1).replace(" ", "") if edge_match else "larger edge models",
-            )
-        )
-    if words_match:
-        rows.append(
-            (
-                "on-device opener",
-                f"{words_match.group(1).replace(' ', '')} words",
-                "cloud continuation",
-            )
-        )
-    if comp_match:
-        rows.append(
-            (
-                "comparable existing models",
-                comp_match.group(1).replace(" ", ""),
-                "existing models",
-            )
-        )
-    return rows[:4]
+    return []
 
 
 def _render_results_table(rows: list[tuple[str, str, str]]) -> str:
@@ -549,14 +505,16 @@ def _render_results_table(rows: list[tuple[str, str, str]]) -> str:
 
 def _repair_or_inject_results_table(body: str, bundle: EvidenceBundle) -> str:
     rows = _fallback_benchmark_rows(bundle)
-    if not rows:
-        return body
-    table = _render_results_table(rows)
     evidence_text = bundle.model_dump_json()
     table_block = re.compile(
         r"(?ms)^\s*\|[^\n]*\bMethod\b[^\n]*\|\n^\s*\|(?:[-: ]+\|)+\n(?:^\s*\|.*\|\n?)+"
     )
     match = table_block.search(body)
+    if not rows:
+        if match:
+            return body[: match.start()] + body[match.end() :]
+        return body
+    table = _render_results_table(rows)
     if match:
         table_text = match.group(0)
         if lint.unsupported_numeric_claims(table_text, evidence_text):
@@ -1065,8 +1023,9 @@ def build_prompt(
         + ".\n"
         "- One ```mermaid``` block: mechanism, flow, or comparison. Rewrite if the diagram still "
         "needs a paragraph to read.\n"
-        "- One | Method | Metric | Baseline | table; prose and table must match. Use only BENCHMARK "
-        "values from EVIDENCE; if only ranges exist, use those—no invented scores.\n"
+        "- Use a | Method | Metric | Baseline | table only when EVIDENCE contains verified benchmark "
+        "rows or explicit paper-experiment results. If EVIDENCE lacks clean benchmark rows, do not invent "
+        "a table, benchmark name, baseline, or score.\n"
         "- Use SECTION_EVIDENCE / paper_* and ENRICHMENT URLs for claims; no invented sources. "
         "Synthesize; do not abstract-copy. Primary topic only; no reader questions, no topic drift.\n"
         "- Gaps in setup/repro: say so. No invented hardware, teams, or anecdotes. Name what was "

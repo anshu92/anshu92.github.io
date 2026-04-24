@@ -8,6 +8,7 @@ from blogpipe import formats, lint
 from blogpipe.draft import (
     _glossary_terms_from_bundle,
     _polish_body,
+    _repair_or_inject_results_table,
     _stub_body,
     build_prompt,
     explain_undefined_terms,
@@ -209,6 +210,30 @@ class DraftPolishTests(unittest.TestCase):
         self.assertIn("## What I would test next", polished)
         self.assertNotIn("game-changer", polished.lower())
         self.assertNotIn("real-world scenarios", polished.lower())
+
+    def test_repair_or_inject_results_table_requires_verified_benchmark_rows(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Why this works\nMechanism. [cite: primary]\n\n"
+            "```mermaid\nflowchart LR\nA --> B\n```\n"
+        )
+        bundle = self.bundle.model_copy(update={"benchmarks": []})
+        bundle.section_evidence["paper_experiments"] = ""
+        repaired = _repair_or_inject_results_table(body, bundle)
+        self.assertNotIn("| Method | Metric | Baseline |", repaired)
+
+    def test_repair_or_inject_results_table_removes_unsupported_fake_table_when_no_verified_rows(self) -> None:
+        body = (
+            "Takeaway 1.0%.\n\n"
+            "## Why this works\nMechanism. [cite: primary]\n\n"
+            "| Method | Metric | Baseline |\n"
+            "| --- | --- | --- |\n"
+            "| UniT | 85% | baseline 60% |\n"
+        )
+        bundle = self.bundle.model_copy(update={"benchmarks": []})
+        bundle.section_evidence["paper_experiments"] = ""
+        repaired = _repair_or_inject_results_table(body, bundle)
+        self.assertNotIn("| Method | Metric | Baseline |", repaired)
 
 
 if __name__ == "__main__":
