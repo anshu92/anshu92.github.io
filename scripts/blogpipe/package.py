@@ -273,6 +273,36 @@ def _render_full_html(front: dict, body: str) -> tuple[str | None, list[str], li
     return full_html, errors, warnings, flags
 
 
+def _prepend_review_banner(
+    html_text: str,
+    *,
+    heading: str,
+    message: str,
+    quality_report: QualityReport | None = None,
+    benchmark_report: dict | None = None,
+) -> str:
+    banner_parts = [
+        '<section class="review-banner" style="border:2px solid #b91c1c;background:#fef2f2;padding:1rem;margin-bottom:1.25rem;">',
+        f"<h2 style='margin:0 0 0.5rem 0;color:#991b1b;'>{html.escape(heading)}</h2>",
+        f"<p style='margin:0.25rem 0 0.75rem 0;'>{html.escape(message)}</p>",
+    ]
+    if quality_report is not None:
+        banner_parts.append(f"<h3 style='margin:0.75rem 0 0.5rem 0;'>Quality Contracts</h3>{_render_contract_summary(quality_report)}")
+        if quality_report.blocking_reasons:
+            banner_parts.append("<h3 style='margin:0.75rem 0 0.5rem 0;'>Blocking reasons</h3><ul>")
+            for reason in quality_report.blocking_reasons:
+                banner_parts.append(
+                    f"<li><strong>{html.escape(reason.stage or 'quality')}:</strong> "
+                    f"{html.escape(_humanize_reason(reason))}</li>"
+                )
+            banner_parts.append("</ul>")
+    if benchmark_report:
+        banner_parts.append(f"<h3 style='margin:0.75rem 0 0.5rem 0;'>Benchmark Harness</h3>{_render_benchmark_summary(benchmark_report)}")
+    banner_parts.append("</section>")
+    banner = "".join(banner_parts)
+    return html_text.replace("<article>", f"<article>{banner}", 1) if "<article>" in html_text else banner + html_text
+
+
 def _render_pdf_from_html(html_path: Path, pdf_path: Path) -> ArtifactResult:
     wk = shutil.which("wkhtmltopdf")
     if not wk:
@@ -386,6 +416,68 @@ def _write_failure_notice_pdf(
         ok=False,
         artifact_path=str(pdf_path),
         errors=["blocked_notice_pdf_failed"],
+    )
+
+
+def write_rejected_draft_pdf(
+    *,
+    quality_report: QualityReport,
+    benchmark_report: dict,
+) -> RenderReport:
+    rep = _ROOT / "reports"
+    dpath = (rep / "draft_path.txt").read_text().strip() if (rep / "draft_path.txt").is_file() else ""
+    if not dpath:
+        return RenderReport(errors=["draft_path_missing"])
+    draft_file = _ROOT / dpath
+    if not draft_file.is_file():
+        return RenderReport(errors=["draft_file_missing"])
+    front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
+    full_html, errors, warnings, flags = _render_full_html(front, body)
+    html_artifact = ArtifactResult(
+        artifact_type="rejected_html",
+        ok=False,
+        artifact_path=str(rep / "draft_post_rejected.html"),
+    )
+    pdf_artifact = ArtifactResult(
+        artifact_type="rejected_pdf",
+        ok=False,
+        artifact_path=str(rep / "draft_post_rejected.pdf"),
+    )
+    if full_html is None:
+        return RenderReport(
+            html_valid=False,
+            pdf_valid=False,
+            errors=errors,
+            warnings=warnings,
+            artifacts=[html_artifact, pdf_artifact],
+            **flags,
+        )
+    rejected_html = _prepend_review_banner(
+        full_html,
+        heading="Rejected draft review copy",
+        message="This draft failed the quality gate. The full draft is attached below for review, but it must not be published without addressing the blocking issues.",
+        quality_report=quality_report,
+        benchmark_report=benchmark_report,
+    )
+    html_path = rep / "draft_post_rejected.html"
+    html_path.write_text(rejected_html, encoding="utf-8")
+    html_artifact = ArtifactResult(
+        artifact_type="rejected_html",
+        ok=True,
+        artifact_path=str(html_path),
+        errors=list(errors),
+        warnings=list(warnings),
+    )
+    pdf_path = rep / "draft_post_rejected.pdf"
+    _remove_if_exists(pdf_path)
+    pdf_artifact = _render_pdf_from_html(html_path, pdf_path)
+    return RenderReport(
+        html_valid=True,
+        pdf_valid=pdf_artifact.ok,
+        errors=list(errors) + list(pdf_artifact.errors),
+        warnings=warnings + pdf_artifact.warnings,
+        artifacts=[html_artifact, pdf_artifact],
+        **flags,
     )
 
 
@@ -633,17 +725,25 @@ def run() -> dict:
                 artifact_paths[artifact.artifact_type] = artifact.artifact_path
     else:
         package_errors.append("prepackage_quality_blocked")
-        blocked_notice = _write_failure_notice_pdf(
-            rep / "draft_post_blocked_notice.pdf",
-            "Draft packaging was blocked because the quality contracts did not pass. See quality_report.json.",
+        rejected_render = write_rejected_draft_pdf(
             quality_report=qrep,
             benchmark_report=benchmark_report,
         )
-        if blocked_notice.ok and blocked_notice.artifact_path:
-            artifact_paths["blocked_notice_pdf"] = blocked_notice.artifact_path
-        blocked_notice_html = rep / "draft_post_blocked_notice.html"
-        if blocked_notice_html.is_file():
-            artifact_paths["blocked_notice_html"] = str(blocked_notice_html)
+        for artifact in rejected_render.artifacts:
+            if artifact.ok and artifact.artifact_path:
+                artifact_paths[artifact.artifact_type] = artifact.artifact_path
+        if not any(a.ok and a.artifact_type == "rejected_pdf" for a in rejected_render.artifacts):
+            blocked_notice = _write_failure_notice_pdf(
+                rep / "draft_post_blocked_notice.pdf",
+                "Draft packaging was blocked because the quality contracts did not pass. See quality_report.json.",
+                quality_report=qrep,
+                benchmark_report=benchmark_report,
+            )
+            if blocked_notice.ok and blocked_notice.artifact_path:
+                artifact_paths["blocked_notice_pdf"] = blocked_notice.artifact_path
+            blocked_notice_html = rep / "draft_post_blocked_notice.html"
+            if blocked_notice_html.is_file():
+                artifact_paths["blocked_notice_html"] = str(blocked_notice_html)
 
     package_valid = bool(qrep.pass_gate and render_report.ok and out.parent.exists())
     merged = quality.with_render(

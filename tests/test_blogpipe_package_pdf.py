@@ -43,10 +43,39 @@ def test_validate_rendered_html_flags_raw_mermaid_and_raw_table() -> None:
 
 def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_path: Path, monkeypatch) -> None:
     from blogpipe import package
+    from blogpipe.models import ArtifactResult
     from blogpipe.models import EditorReport
     from blogpipe.quality import from_editor, save
 
     monkeypatch.setattr(package, "_ROOT", tmp_path)
+    monkeypatch.setattr(
+        package,
+        "_render_full_html",
+        lambda front, body: (
+            f"<html><body><article><h1>{front.get('title', '')}</h1><p>{body}</p></article></body></html>",
+            [],
+            [],
+            {
+                "mermaid_rendered": True,
+                "tables_rendered": True,
+                "images_resolved": True,
+                "captions_ok": True,
+                "density_ok": True,
+            },
+        ),
+    )
+    monkeypatch.setattr(
+        package,
+        "_render_pdf_from_html",
+        lambda html_path, pdf_path: (
+            pdf_path.write_bytes(b"%PDF-1.4 rejected draft"),
+            ArtifactResult(
+                artifact_type="pdf" if pdf_path.name == "draft_post.pdf" else "rejected_pdf",
+                ok=True,
+                artifact_path=str(pdf_path),
+            ),
+        )[1],
+    )
     reports = tmp_path / "reports"
     content = tmp_path / "content" / "post"
     reports.mkdir(parents=True)
@@ -116,9 +145,9 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
     payload = json.loads((reports / "package_result.json").read_text(encoding="utf-8"))
     assert payload["ok"] is False
     assert (reports / "daily_email.html").is_file()
-    assert (reports / "draft_post_blocked_notice.html").is_file()
+    assert (reports / "draft_post_rejected.html").is_file()
     email_html = (reports / "daily_email.html").read_text(encoding="utf-8")
-    blocked_html = (reports / "draft_post_blocked_notice.html").read_text(encoding="utf-8")
+    rejected_html = (reports / "draft_post_rejected.html").read_text(encoding="utf-8")
     assert "Draft excerpt withheld" in email_html
     assert "Body." not in email_html
     assert "render_valid</th><td>not attempted" in email_html
@@ -126,9 +155,11 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
     assert "Unsupported claim" in email_html
     assert "Benchmark Harness" in email_html
     assert "blocked_render_raw_mermaid" in email_html
-    assert "Quality Contracts" in blocked_html
-    assert "Benchmark Harness" in blocked_html
-    assert "blocked_render_raw_mermaid" in blocked_html
+    assert "Quality Contracts" in rejected_html
+    assert "Benchmark Harness" in rejected_html
+    assert "blocked_render_raw_mermaid" in rejected_html
+    assert "Rejected draft review copy" in rejected_html
+    assert "Body." in rejected_html
 
 
 def test_write_draft_print_pdf_requires_rendered_mermaid(monkeypatch, tmp_path: Path) -> None:

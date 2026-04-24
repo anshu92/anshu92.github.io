@@ -235,6 +235,8 @@ jobs:
           ATTACHMENTS=""
           if [ -f reports/draft_post.pdf ]; then
             ATTACHMENTS="${GITHUB_WORKSPACE}/reports/draft_post.pdf"
+          elif [ -f reports/draft_post_rejected.pdf ]; then
+            ATTACHMENTS="${GITHUB_WORKSPACE}/reports/draft_post_rejected.pdf"
           elif [ -f reports/draft_post_blocked_notice.pdf ]; then
             ATTACHMENTS="${GITHUB_WORKSPACE}/reports/draft_post_blocked_notice.pdf"
           fi

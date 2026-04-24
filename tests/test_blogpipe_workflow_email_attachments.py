@@ -12,5 +12,6 @@ def test_daily_workflow_attaches_blocked_notice_pdf_when_draft_pdf_missing() -> 
     ).read_text(encoding="utf-8")
 
     assert "Compute email attachments" in workflow
+    assert "reports/draft_post_rejected.pdf" in workflow
     assert "reports/draft_post_blocked_notice.pdf" in workflow
     assert "steps.mail_attachments.outputs.attachments" in workflow
