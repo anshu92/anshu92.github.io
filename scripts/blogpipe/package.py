@@ -14,7 +14,7 @@ from pathlib import Path
 
 from . import quality, visuals
 from .memory import _ROOT
-from .models import ArtifactResult, EditorReport, QualityReport, RenderReport
+from .models import ArtifactResult, EditorReport, FailureReason, QualityReport, RenderReport
 
 LOG = logging.getLogger(__name__)
 
@@ -60,6 +60,35 @@ def _opening_prose(body: str) -> str:
 def _compact(text: str, limit: int = 320) -> str:
     out = " ".join(text.split())
     return out[:limit].rstrip() + ("..." if len(out) > limit else "")
+
+
+_REASON_LABELS = {
+    "grounding_issue": "Unsupported claim",
+    "render_error": "Render blocked",
+    "package_error": "Packaging blocked",
+    "prepackage_quality_blocked": "Packaging was intentionally skipped because the quality gate failed.",
+    "package_skipped_due_to_quality_gate": "Render checks were not attempted because the draft was already blocked.",
+    "takeaway_lacks_number": "The opening takeaway does not include a concrete number.",
+    "generic_heading_used": "The draft still uses generic section headings.",
+    "templated_heading_used": "The draft still uses factory-style template headings.",
+    "citation_count_below_min": "The draft does not include enough citations for review.",
+    "comparative_claim_missing_metric": "A comparative claim is missing a named metric or comparison target.",
+    "missing_mechanism_section": "The draft does not clearly explain how the method works.",
+    "missing_decision_section": "The draft does not help the reader decide when to use the method.",
+    "advice_without_traceability": "Advice is present without support from evidence or explicit author synthesis.",
+}
+
+
+def _humanize_reason(reason: FailureReason) -> str:
+    code = (reason.code or "").strip()
+    if code.startswith("lint:"):
+        code = code.split(":", 1)[1]
+    label = _REASON_LABELS.get(code)
+    if label:
+        return label
+    if reason.message and reason.message != reason.code:
+        return reason.message
+    return code.replace("_", " ").strip().capitalize() or "Quality issue"
 
 
 def _rubric_rows(items: list[dict]) -> list[str]:
@@ -380,8 +409,8 @@ def _render_contract_summary(qrep: QualityReport) -> str:
     rows = [
         ("evidence_valid", qrep.evidence_valid),
         ("draft_valid", qrep.draft_valid),
-        ("render_valid", qrep.render_valid if qrep.render_checked else "pending"),
-        ("package_valid", qrep.package_valid if qrep.package_checked else "pending"),
+        ("render_valid", qrep.render_valid if qrep.render_checked else "not attempted"),
+        ("package_valid", qrep.package_valid if qrep.package_checked else "not attempted"),
         ("overall_status", qrep.overall_status),
         ("pass_gate", qrep.pass_gate),
     ]
@@ -410,8 +439,9 @@ def _build_daily_email(
     )
     title = front.get("title") or Path(draft_rel).stem
     takeaway = front.get("one_sentence_takeaway") or ""
-    sections = _h2_sections(body, limit=2)
-    opening = _compact(_opening_prose(body), 700)
+    show_draft_excerpt = bool(quality_report.pass_gate)
+    sections = _h2_sections(body, limit=2) if show_draft_excerpt else []
+    opening = _compact(_opening_prose(body), 700) if show_draft_excerpt else ""
     lead_heading = sections[0][0] if sections else ""
     lead_body = _compact(sections[0][1], 700) if sections else ""
     second_heading = sections[1][0] if len(sections) > 1 else ""
@@ -435,9 +465,7 @@ def _build_daily_email(
         for reason in quality_report.blocking_reasons:
             lines.append(
                 f"<li><strong>{html.escape(reason.stage or 'quality')}:</strong> "
-                f"{html.escape(reason.code)}"
-                + (f" — {html.escape(reason.message)}" if reason.message else "")
-                + "</li>"
+                f"{html.escape(_humanize_reason(reason))}</li>"
             )
         lines.append("</ul>")
     if title:
@@ -446,6 +474,11 @@ def _build_daily_email(
         lines.append(f"<p><strong>Takeaway:</strong> {html.escape(_compact(str(takeaway), 320))}</p>")
     if draft_rel:
         lines.append(f"<p><strong>Draft file:</strong> <code>{html.escape(draft_rel)}</code></p>")
+    if not show_draft_excerpt and quality_report.overall_status == "blocked":
+        lines.append(
+            "<p><strong>Draft excerpt withheld:</strong> the system blocked this run before packaging, "
+            "so the review artifact only includes summary signals and blocking reasons.</p>"
+        )
     if opening:
         lines.append(f"<p>{html.escape(opening)}</p>")
     if lead_heading:
@@ -505,7 +538,12 @@ def run() -> dict:
         if draft_file.is_file():
             front, body = _split_frontmatter(draft_file.read_text(encoding="utf-8"))
 
-    render_report = RenderReport(errors=["package_skipped_due_to_quality_gate"])
+    render_report = RenderReport(
+        html_valid=False,
+        pdf_valid=False,
+        errors=[],
+        warnings=["package_skipped_due_to_quality_gate"],
+    )
     package_errors: list[str] = []
     artifact_paths: dict[str, str] = {"daily_email_html": str(out)}
     draft_pdf = rep / "draft_post.pdf"
@@ -530,6 +568,8 @@ def run() -> dict:
         qrep,
         render_report,
         package_valid=package_valid,
+        render_checked=bool(qrep.pass_gate and body),
+        package_checked=bool(qrep.pass_gate and body),
         artifact_paths=artifact_paths,
         package_errors=package_errors,
     )
@@ -548,6 +588,8 @@ def run() -> dict:
         qrep,
         render_report,
         package_valid=package_valid and out.is_file(),
+        render_checked=bool(qrep.pass_gate and body),
+        package_checked=bool(qrep.pass_gate and body),
         artifact_paths={**artifact_paths, "daily_email_html": str(out)},
         package_errors=package_errors,
     )

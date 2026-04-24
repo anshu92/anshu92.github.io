@@ -94,6 +94,12 @@ def test_package_run_blocks_and_removes_success_pdf_name_when_quality_fails(tmp_
     payload = json.loads((reports / "package_result.json").read_text(encoding="utf-8"))
     assert payload["ok"] is False
     assert (reports / "daily_email.html").is_file()
+    email_html = (reports / "daily_email.html").read_text(encoding="utf-8")
+    assert "Draft excerpt withheld" in email_html
+    assert "Body." not in email_html
+    assert "render_valid</th><td>not attempted" in email_html
+    assert "package_valid</th><td>not attempted" in email_html
+    assert "Unsupported claim" in email_html
 
 
 def test_write_draft_print_pdf_requires_rendered_mermaid(monkeypatch, tmp_path: Path) -> None:

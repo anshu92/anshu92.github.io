@@ -101,6 +101,8 @@ def with_render(
     render_report: RenderReport,
     *,
     package_valid: bool,
+    render_checked: bool = True,
+    package_checked: bool = True,
     artifact_paths: dict[str, str] | None = None,
     package_errors: list[str] | None = None,
 ) -> QualityReport:
@@ -118,10 +120,10 @@ def with_render(
     return recompute(
         report.model_copy(
             update={
-                "render_checked": True,
-                "package_checked": True,
-                "render_valid": render_report.ok,
-                "package_valid": bool(package_valid),
+                "render_checked": bool(render_checked),
+                "package_checked": bool(package_checked),
+                "render_valid": render_report.ok if render_checked else False,
+                "package_valid": bool(package_valid) if package_checked else False,
                 "render_report": render_report,
                 "artifact_paths": merged_paths,
                 "blocking_reasons": reasons,
