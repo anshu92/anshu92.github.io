@@ -126,7 +126,12 @@ def run_partial(stop_after: str) -> dict[str, Any]:
         ("harvest", nodes.node_harvest),
         ("rank", nodes.node_rank),
         ("research", _research),
+        ("planning_brief", nodes.node_planning_brief),
         ("draft", nodes.node_draft_refine),
+        ("adversary_review", nodes.node_adversary_review),
+        ("evidence_verifier", nodes.node_evidence_verifier),
+        ("render_reviewer", nodes.node_render_reviewer),
+        ("meta_review", nodes.node_meta_review),
         ("edit", nodes.node_editor),
     ]
     s: dict[str, Any] = {}

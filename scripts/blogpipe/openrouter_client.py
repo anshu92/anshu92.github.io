@@ -89,6 +89,7 @@ def llm_text(
     mode: str = "fast",
     max_tokens: Optional[int] = None,
     task: Optional[str] = None,
+    temperature: float = 0.4,
 ) -> str:
     """If ``BLOGPIPE_MODEL`` / ``BLOGPIPE_EDITOR_MODEL`` or ``model=`` is set, try that on OpenRouter first, then task registry (``task=``) or the evr chain."""
     from . import llm_chain
@@ -118,7 +119,7 @@ def llm_text(
         m_arg = config.editor_model().strip()
 
     if m_arg and config.openrouter_key():
-        out = chat_completion(m_arg, messages, max_tokens=max_tokens)
+        out = chat_completion(m_arg, messages, temperature=temperature, max_tokens=max_tokens)
         if out.strip():
             return out
         LOG.warning("explicit model %s returned empty; trying provider chain", m_arg)
@@ -131,7 +132,7 @@ def llm_text(
         return chat_with_task_chain(
             messages,
             task or "",
-            temperature=0.4,
+            temperature=temperature,
             max_tokens=max_tokens or 1536,
         )
 
@@ -143,7 +144,7 @@ def llm_text(
     return chat_with_chain(
         messages,
         "smart" if mode == "smart" else "fast",
-        temperature=0.4,
+        temperature=temperature,
         max_tokens=max_tokens,
     )
 

@@ -19,6 +19,7 @@ def graph_llm_text(
     mode: str = "fast",
     max_tokens: Optional[int] = None,
     task: Optional[str] = None,
+    temperature: float = 0.4,
 ) -> str:
     """Optional tag for dry-run canned paths; delegates to openrouter_client.llm_text."""
     if config.dry_run():
@@ -37,7 +38,7 @@ def graph_llm_text(
                 else config.max_tokens_fast()
             )
     return openrouter_client.llm_text(
-        system, user, mode=mode, max_tokens=max_tokens, task=task
+        system, user, mode=mode, max_tokens=max_tokens, task=task, temperature=temperature
     )
 
 
@@ -54,6 +55,31 @@ def _dry_stub(tag: str, system: str, user: str) -> str:
         return '{"unsupported_claims": []}'
     if "critic" in t or "section" in t:
         return '{"verdict": "ok", "query_hint": ""}'
+    if "plan" in t:
+        return (
+            '{"mandatory_claims":["name the main metric with baseline"],'
+            '"mandatory_sections":["why this works","when to use it"],'
+            '"required_visuals":["one mechanism diagram"],'
+            '"likely_failures":["invented metrics","generic headings"],'
+            '"reviewer_focus":["evidence grounding","decision usefulness"]}'
+        )
+    if "adversary" in t:
+        return (
+            '{"role":"adversary","pass_review":false,'
+            '"findings":["Stress-test unsupported advice and vague comparative claims."],'
+            '"rewrite_targets":["make tradeoffs explicit"],'
+            '"summary":"Adversarial review requests stronger tradeoff language."}'
+        )
+    if "verify" in t or "verifier" in t:
+        return (
+            '{"role":"evidence_verifier","pass_review":true,'
+            '"findings":[],"rewrite_targets":[],"summary":"Evidence review found no unsupported claims."}'
+        )
+    if "meta" in t:
+        return (
+            '{"role":"meta_reviewer","pass_review":true,'
+            '"findings":[],"rewrite_targets":[],"summary":"Meta review accepts the draft."}'
+        )
     if "rewrite" in t or "revise" in t:
         return "## Section\n\nDry-run rewrite body with [cite: primary].\n"
     if "outline" in t:

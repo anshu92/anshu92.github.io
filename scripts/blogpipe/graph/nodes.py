@@ -26,7 +26,7 @@ from ..draft import (
 )
 from ..llm_chain import budget, get_llm_usage, is_llm_call_cap_reached
 from ..memory import _ROOT
-from ..models import EvidenceBundle
+from ..models import EvidenceBundle, PlanningBrief, ReviewNote
 from . import llm as gllm
 from . import supervisor as sup
 from .critics import (
@@ -48,6 +48,125 @@ LOG = logging.getLogger(__name__)
 
 _MAX_RESEARCH_WINGS = 2
 _MAX_REWRITES = 2
+
+
+def _json_obj(text: str) -> dict[str, Any]:
+    m = re.search(r"\{[\s\S]*\}", text or "")
+    if not m:
+        return {}
+    try:
+        return json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return {}
+
+
+def _fallback_planning_brief(bundle: EvidenceBundle) -> PlanningBrief:
+    method = (bundle.section_evidence.get("paper_method") or "").strip()
+    experiments = (bundle.section_evidence.get("paper_experiments") or "").strip()
+    failures = list(bundle.contradiction_notes[:2])
+    if not failures:
+        failures = ["invented metrics", "generic structure"]
+    claims: list[str] = []
+    if experiments:
+        claims.append(experiments[:220])
+    if method:
+        claims.append(method[:220])
+    return PlanningBrief(
+        mandatory_claims=claims[:3],
+        mandatory_sections=["why this works", "what would falsify this", "when to use it"],
+        required_visuals=["one mechanism diagram"],
+        likely_failures=failures[:3],
+        preventive_checks=["verify numeric claims against evidence", "confirm mermaid and table render cleanly"],
+        backup_remedies=["drop unsupported metrics", "replace broken visuals with summary-only output"],
+        reviewer_focus=["evidence grounding", "tradeoffs", "decision usefulness"],
+    )
+
+
+def _parse_planning_brief(raw: str, bundle: EvidenceBundle) -> PlanningBrief:
+    d = _json_obj(raw)
+    if not d:
+        return _fallback_planning_brief(bundle)
+    try:
+        return PlanningBrief.model_validate(d)
+    except Exception:
+        return _fallback_planning_brief(bundle)
+
+
+def _failure_memory_snapshot() -> list[dict[str, Any]]:
+    data = memory.load_json("failure_memory.json", [])
+    if not isinstance(data, list):
+        return []
+    return [x for x in data if isinstance(x, dict)][-config.failure_memory_limit():]
+
+
+def _record_failure_memory(state: dict[str, Any]) -> None:
+    qd = state.get("quality_report") or {}
+    reasons = qd.get("blocking_reasons") or []
+    if not isinstance(reasons, list) or not reasons:
+        return
+    codes: list[str] = []
+    for reason in reasons:
+        if not isinstance(reason, dict):
+            continue
+        code = str(reason.get("code") or "").strip()
+        stage = str(reason.get("stage") or "").strip()
+        if code:
+            codes.append(f"{stage}:{code}" if stage else code)
+    item = {
+        "title": ((state.get("primary") or {}).get("title") if isinstance(state.get("primary"), dict) else "") or "",
+        "overall_status": str(qd.get("overall_status") or ""),
+        "codes": codes[:10],
+    }
+    memory.append_json_list(
+        "failure_memory.json",
+        item,
+        limit=config.failure_memory_limit(),
+    )
+
+
+def _parse_review_note(raw: str, *, role: str, fallback_findings: list[str]) -> ReviewNote:
+    d = _json_obj(raw)
+    if d:
+        d.setdefault("role", role)
+        try:
+            return ReviewNote.model_validate(d)
+        except Exception:
+            pass
+    return ReviewNote(
+        role=role,
+        pass_review=not bool(fallback_findings),
+        findings=list(fallback_findings),
+        rewrite_targets=[],
+        summary=(fallback_findings[0] if fallback_findings else f"{role} found no blocking issues."),
+    )
+
+
+def _rewrite_full_body(body: str, bundle: EvidenceBundle, planning: PlanningBrief, note: ReviewNote) -> str:
+    if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
+        return body
+    system = (
+        "Revise the full markdown draft for a technical blog. Keep the same paper and headings where possible. "
+        "Address the review findings directly. Preserve citations and mermaid/table structure. "
+        "Add concrete tradeoffs, evidence-backed claims, and practitioner guidance where missing. "
+        "Output markdown only."
+    )
+    user = (
+        f"PLANNING_BRIEF:\n{planning.model_dump_json(indent=2)}\n\n"
+        f"REVIEW_NOTE:\n{note.model_dump_json(indent=2)}\n\n"
+        f"EVIDENCE_JSON:\n{bundle.model_dump_json()[:18000]}\n\n"
+        f"DRAFT_MD:\n{body[:20000]}"
+    )
+    out = gllm.graph_llm_text(
+        f"rewrite_full_{note.role}",
+        system,
+        user,
+        mode="smart",
+        max_tokens=config.max_tokens_smart(),
+        task="draft_full",
+    )
+    if out.strip():
+        return _unwrap_markdown_fence(out)
+    return body
 
 
 def _slugify(title: str) -> str:
@@ -182,6 +301,42 @@ def _re_search_snippet(
     )
 
 
+def node_planning_brief(state: dict[str, Any]) -> dict[str, Any]:
+    """Create an explicit pre-draft plan for required claims, sections, and likely failure modes."""
+    bundle = evidence_model(state["evidence"])
+    brief = brief_model(state["brief"])
+    failure_memory = _failure_memory_snapshot()
+    if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
+        plan = _fallback_planning_brief(bundle)
+    else:
+        system = (
+            "You are a planning agent for a technical blog pipeline. Create a structured brief before writing. "
+            "Focus on: mandatory claims with numbers or baselines, mandatory section intents, required visuals, "
+            "likely failure modes, preventive checks before writing, backup remedies if a failure occurs, "
+            "and reviewer focus areas. Output JSON only."
+        )
+        user = (
+            f"EDITORIAL_BRIEF:\n{brief.model_dump_json(indent=2)}\n\n"
+            f"EVIDENCE_JSON:\n{bundle.model_dump_json()[:18000]}\n\n"
+            f"RECENT_FAILURE_MEMORY:\n{json.dumps(failure_memory, indent=2)[:4000]}"
+        )
+        raw = gllm.graph_llm_text(
+            "planning_brief",
+            system,
+            user,
+            mode="smart",
+            max_tokens=1600,
+            task="supervisor_route",
+            temperature=config.verifier_temperature(),
+        )
+        plan = _parse_planning_brief(raw, bundle)
+    return {
+        "planning_brief": plan.model_dump(),
+        "_done_planning": True,
+        "supervisor_decisions": sup.log_decision(state, "planning_brief"),
+    }
+
+
 def node_draft_refine(state: dict[str, Any]) -> dict[str, Any]:
     """One-shot draft via build_prompt, then per-section critic + optional re-search/rewrite."""
     with budget.stage("draft"):
@@ -192,6 +347,7 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
     memory.ensure_dirs()
     bundle = evidence_model(state["evidence"])
     brief = brief_model(state["brief"])
+    planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
     fmt = formats.FORMATS.get(brief.format_name) or formats.FORMATS["deep_dive"]
     rewrites = 0
     re_re = 0
@@ -219,6 +375,11 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
         }
 
     system, user = build_prompt(bundle, brief, fmt)
+    if planning.model_fields_set:
+        user += (
+            "\n\nPLANNING_BRIEF (must satisfy this before stopping):\n"
+            + planning.model_dump_json(indent=2)
+        )
     body = gllm.graph_llm_text(
         "full_draft",
         system,
@@ -375,6 +536,169 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def node_adversary_review(state: dict[str, Any]) -> dict[str, Any]:
+    """Adversarial reviewer: stress-test tradeoffs, falsifiers, and advice sections."""
+    body = state.get("body") or ""
+    bundle = evidence_model(state["evidence"])
+    planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
+    failure_memory = _failure_memory_snapshot()
+    findings: list[str] = []
+    lint_issues = lint.structural_issues(body, bundle)
+    for key in ("no_tradeoffs_paragraph", "missing_decision_section", "advice_without_traceability"):
+        if key in lint_issues:
+            findings.append(key)
+    if "What Would Falsify This" not in body and "falsify" not in body.lower():
+        findings.append("missing_falsifier_language")
+    if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
+        note = _parse_review_note("", role="adversary", fallback_findings=findings)
+    else:
+        raw = gllm.graph_llm_text(
+            "adversary_review",
+            (
+                "You are an adversarial reviewer for a technical blog. Find weak tradeoffs, unsupported advice, "
+                "missing falsifiers, and vague 'why it matters' sections. Output JSON only."
+            ),
+            (
+                f"PLANNING_BRIEF:\n{planning.model_dump_json(indent=2)}\n\n"
+                f"RECENT_FAILURE_MEMORY:\n{json.dumps(failure_memory, indent=2)[:3000]}\n\n"
+                f"DRAFT_MD:\n{body[:12000]}\n\nEVIDENCE_JSON:\n{bundle.model_dump_json()[:12000]}"
+            ),
+            mode="smart",
+            max_tokens=1200,
+            task="draft_section_critic",
+            temperature=config.verifier_temperature(),
+        )
+        note = _parse_review_note(raw, role="adversary", fallback_findings=findings)
+    new_body = body
+    if note.findings:
+        new_body = _rewrite_full_body(body, bundle, planning, note)
+    return {
+        "body": new_body,
+        "review_notes": [note.model_dump()],
+        "_done_adversary": True,
+        "supervisor_decisions": sup.log_decision(state, "adversary_review"),
+    }
+
+
+def node_evidence_verifier(state: dict[str, Any]) -> dict[str, Any]:
+    """Verifier reviewer: catch unsupported claims and unresolved citations before editor gate."""
+    body = state.get("body") or ""
+    bundle = evidence_model(state["evidence"])
+    planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
+    failure_memory = _failure_memory_snapshot()
+    findings = lint.unsupported_numeric_claims(body, bundle.model_dump_json())
+    lint_issues = lint.structural_issues(body, bundle)
+    if "unresolved_source_alias" in lint_issues:
+        findings.append("unresolved_source_alias")
+    if "citation_count_below_min" in lint_issues:
+        findings.append("citation_count_below_min")
+    if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
+        note = _parse_review_note("", role="evidence_verifier", fallback_findings=findings)
+    else:
+        raw = gllm.graph_llm_text(
+            "evidence_verifier",
+            (
+                "You are an evidence verifier. Check for unsupported numeric claims, missing citations, "
+                "and unresolved source aliases. Output JSON only."
+            ),
+            f"RECENT_FAILURE_MEMORY:\n{json.dumps(failure_memory, indent=2)[:3000]}\n\n"
+            f"DRAFT_MD:\n{body[:14000]}\n\nEVIDENCE_JSON:\n{bundle.model_dump_json()[:16000]}",
+            mode="smart",
+            max_tokens=1200,
+            task="editor_grounding",
+            temperature=config.verifier_temperature(),
+        )
+        note = _parse_review_note(raw, role="evidence_verifier", fallback_findings=findings)
+    new_body = body
+    if note.findings:
+        new_body = _rewrite_full_body(body, bundle, planning, note)
+    return {
+        "body": new_body,
+        "review_notes": [note.model_dump()],
+        "_done_verifier": True,
+        "supervisor_decisions": sup.log_decision(state, "evidence_verifier"),
+    }
+
+
+def node_render_reviewer(state: dict[str, Any]) -> dict[str, Any]:
+    """Render reviewer: validate HTML rendering semantics before package step."""
+    from .. import package as package_mod  # noqa: PLC0415
+
+    body = state.get("body") or ""
+    bundle = evidence_model(state["evidence"])
+    front = {"title": bundle.primary.title}
+    findings: list[str] = []
+    render_report = {}
+    full_html, errors, warnings, flags = package_mod._render_full_html(front, body)
+    if errors:
+        findings.extend(errors)
+    if not full_html:
+        findings.append("render_html_generation_failed")
+    render_report = {
+        "html_valid": not bool(errors),
+        "errors": list(errors),
+        "warnings": list(warnings),
+        **flags,
+    }
+    note = ReviewNote(
+        role="render_reviewer",
+        pass_review=not bool(findings),
+        findings=list(dict.fromkeys(findings)),
+        rewrite_targets=[],
+        summary=(
+            "Render review found no blocking issues."
+            if not findings
+            else "Render review found issues with HTML/diagram/table rendering."
+        ),
+    )
+    return {
+        "render_report": render_report,
+        "review_notes": [note.model_dump()],
+        "_done_render_review": True,
+        "supervisor_decisions": sup.log_decision(state, "render_reviewer"),
+    }
+
+
+def node_meta_review(state: dict[str, Any]) -> dict[str, Any]:
+    """Meta reviewer: synthesize reviewer notes into a final pre-editor summary."""
+    body = state.get("body") or ""
+    notes = [ReviewNote.model_validate(x) for x in (state.get("review_notes") or [])]
+    findings: list[str] = []
+    summaries: list[str] = []
+    by_role = {note.role: note for note in notes}
+    for note in notes:
+        findings.extend(note.findings)
+        if note.summary:
+            summaries.append(note.summary)
+    findings = list(dict.fromkeys(findings))
+    if config.reviewer_consensus_required():
+        required_roles = {"evidence_verifier", "render_reviewer", "adversary"}
+        missing_roles = sorted(required_roles - set(by_role))
+        for role in missing_roles:
+            findings.append(f"missing_required_reviewer:{role}")
+        for role in ("evidence_verifier", "render_reviewer"):
+            note = by_role.get(role)
+            if note is not None and not note.pass_review:
+                findings.append(f"reviewer_blocked:{role}")
+    meta = ReviewNote(
+        role="meta_reviewer",
+        pass_review=not bool(findings),
+        findings=findings,
+        rewrite_targets=[],
+        summary=" | ".join(summaries[:3]) if summaries else "Meta review found no additional issues.",
+    )
+    warnings = list(state.get("warnings") or [])
+    if findings:
+        warnings.append("meta_review_requires_editor_attention")
+    return {
+        "meta_review": meta.model_dump(),
+        "review_notes": [meta.model_dump()],
+        "warnings": warnings,
+        "_done_meta_review": True,
+        "supervisor_decisions": sup.log_decision(state, "meta_review"),
+    }
+
+
 def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     """Rubric, grounding, lint gating, EditorReport fields."""
     body = state.get("body") or ""
@@ -419,6 +743,11 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     need_llm = bool(config.llm_configured() and not config.dry_run())
     llm_ok = True
     ed_warn: list[str] = list(state.get("warnings") or [])
+    review_notes = [ReviewNote.model_validate(x) for x in (state.get("review_notes") or [])]
+    meta_findings: list[str] = []
+    for note in review_notes:
+        if note.role == "meta_reviewer":
+            meta_findings.extend(note.findings)
     if need_llm:
         if int(usage.get("ok", 0) or 0) < 3:
             llm_ok = False
@@ -461,6 +790,8 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         rep = rep.model_copy(update={"pass_gate": False})
     if llm_ok and "unpaired_improvement_claims" in lint_issues:
         rep = rep.model_copy(update={"pass_gate": False})
+    if meta_findings:
+        rep = rep.model_copy(update={"pass_gate": False})
     if det_ground:
         rep = rep.model_copy(update={"pass_gate": False})
     if not llm_ok:
@@ -485,6 +816,7 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         else {"missing_figures": [], "missing_equations": []}
     )
     d["pass_gate"] = qrep.pass_gate
+    d["review_notes"] = [n.model_dump() for n in review_notes]
     return {
         "editor_report": d,
         "llm_ok": llm_ok,
@@ -575,6 +907,21 @@ rubric_score: {score}
             json.dumps(state["draft_lint"], indent=2),
             encoding="utf-8",
         )
+    if state.get("planning_brief"):
+        (_ROOT / "reports" / "planning_brief.json").write_text(
+            json.dumps(state["planning_brief"], indent=2),
+            encoding="utf-8",
+        )
+    if state.get("meta_review"):
+        (_ROOT / "reports" / "meta_review.json").write_text(
+            json.dumps(state["meta_review"], indent=2),
+            encoding="utf-8",
+        )
+    if state.get("review_notes"):
+        (_ROOT / "reports" / "review_notes.json").write_text(
+            json.dumps(state["review_notes"], indent=2),
+            encoding="utf-8",
+        )
     ed_path = _ROOT / "reports" / "editor_report.json"
     ed_path.write_text(json.dumps(ed, indent=2), encoding="utf-8")
     qd = state.get("quality_report") or {}
@@ -608,6 +955,10 @@ rubric_score: {score}
         (_ROOT / "reports" / "learned_keywords.json").write_text(
             json.dumps(learned, indent=2, sort_keys=True), encoding="utf-8"
         )
+    try:
+        _record_failure_memory(state)
+    except Exception as e:  # noqa: BLE001
+        LOG.warning("failure memory update skipped: %s", e)
     return {
         "slug": slug,
         "out_path": str(out),

@@ -16,9 +16,12 @@ class BlogState(TypedDict, total=False):
     primary: dict[str, Any]
     evidence: dict[str, Any]
     evidence_pack: dict[str, Any]
+    planning_brief: dict[str, Any]
     selected_analysts: List[str]
     committee_notes: Annotated[List[dict[str, Any]], operator.add]
     committee_synthesis: dict[str, Any]
+    review_notes: Annotated[List[dict[str, Any]], operator.add]
+    meta_review: dict[str, Any]
     research_trace: dict[str, Any]
     body: str
     outline: List[str]
@@ -44,7 +47,12 @@ class BlogState(TypedDict, total=False):
     _done_harvest: bool
     _done_rank: bool
     _done_research: bool
+    _done_planning: bool
     _done_draft: bool
+    _done_adversary: bool
+    _done_verifier: bool
+    _done_render_review: bool
+    _done_meta_review: bool
     _done_editor: bool
 
 

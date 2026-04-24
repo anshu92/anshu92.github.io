@@ -175,6 +175,28 @@ class EditorialBrief(BaseModel):
     proactive_topic: Optional[str] = None
 
 
+class PlanningBrief(BaseModel):
+    """Structured writing plan produced before drafting."""
+
+    mandatory_claims: list[str] = Field(default_factory=list)
+    mandatory_sections: list[str] = Field(default_factory=list)
+    required_visuals: list[str] = Field(default_factory=list)
+    likely_failures: list[str] = Field(default_factory=list)
+    preventive_checks: list[str] = Field(default_factory=list)
+    backup_remedies: list[str] = Field(default_factory=list)
+    reviewer_focus: list[str] = Field(default_factory=list)
+
+
+class ReviewNote(BaseModel):
+    """One specialist review note over a draft."""
+
+    role: str
+    pass_review: bool = True
+    findings: list[str] = Field(default_factory=list)
+    rewrite_targets: list[str] = Field(default_factory=list)
+    summary: str = ""
+
+
 class RankResult(BaseModel):
     primary: Item
     score: float = 0.0

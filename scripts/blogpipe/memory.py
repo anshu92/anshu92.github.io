@@ -70,6 +70,18 @@ def save_json(name: str, data: Any) -> None:
     p.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
 
+def append_json_list(name: str, item: Any, *, limit: int = 100) -> list[Any]:
+    ensure_dirs()
+    data = load_json(name, [])
+    if not isinstance(data, list):
+        data = []
+    data.append(item)
+    if limit > 0:
+        data = data[-limit:]
+    save_json(name, data)
+    return data
+
+
 def try_restore_from_branch(
     branch: str = "blogpipe-memory", *relative_paths: str
 ) -> None:

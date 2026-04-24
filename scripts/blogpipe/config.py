@@ -354,3 +354,21 @@ def max_tokens_for_task(task: str) -> int:
         except ValueError:
             pass
     return 0
+
+
+def verifier_temperature() -> float:
+    try:
+        return max(0.0, min(float(_get("BLOGPIPE_VERIFIER_TEMPERATURE", "0.0")), 1.0))
+    except ValueError:
+        return 0.0
+
+
+def failure_memory_limit() -> int:
+    try:
+        return max(1, min(int(_get("BLOGPIPE_FAILURE_MEMORY_LIMIT", "30")), 200))
+    except ValueError:
+        return 30
+
+
+def reviewer_consensus_required() -> bool:
+    return _get("BLOGPIPE_REVIEWER_CONSENSUS", "1") in ("1", "true", "yes", "on")

@@ -117,6 +117,7 @@ def section_critic_llm(
     user = f"SECTION: ## {title}\n{body[:6000]}\n\nEVIDENCE_EXCERPT:\n{evidence_excerpt[:4000]}\n"
     raw = gllm.graph_llm_text(
         "section_critic", system, user, mode="smart", task="draft_section_critic"
+        , temperature=config.verifier_temperature()
     )
     m = re.search(r"\{[\s\S]*\}", raw)
     if not m:
