@@ -1,0 +1,68 @@
+{
+  "entries": [
+    {
+      "at": "2026-04-23T03:16:09.499596+00:00",
+      "format": "deep_dive",
+      "opener": "in_medias_res_scene",
+      "art": "editorial_illustration",
+      "diagram": "mermaid",
+      "slug": "mmcore-multimodal-connection-with-representation-aligned-latent-embeddings"
+    },
+    {
+      "at": "2026-04-23T03:22:25.586795+00:00",
+      "format": "paper_to_code",
+      "opener": "contrarian_claim",
+      "art": "isometric_diagram",
+      "diagram": "mermaid",
+      "slug": "unimesh-unifying-3d-mesh-understanding-and-generation"
+    },
+    {
+      "at": "2026-04-23T04:32:21.960413+00:00",
+      "format": "deep_dive",
+      "opener": "single_concrete_pain_point_with_falsifier",
+      "art": "minimal_geometric",
+      "diagram": "mermaid",
+      "slug": "mmcore-multimodal-connection-with-representation-aligned-latent-embeddings"
+    },
+    {
+      "at": "2026-04-23T18:06:55.529205+00:00",
+      "format": "paper_to_code",
+      "opener": "single_concrete_pain_point_with_falsifier",
+      "art": "risograph_print",
+      "diagram": "mermaid",
+      "slug": "c-genreg-training-free-3d-point-cloud-registration-by-multi-view-consistent-geom"
+    },
+    {
+      "at": "2026-04-23T18:24:02.321008+00:00",
+      "format": "deep_dive",
+      "opener": "single_concrete_pain_point_with_falsifier",
+      "art": "data_viz_portrait",
+      "diagram": "mermaid",
+      "slug": "c-genreg-training-free-3d-point-cloud-registration-by-multi-view-consistent-geom"
+    },
+    {
+      "at": "2026-04-23T19:25:13.656648+00:00",
+      "format": "paper_to_code",
+      "opener": "single_concrete_pain_point_with_falsifier",
+      "art": "editorial_illustration",
+      "diagram": "mermaid",
+      "slug": "c-genreg-training-free-3d-point-cloud-registration-by-multi-view-consistent-geom"
+    },
+    {
+      "at": "2026-04-24T01:10:27.756858+00:00",
+      "format": "opinion_with_receipts",
+      "opener": "single_concrete_pain_point_with_falsifier",
+      "art": "isometric_diagram",
+      "diagram": "mermaid",
+      "slug": "c-genreg-training-free-3d-point-cloud-registration-by-multi-view-consistent-geom"
+    },
+    {
+      "at": "2026-04-24T02:03:11.089849+00:00",
+      "format": "field_notes",
+      "opener": "single_concrete_pain_point_with_falsifier",
+      "art": "minimal_geometric",
+      "diagram": "mermaid",
+      "slug": "c-genreg-training-free-3d-point-cloud-registration-by-multi-view-consistent-geom"
+    }
+  ]
+}
