@@ -1,0 +1,25 @@
+{
+  "role": "meta_reviewer",
+  "pass_review": false,
+  "reviewer_weight": 1.0,
+  "findings": [
+    "reviewer_blocked:render_reviewer",
+    "pandoc_render_failed",
+    "render_html_generation_failed",
+    "reviewer_weight_below_threshold:0.65<0.80"
+  ],
+  "rewrite_targets": [],
+  "summary": "Render review found issues with HTML/diagram/table rendering.",
+  "metadata": {
+    "all_findings": [
+      "pandoc_render_failed",
+      "render_html_generation_failed"
+    ],
+    "weighted_score": 0.65,
+    "reviewer_weights": {
+      "evidence_verifier": 0.45,
+      "render_reviewer": 0.35,
+      "adversary": 0.2
+    }
+  }
+}

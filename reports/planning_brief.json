@@ -1,0 +1,31 @@
+{
+  "mandatory_claims": [
+    "- In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].\n- We achiev",
+    "C-GenReg uses a World Foundation Model to synthesize multi-view-consistent RGB representations from input geometry, transferring the matching problem to an image domain where Vision Foundation Models (VFMs) excel. It als"
+  ],
+  "mandatory_sections": [
+    "why this works",
+    "what would falsify this",
+    "when to use it"
+  ],
+  "required_visuals": [
+    "one mechanism diagram"
+  ],
+  "likely_failures": [
+    "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+    "Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (W aymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization."
+  ],
+  "preventive_checks": [
+    "verify numeric claims against evidence",
+    "confirm mermaid and table render cleanly"
+  ],
+  "backup_remedies": [
+    "drop unsupported metrics",
+    "replace broken visuals with summary-only output"
+  ],
+  "reviewer_focus": [
+    "evidence grounding",
+    "tradeoffs",
+    "decision usefulness"
+  ]
+}

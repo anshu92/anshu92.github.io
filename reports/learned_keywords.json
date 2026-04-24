@@ -1,0 +1,9 @@
+{
+  "llm_scaling": [
+    "multi-view-consistent",
+    "training-free",
+    "registration-oriented",
+    "world-scale generative priors",
+    "iterative closest point"
+  ]
+}

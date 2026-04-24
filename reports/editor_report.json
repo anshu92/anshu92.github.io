@@ -1,0 +1,217 @@
+{
+  "rubric_score": 13,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 1
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 1
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 1
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 1
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 0
+    },
+    {
+      "item": "pov_present",
+      "score": 1
+    }
+  ],
+  "five_questions": {
+    "problem": "Current 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+    "hard": "The challenge lies in generalizing across different sensing modalities, sampling differences, and environments, with high computational costs.",
+    "tried": "The authors propose C-GenReg, a training-free framework that leverages world-scale generative priors and registration-oriented Vision Foundation Models (VFMs).",
+    "outcomes": "C-GenReg demonstrates strong zero-shot performance on the Waymo outdoor benchmark, outperforming traditional methods with an accuracy of 85%.",
+    "next": "Can C-GenReg be extended to handle dynamic 3D point clouds, or is it limited to static scenes?"
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [
+    "meta_review_requires_editor_attention"
+  ],
+  "lint_issues": [
+    "takeaway_lacks_number",
+    "unresolved_source_alias",
+    "missing_mechanism_section"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "significant computational costs for VFMs and generative priors",
+    "Andrew Ng's quote relevance",
+    "85%",
+    "80%"
+  ],
+  "rubric_floor_applied": false,
+  "rubric_floor_reasons": [],
+  "rubric_score_raw": 13,
+  "evidence_utilization": {
+    "score": 0.605,
+    "ratios": {
+      "numbers": 1.0,
+      "entities": 0.6,
+      "quotes": 0.0,
+      "analyst_claims": 0.125
+    },
+    "totals": {
+      "numbers": 1,
+      "entities": 20,
+      "quotes": 7,
+      "analyst_claims": 24
+    },
+    "used_counts": {
+      "numbers": 1,
+      "entities": 12,
+      "quotes": 0,
+      "analyst_claims": 3
+    },
+    "unused": {
+      "numbers": [],
+      "entities": [
+        "Benchmarking of alignment-free sequence comparison methods",
+        "Convolutional Neural Network-Based Parkinson Disease Classification Using SPECT Imaging Data",
+        "C-GenReg: Training-Free 3D Point Cloud R",
+        "Fuse",
+        "RGB-D",
+        "ScanNet",
+        "RoITr",
+        "Point-Pair-Feature"
+      ],
+      "quotes": [
+        "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3",
+        "This principled fusion preserves each modality\u2019s inductive bias and provides calibrated confidence without any additional learning.",
+        "In contrast, the image domain has largely overcome such generalization limits through Vision Foundation Models (VFMs), which achieve remarkable robustness by training on massive, heterogeneous datasets [1].",
+        "We achieve SOTA zero-shot results across indoor RGB-D\n\nbenchmarks (3DMatch, ScanNet) and, for the first time, demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo).",
+        "RoITr [33] embedded Point- Pair-Feature coordinates into a transformer backbone to achieve rotation invariance and distinctive geometric correspondences.",
+        "Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments.",
+        "Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (W aymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization."
+      ],
+      "analyst_claims": [
+        "uses a World Foundation Model to synthesize multi-view-consistent RGB representations",
+        "transfers the matching problem to an image domain where Vision Foundation Models (VFMs) excel",
+        "introduces a 'Match-then-Fuse' probabilistic cold-fusion scheme to combine correspondence posteriors",
+        "achieves SOTA zero-shot results across indoor RGB-D benchmarks",
+        "demonstrates a generative registration framework that successfully operates on real outdoor LiDAR data",
+        "achieve SOTA zero-shot results across indoor RGB-D benchmarks (3DMatch, ScanNet)",
+        "demonstrate a generative registration framework that successfully operates on real outdoor LiDAR data (Waymo)",
+        "replacing a detailed scene description with a general one results in negligible degradation"
+      ]
+    }
+  },
+  "undefined_acronyms": [
+    "VFM",
+    "RGB",
+    "SOTA"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "review_notes": [
+    {
+      "role": "adversary",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "",
+      "metadata": {}
+    },
+    {
+      "role": "evidence_verifier",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "",
+      "metadata": {}
+    },
+    {
+      "role": "render_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "pandoc_render_failed",
+        "render_html_generation_failed"
+      ],
+      "rewrite_targets": [],
+      "summary": "Render review found issues with HTML/diagram/table rendering.",
+      "metadata": {}
+    },
+    {
+      "role": "meta_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "reviewer_blocked:render_reviewer",
+        "pandoc_render_failed",
+        "render_html_generation_failed",
+        "reviewer_weight_below_threshold:0.65<0.80"
+      ],
+      "rewrite_targets": [],
+      "summary": "Render review found issues with HTML/diagram/table rendering.",
+      "metadata": {
+        "all_findings": [
+          "pandoc_render_failed",
+          "render_html_generation_failed"
+        ],
+        "weighted_score": 0.65,
+        "reviewer_weights": {
+          "evidence_verifier": 0.45,
+          "render_reviewer": 0.35,
+          "adversary": 0.2
+        }
+      }
+    }
+  ]
+}

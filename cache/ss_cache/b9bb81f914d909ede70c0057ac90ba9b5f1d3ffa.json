@@ -1,0 +1,44 @@
+{
+"kind": "search",
+"exp": 1777005055.6800585,
+"items": [
+{
+"id": "ss_f07d8433997d5c91632c13cf7a6777d87acf8a18",
+"title": "Semantic Compression via Multimodal Representation Learning",
+"url": "https://www.semanticscholar.org/paper/f07d8433997d5c91632c13cf7a6777d87acf8a18",
+"authors": [
+"E. Grassucci",
+"Giordano Cicchetti",
+"A. Uncini",
+"D. Comminiello"
+],
+"abstract": "Multimodal representation learning produces high-dimensional embeddings that align diverse modalities in a shared latent space. While this enables strong generalization, it also introduces scalability challenges, both in terms of storage and downstream processing. A key open problem is how to achieve semantic compression, reducing the memory footprint of multimodal embeddings while preserving their ability to represent shared semantic content across modalities. In this paper, we prove a strong connection between reducing the modality gap, which is the residual separation of embeddings from different modalities, and the feasibility of post-training semantic compression. When the gap is sufficiently reduced, embeddings from different modalities but expressing the same semantics share a common portion of the space. Therefore, their centroid is a faithful representation of such a semantic concept. This enables replacing multiple embeddings with a single centroid, yielding significant memory savings. We propose a novel approach for semantic compression grounded on the latter intuition, operating directly on pretrained encoders. We demonstrate its effectiveness across diverse large-scale multimodal downstream tasks. Our results highlight that modality alignment is a key enabler for semantic compression, showing that the proposed approach achieves significant compression without sacrificing performance.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+},
+{
+"id": "ss_c03b92b3b485c231c5a8cfc07f96ab481b00512d",
+"title": "Visual Semantics and Linguistic Features: A GAN Approach to Cross-Modal Learning",
+"url": "https://www.semanticscholar.org/paper/c03b92b3b485c231c5a8cfc07f96ab481b00512d",
+"authors": [
+"Yamini Chouhan",
+"Rohit Raja",
+"Shilpa Choudhary",
+"Karthik Kambhampati"
+],
+"abstract": "In today's world of multimodal information, combining and understanding data from different sourcesparticularly text and images-has become increasingly important. This study presents a novel framework called \u201cVisual Semantics and Linguistic Features: A GAN Approach to Cross-Modal Learning.\u201d The proposed method uses Generative Adversarial Networks (GANs) to build robust and coherent cross-modal embeddings. The primary objective is to develop a GAN-based model that efficiently aligns textual and visual information within a shared latent space. To achieve this, the framework integrates advanced feature fusion techniques designed to strengthen the connection between visual semantics and linguistic features. These techniques encourage mutual reinforcement between the two modalities, allowing the system to grasp deep contextual meanings from text while maintaining the detailed richness of visual content. Through this integration, the study aims to enhance cross-modal representation and promote a more comprehensive understanding of multimodal data.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+}
+]
+}
