@@ -1,0 +1,14 @@
+{
+  "llm_scaling": [
+    "cross-embodiment gap",
+    "residual vector-quantized tokens",
+    "unified latent tokens",
+    "robot-collected interaction data",
+    "egocentric human video",
+    "heterogeneous kinematics",
+    "universal visual consequences",
+    "discrete latent token",
+    "vector-quantization",
+    "lingua-franca"
+  ]
+}

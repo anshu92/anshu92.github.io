@@ -1,0 +1,27 @@
+[
+  {
+    "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+    "overall_status": "blocked",
+    "codes": [
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "draft:lint:no_mermaid_block",
+      "draft:lint:takeaway_is_heading"
+    ],
+    "query_text": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling\nScaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.\nllm paper\nNo available repositories or code implementations found for UniT\nTheoretical framework lacks empirical validation due to absence of code\nUniT: Toward a Unified Physical Language for\n\nHuman-to-Humanoid Policy Learning\n\nand World Modeling Boyu Chen1,2,\u2217 Yi Chen1,3,\u2217 Lu Qiu3 Jerry Bai1 Yuying Ge1,\u2020 Yixiao Ge1 1XPENG Robotics 2Tsinghua University 3The University of Hong Kong https://xpeng-robotics.github.io/unit/\n\nRoboCasa GR1 Sim PnP\n\nEffective Human-Humanoid WM Co-training\n\nEgodex PnP and RoboCasa GR1 Sim PnP Zero-shot Task-Level Transfer from Human IRON-R01-1.11 Real Robot OOD Generalization from Human IRON-R01-1.11 Real Robot on 5 OOD Scenarios (c) WM-UniT (a) UniT\n\nCross Embodiment Data\n\nVision\n\nEncoder\n\nAction\n\nEncoder\n\nShared Latent Action\n\nVision\n\nDecoder\n\nAction\n\nDecoder\n\nCross Recon.\n(b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot.\nWe validate UniT across two paradigms: 1)Policy Learning (VLA-UniT):By predicting these unified tokens, it effectively leverages diverse human data to achieve stateof-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstratingzero-shot task transfer.\nAlthough recent literature explores unified representations, critical limitations remain (Fig.\ntakeaway_lacks_number\nno_results_table\nfewer_than_required_h2_sections\ncitation_count_below_min\nmissing_mechanism_section\nmissing_decision_section\nevaluative_paragraph_without_citation\npaper_to_code\nflowchart\nsingle_concrete_pain_point_with_falsifier\nIntroduction to the UniT framework\nPolicy Learning with VLA\u2011UniT\nWorld Modeling with WM\u2011UniT\nAddressing Likely Failure Modes\nScalability & Efficiency\nPractitioner Checklist",
+    "signals": {
+      "format_name": "paper_to_code",
+      "diagram_style": "flowchart",
+      "blocking_stages": [
+        "draft",
+        "editor"
+      ]
+    }
+  }
+]

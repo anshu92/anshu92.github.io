@@ -1,0 +1,30 @@
+{
+  "mandatory_claims": [
+    "UniT achieves state-of-the-art data efficiency and robust out-of-distribution generalization on humanoid simulation benchmark and real-world deployments",
+    "UniT enables zero-shot task transfer and direct human-to-humanoid action transfer"
+  ],
+  "mandatory_sections": [
+    "Introduction to UniT framework",
+    "Policy Learning with VLA-UniT",
+    "World Modeling with WM-UniT"
+  ],
+  "required_visuals": [
+    "t-SNE visualization of human and humanoid features convergence"
+  ],
+  "likely_failures": [
+    "Kinematic mismatches between human and humanoid data",
+    "Insufficient diversity in human data"
+  ],
+  "preventive_checks": [
+    "Verify UniT's performance on multiple humanoid simulation benchmarks",
+    "Evaluate UniT's robustness to varying kinematic conditions"
+  ],
+  "backup_remedies": [
+    "Use alternative frameworks for human-to-humanoid transfer",
+    "Collect additional humanoid data to supplement UniT training"
+  ],
+  "reviewer_focus": [
+    "UniT's ability to generalize to new tasks and environments",
+    "UniT's scalability and efficiency in leveraging human data for humanoid policy learning and world modeling"
+  ]
+}

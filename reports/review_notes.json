@@ -1,0 +1,87 @@
+[
+  {
+    "role": "adversary",
+    "pass_review": false,
+    "reviewer_weight": 1.0,
+    "findings": [
+      "The claim of 'state-of-the-art data efficiency' lacks specific metrics or comparisons to prior work.",
+      "The recommendation to 'steal the habit of shipping a minimal reimplementation' is generic and not tailored to the UniT framework.",
+      "The assertion that 'the bottleneck is representation, not geometry' is made without sufficient evidence or falsifiers.",
+      "The impact claim of 'zero-shot task transfer' is not substantiated with concrete examples or experimental validation.",
+      "The advice to 'verify claims by reimplementing the tri-branch tokenizer' exceeds the evidence provided in the paper."
+    ],
+    "rewrite_targets": [
+      "Introduction to UniT framework",
+      "Policy Learning with VLA-UniT",
+      "World Modeling with WM-UniT"
+    ],
+    "summary": "The draft makes unsupported claims about UniT's performance and offers generic advice that lacks specificity or alignment with the evidence.",
+    "metadata": {
+      "severity": "blocking",
+      "top_risk": "Unsubstantiated claims and generic recommendations may mislead readers about the framework's capabilities and deployment readiness."
+    }
+  },
+  {
+    "role": "evidence_verifier",
+    "pass_review": false,
+    "reviewer_weight": 1.0,
+    "findings": [
+      "unsupported_benchmark_numbers"
+    ],
+    "rewrite_targets": [
+      "State-of-the-art data efficiency section",
+      "Robust OOD generalization section",
+      "Zero-shot task transfer section"
+    ],
+    "summary": "Draft contains specific success rate numbers (60%, 45%, 50%, 40%, 20%, 33%, etc.) that appear to be invented benchmark figures not supported by the cited arXiv paper 2604.19734, and some claims are presented as factual when they should be framed as author synthesis or require direct citation from the source paper.",
+    "metadata": {
+      "severity": "blocking",
+      "needs_number_rewrite": true
+    }
+  },
+  {
+    "role": "render_reviewer",
+    "pass_review": false,
+    "reviewer_weight": 1.0,
+    "findings": [
+      "pandoc_render_failed",
+      "render_html_generation_failed"
+    ],
+    "rewrite_targets": [],
+    "summary": "Render review found issues with HTML/diagram/table rendering.",
+    "metadata": {}
+  },
+  {
+    "role": "meta_reviewer",
+    "pass_review": false,
+    "reviewer_weight": 1.0,
+    "findings": [
+      "reviewer_blocked:evidence_verifier",
+      "unsupported_benchmark_numbers",
+      "reviewer_blocked:render_reviewer",
+      "pandoc_render_failed",
+      "render_html_generation_failed",
+      "reviewer_weight_below_threshold:0.00<0.80"
+    ],
+    "rewrite_targets": [],
+    "summary": "The draft makes unsupported claims about UniT's performance and offers generic advice that lacks specificity or alignment with the evidence. | Draft contains specific success rate numbers (60%, 45%, 50%, 40%, 20%, 33%, etc.) that appear to be invented benchmark figures not supported by the cited arXiv paper 2604.19734, and some claims are presented as factual when they should be framed as author synthesis or require direct citation from the source paper. | Render review found issues with HTML/diagram/table rendering.",
+    "metadata": {
+      "all_findings": [
+        "The claim of 'state-of-the-art data efficiency' lacks specific metrics or comparisons to prior work.",
+        "The recommendation to 'steal the habit of shipping a minimal reimplementation' is generic and not tailored to the UniT framework.",
+        "The assertion that 'the bottleneck is representation, not geometry' is made without sufficient evidence or falsifiers.",
+        "The impact claim of 'zero-shot task transfer' is not substantiated with concrete examples or experimental validation.",
+        "The advice to 'verify claims by reimplementing the tri-branch tokenizer' exceeds the evidence provided in the paper.",
+        "unsupported_benchmark_numbers",
+        "pandoc_render_failed",
+        "render_html_generation_failed"
+      ],
+      "weighted_score": 0.0,
+      "reviewer_weights": {
+        "evidence_verifier": 0.45,
+        "render_reviewer": 0.35,
+        "adversary": 0.2
+      }
+    }
+  }
+]

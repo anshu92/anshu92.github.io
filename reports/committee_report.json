@@ -1,0 +1,99 @@
+{
+  "committee_synthesis": {
+    "narrative": "UniT proposes a compelling step toward a shared \u201cphysical language\u201d that lets human egocentric videos inform humanoid robot policies by learning a unified latent action space through a tri\u2011branch architecture and residual quantization. By anchoring actions to visual consequences, the framework attempts to sidestep the embodiment mismatch that has long hindered direct transfer of human demonstrations to robots, and its VLA\u2011UniT variant shows how scaling diverse human data can improve both in\u2011domain and out\u2011of\u2011distribution performance on the RoboCasa GR1 benchmark.\n\nThe approach, however, raises several tensions. First, the reported results are confined to simulation, leaving open the question of how well the discrete token representation and cross\u2011reconstruction mechanism will cope with sensor noise, actuation delays, and unmodeled dynamics on real hardware. Second, the reliance on residual quantization introduces a trade\u2011off between expressiveness and compression; too coarse a codebook could blunt fine\u2011grained motor skills, while too fine a space may undermine the generalization benefits the authors claim. Finally, the absence of publicly available code or detailed training scripts makes it difficult for the community to reproduce the ablations, assess the sensitivity to hyperparameters, or extend the method to other embodiments, which tempers enthusiasm despite the promising numbers.\n\nFor readers, the key takeaway is that UniT illustrates a viable pathway to mitigate robotic data scarcity by leveraging abundant human video, achieving measurable gains in zero\u2011shot task transfer and OOD robustness when human data are incorporated. Yet, to move from an intriguing theoretical framework to a practical tool, future work must validate the unified token space on physical robots, release reproducible implementations, and explore how the quantization granularity affects both skill fidelity and generalization across a broader suite of real\u2011world tasks.",
+    "n_analysts": 5,
+    "n_skipped": 0,
+    "analysts": [
+      {
+        "role": "methods",
+        "claims": [
+          "UniT learns a shared latent action space",
+          "Tri-branch architecture with visual, action, and fusion branches",
+          "Residual quantization module in the architecture",
+          "Cross-reconstruction mechanism between branches",
+          "Discrete unified tokens bridging human and humanoid observations and actions",
+          "VLA-UniT predicts unified tokens for policy learning",
+          "VLA-UniT leverages diverse human data for robust OOD generalization",
+          "VLA-UniT achieves zero-shot task transfer on humanoid robots"
+        ],
+        "citations": [
+          "UniT learns a shared latent action space using a tri-branch architecture (visual, action, fusion) with residual quantization and cross-reconstruction, enabling discrete unified tokens that bridge human and humanoid observations and actions.",
+          "(b) Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transfer on humanoid robot.",
+          "We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer."
+        ],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "empirical",
+        "claims": [
+          "VLA-UniT achieves 66.7% success rate on RoboCasa GR1 Tabletop Simulation with full training data (24x1000 trajs)",
+          "VLA-UniT achieves 47.8% success rate on RoboCasa GR1 Tabletop Simulation with limited training data (24x100 trajs)",
+          "VLA-UniT without human data achieves 41.7% in-domain and 29.0% OOD success rate on RoboCasa GR1",
+          "VLA-UniT with human data achieves 49.4% in-domain and 33.0% OOD success rate on RoboCasa GR1, showing the benefit of leveraging human data",
+          "VLA-UniT demonstrates zero-shot task transfer on humanoid robot"
+        ],
+        "citations": [
+          "Figure 9 shows overall performance of VLA-UniT on RoboCasa GR1 Tabletop Simulation",
+          "Figure 10 shows data efficiency results of VLA-UniT on RoboCasa GR1 under full-data and few-shot settings"
+        ],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "4.3 Policy Learning Results",
+        "skipped": false
+      },
+      {
+        "role": "glossary",
+        "claims": [
+          "UniT \u2014 a framework for learning unified human-to-humanoid policies, enabling effective co-training and retargeting across different embodiments.",
+          "VLA-UniT \u2014 a policy learning paradigm that leverages diverse human data to achieve robust out-of-distribution generalization and zero-shot task transfer on humanoid robots.",
+          "Tri-branch architecture \u2014 a neural network architecture consisting of visual, action, and fusion branches, used in UniT to learn a shared latent action space.",
+          "Residual quantization \u2014 a technique used in UniT to enable discrete unified tokens that bridge human and humanoid observations and actions.",
+          "Cross-reconstruction \u2014 a method used in UniT to learn a shared latent action space, by reconstructing actions from visual observations and vice versa.",
+          "RoboCasa GR1 \u2014 a simulation benchmark for humanoid robot policy learning, used to evaluate the performance of UniT.",
+          "OOD generalization \u2014 the ability of a model to generalize to out-of-distribution scenarios, which is a key challenge in humanoid robot policy learning.",
+          "Zero-shot task transfer \u2014 the ability of a model to transfer knowledge from one task to another without requiring additional training data, demonstrated by UniT.",
+          "Diffusion Policy \u2014 a related concept in policy learning, although its specific relationship to UniT is not explicitly stated in the provided text.",
+          "GROOT \u2014 a potentially related framework or method, mentioned in the context of UniT and policy learning."
+        ],
+        "citations": [],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "Introduction to UniT and Policy Learning",
+        "skipped": false
+      },
+      {
+        "role": "related",
+        "claims": [
+          "UniT addresses the scarcity of robotic data by leveraging scalable human egocentric data for humanoid policy learning.",
+          "UniT bridges the cross-embodiment chasm in human-to-humanoid transfer through a unified physical language grounded in shared visual consequences of kinematics.",
+          "UniT employs a tri-branch cross-reconstruction mechanism where actions predict vision to anchor kine."
+        ],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [],
+        "suggested_section": "H2: Introduction of UniT Framework",
+        "skipped": false
+      },
+      {
+        "role": "code",
+        "claims": [
+          "UniT proposes a unified physical language for human-to-humanoid transfer by leveraging visual anchoring to bridge kinematic mismatches",
+          "The framework uses a tri-branch cross-reconstruction mechanism to predict vision from actions",
+          "UniT addresses the scarcity of robotic data by utilizing scalable human egocentric data"
+        ],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [
+          "No available repositories or code implementations found for UniT",
+          "Theoretical framework lacks empirical validation due to absence of code"
+        ],
+        "suggested_section": "H2",
+        "skipped": false
+      }
+    ]
+  },
+  "narrative": "UniT proposes a compelling step toward a shared \u201cphysical language\u201d that lets human egocentric videos inform humanoid robot policies by learning a unified latent action space through a tri\u2011branch architecture and residual quantization. By anchoring actions to visual consequences, the framework attempts to sidestep the embodiment mismatch that has long hindered direct transfer of human demonstrations to robots, and its VLA\u2011UniT variant shows how scaling diverse human data can improve both in\u2011domain and out\u2011of\u2011distribution performance on the RoboCasa GR1 benchmark.\n\nThe approach, however, raises several tensions. First, the reported results are confined to simulation, leaving open the question of how well the discrete token representation and cross\u2011reconstruction mechanism will cope with sensor noise, actuation delays, and unmodeled dynamics on real hardware. Second, the reliance on residual quantization introduces a trade\u2011off between expressiveness and compression; too coarse a codebook could blunt fine\u2011grained motor skills, while too fine a space may undermine the generalization benefits the authors claim. Finally, the absence of publicly available code or detailed training scripts makes it difficult for the community to reproduce the ablations, assess the sensitivity to hyperparameters, or extend the method to other embodiments, which tempers enthusiasm despite the promising numbers.\n\nFor readers, the key takeaway is that UniT illustrates a viable pathway to mitigate robotic data scarcity by leveraging abundant human video, achieving measurable gains in zero\u2011shot task transfer and OOD robustness when human data are incorporated. Yet, to move from an intriguing theoretical framework to a practical tool, future work must validate the unified token space on physical robots, release reproducible implementations, and explore how the quantization granularity affects both skill fidelity and generalization across a broader suite of real\u2011world tasks."
+}
