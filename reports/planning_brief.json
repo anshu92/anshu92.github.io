@@ -1,0 +1,41 @@
+{
+  "mandatory_claims": [
+    "UniT achieves state-of-the-art data efficiency and robust out-of-distribution generalization",
+    "UniT enables zero-shot task transfer",
+    "UniT aligns cross-embodiment dynamics via unified tokens as conditions",
+    "UniT induces a highly aligned cross-embodiment representation"
+  ],
+  "mandatory_sections": [
+    "Introduction to UniT",
+    "UniT Architecture",
+    "Policy Learning with UniT",
+    "World Modeling with UniT",
+    "What would falsify this"
+  ],
+  "required_visuals": [
+    "t-SNE visualization of human and humanoid features",
+    "Flowchart of UniT framework",
+    "Comparison of UniT with alternative methods"
+  ],
+  "likely_failures": [
+    "Overemphasis on technical details without practical applications",
+    "Lack of clear explanation of UniT's advantages over existing methods",
+    "Insufficient discussion of potential limitations and falsification experiments"
+  ],
+  "preventive_checks": [
+    "Verify that the introduction clearly explains the problem and UniT's solution",
+    "Check that the architecture section provides a concise and easy-to-understand overview of UniT",
+    "Ensure that the policy learning and world modeling sections provide concrete examples and results",
+    "Review the 'What would falsify this' section for a clear and realistic experiment"
+  ],
+  "backup_remedies": [
+    "Add a section on potential applications and future work",
+    "Include a comparison with other state-of-the-art methods",
+    "Provide additional visualizations or diagrams to illustrate UniT's architecture and results"
+  ],
+  "reviewer_focus": [
+    "Clarity and concision of the introduction and architecture sections",
+    "Effectiveness of the policy learning and world modeling sections in demonstrating UniT's advantages",
+    "Realism and feasibility of the 'What would falsify this' section"
+  ]
+}

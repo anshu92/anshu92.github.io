@@ -1,0 +1,143 @@
+{
+  "evidence_valid": true,
+  "draft_valid": false,
+  "render_valid": false,
+  "package_valid": false,
+  "render_checked": false,
+  "package_checked": false,
+  "overall_status": "blocked",
+  "blocking_reasons": [
+    {
+      "code": "lint:takeaway_is_heading",
+      "message": "takeaway_is_heading",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:takeaway_lacks_number",
+      "message": "takeaway_lacks_number",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:citation_count_below_min",
+      "message": "citation_count_below_min",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:comparative_claim_missing_metric",
+      "message": "comparative_claim_missing_metric",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:advice_without_traceability",
+      "message": "advice_without_traceability",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:evaluative_paragraph_without_citation",
+      "message": "evaluative_paragraph_without_citation",
+      "stage": "draft",
+      "blocking": true
+    }
+  ],
+  "editor_report": {
+    "rubric_score": 5,
+    "rubric_items": [],
+    "five_questions": {},
+    "five_questions_ok": true,
+    "critique": {
+      "missing": [],
+      "weak": [],
+      "cut": []
+    },
+    "pass_gate": false,
+    "llm_ok": true,
+    "editor_warnings": [
+      "full_draft_empty_used_stub"
+    ],
+    "lint_issues": [
+      "takeaway_is_heading",
+      "takeaway_lacks_number",
+      "citation_count_below_min",
+      "comparative_claim_missing_metric",
+      "advice_without_traceability",
+      "evaluative_paragraph_without_citation"
+    ],
+    "grounding_ok": true,
+    "grounding_issues": [],
+    "rubric_floor_applied": true,
+    "rubric_floor_reasons": [
+      "no_cites:cap=5",
+      "no_numbers:cap=5"
+    ],
+    "rubric_score_raw": 9,
+    "evidence_utilization": {
+      "score": 0.321,
+      "ratios": {
+        "numbers": 0.2727,
+        "entities": 0.5,
+        "quotes": 0.2857,
+        "analyst_claims": 0.1667
+      },
+      "totals": {
+        "numbers": 11,
+        "entities": 34,
+        "quotes": 7,
+        "analyst_claims": 36
+      },
+      "used_counts": {
+        "numbers": 3,
+        "entities": 17,
+        "quotes": 2,
+        "analyst_claims": 6
+      },
+      "unused": {
+        "numbers": [
+          "80",
+          "67.3",
+          "70",
+          "66.7",
+          "55.0",
+          "47.8",
+          "39.0",
+          "48.8"
+        ],
+        "entities": [
+          "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+          "A Metaverse: Taxonomy, Components, Applications, and Open Challenges",
+          "Artificial Intelligence in Education: A Review",
+          "The UniT",
+          "FAST",
+          "Ablation",
+          "VLA-UniT",
+          "Qwen2"
+        ],
+        "quotes": [
+          "establishes a unified physical language for human-to-humanoid transfer",
+          "inducing a highly aligned cross-embodiment representation",
+          "Pick and Place Articulated Overall 20% 30% 40% 50% 60% 70% 80%Success Rate 30.1 40.4 58.2 55.4 47.0 44.4 40.3 50.4 67.3 38.4 50.1 51.3 24.2 50.3 42.3 35.0 43.7 64.7 29.5 40.9 55.0 47.6 47.8 43.9 39.0 48.8 66.7 n=900 n=300 n=1200\n\nUWM\n\nDiffu",
+          "24\u00d7100 trajs 24\u00d71000 trajs 10% 20% 30% 40% 50% 60% 70%Success Rate 21.3 45.5 47.8 66.7 n=1200 n=1200 GR00T-Qwen2.5 VLA-UniT Pick and Place Articulated In-Domain Average Unseen\n\nAppearance\n\nUnseen\n\nCombinations\n\nUnseen\n\nObject Types\n\nOOD Ave",
+          "(b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot."
+        ],
+        "analyst_claims": [
+          "The UniT framework introduces a tri\u2011branch cross\u2011reconstruction mechanism that establishes a unified physical language for transferring policies from human demo",
+          "VLA\u2011UniT predicts unified tokens derived from this physical language, enabling the model to leverage diverse human data for policy learning.",
+          "By incorporating human demonstration data, VLA\u2011UniT achieves state\u2011of\u2011the\u2011art data efficiency and robust out\u2011of\u2011distribution (OOD) generalization in both simula",
+          "VLA\u2011UniT demonstrates zero\u2011shot task transfer to humanoid robots, outperforming baselines such as Diffusion Policy, GROOT, and FAST across pick\u2011and\u2011place and ar",
+          "Ablation results show that removing human data from VLA\u2011UniT degrades performance, confirming the importance of the unified physical language and human data for",
+          "VLA-UniT achieves state-of-the-art data efficiency and robust OOD generalization on humanoid simulation benchmark",
+          "VLA-UniT demonstrates zero-shot task transfer",
+          "VLA-UniT w/ human data outperforms VLA-UniT w/o human data"
+        ]
+      }
+    }
+  },
+  "render_report": null,
+  "artifact_paths": {},
+  "llm_ok": true,
+  "pass_gate": false
+}

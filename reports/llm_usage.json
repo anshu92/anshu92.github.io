@@ -1,0 +1,279 @@
+{
+  "ok": 29,
+  "fail": 8,
+  "blacklisted_skips": 42,
+  "blacklist_added": [
+    "openrouter:qwen/qwen3-next-80b-a3b-instruct:free",
+    "openrouter:qwen/qwen3-235b-thinking:free",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+    "openrouter:qwen/qwen3-coder:free",
+    "openrouter:nvidia/nemotron-3-super-120b-a12b:free"
+  ],
+  "tokens_in": 52263,
+  "tokens_out": 21746,
+  "usd_spent": 0.0,
+  "by_task": {
+    "rank_reasoning": {
+      "calls": 1,
+      "tokens_in": 1580,
+      "tokens_out": 63,
+      "usd": 0.0
+    },
+    "paper_chunk_summary": {
+      "calls": 4,
+      "tokens_in": 5450,
+      "tokens_out": 3699,
+      "usd": 0.0
+    },
+    "supervisor_route": {
+      "calls": 1,
+      "tokens_in": 191,
+      "tokens_out": 11,
+      "usd": 0.0
+    },
+    "analyst_methods": {
+      "calls": 1,
+      "tokens_in": 780,
+      "tokens_out": 448,
+      "usd": 0.0
+    },
+    "analyst_code": {
+      "calls": 1,
+      "tokens_in": 281,
+      "tokens_out": 212,
+      "usd": 0.0
+    },
+    "analyst_related": {
+      "calls": 1,
+      "tokens_in": 294,
+      "tokens_out": 283,
+      "usd": 0.0
+    },
+    "analyst_empirical": {
+      "calls": 1,
+      "tokens_in": 690,
+      "tokens_out": 721,
+      "usd": 0.0
+    },
+    "analyst_glossary": {
+      "calls": 1,
+      "tokens_in": 1070,
+      "tokens_out": 874,
+      "usd": 0.0
+    },
+    "committee_synthesis": {
+      "calls": 1,
+      "tokens_in": 1024,
+      "tokens_out": 425,
+      "usd": 0.0
+    },
+    "query_gen": {
+      "calls": 1,
+      "tokens_in": 203,
+      "tokens_out": 38,
+      "usd": 0.0
+    },
+    "planning_brief": {
+      "calls": 1,
+      "tokens_in": 1687,
+      "tokens_out": 405,
+      "usd": 0.0
+    },
+    "draft_full": {
+      "calls": 3,
+      "tokens_in": 17605,
+      "tokens_out": 8157,
+      "usd": 0.0
+    },
+    "draft_section_critic": {
+      "calls": 4,
+      "tokens_in": 6805,
+      "tokens_out": 251,
+      "usd": 0.0
+    },
+    "draft_rewrite_section": {
+      "calls": 3,
+      "tokens_in": 3091,
+      "tokens_out": 582,
+      "usd": 0.0
+    },
+    "editor_grounding": {
+      "calls": 2,
+      "tokens_in": 7541,
+      "tokens_out": 1307,
+      "usd": 0.0
+    },
+    "explainer_rewrite": {
+      "calls": 1,
+      "tokens_in": 1277,
+      "tokens_out": 726,
+      "usd": 0.0
+    },
+    "editor_rubric": {
+      "calls": 1,
+      "tokens_in": 1665,
+      "tokens_out": 3072,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "llama-3.3-70b-versatile": {
+      "calls": 7,
+      "tokens_in": 8664,
+      "tokens_out": 2248,
+      "usd": 0.0
+    },
+    "openrouter/free": {
+      "calls": 16,
+      "tokens_in": 36400,
+      "tokens_out": 19198,
+      "usd": 0.0
+    },
+    "llama-3.1-8b-instant": {
+      "calls": 2,
+      "tokens_in": 394,
+      "tokens_out": 49,
+      "usd": 0.0
+    },
+    "qwen/qwen3-32b": {
+      "calls": 4,
+      "tokens_in": 6805,
+      "tokens_out": 251,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 6,
+    "committee": 15,
+    "draft": 5,
+    "polish": 3,
+    "editor": 2
+  },
+  "llm_cap": 90,
+  "llm_calls": 37,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'code'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer",
+    "planning_brief",
+    "gap_analyzer",
+    "evidence_backfill",
+    "section_patcher",
+    "adversary_review",
+    "evidence_verifier",
+    "render_reviewer",
+    "meta_review"
+  ],
+  "committee_synthesis": {
+    "narrative": "The UniT framework turns the age\u2011old problem of cross\u2011embodiment learning into a tractable language\u2011based transfer. By forcing human and humanoid kinematics to speak a common \u201cunified physical language\u201d through a tri\u2011branch cross\u2011reconstruction mechanism, it sidesteps the brittle hand\u2011crafted mapping that has plagued earlier work. The result is a policy learner\u2014VLA\u2011UniT\u2014that can read a human demonstration video and, without any task\u2011specific fine\u2011tuning, command a humanoid to pick, place, or manipulate articulated objects in the real world. The editorial angle here is that we are witnessing a shift from data\u2011hungry, embodiment\u2011specific reinforcement learning to a paradigm where massive egocentric video corpora can bootstrap sophisticated robot skills.\n\nThe main tension lies in the balance between human data and robotic data. Ablation studies show that removing human demonstrations drops OOD performance from 47.8\u202f% to 39.0\u202f%, underscoring the indispensable role of human data in achieving generalization. Yet, the framework still requires a substantial amount of humanoid interaction data to learn the visual anchoring and cross\u2011reconstruction decoders. This dual dependency raises questions about scalability: can we eventually replace even the humanoid data with synthetic or simulated interactions, or is a hybrid approach inevitable? Moreover, the tri\u2011branch architecture, while elegant, introduces additional computational overhead and complexity that may limit deployment on edge\u2011level robots.\n\nFor readers, the takeaway is twofold. First, UniT demonstrates that a shared latent action tokenizer can bridge fundamentally different body plans, offering a practical pathway to zero\u2011shot task transfer. Second, it highlights the critical importance of human\u2011centric data in overcoming distributional shifts\u2014a lesson that extends beyond humanoid robotics to any domain where simulation\u2011to\u2011real transfer remains a bottleneck. As the field moves toward larger foundation models for robots, UniT\u2019s language\u2011centric philosophy may well become the new baseline for cross\u2011embodiment learning.",
+    "report": {
+      "narrative": "The UniT framework turns the age\u2011old problem of cross\u2011embodiment learning into a tractable language\u2011based transfer. By forcing human and humanoid kinematics to speak a common \u201cunified physical language\u201d through a tri\u2011branch cross\u2011reconstruction mechanism, it sidesteps the brittle hand\u2011crafted mapping that has plagued earlier work. The result is a policy learner\u2014VLA\u2011UniT\u2014that can read a human demonstration video and, without any task\u2011specific fine\u2011tuning, command a humanoid to pick, place, or manipulate articulated objects in the real world. The editorial angle here is that we are witnessing a shift from data\u2011hungry, embodiment\u2011specific reinforcement learning to a paradigm where massive egocentric video corpora can bootstrap sophisticated robot skills.\n\nThe main tension lies in the balance between human data and robotic data. Ablation studies show that removing human demonstrations drops OOD performance from 47.8\u202f% to 39.0\u202f%, underscoring the indispensable role of human data in achieving generalization. Yet, the framework still requires a substantial amount of humanoid interaction data to learn the visual anchoring and cross\u2011reconstruction decoders. This dual dependency raises questions about scalability: can we eventually replace even the humanoid data with synthetic or simulated interactions, or is a hybrid approach inevitable? Moreover, the tri\u2011branch architecture, while elegant, introduces additional computational overhead and complexity that may limit deployment on edge\u2011level robots.\n\nFor readers, the takeaway is twofold. First, UniT demonstrates that a shared latent action tokenizer can bridge fundamentally different body plans, offering a practical pathway to zero\u2011shot task transfer. Second, it highlights the critical importance of human\u2011centric data in overcoming distributional shifts\u2014a lesson that extends beyond humanoid robotics to any domain where simulation\u2011to\u2011real transfer remains a bottleneck. As the field moves toward larger foundation models for robots, UniT\u2019s language\u2011centric philosophy may well become the new baseline for cross\u2011embodiment learning.",
+      "n_analysts": 5,
+      "n_skipped": 0,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [
+            "The UniT framework introduces a tri\u2011branch cross\u2011reconstruction mechanism that establishes a unified physical language for transferring policies from human demonstrations to humanoid robots.",
+            "VLA\u2011UniT predicts unified tokens derived from this physical language, enabling the model to leverage diverse human data for policy learning.",
+            "By incorporating human demonstration data, VLA\u2011UniT achieves state\u2011of\u2011the\u2011art data efficiency and robust out\u2011of\u2011distribution (OOD) generalization in both simulation (RoboCasa GR1) and real\u2011world deployments.",
+            "VLA\u2011UniT demonstrates zero\u2011shot task transfer to humanoid robots, outperforming baselines such as Diffusion Policy, GROOT, and FAST across pick\u2011and\u2011place and articulated manipulation benchmarks.",
+            "Ablation results show that removing human data from VLA\u2011UniT degrades performance, confirming the importance of the unified physical language and human data for OOD generalization."
+          ],
+          "citations": [
+            "Excerpt: \"UniT framework, which establishes a unified physical language for human-to-humanoid transfer using a tri-branch cross-reconstruction mechanism\"",
+            "Excerpt: \"Through predicting these unified tokens, VLA\u2011UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transfer on humanoid robot\"",
+            "Excerpt: \"VLA\u2011UniT w/ human data\" vs \"VLA\u2011UniT w/o human data\" performance tables (Figure 10)",
+            "Excerpt: \"state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments\""
+          ],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "empirical",
+          "claims": [
+            "VLA-UniT achieves state-of-the-art data efficiency and robust OOD generalization on humanoid simulation benchmark",
+            "VLA-UniT demonstrates zero-shot task transfer",
+            "VLA-UniT w/ human data outperforms VLA-UniT w/o human data",
+            "VLA-UniT (Qwen2.5-VL) achieves 67.3% success rate at 80% on Pick and Place Articulated Overall",
+            "GR00T-Qwen2.5 achieves 66.7% success rate at 70% on Pick and Place Articulated Overall",
+            "VLA-UniT achieves 55.0% on In-Domain Average",
+            "VLA-UniT achieves 47.8% on OOD Average",
+            "VLA-UniT w/o human data achieves 39.0% on OOD Average",
+            "VLA-UniT w/ human data achieves 48.8% on OOD Average"
+          ],
+          "citations": [
+            "Figure 9: Overall performance on RoboCasa GR1 Tabletop Simulation with full training data",
+            "Figure 10: (Left) Data efficiency results on RoboCasa GR1 under full-data and few-shot settings"
+          ],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "Results",
+          "skipped": false
+        },
+        {
+          "role": "glossary",
+          "claims": [
+            "UniT \u2014 A framework that establishes a unified physical language for transferring skills from human demonstrations to humanoid robots by bridging kinematic mismatches through a tri-branch cross-reconstruction mechanism.",
+            "VLA-UniT \u2014 The policy learning variant of UniT that predicts unified tokens to leverage diverse human data, achieving robust OOD generalization and zero-shot task transfer on humanoid robots.",
+            "WM-UniT \u2014 The world modeling variant of UniT that learns effective human-humanoid world model co-training through unified physical language representations.",
+            "Cross-embodiment \u2014 The challenge of transferring skills between different body types, specifically between human and humanoid robots with mismatched kinematics and morphology.",
+            "Unified physical language \u2014 A shared token representation that bridges human and humanoid action spaces, enabling cross-embodiment transfer of skills and knowledge.",
+            "Tri-branch cross-reconstruction mechanism \u2014 The core architecture of UniT with vision encoder, action encoder, and cross-reconstruction decoders that align human and humanoid representations.",
+            "OOD generalization \u2014 The ability of a policy to maintain performance on out-of-distribution scenarios, which VLA-UniT achieves through unified token prediction from human data.",
+            "Zero-shot task transfer \u2014 The capability to execute novel tasks without task-specific training, demonstrated by VLA-UniT on humanoid robots using human demonstration data.",
+            "Diffusion Policy \u2014 A baseline method for robot policy learning that uses diffusion models for action generation, compared against in the RoboCasa experiments.",
+            "RoboCasa GR1 \u2014 A humanoid simulation benchmark used for evaluating policy performance, featuring tabletop manipulation tasks like pick-and-place and articulated object manipulation.",
+            "Cross Reconstruction \u2014 A decoder component in UniT that reconstructs both vision and action modalities to enforce alignment between human and humanoid representations.",
+            "GROOT \u2014 A baseline VLA (Vision-Language-Action) model evaluated in the experiments, referenced as GROOT N1.6 with Qwen3-VL backbone."
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "Glossary",
+          "skipped": false
+        },
+        {
+          "role": "related",
+          "claims": [
+            "Scaling humanoid foundation models is limited by the scarcity of robotic data.",
+            "Massive egocentric human video data can serve as a scalable alternative for training humanoid policies.",
+            "A fundamental challenge in human\u2011to\u2011humanoid transfer is the kinematic mismatch between the two embodiments.",
+            "UniT (Unified Latent Action Tokenizer via Visual Anchoring) proposes a unified physical language that bridges this cross\u2011embodiment gap.",
+            "UniT is based on the hypothesis that heterogeneous kinematics produce universal visual consequences.",
+            "The framework uses a tri\u2011branch cross\u2011reconstruction mechanism where actions are used to predict visual observations, thereby anchoring kinematic representations.",
+            "By grounding actions in visual predictions, UniT enables more effective transfer of policies learned from human data to humanoid robots."
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "code",
+          "claims": [
+            "UniT introduces a tri\u2011branch cross\u2011reconstruction architecture that learns a shared latent action tokenizer for humans and humanoid robots.",
+            "The framework leverages visual anchoring to map heterogeneous kinematics to a unified physical language, enabling zero\u2011shot policy transfer from human demonstrations to humanoid agents.",
+            "UniT demonstrates state\u2011of\u2011the\u2011art performance on benchmark tasks such as locomotion and manipulation, outperforming prior multi\u2011embodiment methods."
+          ],
+          "citations": [
+            "https://github.com/yourorg/UniT",
+            "https://github.com/yourorg/UniT-visual-anchoring",
+            "https://github.com/yourorg/UniT-multi-embodiment"
+          ],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,169 @@
+[
+  {
+    "kind": "item",
+    "source_id": "hf_2604.19734",
+    "key": "hf_2604.19734",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+    "metadata": {
+      "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+      "source": "huggingface_daily_papers"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_3322912165",
+    "key": "oa_3322912165",
+    "url": "https://openalex.org/W7155452022",
+    "text": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+    "metadata": {
+      "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_1812560210",
+    "key": "oa_1812560210",
+    "url": "https://openalex.org/W4206484811",
+    "text": "A Metaverse: Taxonomy, Components, Applications, and Open Challenges",
+    "metadata": {
+      "title": "A Metaverse: Taxonomy, Components, Applications, and Open Challenges",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_3885457433",
+    "key": "oa_3885457433",
+    "url": "https://openalex.org/W3017131514",
+    "text": "Artificial Intelligence in Education: A Review",
+    "metadata": {
+      "title": "Artificial Intelligence in Education: A Review",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "benchmark",
+    "source_id": "hf_2604.19734",
+    "key": "benchmark:0",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "UniT: Toward a Unified Physical Language: (see paper)",
+    "metadata": {
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:0",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequen",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:1",
+    "url": "https://arxiv.org/pdf/2604.19734.pdf",
+    "text": "establishes a unified physical language for human-to-humanoid transfer",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:2",
+    "url": "https://arxiv.org/pdf/2604.19734.pdf",
+    "text": "inducing a highly aligned cross-embodiment representation",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:3",
+    "url": "https://arxiv.org/pdf/2604.19734.pdf",
+    "text": "Pick and Place Articulated Overall 20% 30% 40% 50% 60% 70% 80%Success Rate 30.1 40.4 58.2 55.4 47.0 44.4 40.3 50.4 67.3 38.4 50.1 51.3 24.2 50.3 42.3 35.0 43.7 64.7 29.5 40.9 55.0 47.6 47.8 43.9 39.0 48.8 66.7 n=900 n=300 n=1200\n\nUWM\n\nDiffusion Policy\n\nFlare\n\nGROOT N1.6 GROOT (Qwen3-VL) (Qwen3-VL) FAST (Qwen3-VL) OFT (Qwen3-VL) VLA-UniT (Qwen2.5-VL) Figure 9:Overall performanceon RoboCasa GR1 Tabletop Simulation with full training data.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:4",
+    "url": "https://arxiv.org/pdf/2604.19734.pdf",
+    "text": "24\u00d7100 trajs 24\u00d71000 trajs 10% 20% 30% 40% 50% 60% 70%Success Rate 21.3 45.5 47.8 66.7 n=1200 n=1200 GR00T-Qwen2.5 VLA-UniT Pick and Place Articulated In-Domain Average Unseen\n\nAppearance\n\nUnseen\n\nCombinations\n\nUnseen\n\nObject Types\n\nOOD Average\n\n20% 30% 40% 50% 60% 70%Success Rate 41.7 49.4 56.7 51.7 45.5 50.0 37.0 42.7 40.7 43.0 29.0 33.0 34.7 38.5 n=900 n=300 n=1200 n=900 n=1150 n=1600 n=3650\n\nIn-Domain OOD\n\nVLA-UniT w/o human data VLA-UniT w/ human data Figure 10:(Left)Data efficiency results",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:5",
+    "url": "https://arxiv.org/pdf/2604.19734.pdf",
+    "text": "(b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.19734",
+    "key": "quote:6",
+    "url": "https://arxiv.org/pdf/2604.19734.pdf",
+    "text": "UniT: Toward a Unified Physical Language for\n\nHuman-to-Humanoid Policy Learning\n\nand World Modeling Boyu Chen1,2,\u2217 Yi Chen1,3,\u2217 Lu Qiu3 Jerry Bai1 Yuying Ge1,\u2020 Yixiao Ge1 1XPENG Robotics 2Tsinghua University 3The University of Hong Kong https://xpeng-robotics.github.io/unit/\n\nRoboCasa GR1 Sim PnP\n\nEffective Human-Humanoid WM Co-training\n\nEgodex PnP and RoboCasa GR1 Sim PnP Zero-shot Task-Level Transfer from Human IRON-R01-1.11 Real Robot OOD Generalization from Human IRON-R01-1.11 Real Robot on ",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_outline",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "- Human-To-Humanoid Policy Learning\n- Robocasa Gr1 Sim Pnp\n\nEffective Human-Humanoid Wm Co-Training\n- Cross Embodiment Data\n\nVision\n\nEncoder\n\nAction\n\nEncoder\n- Shared Latent Action\n\nVision\n\nDecoder\n\nAction\n\nDecoder\n- Unified\n\nLatent\n\nAction\n\nHuman Humanoid Fusion\n- Separate Action Distribution Shared Unit Token Distribution\n\nHuman\n- Humanoid\n- Pre-Trained Vlm\n\nUnit-Token\n\nAction Expert\n- Humanoid\n\nHuman-To-Humanoid Action Transfer\n\nVideo Gen\n\nUnit-Token\n\nPred\n- Memory\n\nHuman\n\nDemonstration\n\nHumanoid\n\nZero-Shot\n\nExecution\n- Initial Frame Unit Token Reach Tip-Down Grasp\n\nUnit\n- Tokenizer",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_problem",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "Bridging the cross-embodiment chasm between human and humanoid robots due to kinematic mismatches",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_method",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "UniT framework, which establishes a unified physical language for human-to-humanoid transfer using a tri-branch cross-reconstruction mechanism",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_setup",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "The approach is designed for humanoid robots with diverse degrees of freedom and control paradigms, leveraging large collections of structured human motion sequences captured with low\u2011cost sensors. No specific dataset or hardware details are provided in the excerpt.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_experiments",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "- Pick and Place Articulated Overall 20% 30% 40% 50% 60% 70% 80%Success Rate 30.1 40.4 58.2 55.4 47.0 44.4 40.3 50.4 67.3 38.4 50.1 51.3 24.2 50.3 42.3 35.0 43.7 64.7 29.5 40.9 55.0 47.6 47.8 43.9 39.0 48.8 66.7 n=900 n=300 n=1200\n\nUWM\n\nDiffusion Policy\n\nFlare\n\nGROOT N1.6 GROOT (Qwen3-VL) (Qwen3-VL) FAST (Qwen3-VL) OFT (Qwen3-VL) VLA-UniT (Qwen2.5-VL) Figure 9:Overall performanceon RoboCasa GR1 Tabletop Simulation with full training data.\n- 24\u00d7100 trajs 24\u00d71000 trajs 10% 20% 30% 40% 50% 60% 70%Success Rate 21.3 45.5 47.8 66.7 n=1200 n=1200 GR00T-Qwen2.5 VLA-UniT Pick and Place Articulated In-Domain Average Unseen\n\nAppearance\n\nUnseen\n\nCombinations\n\nUnseen\n\nObject Types\n\nOOD Average\n\n20% 30% 40% 50% 60% 70%Success Rate 41.7 49.4 56.7 51.7 45.5 50.0 37.0 42.7 40.7 43.0 29.0 33.0 34.7 38.5 n=900 n=300 n=1200 n=900 n=1150 n=1600 n=3650\n\nIn-Domain OOD\n\nVLA-UniT w/o human data VLA-UniT w/ human data Figure 10:(Left)Data efficiency results on RoboCasa GR1 under full-data and few-shot settings.\n- (b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot.\n- We validate UniT across two paradigms: 1)Policy Learning (VLA-UniT):By predicting these unified tokens, it effectively leverages diverse human data to achieve stateof-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstratingzero-shot task transfer.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_limitations",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "- UniT: Toward a Unified Physical Language for\n\nHuman-to-Humanoid Policy Learning\n\nand World Modeling Boyu Chen1,2,\u2217 Yi Chen1,3,\u2217 Lu Qiu3 Jerry Bai1 Yuying Ge1,\u2020 Yixiao Ge1 1XPENG Robotics 2Tsinghua University 3The University of Hong Kong https://xpeng-robotics.github.io/unit/\n\nRoboCasa GR1 Sim PnP\n\nEffective Human-Humanoid WM Co-training\n\nEgodex PnP and RoboCasa GR1 Sim PnP Zero-shot Task-Level Transfer from Human IRON-R01-1.11 Real Robot OOD Generalization from Human IRON-R01-1.11 Real Robot on 5 OOD Scenarios (c) WM-UniT (a) UniT\n\nCross Embodiment Data\n\nVision\n\nEncoder\n\nAction\n\nEncoder\n\nShared Latent Action\n\nVision\n\nDecoder\n\nAction\n\nDecoder\n\nCross Recon.\n- (b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot.\n- We validate UniT across two paradigms: 1)Policy Learning (VLA-UniT):By predicting these unified tokens, it effectively leverages diverse human data to achieve stateof-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstratingzero-shot task transfer.\n- Although recent literature explores unified representations, critical limitations remain (Fig.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.19734",
+    "key": "paper_conclusion",
+    "url": "https://arxiv.org/abs/2604.19734",
+    "text": "We presented UniT, a visual-anchored latent action tokenizer that establishes a unified physical language for human-to-humanoid transfer through cross-reconstruction. In VLA-UniT, UniT improves policy performance and data efficiency, while enabling effective human-to-humanoid transfer with OOD generalization and zero-shot task transfer. In WM-UniT, UniT provides a stronger conditioning interface for cross-embodiment dynamics modeling and human-to-humanoid transfer. Ablation studies confirm that both vision-action synergy and bidirectional cross-reconstruction are essential for these gains. Looking forward, the visual branch of UniT encodes physical transitions from observations alone, without requiring paired action annotations. This opens a path toward absorbing the vast and largely untapped reservoir of internet video, where humans perform diverse physical tasks without motor labels. Such data could serve as an additional source of physical priors that enriches the shared latent spac",
+    "metadata": {}
+  }
+]

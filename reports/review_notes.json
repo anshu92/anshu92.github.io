@@ -1,0 +1,64 @@
+[
+  {
+    "role": "adversary",
+    "pass_review": false,
+    "reviewer_weight": 1.0,
+    "findings": [
+      "missing_falsifiers",
+      "vague_impact_claims",
+      "missing_tradeoffs"
+    ],
+    "rewrite_targets": [
+      "Why this works",
+      "The operating constraint the paper is actually fighting",
+      "What I would test next"
+    ],
+    "summary": "The draft lacks clear falsification experiments, under-explains UniT's advantages over alternatives, and makes vague claims about impact without concrete evidence.",
+    "metadata": {
+      "severity": "blocking",
+      "top_risk": "The absence of falsifiers and tradeoffs weakens the credibility of the claims and prevents readers from assessing the validity of the method."
+    }
+  },
+  {
+    "role": "evidence_verifier",
+    "pass_review": true,
+    "reviewer_weight": 1.0,
+    "findings": [],
+    "rewrite_targets": [],
+    "summary": "The draft accurately represents the paper's claims without inventing benchmark numbers; all major claims (data efficiency, OOD generalization, zero-shot transfer, t-SNE visualizations) are supported by the evidence.",
+    "metadata": {
+      "severity": "advisory",
+      "needs_number_rewrite": false
+    }
+  },
+  {
+    "role": "render_reviewer",
+    "pass_review": true,
+    "reviewer_weight": 1.0,
+    "findings": [],
+    "rewrite_targets": [],
+    "summary": "Render review found no blocking issues.",
+    "metadata": {}
+  },
+  {
+    "role": "meta_reviewer",
+    "pass_review": true,
+    "reviewer_weight": 1.0,
+    "findings": [],
+    "rewrite_targets": [],
+    "summary": "The draft lacks clear falsification experiments, under-explains UniT's advantages over alternatives, and makes vague claims about impact without concrete evidence. | The draft accurately represents the paper's claims without inventing benchmark numbers; all major claims (data efficiency, OOD generalization, zero-shot transfer, t-SNE visualizations) are supported by the evidence. | Render review found no blocking issues.",
+    "metadata": {
+      "all_findings": [
+        "missing_falsifiers",
+        "vague_impact_claims",
+        "missing_tradeoffs"
+      ],
+      "weighted_score": 0.8,
+      "reviewer_weights": {
+        "evidence_verifier": 0.45,
+        "render_reviewer": 0.35,
+        "adversary": 0.2
+      }
+    }
+  }
+]

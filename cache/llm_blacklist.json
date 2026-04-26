@@ -1,0 +1,9 @@
+{
+"gemini:gemini-2.5-flash": 1777252680.2795644,
+"openrouter:deepseek/deepseek-r1-0528:free": 1777252782.7405336,
+"openrouter:qwen/qwen3-next-80b-a3b-instruct:free": 1777176336.6158078,
+"openrouter:qwen/qwen3-235b-thinking:free": 1777259198.210224,
+"openrouter:meta-llama/llama-3.3-70b-instruct:free": 1777173416.4968684,
+"openrouter:qwen/qwen3-coder:free": 1777176414.9580405,
+"openrouter:nvidia/nemotron-3-super-120b-a12b:free": 1777259330.7984283
+}
