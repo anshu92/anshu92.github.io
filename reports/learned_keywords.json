@@ -1,0 +1,15 @@
+{
+  "llm_scaling": [
+    "cross reconstruction",
+    "embodiment agnostic",
+    "visual anchoring",
+    "kinematic bridge",
+    "physical intents",
+    "bidirectional constraint",
+    "tsne visualizations",
+    "spurious correlations",
+    "ablation studies",
+    "sim to real gap",
+    "mo cap"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "mandatory_claims": [
+    "- Pick and Place Articulated Overall 20% 30% 40% 50% 60% 70% 80%Success Rate 30.1 40.4 58.2 55.4 47.0 44.4 40.3 50.4 67.3 38.4 50.1 51.3 24.2 50.3 42.3 35.0 43.7 64.7 29.5 40.9 55.0 47.6 47.8 43.9 39.0 48.8 66.7 n=900 n=",
+    "UniT (Unified Latent Action Tokenizer via Visual Anchoring) is a framework that establishes a unified physical language for human-to-humanoid transfer. It employs a tri-branch cross-reconstruction mechanism where actions"
+  ],
+  "mandatory_sections": [
+    "why this works",
+    "what would falsify this",
+    "when to use it"
+  ],
+  "required_visuals": [
+    "one mechanism diagram"
+  ],
+  "likely_failures": [
+    "UniT: Toward a Unified Physical Language for\n\nHuman-to-Humanoid Policy Learning\n\nand World Modeling Boyu Chen1,2,\u2217 Yi Chen1,3,\u2217 Lu Qiu3 Jerry Bai1 Yuying Ge1,\u2020 Yixiao Ge1 1XPENG Robotics 2Tsinghua University 3The University of Hong Kong https://xpeng-robotics.github.io/unit/\n\nRoboCasa GR1 Sim PnP\n\nEffective Human-Humanoid WM Co-training\n\nEgodex PnP and RoboCasa GR1 Sim PnP Zero-shot Task-Level Transfer from Human IRON-R01-1.11 Real Robot OOD Generalization from Human IRON-R01-1.11 Real Robot on 5 OOD Scenarios (c) WM-UniT (a) UniT\n\nCross Embodiment Data\n\nVision\n\nEncoder\n\nAction\n\nEncoder\n\nShared Latent Action\n\nVision\n\nDecoder\n\nAction\n\nDecoder\n\nCross Recon.",
+    "(b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot."
+  ],
+  "preventive_checks": [
+    "verify numeric claims against evidence",
+    "confirm mermaid and table render cleanly"
+  ],
+  "backup_remedies": [
+    "drop unsupported metrics",
+    "replace broken visuals with summary-only output"
+  ],
+  "reviewer_focus": [
+    "evidence grounding",
+    "tradeoffs",
+    "decision usefulness"
+  ]
+}

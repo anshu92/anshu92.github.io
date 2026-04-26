@@ -1,0 +1,257 @@
+{
+  "ok": 31,
+  "fail": 3,
+  "blacklisted_skips": 12,
+  "blacklist_added": [
+    "gemini:gemini-2.5-flash",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+    "openrouter:deepseek/deepseek-r1-0528:free"
+  ],
+  "tokens_in": 63789,
+  "tokens_out": 11915,
+  "usd_spent": 0.0,
+  "by_task": {
+    "rank_reasoning": {
+      "calls": 1,
+      "tokens_in": 2724,
+      "tokens_out": 62,
+      "usd": 0.0
+    },
+    "paper_chunk_summary": {
+      "calls": 5,
+      "tokens_in": 6395,
+      "tokens_out": 1282,
+      "usd": 0.0
+    },
+    "supervisor_route": {
+      "calls": 1,
+      "tokens_in": 150,
+      "tokens_out": 14,
+      "usd": 0.0
+    },
+    "analyst_related": {
+      "calls": 1,
+      "tokens_in": 227,
+      "tokens_out": 89,
+      "usd": 0.0
+    },
+    "analyst_methods": {
+      "calls": 1,
+      "tokens_in": 883,
+      "tokens_out": 32,
+      "usd": 0.0
+    },
+    "analyst_empirical": {
+      "calls": 1,
+      "tokens_in": 798,
+      "tokens_out": 32,
+      "usd": 0.0
+    },
+    "analyst_code": {
+      "calls": 1,
+      "tokens_in": 211,
+      "tokens_out": 180,
+      "usd": 0.0
+    },
+    "analyst_glossary": {
+      "calls": 1,
+      "tokens_in": 1288,
+      "tokens_out": 31,
+      "usd": 0.0
+    },
+    "visual_planner": {
+      "calls": 1,
+      "tokens_in": 1336,
+      "tokens_out": 60,
+      "usd": 0.0
+    },
+    "committee_synthesis": {
+      "calls": 1,
+      "tokens_in": 240,
+      "tokens_out": 260,
+      "usd": 0.0
+    },
+    "query_gen": {
+      "calls": 1,
+      "tokens_in": 169,
+      "tokens_out": 60,
+      "usd": 0.0
+    },
+    "planning_brief": {
+      "calls": 1,
+      "tokens_in": 6058,
+      "tokens_out": 544,
+      "usd": 0.0
+    },
+    "draft_full": {
+      "calls": 4,
+      "tokens_in": 23990,
+      "tokens_out": 5651,
+      "usd": 0.0
+    },
+    "draft_cite_repair": {
+      "calls": 1,
+      "tokens_in": 850,
+      "tokens_out": 818,
+      "usd": 0.0
+    },
+    "draft_section_critic": {
+      "calls": 3,
+      "tokens_in": 5280,
+      "tokens_out": 277,
+      "usd": 0.0
+    },
+    "draft_rewrite_section": {
+      "calls": 3,
+      "tokens_in": 3350,
+      "tokens_out": 145,
+      "usd": 0.0
+    },
+    "editor_grounding": {
+      "calls": 2,
+      "tokens_in": 6847,
+      "tokens_out": 700,
+      "usd": 0.0
+    },
+    "explainer_rewrite": {
+      "calls": 1,
+      "tokens_in": 1290,
+      "tokens_out": 1196,
+      "usd": 0.0
+    },
+    "editor_rubric": {
+      "calls": 1,
+      "tokens_in": 1703,
+      "tokens_out": 482,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "gemini-2.5-flash": {
+      "calls": 22,
+      "tokens_in": 34889,
+      "tokens_out": 4428,
+      "usd": 0.0
+    },
+    "llama-3.3-70b-versatile": {
+      "calls": 2,
+      "tokens_in": 1390,
+      "tokens_out": 1219,
+      "usd": 0.0
+    },
+    "qwen/qwen3-32b": {
+      "calls": 1,
+      "tokens_in": 1564,
+      "tokens_out": 229,
+      "usd": 0.0
+    },
+    "meta-llama/llama-3.3-70b-instruct:free": {
+      "calls": 1,
+      "tokens_in": 5876,
+      "tokens_out": 1028,
+      "usd": 0.0
+    },
+    "openrouter/free": {
+      "calls": 5,
+      "tokens_in": 20070,
+      "tokens_out": 5011,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 4,
+    "committee": 10,
+    "draft": 7,
+    "polish": 2,
+    "editor": 2
+  },
+  "llm_cap": 90,
+  "llm_calls": 34,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'code', 'visual_planner'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer",
+    "planning_brief",
+    "adversary_review",
+    "evidence_verifier",
+    "render_reviewer",
+    "meta_review"
+  ],
+  "committee_synthesis": {
+    "narrative": "The grand ambition of scaling humanoid foundation models faces a stark reality: a severe scarcity of robotic data. While massive egocentric human data offers a tantalizing alternative, the inherent kinematic mismatches between human and humanoid bodies have long presented a formidable barrier to effective policy transfer. This fundamental tension between data abundance and practical applicability has stymied progress, leaving a critical gap in the development of truly capable humanoid AI.\n\nEnter UniT, the Unified Latent Action Tokenizer via Visual Anchoring, a framework designed to forge a unified physical language that bridges this divide. Its core insight is elegantly simple yet profound: despite diverse underlying kinematics, actions often lead to universal visual consequences. By leveraging this principle, UniT employs a sophisticated tri-branch cross-reconstruction mechanism, where actions are used to predict vision, effectively anchoring disparate kinematics to a common visual understanding.\n\nThis innovative approach promises to unlock a treasure trove of human data for humanoid learning. By establishing a shared visual lexicon for action, UniT circumvents the need for direct kinematic alignment, offering a scalable pathway to transfer complex policies from human demonstrations to robotic platforms. The ability to abstract physical actions into a visually consistent language represents a significant leap, potentially accelerating the development of more adaptable and intelligent humanoids by finally harnessing the vastness of human experience.",
+    "report": {
+      "narrative": "The grand ambition of scaling humanoid foundation models faces a stark reality: a severe scarcity of robotic data. While massive egocentric human data offers a tantalizing alternative, the inherent kinematic mismatches between human and humanoid bodies have long presented a formidable barrier to effective policy transfer. This fundamental tension between data abundance and practical applicability has stymied progress, leaving a critical gap in the development of truly capable humanoid AI.\n\nEnter UniT, the Unified Latent Action Tokenizer via Visual Anchoring, a framework designed to forge a unified physical language that bridges this divide. Its core insight is elegantly simple yet profound: despite diverse underlying kinematics, actions often lead to universal visual consequences. By leveraging this principle, UniT employs a sophisticated tri-branch cross-reconstruction mechanism, where actions are used to predict vision, effectively anchoring disparate kinematics to a common visual understanding.\n\nThis innovative approach promises to unlock a treasure trove of human data for humanoid learning. By establishing a shared visual lexicon for action, UniT circumvents the need for direct kinematic alignment, offering a scalable pathway to transfer complex policies from human demonstrations to robotic platforms. The ability to abstract physical actions into a visually consistent language represents a significant leap, potentially accelerating the development of more adaptable and intelligent humanoids by finally harnessing the vastness of human experience.",
+      "n_analysts": 6,
+      "n_skipped": 4,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        },
+        {
+          "role": "empirical",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        },
+        {
+          "role": "glossary",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        },
+        {
+          "role": "related",
+          "claims": [
+            "No prior work is explicitly mentioned in the provided 'Main references' section.",
+            "No follow-up work is explicitly mentioned in the provided 'Cited by / follow-ups' section."
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        },
+        {
+          "role": "code",
+          "claims": [
+            "Scaling humanoid foundation models is hindered by the lack of robotic data.",
+            "Massive egocentric human data presents a scalable alternative, but transferring policies from humans to humanoids is challenging due to kinematic mismatches.",
+            "UniT (Unified Latent Action Tokenizer via Visual Anchoring) is a proposed framework designed to create a unified physical language for human-to-humanoid policy transfer.",
+            "UniT operates on the principle that diverse kinematics result in universal visual consequences.",
+            "The UniT framework utilizes a tri-branch cross-reconstruction mechanism where actions are used to predict vision, anchoring kinematics."
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "Methodology",
+          "skipped": false
+        },
+        {
+          "role": "visual_planner",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        }
+      ]
+    }
+  }
+}

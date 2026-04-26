@@ -1,0 +1,15 @@
+{
+  "structural": [
+    "takeaway_lacks_number",
+    "no_results_table",
+    "unfenced_mermaid_block",
+    "missing_mechanism_section",
+    "missing_decision_section"
+  ],
+  "unsupported_numeric_claims": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}
