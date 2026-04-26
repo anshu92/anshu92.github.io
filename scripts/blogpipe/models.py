@@ -199,6 +199,32 @@ class ReviewNote(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class SourceRegistryEntry(BaseModel):
+    kind: str
+    source_id: str = ""
+    key: str = ""
+    url: str = ""
+    text: str = ""
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class CitationAuditReport(BaseModel):
+    ok: bool = True
+    verified_links: list[str] = Field(default_factory=list)
+    invalid_links: list[str] = Field(default_factory=list)
+    removed_links: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+
+
+class GapNote(BaseModel):
+    code: str
+    message: str = ""
+    section_hint: str = ""
+    required_evidence: list[str] = Field(default_factory=list)
+    query_hint: str = ""
+    blocking: bool = True
+
+
 class RankResult(BaseModel):
     primary: Item
     score: float = 0.0

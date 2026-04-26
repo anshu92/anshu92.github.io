@@ -13,7 +13,10 @@ from langgraph.types import interrupt
 from .. import config, draft, formats, lint, memory, quality, topics
 from ..draft import (
     _cleanup_missing_cites,
+    _ensure_decision_section,
+    _ensure_mechanism_section,
     _polish_body,
+    _repair_or_inject_results_table,
     _resolve_cites,
     _sanitize_frontmatter_text,
     _slugify,
@@ -27,7 +30,9 @@ from ..draft import (
 )
 from ..llm_chain import budget, get_llm_usage, is_llm_call_cap_reached
 from ..memory import _ROOT
-from ..models import EvidenceBundle, PlanningBrief, ReviewNote
+from ..models import CitationAuditReport, EvidenceBundle, GapNote, PlanningBrief, ReviewNote
+from ..prompting import render_prompt
+from ..source_audit import build_source_registry, strip_unregistered_links
 from . import llm as gllm
 from . import supervisor as sup
 from .critics import (
@@ -49,6 +54,112 @@ LOG = logging.getLogger(__name__)
 
 _MAX_RESEARCH_WINGS = 2
 _MAX_REWRITES = 2
+
+
+def _source_registry(bundle: EvidenceBundle) -> list[dict[str, Any]]:
+    return [x.model_dump() for x in build_source_registry(bundle)]
+
+
+def _gap_notes(body: str, bundle: EvidenceBundle, planning: PlanningBrief) -> list[GapNote]:
+    issues = lint.structural_issues(body, bundle)
+    out: list[GapNote] = []
+    if "no_results_table" in issues:
+        out.append(
+            GapNote(
+                code="no_results_table",
+                message="Results table is missing or was removed.",
+                section_hint="Numbers the paper actually gives us",
+                required_evidence=["paper_experiments", "benchmarks"],
+                query_hint=f"{bundle.primary.title} benchmark results baseline metrics",
+            )
+        )
+    if "missing_mechanism_section" in issues:
+        out.append(
+            GapNote(
+                code="missing_mechanism_section",
+                message="Draft does not explain how the method works.",
+                section_hint="Why this works",
+                required_evidence=["paper_method"],
+                query_hint=f"{bundle.primary.title} method mechanism",
+            )
+        )
+    if "missing_decision_section" in issues:
+        out.append(
+            GapNote(
+                code="missing_decision_section",
+                message="Draft does not tell the reader what to test next.",
+                section_hint="What I would test next",
+                required_evidence=["paper_limitations", "paper_reproducibility"],
+                query_hint=f"{bundle.primary.title} limitations reproducibility",
+            )
+        )
+    if "comparative_claim_missing_metric" in issues:
+        out.append(
+            GapNote(
+                code="comparative_claim_missing_metric",
+                message="Comparative claim is not anchored to a metric or baseline.",
+                section_hint="Numbers the paper actually gives us",
+                required_evidence=["paper_experiments", "benchmarks"],
+                query_hint=f"{bundle.primary.title} compare baseline metric",
+            )
+        )
+    if "citation_count_below_min" in issues or "evaluative_paragraph_without_citation" in issues:
+        out.append(
+            GapNote(
+                code="citation_support_gap",
+                message="Draft needs stronger inline support for evaluative statements.",
+                section_hint="body",
+                required_evidence=["paper_method", "paper_experiments"],
+                query_hint=f"{bundle.primary.title} citation support",
+            )
+        )
+    for wanted in planning.mandatory_sections:
+        wanted_clean = (wanted or "").strip()
+        if not wanted_clean:
+            continue
+        normalized = wanted_clean.lower()
+        # Only treat concise role-like section requirements as enforceable.
+        # Long sentence-level planner outputs become noise rather than useful gaps.
+        if len(wanted_clean) > 48 or ":" in wanted_clean:
+            continue
+        if normalized not in (body or "").lower():
+            out.append(
+                GapNote(
+                    code="planning_section_gap",
+                    message=f"Planned section missing: {wanted_clean}",
+                    section_hint=wanted_clean,
+                    required_evidence=[],
+                    query_hint=f"{bundle.primary.title} {wanted_clean}",
+                    blocking=False,
+                )
+            )
+    # deterministic dedupe
+    seen: set[tuple[str, str]] = set()
+    deduped: list[GapNote] = []
+    for note in out:
+        key = (note.code, note.section_hint)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(note)
+    return deduped
+
+
+def _backfill_snippet(bundle: EvidenceBundle, note: GapNote) -> str:
+    chunks: list[str] = []
+    for key in note.required_evidence:
+        text = (bundle.section_evidence.get(key) or "").strip()
+        if text:
+            chunks.append(text[:800])
+    if note.code == "no_results_table" and bundle.benchmarks:
+        rows = [
+            f"- {b.name}: {b.value}{(' ' + b.unit) if b.unit else ''} vs {b.baseline or 'n/a'}"
+            for b in bundle.benchmarks[:4]
+        ]
+        chunks.append("\n".join(rows))
+    if not chunks and bundle.quotes:
+        chunks.append("\n".join(f'- "{q.text[:220]}"' for q in bundle.quotes[:2]))
+    return "\n\n".join(x for x in chunks if x).strip()[:2000]
 
 
 def _json_obj(text: str) -> dict[str, Any]:
@@ -334,6 +445,7 @@ def node_research(state: dict[str, Any]) -> dict[str, Any]:
     )
     return {
         "evidence": ev,
+        "source_registry": _source_registry(EvidenceBundle.model_validate(ev)),
         "research_trace": tr,
         "_done_research": True,
         "supervisor_decisions": sup.log_decision(state, "research"),
@@ -362,18 +474,7 @@ def node_planning_brief(state: dict[str, Any]) -> dict[str, Any]:
     if config.dry_run() or not config.llm_configured() or is_llm_call_cap_reached():
         plan = _fallback_planning_brief(bundle)
     else:
-        system = (
-            "You are the pre-write planning agent for a technical blog pipeline.\n"
-            "Create a concise execution brief before drafting.\n"
-            "Rules:\n"
-            "1. Be specific: prefer concrete claims, baselines, benchmarks, and failure modes.\n"
-            "2. Use only evidence-supported requirements or failure patterns seen in memory.\n"
-            "3. Name what the draft must prove, what reviewers must attack, and what should be cut if unsupported.\n"
-            "4. Output JSON only. No prose before or after the JSON.\n"
-            '5. Exact schema: {"mandatory_claims":[str], "mandatory_sections":[str], "required_visuals":[str], '
-            '"likely_failures":[str], "preventive_checks":[str], "backup_remedies":[str], "reviewer_focus":[str]}.\n'
-            "6. Keep each list short and high-signal."
-        )
+        system = render_prompt("graph_planner")
         user = (
             "### EDITORIAL_BRIEF\n"
             f'"""\n{brief.model_dump_json(indent=2)}\n"""\n\n'
@@ -598,6 +699,73 @@ def _node_draft_refine_inner(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def node_gap_analyzer(state: dict[str, Any]) -> dict[str, Any]:
+    """Deterministic draft-gap analysis before reviewer loops."""
+    bundle = evidence_model(state["evidence"])
+    body = state.get("body") or ""
+    planning = PlanningBrief.model_validate(state.get("planning_brief") or {})
+    gaps = _gap_notes(body, bundle, planning)
+    registry = _source_registry(bundle)
+    return {
+        "gap_analysis": [x.model_dump() for x in gaps],
+        "source_registry": registry,
+        "_done_gap_analysis": True,
+        "supervisor_decisions": sup.log_decision(state, "gap_analyzer"),
+    }
+
+
+def node_evidence_backfill(state: dict[str, Any]) -> dict[str, Any]:
+    """Attach targeted evidence snippets for the gaps the analyzer found."""
+    bundle = evidence_model(state["evidence"])
+    gaps = [GapNote.model_validate(x) for x in (state.get("gap_analysis") or [])]
+    changed = False
+    for note in gaps[:6]:
+        snippet = _backfill_snippet(bundle, note)
+        if not snippet:
+            continue
+        key = f"gap_backfill:{note.code}"
+        existing = (bundle.section_evidence.get(key) or "").strip()
+        if snippet != existing:
+            bundle.section_evidence[key] = snippet
+            changed = True
+    payload: dict[str, Any] = {
+        "source_registry": state.get("source_registry") or _source_registry(bundle),
+        "_done_backfill": True,
+        "supervisor_decisions": sup.log_decision(state, "evidence_backfill"),
+    }
+    if changed:
+        payload["evidence"] = json.loads(bundle.model_dump_json())
+    return payload
+
+
+def node_section_patcher(state: dict[str, Any]) -> dict[str, Any]:
+    """Patch the draft body from gap analysis and audit outgoing citation links."""
+    bundle = evidence_model(state["evidence"])
+    body = state.get("body") or ""
+    brief = brief_model(state["brief"])
+    gaps = [GapNote.model_validate(x) for x in (state.get("gap_analysis") or [])]
+    if gaps:
+        body = _repair_or_inject_results_table(body, bundle)
+        body = _ensure_mechanism_section(body, bundle)
+        body = _ensure_decision_section(body, bundle)
+        body = _polish_body(body, bundle, brief)
+    registry = [
+        x if isinstance(x, dict) else x.model_dump()
+        for x in (state.get("source_registry") or _source_registry(bundle))
+    ]
+    from ..models import SourceRegistryEntry  # noqa: PLC0415
+
+    model_registry = [SourceRegistryEntry.model_validate(x) for x in registry]
+    body, audit = strip_unregistered_links(body, model_registry)
+    return {
+        "body": body,
+        "citation_audit": audit.model_dump(),
+        "source_registry": registry,
+        "_done_section_patcher": True,
+        "supervisor_decisions": sup.log_decision(state, "section_patcher"),
+    }
+
+
 def node_adversary_review(state: dict[str, Any]) -> dict[str, Any]:
     """Adversarial reviewer: stress-test tradeoffs, falsifiers, and advice sections."""
     body = state.get("body") or ""
@@ -616,16 +784,7 @@ def node_adversary_review(state: dict[str, Any]) -> dict[str, Any]:
     else:
         raw = gllm.graph_llm_text(
             "adversary_review",
-            (
-                "You are the adversarial reviewer for a technical blog draft.\n"
-                "Look for the highest-value weaknesses first: missing tradeoffs, missing falsifiers, vague impact claims, "
-                "generic recommendations, and advice that exceeds the evidence.\n"
-                "Do not flag a paragraph just because it contains author synthesis or a recommendation. "
-                "Flag it only if the recommendation is generic, unsupported, or not story-specific.\n"
-                "Output JSON only with this exact schema:\n"
-                '{"role":"adversary","pass_review":true,"findings":["short_code"],"rewrite_targets":["section title"],'
-                '"summary":"one sentence","metadata":{"severity":"blocking|advisory","top_risk":"..."}}'
-            ),
+            render_prompt("graph_adversary"),
             (
                 "### PLANNING_BRIEF\n"
                 f'"""\n{planning.model_dump_json(indent=2)}\n"""\n\n'
@@ -679,18 +838,7 @@ def node_evidence_verifier(state: dict[str, Any]) -> dict[str, Any]:
     else:
         raw = gllm.graph_llm_text(
             "evidence_verifier",
-            (
-                "You are the evidence verifier for a technical blog draft.\n"
-                "Catch unsupported factual claims, unresolved citations, and source-alias mistakes.\n"
-                "Blocking: invented benchmark numbers, unsupported comparisons, contradictions with evidence.\n"
-                "Advisory only: author synthesis, reproducibility suggestions, implementation sketches, or recommendations "
-                "that are not presented as paper-reported facts.\n"
-                "If a claim is a derived arithmetic restatement of reported table numbers, prefer asking for a rewrite into "
-                "the underlying cited numbers instead of flagging a hard contradiction unless the wording exaggerates the claim.\n"
-                "Output JSON only with this exact schema:\n"
-                '{"role":"evidence_verifier","pass_review":true,"findings":["short_code"],"rewrite_targets":["section title"],'
-                '"summary":"one sentence","metadata":{"severity":"blocking|advisory","needs_number_rewrite":true}}'
-            ),
+            render_prompt("graph_evidence_verifier"),
             "### RECENT_FAILURE_MEMORY\n"
             f'"""\n{json.dumps(failure_memory, indent=2)[:3000]}\n"""\n\n'
             "### DRAFT_MD\n"
@@ -851,8 +999,11 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
         )
     else:
         undefined_after = lint.undefined_acronyms(body, [])
+    citation_audit = CitationAuditReport.model_validate(state.get("citation_audit") or {})
     lint_issues = final_lint_issues
     det_ground = lint.unsupported_numeric_claims(body, ev_text)
+    if citation_audit.invalid_links:
+        det_ground.extend([f"unregistered_citation_link:{u}" for u in citation_audit.invalid_links[:6]])
     usage = get_llm_usage()
     need_llm = bool(config.llm_configured() and not config.dry_run())
     llm_ok = True
@@ -931,6 +1082,7 @@ def node_editor(state: dict[str, Any]) -> dict[str, Any]:
     )
     d["pass_gate"] = qrep.pass_gate
     d["review_notes"] = [n.model_dump() for n in review_notes]
+    d["citation_audit"] = citation_audit.model_dump()
     return {
         "editor_report": d,
         "llm_ok": llm_ok,
@@ -1024,6 +1176,21 @@ rubric_score: {score}
     if state.get("planning_brief"):
         (_ROOT / "reports" / "planning_brief.json").write_text(
             json.dumps(state["planning_brief"], indent=2),
+            encoding="utf-8",
+        )
+    if state.get("source_registry"):
+        (_ROOT / "reports" / "source_registry.json").write_text(
+            json.dumps(state["source_registry"], indent=2),
+            encoding="utf-8",
+        )
+    if state.get("gap_analysis"):
+        (_ROOT / "reports" / "gap_analysis.json").write_text(
+            json.dumps(state["gap_analysis"], indent=2),
+            encoding="utf-8",
+        )
+    if state.get("citation_audit"):
+        (_ROOT / "reports" / "citation_audit.json").write_text(
+            json.dumps(state["citation_audit"], indent=2),
             encoding="utf-8",
         )
     if state.get("meta_review"):

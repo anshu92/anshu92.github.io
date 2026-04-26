@@ -10,10 +10,12 @@ from .. import config
 from .committee_subgraph import committee_node
 from .nodes import (
     node_adversary_review,
+    node_evidence_backfill,
     node_curate,
     node_draft_refine,
     node_editor,
     node_evidence_verifier,
+    node_gap_analyzer,
     node_harvest,
     node_meta_review,
     node_planning_brief,
@@ -22,6 +24,7 @@ from .nodes import (
     node_render_reviewer,
     node_research,
     node_review_gate,
+    node_section_patcher,
 )
 from .retry_policies import DEFAULT_RETRY, add_node_with_retry
 from .state import BlogState
@@ -37,6 +40,9 @@ def build_graph(
     add_node_with_retry(g, "rank", node_rank, DEFAULT_RETRY)
     add_node_with_retry(g, "planner", node_planning_brief, DEFAULT_RETRY)
     add_node_with_retry(g, "draft_refine", node_draft_refine, DEFAULT_RETRY)
+    add_node_with_retry(g, "gap_analyzer", node_gap_analyzer, DEFAULT_RETRY)
+    add_node_with_retry(g, "evidence_backfill", node_evidence_backfill, DEFAULT_RETRY)
+    add_node_with_retry(g, "section_patcher", node_section_patcher, DEFAULT_RETRY)
     add_node_with_retry(g, "adversary_review", node_adversary_review, DEFAULT_RETRY)
     add_node_with_retry(g, "evidence_verifier", node_evidence_verifier, DEFAULT_RETRY)
     add_node_with_retry(g, "render_reviewer", node_render_reviewer, DEFAULT_RETRY)
@@ -56,7 +62,10 @@ def build_graph(
         g.add_edge("rank", "research")
         g.add_edge("research", "planner")
     g.add_edge("planner", "draft_refine")
-    g.add_edge("draft_refine", "adversary_review")
+    g.add_edge("draft_refine", "gap_analyzer")
+    g.add_edge("gap_analyzer", "evidence_backfill")
+    g.add_edge("evidence_backfill", "section_patcher")
+    g.add_edge("section_patcher", "adversary_review")
     g.add_edge("adversary_review", "evidence_verifier")
     g.add_edge("evidence_verifier", "render_reviewer")
     g.add_edge("render_reviewer", "meta_reviewer")

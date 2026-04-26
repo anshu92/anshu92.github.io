@@ -26,6 +26,7 @@ from .models import (
     Pillar,
     Quote,
 )
+from .source_audit import build_source_registry
 from .memory import _ROOT
 
 LOG = logging.getLogger(__name__)
@@ -784,6 +785,10 @@ def run() -> EvidenceBundle:
     )
     (_ROOT / "reports" / "evidence_bundle.json").write_text(
         b.model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+    (_ROOT / "reports" / "source_registry.json").write_text(
+        json.dumps([x.model_dump() for x in build_source_registry(b)], indent=2),
         encoding="utf-8",
     )
     u = get_llm_usage()

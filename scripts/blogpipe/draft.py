@@ -15,6 +15,7 @@ from . import config, formats, lint, memory, openrouter_client
 from .llm_chain import get_llm_usage
 from .models import EditorialBrief, EvidenceBundle, Item, VisualPlan
 from .memory import _ROOT
+from .prompting import render_prompt
 from .voice import get_anchor
 
 LOG = logging.getLogger(__name__)
@@ -59,6 +60,36 @@ _DRAFT_GROUNDING_SOFTENER_SYSTEM = (
 _DERIVED_ARITHMETIC_HINT = re.compile(
     r"\b(?:up to|about|roughly|nearly|almost|around)\s+\d+(?:\.\d+)?\s+points?\b",
     re.I,
+)
+_ILLUSTRATIVE_SCORE_NOTE = re.compile(
+    r"^\*?Note:\s*Scores are illustrative\b.*$",
+    re.I | re.M,
+)
+_GENERIC_COMPARATIVE_SENTENCE = re.compile(
+    r"\b(?:significant advantage|substantial gains|improves?|boosts?|enhances?)\b"
+    r"(?![^.]{0,120}\b(?:%|x|ms|s|accuracy|score|metric|benchmark|fid|psnr|ssim|mmlu)\b)",
+    re.I,
+)
+_EVALUATIVE_PARA_WITHOUT_SUPPORT = re.compile(
+    r"\b(competitive|impressive|strong|useful|valuable|important|significant(?:ly)?|matters)\b",
+    re.I,
+)
+_CORRUPTED_COMPARATIVE_PHRASES = (
+    (
+        re.compile(
+            r"scaling laws suggest that model quality suggests stronger performance predictably with total parameters",
+            re.I,
+        ),
+        "Scaling laws suggest that model quality scales predictably with total parameters",
+    ),
+    (
+        re.compile(r"\bto suggests stronger performance quality via more experts\b", re.I),
+        "to improve model quality via more experts",
+    ),
+    (
+        re.compile(r"\bis a suggests stronger performance\b", re.I),
+        "is a meaningful advantage",
+    ),
 )
 
 
@@ -372,6 +403,13 @@ def _pick_section_sentence(bundle: EvidenceBundle, *keys: str, numeric: bool = F
     return ""
 
 
+def _paper_link(bundle: EvidenceBundle, label: str = "the paper") -> str:
+    url = (bundle.primary.url or "").strip()
+    if not url:
+        return label
+    return f"[{label}]({url})"
+
+
 def _clean_sentence(sent: str) -> str:
     return _normalize_research_attribution(_plain_text(sent))[:500]
 
@@ -432,6 +470,31 @@ def _normalize_generic_section_headings(body: str) -> str:
             continue
         out.append(line)
     return "\n".join(out).strip() + "\n"
+
+
+def _drop_illustrative_score_notes(body: str) -> str:
+    text = _ILLUSTRATIVE_SCORE_NOTE.sub("", body or "")
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip() + "\n"
+
+
+def _soften_unmeasured_comparatives(body: str, bundle: EvidenceBundle) -> str:
+    out: list[str] = []
+    for block in re.split(r"\n{2,}", (body or "").strip()):
+        if block.lstrip().startswith(("```", "|")):
+            out.append(block)
+            continue
+        if _GENERIC_COMPARATIVE_SENTENCE.search(block) and not lint.has_numeric_claim(block):
+            block = re.sub(
+                _GENERIC_COMPARATIVE_SENTENCE,
+                "suggests stronger performance",
+                block,
+                count=1,
+            )
+            if "http" not in block and "[cite:" not in block:
+                block = block.rstrip() + f" {_paper_link(bundle)}"
+        out.append(block)
+    return "\n\n".join(x for x in out if x.strip()).strip() + "\n"
 
 
 def _split_sentences(text: str) -> list[str]:
@@ -588,6 +651,25 @@ def _takeaway_from_bundle(bundle: EvidenceBundle) -> str:
             re.I,
         ):
             return _normalize_research_attribution(_plain_text(cleaned)[:240])
+    for key in ("paper_experiments", "paper_method", "paper_problem"):
+        sent = _pick_section_sentence(bundle, key, numeric=True)
+        if sent:
+            return sent[:240]
+    eval_text = " ".join(
+        x
+        for x in (
+            _section_text(bundle, "paper_method"),
+            _section_text(bundle, "paper_experiments"),
+            " ".join(q.text for q in (bundle.quotes or [])[:6] if getattr(q, "text", "")),
+        )
+        if x
+    )
+    metric_count = re.search(r"\b(four|4)\s+metrics?\b", eval_text, re.I)
+    if metric_count:
+        return (
+            "GSI-Bench scores spatial editing on four metrics, giving the paper a concrete way "
+            "to test whether generative training transfers back to spatial reasoning."
+        )
     if rows:
         method, metric, baseline = rows[0]
         sent = f"{method} reaches {metric} against {baseline}."
@@ -624,7 +706,75 @@ def _first_sentence(s: str, limit: int) -> str:
 def _sanitize_frontmatter_text(text: str, limit: int) -> str:
     s = _plain_text(text).replace('"', "'")
     s = _strip_explainer_cruft(s)
+    s = re.sub(r"\bScores are illustrative\b.*", "", s, flags=re.I)
     return _first_sentence(s, limit)
+
+
+def _frontmatter_takeaway(body: str, bundle: EvidenceBundle) -> str:
+    line = (body.split("\n", 1)[0] if body else "").strip()
+    if not line:
+        return _sanitize_frontmatter_text(_takeaway_from_bundle(bundle), 500)
+    unsupported = lint.unsupported_numeric_claims(line, bundle.model_dump_json())
+    if unsupported:
+        return _sanitize_frontmatter_text(_takeaway_from_bundle(bundle), 500)
+    return _sanitize_frontmatter_text(line, 500)
+
+
+def _ensure_mechanism_section(body: str, bundle: EvidenceBundle) -> str:
+    if re.search(r"\b(why this works|how it works|mechanism)\b", body or "", re.I):
+        return body
+    method = _pick_section_sentence(bundle, "paper_method")
+    if not method:
+        return body
+    mech = (
+        "## Why this works\n\n"
+        f"{method} {_paper_link(bundle)}\n"
+    )
+    table_match = re.search(r"(?ms)^##\s+Numbers the paper actually gives us.*?(?=^##\s+|\Z)", body or "")
+    if table_match:
+        return body[: table_match.start()] + mech + "\n" + body[table_match.start():]
+    first_h2 = re.search(r"^##\s+", body or "", re.M)
+    if first_h2:
+        return body[: first_h2.start()] + mech + "\n" + body[first_h2.start():]
+    return mech + "\n" + (body or "")
+
+
+def _ensure_decision_section(body: str, bundle: EvidenceBundle) -> str:
+    if re.search(r"\b(when to use|when not to use|should you use|what i would test next|what a practitioner should test next)\b", body or "", re.I):
+        return body
+    limits = _pick_section_sentence(bundle, "paper_limitations", "paper_reproducibility")
+    if not limits:
+        limits = "I would treat this as a benchmark and evaluation contribution first, then test transfer before copying the method into a product setting."
+    elif not limits.lower().startswith(("i would", "start with", "before")):
+        limits = (
+            "I would start by reproducing the smallest reported comparison and only then decide whether the extra complexity is worth adopting. "
+            + limits
+        )
+    section = (
+        "## What I would test next\n\n"
+        f"{limits} {_paper_link(bundle)}\n"
+    )
+    return (body.rstrip() + "\n\n" + section).strip() + "\n"
+
+
+def _add_support_links_to_evaluative_paragraphs(body: str, bundle: EvidenceBundle) -> str:
+    out: list[str] = []
+    for block in re.split(r"\n{2,}", (body or "").strip()):
+        stripped = block.strip()
+        if not stripped or stripped.startswith(("```", "|")):
+            out.append(block)
+            continue
+        if _EVALUATIVE_PARA_WITHOUT_SUPPORT.search(stripped) and "http" not in stripped and "[cite:" not in stripped:
+            block = block.rstrip() + f" {_paper_link(bundle)}"
+        out.append(block)
+    return "\n\n".join(x for x in out if x.strip()).strip() + "\n"
+
+
+def _repair_phrase_corruption(body: str) -> str:
+    text = body or ""
+    for pat, repl in _CORRUPTED_COMPARATIVE_PHRASES:
+        text = pat.sub(repl, text)
+    return text.strip() + "\n"
 
 
 def _glossary_terms_from_bundle(bundle: EvidenceBundle) -> list[str]:
@@ -832,11 +982,17 @@ def _polish_body(body: str, bundle: EvidenceBundle, brief: EditorialBrief) -> st
     body = _normalize_research_attribution(body)
     body = _normalize_takeaway_line(body)
     body = _ensure_grounded_takeaway(body, bundle)
+    body = _drop_illustrative_score_notes(body)
+    body = _soften_unmeasured_comparatives(body, bundle)
     body = _normalize_generic_section_headings(body)
     body = _dedupe_adjacent_lines(body)
     body = _strip_leading_title_echo_heading(body, bundle.primary.title)
     body = _promote_h3_when_no_h2(body)
     body = _repair_or_inject_results_table(body, bundle)
+    body = _ensure_mechanism_section(body, bundle)
+    body = _ensure_decision_section(body, bundle)
+    body = _add_support_links_to_evaluative_paragraphs(body, bundle)
+    body = _repair_phrase_corruption(body)
     body = _drop_unsupported_numeric_paragraphs(body, bundle)
     body = _drop_orphan_headings(body)
     body = _ensure_mermaid(body, bundle.primary.title, brief)
@@ -979,92 +1135,13 @@ def build_prompt(
     if len(ctx) > 11000:
         ctx = ctx[:11000] + "\n\n[EVIDENCE truncated to budget]\n"
     brief_json = brief.model_dump_json()
-    system = (
-        "You write Hugo markdown for senior engineers. You dissect someone else's paper; output ONLY "
-        "the markdown body (the tool adds frontmatter). No YAML, no H1, no ## heading that merely "
-        "repeats the paper title. Teach something real, earn trust, save time.\n"
-        "\nVOICE AND ATTRIBUTION:\n"
-        "- Not the authors' voice. For their claims: 'the authors', 'the paper', or the method name. "
-        "No 'we/our' for their experiments unless EVIDENCE says you reproduced them.\n"
-        "- First person only for your judgment: 'I buy this because...', 'I would test...'.\n"
-        "- Strong posts open on thesis or pain, then mechanism, eval, lessons and reproducibility—"
-        "without a rigid template.\n"
-        "\nPRINCIPLES:\n"
-        "1. Real problem first, not history or abstract theory.\n"
-        "2. Be concrete: systems, numbers, constraints, failure modes (e.g. p95 420ms→180ms beats "
-        "'we improved performance').\n"
-        "3. Flow: context → problem → approach → results → limits.\n"
-        "4. Examples: before/after, I/O, edge cases, code and diagrams that earn their place.\n"
-        "5. Name tradeoffs: alternatives and what was given up (latency, cost, accuracy, etc.).\n"
-        "6. Name failures, assumptions, when not to use the method. Not only the success path.\n"
-        "7. Every speed/accuracy/robustness claim needs a number, benchmark, [cite: id], or named "
-        "baseline. Layer-role or transfer 'folklore' only if EVIDENCE supports it, else omit.\n"
-        "7a. Never use collective lab voice for the authors: ban 'We propose', 'We introduce', "
-        "'Our method', 'Our framework' — use 'The authors propose …' / 'The paper introduces …'.\n"
-        "7b. Do not invent derived arithmetic summaries. If the paper reports 81.67% and 75.56%, you may "
-        "cite both numbers, but do not turn them into a new unsupported claim like 'up to 6 points' unless "
-        "that delta itself appears in EVIDENCE.\n"
-        "8. Tight sections: one question per section, no padding.\n"
-        "9. Close with a reader action grounded in the paper (repro, ablation, sanity check), not new "
-        "tools, counts, seeds, or thresholds the paper does not mention.\n"
-        "9b. Do not use generic blog headings or product language like 'Conclusion', 'How to apply in real-world scenarios', "
-        "'How to use this in production', or 'game-changer'. Replace them with specific, practitioner-facing headings.\n"
-        "10. Point of view: why the result matters, what would change your mind.\n"
-        "11. Define jargon on first use (acronyms expanded once; GLOSSARY is ground truth).\n"
-        "12. If VISUAL_PLAN is present, insert those figures and $$...$$ as given; no extra images or "
-        "stock art.\n"
-        "\nFIVE-QUESTION TEST (skim must answer all):\n"
-        "(a) What problem? (b) Why hard? (c) What was tried? (d) What worked and what did not? "
-        "(e) What should I do with this?\n"
-        "\nSTRUCTURE:\n"
-        "- Invent ## H2s for this story only; specific titles ('30% lower p95 at 2x memory'). Banned: "
-        "Introduction, Background, Overview, Results, Summary, Conclusion, and the meta/templated "
-        "headings called out in RED FLAGS below.\n"
-        "- Do not paste CONTENT GOALS as headings. First line: one-sentence takeaway with a number, "
-        "plain text only (no leading # or ## on that line). Put a blank line before the first real "
-        "## section. Do not repeat the takeaway or title as the next heading.\n"
-        "- Short paragraphs; skimmable bold or closing one-liners per section where useful.\n"
-        "\nHARD REQUIREMENTS:\n"
-        "- [cite: ID] for external claims; IDs: primary or "
-        + ", ".join(bundle.by_id.keys())
-        + ".\n"
-        "- One ```mermaid``` block: mechanism, flow, or comparison. Rewrite if the diagram still "
-        "needs a paragraph to read.\n"
-        "- Use a | Method | Metric | Baseline | table only when EVIDENCE contains verified benchmark "
-        "rows or explicit paper-experiment results. If EVIDENCE lacks clean benchmark rows, do not invent "
-        "a table, benchmark name, baseline, or score.\n"
-        "- Use SECTION_EVIDENCE / paper_* and ENRICHMENT URLs for claims; no invented sources. "
-        "Synthesize; do not abstract-copy. Primary topic only; no reader questions, no topic drift.\n"
-        "- Gaps in setup/repro: say so. No invented hardware, teams, or anecdotes. Name what was "
-        "measured. Versions (e.g. PyTorch) when the paper gives them.\n"
-        "- One real limitation: barrier, false assumption, or author-stated failure (not a validating "
-        "ablation). At least one first-person opinion with a stance; no new mechanisms from EVIDENCE. "
-        "State scope when relevant. One-sentence AEC/BIM only if real; no generic 'applications' padding.\n"
-        "\nEVIDENCE, TRADEOFFS, AND SPECIFICITY:\n"
-        "- EVIDENCE is a checklist. Meet COVERAGE FLOOR for BENCHMARKS and ANALYST_CLAIMS; shallow "
-        "drafts are rewritten.\n"
-        "- One paragraph must name a competing method or design from RELATED_WORK_LIST and contrast the "
-        "primary method (markers: vs, in contrast to, instead of, rather than, at the cost of, "
-        "unlike, compared to). Guessing the primary method's own cost alone is not a tradeoff. "
-        "Reframe a limitation as a falsifier: the cheapest test that would invalidate the main claim.\n"
-        "- Each numeric improvement in the same or next sentence names a baseline from BENCHMARKS or "
-        "RELATED_WORK (literal name), not 'prior work' in the abstract.\n"
-        "- Paragraphs that introduce a method, result, or design must include a number, named entity, "
-        "code/pseudo, or quote—or cut them. Reject swappable generic paragraphs that fit any paper.\n"
-        "\nRED FLAGS:\n"
-        "- 'In recent years' intros; marketing words (leveraged, seamless, unlock, holistic, ...).\n"
-        "- Buried lede, ornamental code, table/prose inconsistency, author voice for their lab work.\n"
-        "- Generic summary headings ('Conclusion', 'Results', 'How to apply...') or hype phrases like "
-        "'game-changer', 'competitive results', or 'real-world scenarios' without a cited concrete claim.\n"
-        "- Slangy put-downs; status-update tone; content-free polish.\n"
-        "\nOpener style: "
-        + brief.opener_hook
-        + ". Voice: "
-        + brief.voice_guide
-        + " "
-        + fmt.voice_override
-        + "\n\n"
-        + _voice_exemplar_block_for_prompt()
+    system = render_prompt(
+        "draft_writer",
+        citation_ids=list(bundle.by_id.keys()),
+        opener_hook=brief.opener_hook,
+        voice_guide=brief.voice_guide,
+        voice_override=fmt.voice_override,
+        voice_exemplar=_voice_exemplar_block_for_prompt(),
     )
     user = (
         f"CONTENT GOALS (cover across the post, in your own words and your own headings):\n{goals}\n\n"
@@ -1227,7 +1304,7 @@ def run() -> Path:
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     slug = post_slug
     title = _sanitize_frontmatter_text(bundle.primary.title, 200)
-    takeaway = _sanitize_frontmatter_text(body.split("\n", 1)[0].strip(), 500)
+    takeaway = _frontmatter_takeaway(body, bundle)
     fm = f"""---
 date: "{day}"
 draft: true

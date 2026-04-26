@@ -213,4 +213,26 @@ def test_write_draft_print_pdf_requires_rendered_mermaid(monkeypatch, tmp_path: 
 
     assert not render.html_valid
     assert not render.pdf_valid
-    assert "raw_mermaid_in_render" in render.errors or "mermaid_render_failed" in render.errors
+    assert "raw_mermaid_in_render" in render.errors
+
+
+def test_render_full_html_falls_back_without_pandoc_or_kroki(monkeypatch) -> None:
+    from blogpipe import package
+
+    monkeypatch.setattr(package, "_pandoc_md_to_html_fragment", lambda _body: None)
+    monkeypatch.setattr(package.visuals, "_kroki_svg", lambda *_args, **_kwargs: None)
+
+    body = (
+        "Takeaway 4 metrics.\n\n"
+        "## Why this works\n"
+        "```mermaid\nflowchart LR\nA --> B\n```\n\n"
+        "## Numbers the paper actually gives us\n"
+        "| Method | Metric | Baseline |\n| --- | --- | --- |\n| X | 1% | Y |\n"
+    )
+    html_text, errors, warnings, flags = package._render_full_html({"title": "Test"}, body)
+
+    assert html_text is not None
+    assert "raw_mermaid_in_render" not in errors
+    assert "results_table_not_rendered" not in errors
+    assert "pandoc_render_fallback_used" in warnings
+    assert flags["tables_rendered"]

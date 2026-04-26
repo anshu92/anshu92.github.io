@@ -137,6 +137,85 @@ def test_render_reviewer_flags_render_errors(monkeypatch) -> None:
     assert "raw_mermaid_in_render" in note["findings"]
 
 
+def test_gap_analyzer_finds_missing_mechanism_and_results() -> None:
+    from blogpipe.graph.nodes import node_gap_analyzer
+
+    state = _state()
+    state["body"] = "Takeaway 81.67%.\n\n## Why it matters\nA useful result. [cite: primary]\n"
+    state["planning_brief"] = {
+        "mandatory_sections": ["why this works", "when to use it"],
+    }
+    out = node_gap_analyzer(state)
+    codes = {x["code"] for x in out["gap_analysis"]}
+    assert "missing_mechanism_section" in codes
+    assert "no_results_table" in codes
+    assert out["source_registry"]
+
+
+def test_section_patcher_adds_mechanism_and_decision_sections() -> None:
+    from blogpipe.graph.nodes import node_section_patcher
+
+    state = _state()
+    state["body"] = "Takeaway 81.67%.\n\n## Why it matters\nA useful result.\n"
+    state["gap_analysis"] = [
+        {
+            "code": "missing_mechanism_section",
+            "message": "missing",
+            "section_hint": "Why this works",
+            "required_evidence": ["paper_method"],
+        },
+        {
+            "code": "missing_decision_section",
+            "message": "missing",
+            "section_hint": "What I would test next",
+            "required_evidence": ["paper_limitations"],
+        },
+    ]
+    out = node_section_patcher(state)
+    assert "## Why this works" in out["body"]
+    assert "## What I would test next" in out["body"]
+    assert out["citation_audit"]["ok"] is True
+
+
+def test_section_patcher_removes_unregistered_external_links() -> None:
+    from blogpipe.graph.nodes import node_section_patcher
+
+    state = _state()
+    state["body"] = (
+        "Takeaway 81.67%.\n\n"
+        "## Why this works\n"
+        "Read [bad source](https://example.com/unknown) and [the paper](https://arxiv.org/abs/2401.00001).\n"
+    )
+    state["source_registry"] = [
+        {
+            "kind": "item",
+            "source_id": "primary",
+            "key": "primary",
+            "url": "https://arxiv.org/abs/2401.00001",
+            "text": "Test Paper",
+            "metadata": {},
+        }
+    ]
+    out = node_section_patcher(state)
+    assert "https://example.com/unknown" not in out["body"]
+    assert out["citation_audit"]["invalid_links"] == ["https://example.com/unknown"]
+
+
+def test_gap_analyzer_ignores_verbose_planner_section_sentences() -> None:
+    from blogpipe.graph.nodes import node_gap_analyzer
+
+    state = _state()
+    state["planning_brief"] = {
+        "mandatory_sections": [
+            "Introduction: The MoE scaling challenge and the promise of expert upcycling.",
+            "why this works",
+        ],
+    }
+    out = node_gap_analyzer(state)
+    sections = {x["section_hint"] for x in out["gap_analysis"] if x["code"] == "planning_section_gap"}
+    assert "Introduction: The MoE scaling challenge and the promise of expert upcycling." not in sections
+
+
 def test_failure_memory_record_and_snapshot(monkeypatch, tmp_path) -> None:
     from blogpipe.graph import nodes
     from blogpipe import memory
@@ -228,6 +307,9 @@ def test_build_graph_contains_multi_agent_review_nodes() -> None:
     for expected in {
         "planner",
         "draft_refine",
+        "gap_analyzer",
+        "evidence_backfill",
+        "section_patcher",
         "adversary_review",
         "evidence_verifier",
         "render_reviewer",

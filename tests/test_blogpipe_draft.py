@@ -213,6 +213,45 @@ class DraftPolishTests(unittest.TestCase):
         self.assertNotIn("game-changer", polished.lower())
         self.assertNotIn("real-world scenarios", polished.lower())
 
+    def test_polish_body_removes_illustrative_scores_and_injects_mechanism_section(self) -> None:
+        bundle = self.bundle.model_copy(update={"benchmarks": []})
+        bundle.section_evidence["paper_experiments"] = ""
+        body = (
+            "Takeaway 4 metrics.\n\n"
+            "## Fine-tuning Boosts Spatial Capabilities\n"
+            "The paper suggests stronger performance on both synthetic and real tasks.\n\n"
+            "*Note: Scores are illustrative based on the paper's claims of significant improvement over prior SOTA models.*\n"
+        )
+        polished = _polish_body(body, bundle, self.brief)
+        self.assertNotIn("Scores are illustrative", polished)
+        self.assertIn("## Why this works", polished)
+        self.assertIn("Ramer-Douglas-Peucker", polished)
+        self.assertNotIn("significant improvement over prior SOTA", polished)
+
+    def test_polish_body_repairs_corrupted_comparative_phrases(self) -> None:
+        body = (
+            "Takeaway 32%.\n\n"
+            "## The MoE Scaling Bottleneck\n"
+            "The scaling laws suggest that model quality suggests stronger performance predictably with total parameters.\n\n"
+            "This creates a bottleneck: to suggests stronger performance quality via more experts, you need more compute.\n"
+        )
+        polished = _polish_body(body, self.bundle, self.brief)
+        self.assertNotIn("suggests stronger performance predictably", polished)
+        self.assertNotIn("to suggests stronger performance quality", polished)
+        self.assertIn("model quality scales predictably", polished)
+        self.assertIn("improve model quality via more experts", polished)
+
+    def test_ensure_decision_section_adds_actionable_first_person_next_step(self) -> None:
+        bundle = self.bundle.model_copy()
+        bundle.section_evidence["paper_limitations"] = "The analysis is conducted on a single benchmark."
+        body = (
+            "Takeaway 81.67%.\n\n"
+            "## Why this works\nMechanism. [cite: primary]\n"
+        )
+        polished = _polish_body(body, bundle, self.brief)
+        self.assertIn("## What I would test next", polished)
+        self.assertIn("I would start by reproducing", polished)
+
     def test_repair_or_inject_results_table_requires_verified_benchmark_rows(self) -> None:
         body = (
             "Takeaway 1.0%.\n\n"

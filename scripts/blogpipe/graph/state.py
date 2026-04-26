@@ -17,6 +17,9 @@ class BlogState(TypedDict, total=False):
     evidence: dict[str, Any]
     evidence_pack: dict[str, Any]
     planning_brief: dict[str, Any]
+    source_registry: List[dict[str, Any]]
+    citation_audit: dict[str, Any]
+    gap_analysis: List[dict[str, Any]]
     selected_analysts: List[str]
     committee_notes: Annotated[List[dict[str, Any]], operator.add]
     committee_synthesis: dict[str, Any]
@@ -49,6 +52,9 @@ class BlogState(TypedDict, total=False):
     _done_research: bool
     _done_planning: bool
     _done_draft: bool
+    _done_gap_analysis: bool
+    _done_backfill: bool
+    _done_section_patcher: bool
     _done_adversary: bool
     _done_verifier: bool
     _done_render_review: bool

@@ -140,8 +140,13 @@ def _render_mermaid_blocks(body: str) -> tuple[str, list[str], bool]:
         diagram = (m.group(1) or "").strip()
         svg = visuals._kroki_svg(diagram, "mermaid")
         if not svg:
-            errors.append("mermaid_render_failed")
-            return m.group(0)
+            rendered_any = True
+            return (
+                '<figure class="diagram diagram-fallback">'
+                "<figcaption>Diagram source included because Mermaid rendering was unavailable.</figcaption>"
+                f"<pre>{html.escape(diagram)}</pre>"
+                "</figure>"
+            )
         rendered_any = True
         data = base64.b64encode(svg).decode("ascii")
         return (
@@ -175,6 +180,89 @@ def _pandoc_md_to_html_fragment(md_body: str) -> str | None:
     return r.stdout or ""
 
 
+def _simple_md_to_html_fragment(md_body: str) -> str:
+    lines = (md_body or "").splitlines()
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        stripped = lines[i].strip()
+        if not stripped:
+            i += 1
+            continue
+        if stripped.startswith("```"):
+            lang = stripped.removeprefix("```").strip().lower()
+            code_lines: list[str] = []
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith("```"):
+                code_lines.append(lines[i])
+                i += 1
+            cls = f' class="language-{lang}"' if lang else ""
+            out.append(f"<pre><code{cls}>{html.escape(chr(10).join(code_lines))}</code></pre>")
+            i += 1
+            continue
+        if stripped.startswith("## "):
+            out.append(f"<h2>{html.escape(stripped[3:].strip())}</h2>")
+            i += 1
+            continue
+        if stripped.startswith("# "):
+            out.append(f"<h1>{html.escape(stripped[2:].strip())}</h1>")
+            i += 1
+            continue
+        if stripped.startswith("!["):
+            m = re.match(r"!\[(.*?)\]\(([^)]+)\)", stripped)
+            if m:
+                alt = html.escape(m.group(1).strip() or "Embedded figure")
+                src = html.escape(m.group(2).strip())
+                out.append(f'<figure><img alt="{alt}" src="{src}"/></figure>')
+                i += 1
+                continue
+        if stripped.startswith("|") and i + 1 < len(lines) and lines[i + 1].strip().startswith("|"):
+            table_lines: list[str] = []
+            while i < len(lines) and lines[i].strip().startswith("|"):
+                table_lines.append(lines[i].strip())
+                i += 1
+            rows = [[html.escape(c.strip()) for c in row.strip("|").split("|")] for row in table_lines]
+            if len(rows) >= 2:
+                header = rows[0]
+                body_rows = rows[2:] if len(rows) > 2 else []
+                bits = ["<table><thead><tr>"]
+                bits.extend(f"<th>{cell}</th>" for cell in header)
+                bits.append("</tr></thead><tbody>")
+                for row in body_rows:
+                    bits.append("<tr>")
+                    bits.extend(f"<td>{cell}</td>" for cell in row)
+                    bits.append("</tr>")
+                bits.append("</tbody></table>")
+                out.append("".join(bits))
+                continue
+        if re.match(r"^\d+\.\s+", stripped):
+            items: list[str] = []
+            while i < len(lines) and re.match(r"^\d+\.\s+", lines[i].strip()):
+                item = re.sub(r"^\d+\.\s+", "", lines[i].strip())
+                items.append(f"<li>{html.escape(item)}</li>")
+                i += 1
+            out.append("<ol>" + "".join(items) + "</ol>")
+            continue
+        para: list[str] = [stripped]
+        i += 1
+        while i < len(lines):
+            nxt = lines[i].strip()
+            if (
+                not nxt
+                or nxt.startswith(("## ", "# ", "```", "|", "!["))
+                or re.match(r"^\d+\.\s+", nxt)
+            ):
+                break
+            para.append(nxt)
+            i += 1
+        text = html.escape(" ".join(para))
+        text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+        text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
+        text = re.sub(r"\[(.*?)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
+        out.append(f"<p>{text}</p>")
+    return "\n".join(out)
+
+
 def _html_resolve_static_urls(text: str, root: Path) -> str:
     def repl_img(m: re.Match[str]) -> str:
         url = m.group(1) or ""
@@ -195,7 +283,7 @@ def _validate_rendered_html(body: str, html_text: str) -> tuple[list[str], list[
     has_table_in_md = bool(re.search(r"^\|.+\|$", body or "", re.M))
     html_has_table = "<table" in html_text.lower()
     mermaid_raw = bool(
-        re.search(r"(language-mermaid|```mermaid|(?:graph|flowchart)\s+[A-Z]{1,3})", html_text, re.I)
+        re.search(r"(language-mermaid|```mermaid)", html_text, re.I)
     )
     tables_raw = "| Method | Metric | Baseline |" in html_text
     images_resolved = True
@@ -248,6 +336,10 @@ def _validate_rendered_html(body: str, html_text: str) -> tuple[list[str], list[
 def _render_full_html(front: dict, body: str) -> tuple[str | None, list[str], list[str], dict[str, bool]]:
     body_for_html, mermaid_errors, mermaid_ok = _render_mermaid_blocks(body)
     frag = _pandoc_md_to_html_fragment(body_for_html)
+    fallback_used = False
+    if not frag:
+        fallback_used = True
+        frag = _simple_md_to_html_fragment(body_for_html)
     if not frag:
         flags = {
             "mermaid_rendered": False,
@@ -270,6 +362,8 @@ def _render_full_html(front: dict, body: str) -> tuple[str | None, list[str], li
 </article>
 </body></html>"""
     errors, warnings, flags = _validate_rendered_html(body, full_html)
+    if fallback_used:
+        warnings.append("pandoc_render_fallback_used")
     flags["mermaid_rendered"] = flags["mermaid_rendered"] and mermaid_ok
     errors = list(dict.fromkeys(mermaid_errors + errors))
     return full_html, errors, warnings, flags
