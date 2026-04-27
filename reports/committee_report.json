@@ -1,0 +1,65 @@
+{
+  "committee_synthesis": {
+    "narrative": "UniT presents a promising approach to unifying human-to-humanoid policy learning and world modeling. By establishing a consistent physical language, it tackles the challenge of bridging the gap between human and humanoid embodiments. This framework leverages a tri-branch cross-reconstruction mechanism, enabling actions to predict vision and anchor kinematics effectively. The emphasis on visual anchoring helps overcome the kinematic mismatch, making it a practical solution for scaling humanoid data.\n\nThe main tensions in this research revolve around balancing scalability with precision, ensuring the system can generalize across diverse environments while maintaining accuracy. Readers should consider how this unified language might reshape how we integrate human insights into robotic systems. The key takeaway is that UniT offers a viable path toward more efficient and effective humanoid AI.\n\nUnderstanding these dynamics highlights the importance of robust data strategies in advancing humanoid policy learning. The reader should appreciate the potential impact on future robotics, where seamless cross-embodiment could unlock new levels of adaptability. This approach not only addresses current limitations but also sets the stage for broader innovation in embodied AI.",
+    "n_analysts": 5,
+    "n_skipped": 3,
+    "analysts": [
+      {
+        "role": "methods",
+        "claims": [],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": true
+      },
+      {
+        "role": "empirical",
+        "claims": [],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": true
+      },
+      {
+        "role": "glossary",
+        "claims": [],
+        "citations": [],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": true
+      },
+      {
+        "role": "related",
+        "claims": [
+          "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data."
+        ],
+        "citations": [
+          "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling"
+        ],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "code",
+        "claims": [
+          "UniT is a framework that establishes a unified physical language for human-to-humanoid transfer",
+          "UniT employs a tri-branch cross-reconstruction mechanism where actions predict vision to anchor kinematics",
+          "The approach addresses the kinematic mismatch problem between human and humanoid embodiments",
+          "UniT uses visual anchoring to bridge the cross-embodiment gap",
+          "The method leverages massive egocentric human data as a scalable alternative to scarce robotic data"
+        ],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      }
+    ]
+  },
+  "narrative": "UniT presents a promising approach to unifying human-to-humanoid policy learning and world modeling. By establishing a consistent physical language, it tackles the challenge of bridging the gap between human and humanoid embodiments. This framework leverages a tri-branch cross-reconstruction mechanism, enabling actions to predict vision and anchor kinematics effectively. The emphasis on visual anchoring helps overcome the kinematic mismatch, making it a practical solution for scaling humanoid data.\n\nThe main tensions in this research revolve around balancing scalability with precision, ensuring the system can generalize across diverse environments while maintaining accuracy. Readers should consider how this unified language might reshape how we integrate human insights into robotic systems. The key takeaway is that UniT offers a viable path toward more efficient and effective humanoid AI.\n\nUnderstanding these dynamics highlights the importance of robust data strategies in advancing humanoid policy learning. The reader should appreciate the potential impact on future robotics, where seamless cross-embodiment could unlock new levels of adaptability. This approach not only addresses current limitations but also sets the stage for broader innovation in embodied AI."
+}

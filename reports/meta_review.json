@@ -1,0 +1,22 @@
+{
+  "role": "meta_reviewer",
+  "pass_review": true,
+  "reviewer_weight": 1.0,
+  "findings": [],
+  "rewrite_targets": [],
+  "summary": "The draft lacks clear explanations of technical terms, fails to address limitations or falsifiers, and includes incomplete or fragmented content that weakens its analytical depth. | evidence_verifier found no blocking issues. | Render review found no blocking issues.",
+  "metadata": {
+    "all_findings": [
+      "short_code",
+      "missing_tradeoffs",
+      "vague_impact_claims",
+      "missing_falsifiers"
+    ],
+    "weighted_score": 0.8,
+    "reviewer_weights": {
+      "evidence_verifier": 0.45,
+      "render_reviewer": 0.35,
+      "adversary": 0.2
+    }
+  }
+}

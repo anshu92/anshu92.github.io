@@ -1,0 +1,13 @@
+{
+  "llm_scaling": [
+    "human-to-humanoid",
+    "vlav-unit",
+    "wm-unit",
+    "tri-branch",
+    "cross-reconstruction",
+    "tsne",
+    "robust generalization",
+    "zero-shot transfer",
+    "direct action transfer"
+  ]
+}

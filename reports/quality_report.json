@@ -1,0 +1,195 @@
+{
+  "evidence_valid": true,
+  "draft_valid": false,
+  "render_valid": false,
+  "package_valid": false,
+  "render_checked": false,
+  "package_checked": false,
+  "overall_status": "blocked",
+  "blocking_reasons": [
+    {
+      "code": "lint:takeaway_lacks_number",
+      "message": "takeaway_lacks_number",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:no_results_table",
+      "message": "no_results_table",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:generic_heading_used",
+      "message": "generic_heading_used",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:collective_research_voice",
+      "message": "collective_research_voice",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:unfenced_mermaid_block",
+      "message": "unfenced_mermaid_block",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:missing_decision_section",
+      "message": "missing_decision_section",
+      "stage": "draft",
+      "blocking": true
+    },
+    {
+      "code": "lint:evaluative_paragraph_without_citation",
+      "message": "evaluative_paragraph_without_citation",
+      "stage": "draft",
+      "blocking": true
+    }
+  ],
+  "editor_report": {
+    "rubric_score": 2,
+    "rubric_items": [
+      {
+        "item": "sharp_takeaway",
+        "score": 0
+      },
+      {
+        "item": "intro_earns_attention",
+        "score": 0
+      },
+      {
+        "item": "concrete_problem",
+        "score": 0
+      },
+      {
+        "item": "inevitable_structure",
+        "score": 0
+      },
+      {
+        "item": "specific_language",
+        "score": 0
+      },
+      {
+        "item": "teaches_why",
+        "score": 0
+      },
+      {
+        "item": "strong_example",
+        "score": 0
+      },
+      {
+        "item": "tradeoffs_explicit",
+        "score": 0
+      },
+      {
+        "item": "claims_backed",
+        "score": 0
+      },
+      {
+        "item": "limitations_honest",
+        "score": 0
+      },
+      {
+        "item": "skimmable",
+        "score": 0
+      },
+      {
+        "item": "actionable_close",
+        "score": 0
+      },
+      {
+        "item": "diagrams_clarify",
+        "score": 1
+      },
+      {
+        "item": "honest_scope",
+        "score": 0
+      },
+      {
+        "item": "pov_present",
+        "score": 1
+      }
+    ],
+    "five_questions": {
+      "problem": "Humanoid foundation models are limited by the scarcity of robot\u2011collected data.",
+      "hard": "Bridging the cross\u2011embodiment gap is hard because human and humanoid kinematics differ, making direct transfer difficult.",
+      "tried": "The authors propose UniT, a unified latent action tokenizer that uses a tri\u2011branch cross\u2011reconstruction mechanism to align visual outcomes with actions across embodiments.",
+      "outcomes": "They claim UniT achieves state\u2011of\u2011the\u2011art data efficiency, robust out\u2011of\u2011distribution generalization, and zero\u2011shot task transfer in both simulation and real\u2011world settings.",
+      "next": "The next step is to reproduce the smallest reported comparison to evaluate whether the added complexity is worthwhile."
+    },
+    "five_questions_ok": true,
+    "critique": {
+      "missing": [],
+      "weak": [],
+      "cut": []
+    },
+    "pass_gate": false,
+    "llm_ok": true,
+    "editor_warnings": [],
+    "lint_issues": [
+      "takeaway_lacks_number",
+      "no_results_table",
+      "generic_heading_used",
+      "collective_research_voice",
+      "unfenced_mermaid_block",
+      "missing_decision_section",
+      "evaluative_paragraph_without_citation"
+    ],
+    "grounding_ok": true,
+    "grounding_issues": [],
+    "rubric_floor_applied": false,
+    "rubric_floor_reasons": [
+      "no_numbers:cap=5"
+    ],
+    "rubric_score_raw": 2,
+    "evidence_utilization": {
+      "score": 0.6952,
+      "ratios": {
+        "numbers": 1.0,
+        "entities": 0.6667,
+        "quotes": 0.2857,
+        "analyst_claims": 0.3333
+      },
+      "totals": {
+        "numbers": 1,
+        "entities": 6,
+        "quotes": 7,
+        "analyst_claims": 6
+      },
+      "used_counts": {
+        "numbers": 1,
+        "entities": 4,
+        "quotes": 2,
+        "analyst_claims": 2
+      },
+      "unused": {
+        "numbers": [],
+        "entities": [
+          "A Metaverse: Taxonomy, Components, Applications, and Open Challenges",
+          "Artificial Intelligence in Education: A Review"
+        ],
+        "quotes": [
+          "Leveraging human data for robot learning has attracted growing attention as a scalable alternative to costly robot demonstrations",
+          "UniT addresses these challenges by learning a shared latent space that absorbs embodiment differences at the representation level, bypassing the need for explicit retargeting or action-space unification",
+          "Pick and Place Articulated Overall 20% 30% 40% 50% 60% 70% 80%Success Rate 30.1 40.4 58.2 55.4 47.0 44.4 40.3 50.4 67.3 38.4 50.1 51.3 24.2 50.3 42.3 35.0 43.7 64.7 29.5 40.9 55.0 47.6 47.8 43.9 39.0 48.8 66.7 n=900 n=300 n=1200\n\nUWM\n\nDiffu",
+          "24\u00d7100 trajs 24\u00d71000 trajs 10% 20% 30% 40% 50% 60% 70%Success Rate 21.3 45.5 47.8 66.7 n=1200 n=1200 GR00T-Qwen2.5 VLA-UniT Pick and Place Articulated In-Domain Average Unseen\n\nAppearance\n\nUnseen\n\nCombinations\n\nUnseen\n\nObject Types\n\nOOD Ave",
+          "(b)Policy Learning: Through predicting these unified tokens, VLA-UniT effectively leverages diverse human data to achieve robust OOD generalization and zero-shot task transferon humanoid robot."
+        ],
+        "analyst_claims": [
+          "UniT is a framework that establishes a unified physical language for human-to-humanoid transfer",
+          "The approach addresses the kinematic mismatch problem between human and humanoid embodiments",
+          "UniT uses visual anchoring to bridge the cross-embodiment gap",
+          "The method leverages massive egocentric human data as a scalable alternative to scarce robotic data"
+        ]
+      }
+    }
+  },
+  "render_report": null,
+  "artifact_paths": {},
+  "llm_ok": true,
+  "pass_gate": false
+}

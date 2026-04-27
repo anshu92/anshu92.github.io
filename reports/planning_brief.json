@@ -1,0 +1,40 @@
+{
+  "mandatory_claims": [
+    "UniT establishes a unified physical language for human-to-humanoid transfer",
+    "UniT achieves state-of-the-art data efficiency and robust out-of-distribution generalization",
+    "UniT enables zero-shot task transfer and direct human-to-humanoid action transfer"
+  ],
+  "mandatory_sections": [
+    "Introduction",
+    "Methodology",
+    "Policy Learning",
+    "World Modeling",
+    "Results",
+    "What would falsify this"
+  ],
+  "required_visuals": [
+    "t-SNE visualization of human and humanoid features",
+    "Flowchart of UniT framework",
+    "Comparison of UniT with alternative methods"
+  ],
+  "likely_failures": [
+    "Overemphasis on technical details without clear explanations",
+    "Lack of concrete examples and applications",
+    "Insufficient discussion of limitations and potential falsifiers"
+  ],
+  "preventive_checks": [
+    "Verify that technical terms are explained in plain English",
+    "Ensure that each section has a clear applied takeaway",
+    "Check that alternative methods are discussed and compared"
+  ],
+  "backup_remedies": [
+    "Add more diagrams and illustrations to explain complex concepts",
+    "Provide additional examples and case studies to demonstrate applications",
+    "Include more discussion of potential limitations and falsifiers"
+  ],
+  "reviewer_focus": [
+    "Clarity and concision of explanations",
+    "Effectiveness of visual aids and diagrams",
+    "Thoroughness of discussion of limitations and potential falsifiers"
+  ]
+}

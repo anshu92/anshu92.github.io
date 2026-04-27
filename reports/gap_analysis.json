@@ -1,0 +1,56 @@
+[
+  {
+    "code": "no_results_table",
+    "message": "Results table is missing or was removed.",
+    "section_hint": "Numbers the paper actually gives us",
+    "required_evidence": [
+      "paper_experiments",
+      "benchmarks"
+    ],
+    "query_hint": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling benchmark results baseline metrics",
+    "blocking": true
+  },
+  {
+    "code": "missing_decision_section",
+    "message": "Draft does not tell the reader what to test next.",
+    "section_hint": "What I would test next",
+    "required_evidence": [
+      "paper_limitations",
+      "paper_reproducibility"
+    ],
+    "query_hint": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling limitations reproducibility",
+    "blocking": true
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: Introduction",
+    "section_hint": "Introduction",
+    "required_evidence": [],
+    "query_hint": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling Introduction",
+    "blocking": false
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: Methodology",
+    "section_hint": "Methodology",
+    "required_evidence": [],
+    "query_hint": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling Methodology",
+    "blocking": false
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: Results",
+    "section_hint": "Results",
+    "required_evidence": [],
+    "query_hint": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling Results",
+    "blocking": false
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: What would falsify this",
+    "section_hint": "What would falsify this",
+    "required_evidence": [],
+    "query_hint": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling What would falsify this",
+    "blocking": false
+  }
+]
