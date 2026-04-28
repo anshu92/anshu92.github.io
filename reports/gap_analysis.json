@@ -1,0 +1,18 @@
+[
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: why this works",
+    "section_hint": "why this works",
+    "required_evidence": [],
+    "query_hint": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction why this works",
+    "blocking": false
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: when to use it",
+    "section_hint": "when to use it",
+    "required_evidence": [],
+    "query_hint": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction when to use it",
+    "blocking": false
+  }
+]

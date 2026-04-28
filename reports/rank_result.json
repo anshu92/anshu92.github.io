@@ -1,0 +1,730 @@
+{
+  "primary": {
+    "id": "hf_2604.21518",
+    "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "authors": [
+      "Shiyan Su",
+      "Ruyi Zha",
+      "Danli Shi",
+      "Hongdong Li",
+      "Xuelian Cheng"
+    ],
+    "abstract": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+    "published_at": "2026-04-23T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.21518",
+          "authors": [
+            {
+              "_id": "69eade27a961c3f1b5f40d7a",
+              "user": {
+                "_id": "693017c6ad61af29234132f1",
+                "avatarUrl": "/avatars/1f96bc550e6d365fe1afa18ad200ea19.svg",
+                "isPro": false,
+                "fullname": "Shiyan Su",
+                "user": "ShiyanSU",
+                "type": "user",
+                "name": "ShiyanSU"
+              },
+              "name": "Shiyan Su",
+              "status": "claimed_verified",
+              "statusLastChangedAt": "2026-04-24T13:57:03.982Z",
+              "hidden": false
+            },
+            {
+              "_id": "69eade27a961c3f1b5f40d7b",
+              "name": "Ruyi Zha",
+              "hidden": false
+            },
+            {
+              "_id": "69eade27a961c3f1b5f40d7c",
+              "name": "Danli Shi",
+              "hidden": false
+            },
+            {
+              "_id": "69eade27a961c3f1b5f40d7d",
+              "name": "Hongdong Li",
+              "hidden": false
+            },
+            {
+              "_id": "69eade27a961c3f1b5f40d7e",
+              "name": "Xuelian Cheng",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-23T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-27T01:40:46.556Z",
+          "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+          "submittedOnDailyBy": {
+            "_id": "693017c6ad61af29234132f1",
+            "avatarUrl": "/avatars/1f96bc550e6d365fe1afa18ad200ea19.svg",
+            "isPro": false,
+            "fullname": "Shiyan Su",
+            "user": "ShiyanSU",
+            "type": "user",
+            "name": "ShiyanSU"
+          },
+          "summary": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+          "upvotes": 26,
+          "discussionId": "69eade27a961c3f1b5f40d7f",
+          "projectPage": "https://ooonesevennn.github.io/DiffNR/",
+          "githubRepo": "https://github.com/ooonesevennn/DiffNR",
+          "githubRepoAddedBy": "user",
+          "ai_summary": "DiffNR enhances neural representation optimization for CT reconstruction by integrating a single-step diffusion model with specialized conditioning layers and pseudo-reference volume generation for artifact correction.",
+          "ai_keywords": [
+            "neural fields",
+            "3D Gaussians",
+            "computed tomography",
+            "sparse-view settings",
+            "diffusion priors",
+            "SliceFixer",
+            "single-step diffusion model",
+            "artifact correction",
+            "neural representation optimization",
+            "pseudo-reference volumes",
+            "3D perceptual supervision"
+          ],
+          "githubStars": 4,
+          "organization": {
+            "_id": "64f6e94bf277a413f3372478",
+            "name": "Monash",
+            "fullname": "Monash University",
+            "avatar": "https://www.gravatar.com/avatar/bec32f98e55de16c7d2df635b6191ccc?d=retro&size=100"
+          }
+        },
+        "publishedAt": "2026-04-22T20:00:00.000Z",
+        "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+        "summary": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.21518.png",
+        "numComments": 1,
+        "submittedBy": {
+          "_id": "693017c6ad61af29234132f1",
+          "avatarUrl": "/avatars/1f96bc550e6d365fe1afa18ad200ea19.svg",
+          "fullname": "Shiyan Su",
+          "name": "ShiyanSU",
+          "type": "user",
+          "isPro": false,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "isUserFollowing": false
+        },
+        "organization": {
+          "_id": "64f6e94bf277a413f3372478",
+          "name": "Monash",
+          "fullname": "Monash University",
+          "avatar": "https://www.gravatar.com/avatar/bec32f98e55de16c7d2df635b6191ccc?d=retro&size=100"
+        },
+        "isAuthorParticipating": true
+      }
+    }
+  },
+  "score": 1.0,
+  "rejected": [
+    {
+      "id": "hf_2604.22152",
+      "title": "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model",
+      "url": "https://arxiv.org/abs/2604.22152",
+      "authors": [
+        "Yaxuan Li",
+        "Zhongyi Zhou",
+        "Yefei Chen",
+        "Yaokai Xue",
+        "Yichen Zhu"
+      ],
+      "abstract": "Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities - including vision, language, and robotic actions - into a unified token space, modeling them via a single transformer-based denoising network. In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, we employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.",
+      "published_at": "2026-04-24T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.22152",
+            "authors": [
+              {
+                "_id": "69eec0537bd3cb2932a35e3e",
+                "name": "Yaxuan Li",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e3f",
+                "name": "Zhongyi Zhou",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e40",
+                "name": "Yefei Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e41",
+                "name": "Yaokai Xue",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e42",
+                "name": "Yichen Zhu",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-24T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-27T00:18:05.764Z",
+            "title": "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model",
+            "submittedOnDailyBy": {
+              "_id": "6039478ab3ecf716b1a5fd4d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+              "isPro": true,
+              "fullname": "taesiri",
+              "user": "taesiri",
+              "type": "user",
+              "name": "taesiri"
+            },
+            "summary": "Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities - including vision, language, and robotic actions - into a unified token space, modeling them via a single transformer-based denoising network. In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, we employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.",
+            "upvotes": 2,
+            "discussionId": "69eec0537bd3cb2932a35e43",
+            "ai_summary": "dWorldEval employs a discrete diffusion world model with unified token space mapping and transformer-based denoising to enable scalable robotics policy evaluation across diverse modalities.",
+            "ai_keywords": [
+              "discrete diffusion world model",
+              "unified token space",
+              "transformer-based denoising network",
+              "sparse keyframe memory",
+              "progress token",
+              "joint prediction",
+              "world simulator"
+            ]
+          },
+          "publishedAt": "2026-04-23T20:00:00.000Z",
+          "title": "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model",
+          "summary": "Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities - including vision, language, and robotic actions - into a unified token space, modeling them via a single transformer-based denoising network. In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, we employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.22152.png",
+          "numComments": 0,
+          "submittedBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "fullname": "taesiri",
+            "name": "taesiri",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 282,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.19734",
+      "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+      "url": "https://arxiv.org/abs/2604.19734",
+      "authors": [
+        "Boyu Chen",
+        "Yi Chen",
+        "Lu Qiu",
+        "Jerry Bai",
+        "Yuying Ge",
+        "Yixiao Ge"
+      ],
+      "abstract": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.19734",
+            "authors": [
+              {
+                "_id": "69ea5363a961c3f1b5f40be4",
+                "user": {
+                  "_id": "6744b49365b98acef35a2e02",
+                  "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/7jF2GSdosob8i--tRBxSQ.png",
+                  "isPro": false,
+                  "fullname": "chen-boyu",
+                  "user": "chen-by",
+                  "type": "user",
+                  "name": "chen-by"
+                },
+                "name": "Boyu Chen",
+                "status": "claimed_verified",
+                "statusLastChangedAt": "2026-04-27T08:56:49.912Z",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5363a961c3f1b5f40be5",
+                "name": "Yi Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5363a961c3f1b5f40be6",
+                "name": "Lu Qiu",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5363a961c3f1b5f40be7",
+                "name": "Jerry Bai",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5363a961c3f1b5f40be8",
+                "name": "Yuying Ge",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5363a961c3f1b5f40be9",
+                "name": "Yixiao Ge",
+                "hidden": false
+              }
+            ],
+            "mediaUrls": [
+              "https://cdn-uploads.huggingface.co/production/uploads/60d045c4778bafd0fbcfa3f5/aLHNTvySjchHnca61-M-l.jpeg"
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-24T00:53:51.931Z",
+            "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+            "submittedOnDailyBy": {
+              "_id": "60d045c4778bafd0fbcfa3f5",
+              "avatarUrl": "/avatars/0cc0c2739c1934430ea09df7e9668c80.svg",
+              "isPro": false,
+              "fullname": "Yi Chen",
+              "user": "ChenYi99",
+              "type": "user",
+              "name": "ChenYi99"
+            },
+            "summary": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+            "upvotes": 28,
+            "discussionId": "69ea5364a961c3f1b5f40bea",
+            "projectPage": "https://xpeng-robotics.github.io/unit/",
+            "githubRepo": "https://github.com/xpeng-robotics/UniT",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "UniT enables human-to-humanoid transfer by creating a unified visual-language representation that bridges kinematic differences through cross-reconstruction mechanisms and shared latent spaces.",
+            "ai_keywords": [
+              "UniT",
+              "unified latent action tokenizer",
+              "visual anchoring",
+              "tri-branch cross-reconstruction mechanism",
+              "fusion branch",
+              "discrete latent space",
+              "embodiment-agnostic physical intents",
+              "policy learning",
+              "world modeling",
+              "cross-embodiment dynamics",
+              "t-SNE visualization"
+            ],
+            "githubStars": 42,
+            "organization": {
+              "_id": "69c9fb20951b511f5c41dd0d",
+              "name": "xpeng-robotics",
+              "fullname": "xpeng-robotics",
+              "avatar": "https://www.gravatar.com/avatar/b3437743db998befe15fce93ec62355f?d=retro&size=100"
+            }
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "UniT: Toward a Unified Physical Language for Human-to-Humanoid Policy Learning and World Modeling",
+          "summary": "Scaling humanoid foundation models is bottlenecked by the scarcity of robotic data. While massive egocentric human data offers a scalable alternative, bridging the cross-embodiment chasm remains a fundamental challenge due to kinematic mismatches. We introduce UniT (Unified Latent Action Tokenizer via Visual Anchoring), a framework that establishes a unified physical language for human-to-humanoid transfer. Grounded in the philosophy that heterogeneous kinematics share universal visual consequences, UniT employs a tri-branch cross-reconstruction mechanism: actions predict vision to anchor kinematics to physical outcomes, while vision reconstructs actions to filter out irrelevant visual confounders. Concurrently, a fusion branch synergies these purified modalities into a shared discrete latent space of embodiment-agnostic physical intents. We validate UniT across two paradigms: 1) Policy Learning (VLA-UniT): By predicting these unified tokens, it effectively leverages diverse human data to achieve state-of-the-art data efficiency and robust out-of-distribution (OOD) generalization on both humanoid simulation benchmark and real-world deployments, notably demonstrating zero-shot task transfer. 2) World Modeling (WM-UniT): By aligning cross-embodiment dynamics via unified tokens as conditions, it realizes direct human-to-humanoid action transfer. This alignment ensures that human data seamlessly translates into enhanced action controllability for humanoid video generation. Ultimately, by inducing a highly aligned cross-embodiment representation (empirically verified by t-SNE visualizations revealing the convergence of human and humanoid features into a shared manifold), UniT offers a scalable path to distill vast human knowledge into general-purpose humanoid capabilities.",
+          "mediaUrls": [
+            "https://cdn-uploads.huggingface.co/production/uploads/60d045c4778bafd0fbcfa3f5/aLHNTvySjchHnca61-M-l.jpeg"
+          ],
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.19734.png",
+          "numComments": 3,
+          "submittedBy": {
+            "_id": "60d045c4778bafd0fbcfa3f5",
+            "avatarUrl": "/avatars/0cc0c2739c1934430ea09df7e9668c80.svg",
+            "fullname": "Yi Chen",
+            "name": "ChenYi99",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 7,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "69c9fb20951b511f5c41dd0d",
+            "name": "xpeng-robotics",
+            "fullname": "xpeng-robotics",
+            "avatar": "https://www.gravatar.com/avatar/b3437743db998befe15fce93ec62355f?d=retro&size=100"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.16680",
+      "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+      "url": "https://arxiv.org/abs/2604.16680",
+      "authors": [
+        "Yuval Haitman",
+        "Amit Efraim",
+        "Joseph M. Francos"
+      ],
+      "abstract": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+      "published_at": "2026-04-17T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.16680",
+            "authors": [
+              {
+                "_id": "69ea5499a961c3f1b5f40bed",
+                "user": {
+                  "_id": "66f5d4c99ef08fe3c1ed5c2d",
+                  "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+                  "isPro": false,
+                  "fullname": "Yuval Haitman",
+                  "user": "YuvalH9",
+                  "type": "user",
+                  "name": "YuvalH9"
+                },
+                "name": "Yuval Haitman",
+                "status": "claimed_verified",
+                "statusLastChangedAt": "2026-04-27T08:56:46.727Z",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5499a961c3f1b5f40bee",
+                "name": "Amit Efraim",
+                "hidden": false
+              },
+              {
+                "_id": "69ea5499a961c3f1b5f40bef",
+                "name": "Joseph M. Francos",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-17T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-23T15:50:46.969Z",
+            "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+            "submittedOnDailyBy": {
+              "_id": "66f5d4c99ef08fe3c1ed5c2d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+              "isPro": false,
+              "fullname": "Yuval Haitman",
+              "user": "YuvalH9",
+              "type": "user",
+              "name": "YuvalH9"
+            },
+            "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+            "upvotes": 15,
+            "discussionId": "69ea5499a961c3f1b5f40bf0",
+            "projectPage": "https://yuvalh9.github.io/CGenReg/",
+            "githubRepo": "https://github.com/yuvalH9/CGenReg",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "C-GenReg is a training-free 3D point cloud registration framework that uses generative priors and Vision Foundation Models to transfer matching problems to an image domain for improved cross-domain generalization.",
+            "ai_keywords": [
+              "3D point cloud registration",
+              "Vision Foundation Models",
+              "generative priors",
+              "multi-view-consistent RGB representations",
+              "dense correspondences",
+              "probabilistic cold-fusion scheme",
+              "zero-shot performance",
+              "cross-domain generalization"
+            ],
+            "githubStars": 3,
+            "organization": {
+              "_id": "63a327b28c0c89dcae3395c2",
+              "name": "Ben-Gurion-University",
+              "fullname": "Ben-Gurion University of the Negev",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+            }
+          },
+          "publishedAt": "2026-04-16T20:00:00.000Z",
+          "title": "C-GenReg: Training-Free 3D Point Cloud Registration by Multi-View-Consistent Geometry-to-Image Generation with Probabilistic Modalities Fusion",
+          "summary": "We introduce C-GenReg, a training-free framework for 3D point cloud registration that leverages the complementary strengths of world-scale generative priors and registration-oriented Vision Foundation Models (VFMs). Current learning-based 3D point cloud registration methods struggle to generalize across sensing modalities, sampling differences, and environments. Hence, C-GenReg augments the geometric point cloud registration branch by transferring the matching problem into an auxiliary image domain, where VFMs excel, using a World Foundation Model to synthesize multi-view-consistent RGB representations from the input geometry. This generative transfer, preserves spatial coherence across source and target views without any fine-tuning. From these generated views, a VFM pretrained for finding dense correspondences extracts matches. The resulting pixel correspondences are lifted back to 3D via the original depth maps. To further enhance robustness, we introduce a \"Match-then-Fuse\" probabilistic cold-fusion scheme that combines two independent correspondence posteriors, that of the generated-RGB branch with that of the raw geometric branch. This principled fusion preserves each modality inductive bias and provides calibrated confidence without any additional learning. C-GenReg is zero-shot and plug-and-play: all modules are pretrained and operate without fine-tuning. Extensive experiments on indoor (3DMatch, ScanNet) and outdoor (Waymo) benchmarks demonstrate strong zero-shot performance and superior cross-domain generalization. For the first time, we demonstrate a generative registration framework that operates successfully on real outdoor LiDAR data, where no imagery data is available.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.16680.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "66f5d4c99ef08fe3c1ed5c2d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/66f5d4c99ef08fe3c1ed5c2d/tftNb1JKDHrgMhr8PmN6A.jpeg",
+            "fullname": "Yuval Haitman",
+            "name": "YuvalH9",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 1,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "63a327b28c0c89dcae3395c2",
+            "name": "Ben-Gurion-University",
+            "fullname": "Ben-Gurion University of the Negev",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/64674c0b374fe5728d3e888e/1AFOmBhlm2fD0igNvbGFM.png"
+          },
+          "isAuthorParticipating": true
+        }
+      }
+    },
+    {
+      "id": "hf_2604.20012",
+      "title": "EmbodiedMidtrain: Bridging the Gap between Vision-Language Models and Vision-Language-Action Models via Mid-training",
+      "url": "https://arxiv.org/abs/2604.20012",
+      "authors": [
+        "Yiyang Du",
+        "Zhanqiu Guo",
+        "Xin Ye",
+        "Liu Ren",
+        "Chenyan Xiong"
+      ],
+      "abstract": "Vision-Language-Action Models (VLAs) inherit their visual and linguistic capabilities from Vision-Language Models (VLMs), yet most VLAs are built from off-the-shelf VLMs that are not adapted to the embodied domain, limiting their downstream performance. In this work, we propose EmbodiedMidtrain to bridge the gap between VLMs and VLAs. We first characterize the data distribution gap between them, showing that VLA data occupy compact regions that are largely separated from the broader VLM distribution, while the degree of alignment varies substantially both across and within VLM data sources. Then, we build a mid-training data engine that leverages a lightweight learnable proximity estimator to select the most VLA-aligned candidates from a large VLM pool, and mid-trains the VLM on this curated mixture before downstream VLA fine-tuning. Experiments on three robot manipulation benchmarks show that mid-training consistently improves performance across different VLM backbones, achieving results competitive with expert VLAs and off-the-shelf VLMs trained with larger model scale and training budgets. Further analysis reveals that mid-training provides a stronger initialization for VLA fine-tuning, with gains emerging from the earliest steps and widening throughout training. Moreover, the data engine captures both dataset-level and sample-level alignment signals, favoring spatial reasoning over text-centric tasks while preserving the diversity of the VLM data. We will release all code, data and models for future research.",
+      "published_at": "2026-04-21T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.20012",
+            "authors": [
+              {
+                "_id": "69e97d6dd49e77f7389b405d",
+                "name": "Yiyang Du",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d6dd49e77f7389b405e",
+                "name": "Zhanqiu Guo",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d6dd49e77f7389b405f",
+                "name": "Xin Ye",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d6dd49e77f7389b4060",
+                "name": "Liu Ren",
+                "hidden": false
+              },
+              {
+                "_id": "69e97d6dd49e77f7389b4061",
+                "name": "Chenyan Xiong",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-21T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-27T12:07:46.672Z",
+            "title": "EmbodiedMidtrain: Bridging the Gap between Vision-Language Models and Vision-Language-Action Models via Mid-training",
+            "submittedOnDailyBy": {
+              "_id": "68bf377eeef367fdbd4149aa",
+              "avatarUrl": "/avatars/f8d2a4528050ff46326c18d46cd1a7b5.svg",
+              "isPro": true,
+              "fullname": "Yiyang Du",
+              "user": "yiyangd",
+              "type": "user",
+              "name": "yiyangd"
+            },
+            "summary": "Vision-Language-Action Models (VLAs) inherit their visual and linguistic capabilities from Vision-Language Models (VLMs), yet most VLAs are built from off-the-shelf VLMs that are not adapted to the embodied domain, limiting their downstream performance. In this work, we propose EmbodiedMidtrain to bridge the gap between VLMs and VLAs. We first characterize the data distribution gap between them, showing that VLA data occupy compact regions that are largely separated from the broader VLM distribution, while the degree of alignment varies substantially both across and within VLM data sources. Then, we build a mid-training data engine that leverages a lightweight learnable proximity estimator to select the most VLA-aligned candidates from a large VLM pool, and mid-trains the VLM on this curated mixture before downstream VLA fine-tuning. Experiments on three robot manipulation benchmarks show that mid-training consistently improves performance across different VLM backbones, achieving results competitive with expert VLAs and off-the-shelf VLMs trained with larger model scale and training budgets. Further analysis reveals that mid-training provides a stronger initialization for VLA fine-tuning, with gains emerging from the earliest steps and widening throughout training. Moreover, the data engine captures both dataset-level and sample-level alignment signals, favoring spatial reasoning over text-centric tasks while preserving the diversity of the VLM data. We will release all code, data and models for future research.",
+            "upvotes": 2,
+            "discussionId": "69e97d6dd49e77f7389b4062",
+            "projectPage": "https://adu2021.github.io/blog/EmbodiedMidtrain/",
+            "ai_summary": "EmbodiedMidtrain addresses the gap between vision-language models and vision-language-action models by using a mid-training approach that selects VLA-aligned data to improve downstream robot manipulation performance.",
+            "ai_keywords": [
+              "Vision-Language-Action Models",
+              "Vision-Language Models",
+              "mid-training",
+              "data distribution gap",
+              "proximity estimator",
+              "VLA-aligned candidates",
+              "VLM pool",
+              "VLA fine-tuning",
+              "robot manipulation benchmarks"
+            ],
+            "organization": {
+              "_id": "67bf7cb85baf57a6b4009545",
+              "name": "cx-cmu",
+              "fullname": "Chenyan Xiong Research Group at CMU",
+              "avatar": "https://www.gravatar.com/avatar/43e7e19ba46bc4a4baaeaf660f7c19cb?d=retro&size=100"
+            }
+          },
+          "publishedAt": "2026-04-20T20:00:00.000Z",
+          "title": "EmbodiedMidtrain: Bridging the Gap between Vision-Language Models and Vision-Language-Action Models via Mid-training",
+          "summary": "Vision-Language-Action Models (VLAs) inherit their visual and linguistic capabilities from Vision-Language Models (VLMs), yet most VLAs are built from off-the-shelf VLMs that are not adapted to the embodied domain, limiting their downstream performance. In this work, we propose EmbodiedMidtrain to bridge the gap between VLMs and VLAs. We first characterize the data distribution gap between them, showing that VLA data occupy compact regions that are largely separated from the broader VLM distribution, while the degree of alignment varies substantially both across and within VLM data sources. Then, we build a mid-training data engine that leverages a lightweight learnable proximity estimator to select the most VLA-aligned candidates from a large VLM pool, and mid-trains the VLM on this curated mixture before downstream VLA fine-tuning. Experiments on three robot manipulation benchmarks show that mid-training consistently improves performance across different VLM backbones, achieving results competitive with expert VLAs and off-the-shelf VLMs trained with larger model scale and training budgets. Further analysis reveals that mid-training provides a stronger initialization for VLA fine-tuning, with gains emerging from the earliest steps and widening throughout training. Moreover, the data engine captures both dataset-level and sample-level alignment signals, favoring spatial reasoning over text-centric tasks while preserving the diversity of the VLM data. We will release all code, data and models for future research.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.20012.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "68bf377eeef367fdbd4149aa",
+            "avatarUrl": "/avatars/f8d2a4528050ff46326c18d46cd1a7b5.svg",
+            "fullname": "Yiyang Du",
+            "name": "yiyangd",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "67bf7cb85baf57a6b4009545",
+            "name": "cx-cmu",
+            "fullname": "Chenyan Xiong Research Group at CMU",
+            "avatar": "https://www.gravatar.com/avatar/43e7e19ba46bc4a4baaeaf660f7c19cb?d=retro&size=100"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2506.17001",
+      "title": "PersonalAI: A Systematic Comparison of Knowledge Graph Storage and Retrieval Approaches for Personalized LLM agents",
+      "url": "https://arxiv.org/abs/2506.17001",
+      "authors": [
+        "Mikhail Menschikov",
+        "Dmitry Evseev",
+        "Victoria Dochkina",
+        "Ruslan Kostoev",
+        "Ilia Perepechkin",
+        "Petr Anokhin",
+        "Nikita Semenov",
+        "Evgeny Burnaev"
+      ],
+      "abstract": "Personalizing language models by effectively incorporating user interaction history remains a central challenge in the development of adaptive AI systems. While large language models (LLMs), combined with Retrieval-Augmented Generation (RAG), have improved factual accuracy, they often lack structured memory and fail to scale in complex, long-term interactions. To address this, we propose a flexible external memory framework based on a knowledge graph that is constructed and updated automatically by the LLM. Building upon the AriGraph architecture, we introduce a novel hybrid graph design that supports both standard edges and two types of hyper-edges, enabling rich and dynamic semantic and temporal representations. Our framework also supports diverse retrieval mechanisms, including A*, WaterCircles traversal, beam search, and hybrid methods, making it adaptable to different datasets and LLM capacities. We evaluate our system on TriviaQA, HotpotQA, DiaASQ benchmarks and demonstrate that different memory and retrieval configurations yield optimal performance depending on the task. Additionally, we extend the DiaASQ benchmark with temporal annotations and internally contradictory statements, showing that our system remains robust and effective in managing temporal dependencies and context-aware reasoning",
+      "published_at": "2026-04-12T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2506.17001",
+            "authors": [
+              {
+                "_id": "69eb3546cffbe464140f1192",
+                "name": "Mikhail Menschikov",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1193",
+                "name": "Dmitry Evseev",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1194",
+                "name": "Victoria Dochkina",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1195",
+                "name": "Ruslan Kostoev",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1196",
+                "name": "Ilia Perepechkin",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1197",
+                "name": "Petr Anokhin",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1198",
+                "name": "Nikita Semenov",
+                "hidden": false
+              },
+              {
+                "_id": "69eb3546cffbe464140f1199",
+                "name": "Evgeny Burnaev",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-12T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-24T07:48:18.769Z",
+            "title": "PersonalAI: A Systematic Comparison of Knowledge Graph Storage and Retrieval Approaches for Personalized LLM agents",
+            "submittedOnDailyBy": {
+              "_id": "64103111b27543634e37eea0",
+              "avatarUrl": "/avatars/cefc331f1be10575d1fb2e7a1670a2d9.svg",
+              "isPro": false,
+              "fullname": "Dzigen",
+              "user": "dzigen",
+              "type": "user",
+              "name": "dzigen"
+            },
+            "summary": "Personalizing language models by effectively incorporating user interaction history remains a central challenge in the development of adaptive AI systems. While large language models (LLMs), combined with Retrieval-Augmented Generation (RAG), have improved factual accuracy, they often lack structured memory and fail to scale in complex, long-term interactions. To address this, we propose a flexible external memory framework based on a knowledge graph that is constructed and updated automatically by the LLM. Building upon the AriGraph architecture, we introduce a novel hybrid graph design that supports both standard edges and two types of hyper-edges, enabling rich and dynamic semantic and temporal representations. Our framework also supports diverse retrieval mechanisms, including A*, WaterCircles traversal, beam search, and hybrid methods, making it adaptable to different datasets and LLM capacities. We evaluate our system on TriviaQA, HotpotQA, DiaASQ benchmarks and demonstrate that different memory and retrieval configurations yield optimal performance depending on the task. Additionally, we extend the DiaASQ benchmark with temporal annotations and internally contradictory statements, showing that our system remains robust and effective in managing temporal dependencies and context-aware reasoning",
+            "upvotes": 1,
+            "discussionId": "69eb3546cffbe464140f119a",
+            "ai_summary": "A knowledge graph-based external memory framework enhances language model personalization through dynamic semantic and temporal representations with diverse retrieval mechanisms.",
+            "ai_keywords": [
+              "large language models",
+              "Retrieval-Augmented Generation",
+              "knowledge graph",
+              "external memory framework",
+              "AriGraph architecture",
+              "hyper-edges",
+              "A* search",
+              "WaterCircles traversal",
+              "beam search",
+              "temporal dependencies",
+              "context-aware reasoning"
+            ],
+            "organization": {
+              "_id": "639f8fddbeb95d698de119cf",
+              "name": "skoltech",
+              "fullname": "Skoltech",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/61aacef707d0f7b907b53c32/pafMh090XN1A7VLTn15H4.png"
+            }
+          },
+          "publishedAt": "2026-04-11T20:00:00.000Z",
+          "title": "PersonalAI: A Systematic Comparison of Knowledge Graph Storage and Retrieval Approaches for Personalized LLM agents",
+          "summary": "Personalizing language models by effectively incorporating user interaction history remains a central challenge in the development of adaptive AI systems. While large language models (LLMs), combined with Retrieval-Augmented Generation (RAG), have improved factual accuracy, they often lack structured memory and fail to scale in complex, long-term interactions. To address this, we propose a flexible external memory framework based on a knowledge graph that is constructed and updated automatically by the LLM. Building upon the AriGraph architecture, we introduce a novel hybrid graph design that supports both standard edges and two types of hyper-edges, enabling rich and dynamic semantic and temporal representations. Our framework also supports diverse retrieval mechanisms, including A*, WaterCircles traversal, beam search, and hybrid methods, making it adaptable to different datasets and LLM capacities. We evaluate our system on TriviaQA, HotpotQA, DiaASQ benchmarks and demonstrate that different memory and retrieval configurations yield optimal performance depending on the task. Additionally, we extend the DiaASQ benchmark with temporal annotations and internally contradictory statements, showing that our system remains robust and effective in managing temporal dependencies and context-aware reasoning",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2506.17001.png",
+          "numComments": 2,
+          "submittedBy": {
+            "_id": "64103111b27543634e37eea0",
+            "avatarUrl": "/avatars/cefc331f1be10575d1fb2e7a1670a2d9.svg",
+            "fullname": "Dzigen",
+            "name": "dzigen",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "639f8fddbeb95d698de119cf",
+            "name": "skoltech",
+            "fullname": "Skoltech",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/61aacef707d0f7b907b53c32/pafMh090XN1A7VLTn15H4.png"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    }
+  ],
+  "reasoning": "heuristic"
+}

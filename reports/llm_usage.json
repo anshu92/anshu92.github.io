@@ -1,0 +1,259 @@
+{
+  "ok": 34,
+  "fail": 3,
+  "blacklisted_skips": 19,
+  "blacklist_added": [
+    "gemini:gemini-2.5-flash",
+    "openrouter:deepseek/deepseek-r1-0528:free",
+    "openrouter:meta-llama/llama-3.3-70b-instruct:free"
+  ],
+  "tokens_in": 58462,
+  "tokens_out": 9189,
+  "usd_spent": 0.0,
+  "by_task": {
+    "rank_reasoning": {
+      "calls": 1,
+      "tokens_in": 2725,
+      "tokens_out": 62,
+      "usd": 0.0
+    },
+    "paper_chunk_summary": {
+      "calls": 5,
+      "tokens_in": 10108,
+      "tokens_out": 974,
+      "usd": 0.0
+    },
+    "supervisor_route": {
+      "calls": 1,
+      "tokens_in": 149,
+      "tokens_out": 13,
+      "usd": 0.0
+    },
+    "analyst_empirical": {
+      "calls": 1,
+      "tokens_in": 162,
+      "tokens_out": 99,
+      "usd": 0.0
+    },
+    "analyst_glossary": {
+      "calls": 1,
+      "tokens_in": 407,
+      "tokens_out": 30,
+      "usd": 0.0
+    },
+    "analyst_methods": {
+      "calls": 1,
+      "tokens_in": 210,
+      "tokens_out": 111,
+      "usd": 0.0
+    },
+    "analyst_code": {
+      "calls": 1,
+      "tokens_in": 210,
+      "tokens_out": 113,
+      "usd": 0.0
+    },
+    "analyst_practitioner": {
+      "calls": 1,
+      "tokens_in": 644,
+      "tokens_out": 32,
+      "usd": 0.0
+    },
+    "analyst_related": {
+      "calls": 1,
+      "tokens_in": 226,
+      "tokens_out": 141,
+      "usd": 0.0
+    },
+    "committee_synthesis": {
+      "calls": 1,
+      "tokens_in": 332,
+      "tokens_out": 299,
+      "usd": 0.0
+    },
+    "query_gen": {
+      "calls": 1,
+      "tokens_in": 168,
+      "tokens_out": 70,
+      "usd": 0.0
+    },
+    "planning_brief": {
+      "calls": 1,
+      "tokens_in": 5242,
+      "tokens_out": 62,
+      "usd": 0.0
+    },
+    "draft_full": {
+      "calls": 4,
+      "tokens_in": 17761,
+      "tokens_out": 3638,
+      "usd": 0.0
+    },
+    "draft_section_critic": {
+      "calls": 5,
+      "tokens_in": 7334,
+      "tokens_out": 250,
+      "usd": 0.0
+    },
+    "draft_rewrite_section": {
+      "calls": 5,
+      "tokens_in": 3398,
+      "tokens_out": 532,
+      "usd": 0.0
+    },
+    "editor_grounding": {
+      "calls": 2,
+      "tokens_in": 6501,
+      "tokens_out": 269,
+      "usd": 0.0
+    },
+    "explainer_rewrite": {
+      "calls": 1,
+      "tokens_in": 1277,
+      "tokens_out": 1137,
+      "usd": 0.0
+    },
+    "editor_rubric": {
+      "calls": 1,
+      "tokens_in": 1608,
+      "tokens_out": 1357,
+      "usd": 0.0
+    }
+  },
+  "by_model": {
+    "gemini-2.5-flash": {
+      "calls": 17,
+      "tokens_in": 25325,
+      "tokens_out": 3457,
+      "usd": 0.0
+    },
+    "meta-llama/llama-3.3-70b-instruct:free": {
+      "calls": 2,
+      "tokens_in": 7205,
+      "tokens_out": 1046,
+      "usd": 0.0
+    },
+    "qwen/qwen3-32b": {
+      "calls": 5,
+      "tokens_in": 7334,
+      "tokens_out": 250,
+      "usd": 0.0
+    },
+    "llama-3.3-70b-versatile": {
+      "calls": 6,
+      "tokens_in": 4675,
+      "tokens_out": 1669,
+      "usd": 0.0
+    },
+    "openrouter/free": {
+      "calls": 4,
+      "tokens_in": 13923,
+      "tokens_out": 2767,
+      "usd": 0.0
+    }
+  },
+  "by_stage": {
+    "paper_reader": 4,
+    "committee": 10,
+    "draft": 9,
+    "polish": 3,
+    "editor": 2
+  },
+  "llm_cap": 90,
+  "llm_calls": 37,
+  "budget_exhausted": false,
+  "supervisor_decisions": [
+    "curate",
+    "harvest",
+    "rank",
+    "scout",
+    "supervisor picks=['related', 'code', 'practitioner'] core=['methods', 'empirical', 'glossary']",
+    "synthesizer",
+    "planning_brief",
+    "gap_analyzer",
+    "evidence_backfill",
+    "section_patcher",
+    "adversary_review",
+    "evidence_verifier",
+    "render_reviewer",
+    "meta_review"
+  ],
+  "committee_synthesis": {
+    "narrative": "Sparse-view 3D tomographic reconstruction remains a critical challenge, particularly in medical imaging where minimizing radiation exposure is paramount. While Neural Representations (NRs) like neural fields and 3D Gaussians have shown promise in modeling volumetric data, their susceptibility to severe artifacts under sparse data conditions has limited their practical deployment. This tension between the need for high-quality 3D models and the constraints of limited input data presents a significant hurdle for advancing diagnostic capabilities.\n\nEnter DiffNR, an innovative approach that directly confronts this limitation by ingeniously combining neural representation optimization with conditional diffusion priors. The method adapts powerful diffusion models not just for general image enhancement, but specifically for artifact correction on individual reconstructed slices, seamlessly integrating this prior into the NR optimization loop. Furthermore, DiffNR augments pseudo-volumes to provide crucial direct 3D supervision, ensuring a holistic and robust reconstruction process that goes beyond 2D slice-by-slice improvements.\n\nThe empirical results underscore the transformative potential of DiffNR. Achieving a remarkable +5.79 dB improvement over an R2-Gaussian baseline and a solid +2.19 dB over the NAF baseline, DiffNR demonstrates a significant leap in reconstruction quality. This breakthrough promises a future where high-fidelity 3D tomographic reconstructions are achievable even from highly sparse data, paving the way for reduced radiation doses in medical scans, faster data acquisition in industrial settings, and ultimately, more accurate and artifact-free volumetric imaging across diverse applications.",
+    "report": {
+      "narrative": "Sparse-view 3D tomographic reconstruction remains a critical challenge, particularly in medical imaging where minimizing radiation exposure is paramount. While Neural Representations (NRs) like neural fields and 3D Gaussians have shown promise in modeling volumetric data, their susceptibility to severe artifacts under sparse data conditions has limited their practical deployment. This tension between the need for high-quality 3D models and the constraints of limited input data presents a significant hurdle for advancing diagnostic capabilities.\n\nEnter DiffNR, an innovative approach that directly confronts this limitation by ingeniously combining neural representation optimization with conditional diffusion priors. The method adapts powerful diffusion models not just for general image enhancement, but specifically for artifact correction on individual reconstructed slices, seamlessly integrating this prior into the NR optimization loop. Furthermore, DiffNR augments pseudo-volumes to provide crucial direct 3D supervision, ensuring a holistic and robust reconstruction process that goes beyond 2D slice-by-slice improvements.\n\nThe empirical results underscore the transformative potential of DiffNR. Achieving a remarkable +5.79 dB improvement over an R2-Gaussian baseline and a solid +2.19 dB over the NAF baseline, DiffNR demonstrates a significant leap in reconstruction quality. This breakthrough promises a future where high-fidelity 3D tomographic reconstructions are achievable even from highly sparse data, paving the way for reduced radiation doses in medical scans, faster data acquisition in industrial settings, and ultimately, more accurate and artifact-free volumetric imaging across diverse applications.",
+      "n_analysts": 6,
+      "n_skipped": 2,
+      "analysts": [
+        {
+          "role": "methods",
+          "claims": [
+            "DiffNR combines neural representation with conditional diffusion priors.",
+            "DiffNR adapts diffusion models for artifact correction on reconstructed slices.",
+            "DiffNR integrates diffusion models into Neural Representation (NR) optimization.",
+            "DiffNR augments pseudo-volumes for direct 3D supervision."
+          ],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "empirical",
+          "claims": [
+            "The DiffNR method achieves an improvement of +5.79 dB when compared against an R2-Gaussian baseline.",
+            "The DiffNR method shows an improvement of +2.19 dB when compared against a NAF baseline."
+          ],
+          "citations": [],
+          "confidence": "high",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        },
+        {
+          "role": "glossary",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        },
+        {
+          "role": "related",
+          "claims": [
+            "DiffNR builds upon existing Neural Representations (NRs), such as neural fields and 3D Gaussians, which are used for modeling volumetric data in computed tomography (CT).",
+            "The paper addresses limitations of prior NR optimization methods, specifically their susceptibility to severe artifacts in sparse-view settings.",
+            "DiffNR incorporates diffusion priors, indicating that diffusion models and their application in image correction/enhancement are relevant prior work."
+          ],
+          "citations": [],
+          "confidence": "low",
+          "contradictions": [],
+          "suggested_section": "H2",
+          "skipped": false
+        },
+        {
+          "role": "code",
+          "claims": [
+            "No direct GitHub repositories or code signals were found for the paper 'DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction' based on the provided search query. This may indicate that the code has not yet been released, is hosted privately, or uses a different naming convention."
+          ],
+          "citations": [],
+          "confidence": "low",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": false
+        },
+        {
+          "role": "practitioner",
+          "claims": [],
+          "citations": [],
+          "confidence": "medium",
+          "contradictions": [],
+          "suggested_section": "",
+          "skipped": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+[
+  {
+    "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+    "overall_status": "blocked",
+    "codes": [
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "draft:lint:takeaway_is_heading",
+      "draft:lint:takeaway_lacks_number",
+      "draft:lint:generic_heading_used",
+      "draft:lint:citation_count_below_min",
+      "draft:lint:advice_without_traceability"
+    ],
+    "query_text": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction\nNeural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.\nllm paper\nExtensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.\nExtensive experiments show that it improves NR reconstruction quality by 3.99 dB, generalizes well across domains, and maintains reasonable runtime.\n(3) Experiments demonstrate that DiffNR outperforms existing methods in accuracy, generalization, and efficiency, highlighting its practical values.\nMixed Neural RepresentationWe mix reconstruction results from both neural fields and 3D Gaussians in a 1:1 ratio to encourage the diffusion model to learn generalized priors, rather than overfitting to specific patterns.\nModel UnderfittingWe intentionally underfit the NR optimization by limiting training to a reduced number of iterations (e.g., 25\u201350% of the standard training steps).\ntable_numbers_diverge_from_prose\ntemplated_heading_used\n45%\npaper_to_code\nflowchart\nsingle_concrete_pain_point_with_falsifier\nIntroduction to DiffNR\nWhy This Works\nWhat Would Falsify This\nWhen to Use It\nTradeoffs and Limitations\nMechanism Diagram",
+    "signals": {
+      "format_name": "paper_to_code",
+      "diagram_style": "flowchart",
+      "blocking_stages": [
+        "draft",
+        "editor"
+      ]
+    }
+  }
+]

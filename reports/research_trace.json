@@ -1,0 +1,45 @@
+{
+  "calls": 6,
+  "trace": [
+    {
+      "tool": "semantic_scholar_search",
+      "n": 3
+    },
+    {
+      "tool": "refs_cites",
+      "refs": 0,
+      "cites": 0
+    },
+    {
+      "tool": "openalex",
+      "q": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D",
+      "n": 3
+    },
+    {
+      "tool": "paper_reader",
+      "outline_sections": 12,
+      "results": 3,
+      "limitations": 5,
+      "llm_chunks": 2
+    },
+    {
+      "tool": "competitor_queries",
+      "n": 2
+    },
+    {
+      "tool": "openalex",
+      "q": "Diffusion neural representation sparse-view reconstruction",
+      "n": 3
+    },
+    {
+      "tool": "extract_benchmarks",
+      "n": 1
+    }
+  ],
+  "committee": true,
+  "ss_cache_hits": 0,
+  "ss_429": 0,
+  "llm_ok": 15,
+  "rewrites_applied": 2,
+  "re_research_applied": 0
+}

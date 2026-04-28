@@ -1,0 +1,244 @@
+{
+  "rubric_score": 5,
+  "rubric_items": [
+    {
+      "item": "sharp_takeaway",
+      "score": 0
+    },
+    {
+      "item": "intro_earns_attention",
+      "score": 0
+    },
+    {
+      "item": "concrete_problem",
+      "score": 1
+    },
+    {
+      "item": "inevitable_structure",
+      "score": 1
+    },
+    {
+      "item": "specific_language",
+      "score": 1
+    },
+    {
+      "item": "teaches_why",
+      "score": 1
+    },
+    {
+      "item": "strong_example",
+      "score": 0
+    },
+    {
+      "item": "tradeoffs_explicit",
+      "score": 1
+    },
+    {
+      "item": "claims_backed",
+      "score": 1
+    },
+    {
+      "item": "limitations_honest",
+      "score": 1
+    },
+    {
+      "item": "skimmable",
+      "score": 1
+    },
+    {
+      "item": "actionable_close",
+      "score": 1
+    },
+    {
+      "item": "diagrams_clarify",
+      "score": 1
+    },
+    {
+      "item": "honest_scope",
+      "score": 1
+    },
+    {
+      "item": "pov_present",
+      "score": 0
+    }
+  ],
+  "five_questions": {
+    "problem": "Severe artifacts in reconstructed slices when performing 3D tomographic reconstruction under sparse-view settings, which is common in low-dose CT imaging.",
+    "hard": "Balancing artifact correction quality with computational efficiency - avoiding frequent diffusion model queries while still providing effective supervision to underconstrained regions.",
+    "tried": "Integrated a single-step diffusion model (SliceFixer) into the neural representation optimization pipeline that periodically generates pseudo-reference volumes for auxiliary 3D perceptual supervision.",
+    "outcomes": "Achieved +5.79 dB PSNR improvement over R2-Gaussian baseline and +2.19 dB over NAF baseline, with an average improvement of +3.99 dB across domains.",
+    "next": "Explore domain adaptation for SliceFixer, alternative diffusion schedules, and tighter integration with CT forward models to reduce query frequency."
+  },
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [
+    "meta_review_requires_editor_attention"
+  ],
+  "lint_issues": [
+    "takeaway_is_heading",
+    "takeaway_lacks_number",
+    "generic_heading_used",
+    "citation_count_below_min",
+    "advice_without_traceability"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "DiffNR improves PSNR by 5.79 dB compared to R2-Gaussian",
+    "DiffNR improves PSNR by 2.19 dB compared to NAF",
+    "DiffNR achieves better performance than all baselines on independent test sets"
+  ],
+  "rubric_floor_applied": true,
+  "rubric_floor_reasons": [
+    "no_cites:cap=5",
+    "no_numbers:cap=5"
+  ],
+  "rubric_score_raw": 11,
+  "evidence_utilization": {
+    "score": 0.5887,
+    "ratios": {
+      "numbers": 1.0,
+      "entities": 0.5625,
+      "quotes": 0.0,
+      "analyst_claims": 0.1
+    },
+    "totals": {
+      "numbers": 3,
+      "entities": 16,
+      "quotes": 7,
+      "analyst_claims": 10
+    },
+    "used_counts": {
+      "numbers": 3,
+      "entities": 9,
+      "quotes": 0,
+      "analyst_claims": 1
+    },
+    "unused": {
+      "numbers": [],
+      "entities": [
+        "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+        "SparseFusion: Distilling View-Conditioned Diffusion for 3D Reconstruction",
+        "DPER: Diffusion Prior Driven Neural Representation for Limited Angle and Sparse View CT Reconstruction",
+        "The DiffNR",
+        "NRs",
+        "GitHub",
+        "Diffusion-Enhanced Neural Representation"
+      ],
+      "quotes": [
+        "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel fra",
+        "We propose DiffNR for sparse-view 3D CT reconstruction.",
+        "We propose DiffNR, a novel framework that combines neural representation with diffusion priors, fundamentally different from prior CT methods.",
+        "We design an effective pipeline to adapt diffusion models for artifact correction and efficiently integrate them into NR optimization, which may also inspire other inverse problems.",
+        "Our method follows the repair-and-augment strategy but introduces key innovations designated for CT: (1) we correct artifacts on reconstructed slices rather than on rendered projections, and (2) we augment pseudo-volumes for direct 3D super",
+        "The DiffNR method achieves an improvement of +5.79 dB when compared against an R2-Gaussian baseline.",
+        "The DiffNR method shows an improvement of +2.19 dB when compared against a NAF baseline."
+      ],
+      "analyst_claims": [
+        "DiffNR adapts diffusion models for artifact correction on reconstructed slices.",
+        "DiffNR integrates diffusion models into Neural Representation (NR) optimization.",
+        "DiffNR augments pseudo-volumes for direct 3D supervision.",
+        "The DiffNR method achieves an improvement of +5.",
+        "The DiffNR method shows an improvement of +2.",
+        "DiffNR builds upon existing Neural Representations (NRs), such as neural fields and 3D Gaussians, which are used for modeling volumetric data in computed tomogr",
+        "The paper addresses limitations of prior NR optimization methods, specifically their susceptibility to severe artifacts in sparse-view settings.",
+        "DiffNR incorporates diffusion priors, indicating that diffusion models and their application in image correction/enhancement are relevant prior work."
+      ]
+    }
+  },
+  "undefined_acronyms": [],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "review_notes": [
+    {
+      "role": "adversary",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "missing_tradeoffs",
+        "vague_impact_claims",
+        "missing_falsifiers"
+      ],
+      "rewrite_targets": [
+        "Practitioner Implications and Next Steps"
+      ],
+      "summary": "The draft lacks a clear analysis of tradeoffs, does not fully address what would falsify the method, and makes vague impact claims without grounding in evidence.",
+      "metadata": {
+        "severity": "blocking",
+        "top_risk": "The recommendations and impact claims are not sufficiently grounded in evidence or analysis, weakening the decision usefulness of the blog."
+      }
+    },
+    {
+      "role": "evidence_verifier",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "blocking_unsupported_comparative_claims",
+        "blocking_contradiction_with_evidence"
+      ],
+      "rewrite_targets": [
+        "Key Performance Metrics",
+        "Evidence-Backed Claims"
+      ],
+      "summary": "The draft asserts specific PSNR improvements versus R2-Gaussian (+5.79 dB) and NAF (+2.19 dB) and an average +3.99 dB gain, but the evidence only reports the +5.79 dB and +2.19 dB figures without providing baseline absolute values or confirming the average; the table presents these as standalone improvements without citing the underlying source, and the summary conflicts with the lack of reported baseline numbers.",
+      "metadata": {
+        "severity": "blocking",
+        "needs_number_rewrite": true
+      }
+    },
+    {
+      "role": "render_reviewer",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "Render review found no blocking issues.",
+      "metadata": {}
+    },
+    {
+      "role": "meta_reviewer",
+      "pass_review": false,
+      "reviewer_weight": 1.0,
+      "findings": [
+        "reviewer_blocked:evidence_verifier",
+        "blocking_unsupported_comparative_claims",
+        "blocking_contradiction_with_evidence",
+        "reviewer_weight_below_threshold:0.35<0.80"
+      ],
+      "rewrite_targets": [],
+      "summary": "The draft lacks a clear analysis of tradeoffs, does not fully address what would falsify the method, and makes vague impact claims without grounding in evidence. | The draft asserts specific PSNR improvements versus R2-Gaussian (+5.79 dB) and NAF (+2.19 dB) and an average +3.99 dB gain, but the evidence only reports the +5.79 dB and +2.19 dB figures without providing baseline absolute values or confirming the average; the table presents these as standalone improvements without citing the underlying source, and the summary conflicts with the lack of reported baseline numbers. | Render review found no blocking issues.",
+      "metadata": {
+        "all_findings": [
+          "missing_tradeoffs",
+          "vague_impact_claims",
+          "missing_falsifiers",
+          "blocking_unsupported_comparative_claims",
+          "blocking_contradiction_with_evidence"
+        ],
+        "weighted_score": 0.35,
+        "reviewer_weights": {
+          "evidence_verifier": 0.45,
+          "render_reviewer": 0.35,
+          "adversary": 0.2
+        }
+      }
+    }
+  ],
+  "citation_audit": {
+    "ok": true,
+    "verified_links": [
+      "https://arxiv.org/abs/2604.21518",
+      "https://openalex.org/W4386080645"
+    ],
+    "invalid_links": [],
+    "removed_links": [],
+    "warnings": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "role": "meta_reviewer",
+  "pass_review": false,
+  "reviewer_weight": 1.0,
+  "findings": [
+    "reviewer_blocked:evidence_verifier",
+    "blocking_unsupported_comparative_claims",
+    "blocking_contradiction_with_evidence",
+    "reviewer_weight_below_threshold:0.35<0.80"
+  ],
+  "rewrite_targets": [],
+  "summary": "The draft lacks a clear analysis of tradeoffs, does not fully address what would falsify the method, and makes vague impact claims without grounding in evidence. | The draft asserts specific PSNR improvements versus R2-Gaussian (+5.79 dB) and NAF (+2.19 dB) and an average +3.99 dB gain, but the evidence only reports the +5.79 dB and +2.19 dB figures without providing baseline absolute values or confirming the average; the table presents these as standalone improvements without citing the underlying source, and the summary conflicts with the lack of reported baseline numbers. | Render review found no blocking issues.",
+  "metadata": {
+    "all_findings": [
+      "missing_tradeoffs",
+      "vague_impact_claims",
+      "missing_falsifiers",
+      "blocking_unsupported_comparative_claims",
+      "blocking_contradiction_with_evidence"
+    ],
+    "weighted_score": 0.35,
+    "reviewer_weights": {
+      "evidence_verifier": 0.45,
+      "render_reviewer": 0.35,
+      "adversary": 0.2
+    }
+  }
+}

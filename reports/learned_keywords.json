@@ -1,0 +1,13 @@
+{
+  "llm_scaling": [
+    "diffusion priors",
+    "neural representation optimization",
+    "slice fixer",
+    "conditional diffusion priors",
+    "repair-and-augment paradigm",
+    "lora-based fine-tuning",
+    "3d perceptual supervision",
+    "pseudo-reference volumes",
+    "mixed neural fields"
+  ]
+}

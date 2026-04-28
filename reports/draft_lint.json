@@ -1,0 +1,14 @@
+{
+  "structural": [
+    "table_numbers_diverge_from_prose",
+    "templated_heading_used"
+  ],
+  "unsupported_numeric_claims": [
+    "45%"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "stage": "draft_graph"
+}

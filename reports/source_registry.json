@@ -1,0 +1,169 @@
+[
+  {
+    "kind": "item",
+    "source_id": "hf_2604.21518",
+    "key": "hf_2604.21518",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+    "metadata": {
+      "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+      "source": "huggingface_daily_papers"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_1700794434",
+    "key": "oa_1700794434",
+    "url": "https://openalex.org/W7137997634",
+    "text": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+    "metadata": {
+      "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_177526780",
+    "key": "oa_177526780",
+    "url": "https://openalex.org/W4386080645",
+    "text": "SparseFusion: Distilling View-Conditioned Diffusion for 3D Reconstruction",
+    "metadata": {
+      "title": "SparseFusion: Distilling View-Conditioned Diffusion for 3D Reconstruction",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_499127348",
+    "key": "oa_499127348",
+    "url": "https://openalex.org/W4396819305",
+    "text": "DPER: Diffusion Prior Driven Neural Representation for Limited Angle and Sparse View CT Reconstruction",
+    "metadata": {
+      "title": "DPER: Diffusion Prior Driven Neural Representation for Limited Angle and Sparse View CT Reconstruction",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "benchmark",
+    "source_id": "hf_2604.21518",
+    "key": "benchmark:0",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "DiffNR: 3.99 dB PSNR improvement",
+    "metadata": {
+      "baseline": "prior methods",
+      "notes": "from abstract (LLM extract)"
+    }
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:0",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curat",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:1",
+    "url": "https://arxiv.org/pdf/2604.21518.pdf",
+    "text": "We propose DiffNR for sparse-view 3D CT reconstruction.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:2",
+    "url": "https://arxiv.org/pdf/2604.21518.pdf",
+    "text": "We propose DiffNR, a novel framework that combines neural representation with diffusion priors, fundamentally different from prior CT methods.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:3",
+    "url": "https://arxiv.org/pdf/2604.21518.pdf",
+    "text": "We design an effective pipeline to adapt diffusion models for artifact correction and efficiently integrate them into NR optimization, which may also inspire other inverse problems.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:4",
+    "url": "https://arxiv.org/pdf/2604.21518.pdf",
+    "text": "Our method follows the repair-and-augment strategy but introduces key innovations designated for CT: (1) we correct artifacts on reconstructed slices rather than on rendered projections, and (2) we augment pseudo-volumes for direct 3D supervision instead of relying on intermediat",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:5",
+    "url": "https://arxiv.org/pdf/2604.21518.pdf",
+    "text": "The DiffNR method achieves an improvement of +5.79 dB when compared against an R2-Gaussian baseline.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.21518",
+    "key": "quote:6",
+    "url": "https://arxiv.org/pdf/2604.21518.pdf",
+    "text": "The DiffNR method shows an improvement of +2.19 dB when compared against a NAF baseline.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_outline",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "- Abstract\n- Introduction\n- Query\n\nUpdateslicefixer\n- Neural Fields\n- Corrupted Slice\n- Projection\n- I\n\nSource\n- I(R)\n- Related Work\n- Learning-Based Tomographic Reconstructionsimilar\n- Diffusion-Enhanced Neural Representationenhancing\n- Background",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_problem",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "The paper addresses the challenge of sparse-view 3D CT reconstruction, where existing neural representation (NR) methods, such as NeRF and 3DGS variants for 3D CT, struggle.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_method",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "DiffNR is proposed as a novel framework that combines neural representation with conditional diffusion priors. It designs an effective pipeline to adapt diffusion models for artifact correction on reconstructed slices and efficiently integrates them into NR optimization, augmenting pseudo-volumes for direct 3D supervision.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_experiments",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "- The DiffNR method achieves an improvement of +5.79 dB when compared against an R2-Gaussian baseline.\n- The DiffNR method shows an improvement of +2.19 dB when compared against a NAF baseline.\n- DiffNR outperforms existing methods in accuracy, generalization, and efficiency.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_limitations",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "- Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.\n- Extensive experiments show that it improves NR reconstruction quality by 3.99 dB, generalizes well across domains, and maintains reasonable runtime.\n- (3) Experiments demonstrate that DiffNR outperforms existing methods in accuracy, generalization, and efficiency, highlighting its practical values.\n- Mixed Neural RepresentationWe mix reconstruction results from both neural fields and 3D Gaussians in a 1:1 ratio to encourage the diffusion model to learn generalized priors, rather than overfitting to specific patterns.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_conclusion",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "We present DiffNR, a novel optimization framework for sparse-view 3D tomographic reconstruction. At its core is SliceFixer, a single-step diffusion model finetuned on curated datasets to correct artifacts in reconstructed CT slices. During reconstruction, the pretrained SliceFixer generates pseudo-reference volumes that provide augmented perceptual regularization. Such a repair-and-augment strategy avoids frequent diffusion model queries, therefore improving reconstruction quality without sacrificing efficiency. Experimental results demonstrate that DiffNR outperforms prior methods in reconstruction quality, generalization capability, and optimization efficiency, highlighting its practical potential. Further, this novel integration of diffusion models with neural representation optimization opens a promising direction for addressing broader classes of inverse problems.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.21518",
+    "key": "paper_reproducibility",
+    "url": "https://arxiv.org/abs/2604.21518",
+    "text": "- We train a separate SliceFixer on each dataset and apply the corresponding model for test-case reconstruction.\n- We integrate LoRA layers with ranks of 8 for the U- Net and 4 for the V AE, and train the model with a learning rate of1e\u22125for 40k steps on ToothFairy and 70k steps on LUNA16, using a batch size of 4.\n- Finetuning is performed on 4 H100 GPUs.",
+    "metadata": {}
+  }
+]

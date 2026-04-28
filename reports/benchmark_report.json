@@ -1,0 +1,190 @@
+{
+  "fixture_path": "/home/runner/work/anshu92.github.io/anshu92.github.io/tests/fixtures/blogpipe_benchmark_cases.json",
+  "total_cases": 5,
+  "passed_cases": 5,
+  "failed_cases": 0,
+  "ok": true,
+  "cases": [
+    {
+      "name": "blocked_unsupported_claim",
+      "ok": true,
+      "expected": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_contains": [
+          "grounding_issue"
+        ]
+      },
+      "actual": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_codes": [
+          "grounding_issue"
+        ]
+      },
+      "detail": {}
+    },
+    {
+      "name": "blocked_render_raw_mermaid",
+      "ok": true,
+      "expected": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_contains": [
+          "render_error"
+        ]
+      },
+      "actual": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_codes": [
+          "render_error",
+          "render_error",
+          "render_error"
+        ]
+      },
+      "detail": {
+        "render_report": {
+          "html_valid": false,
+          "pdf_valid": false,
+          "mermaid_rendered": false,
+          "tables_rendered": true,
+          "images_resolved": true,
+          "captions_ok": true,
+          "density_ok": false,
+          "errors": [
+            "page_density_too_low",
+            "raw_mermaid_in_render",
+            "raw_markdown_table_in_render"
+          ],
+          "warnings": [
+            "no_results_table_in_markdown"
+          ],
+          "artifacts": []
+        }
+      }
+    },
+    {
+      "name": "blocked_weighted_meta_review",
+      "ok": true,
+      "expected": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_contains": [
+          "meta:reviewer_blocked:evidence_verifier"
+        ]
+      },
+      "actual": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_codes": [
+          "meta:reviewer_blocked:evidence_verifier",
+          "meta:citation_count_below_min",
+          "meta:reviewer_weight_below_threshold:0.35<0.80"
+        ]
+      },
+      "detail": {
+        "meta_review": {
+          "role": "meta_reviewer",
+          "pass_review": false,
+          "reviewer_weight": 1.0,
+          "findings": [
+            "reviewer_blocked:evidence_verifier",
+            "citation_count_below_min",
+            "reviewer_weight_below_threshold:0.35<0.80"
+          ],
+          "rewrite_targets": [],
+          "summary": "Need a falsifier. | Evidence is weak. | Render looks fine.",
+          "metadata": {
+            "all_findings": [
+              "missing_falsifier_language",
+              "citation_count_below_min"
+            ],
+            "weighted_score": 0.35,
+            "reviewer_weights": {
+              "evidence_verifier": 0.45,
+              "render_reviewer": 0.35,
+              "adversary": 0.2
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "passed_full_contract",
+      "ok": true,
+      "expected": {
+        "pass_gate": true,
+        "overall_status": "passed",
+        "blocking_contains": []
+      },
+      "actual": {
+        "pass_gate": true,
+        "overall_status": "passed",
+        "blocking_codes": []
+      },
+      "detail": {
+        "meta_review": {
+          "role": "meta_reviewer",
+          "pass_review": true,
+          "reviewer_weight": 1.0,
+          "findings": [],
+          "rewrite_targets": [],
+          "summary": "Tradeoffs are present. | Evidence is grounded. | Render looks fine.",
+          "metadata": {
+            "all_findings": [],
+            "weighted_score": 1.0,
+            "reviewer_weights": {
+              "evidence_verifier": 0.45,
+              "render_reviewer": 0.35,
+              "adversary": 0.2
+            }
+          }
+        },
+        "render_report": {
+          "html_valid": true,
+          "pdf_valid": true,
+          "mermaid_rendered": true,
+          "tables_rendered": true,
+          "images_resolved": true,
+          "captions_ok": true,
+          "density_ok": true,
+          "errors": [],
+          "warnings": [
+            "no_results_table_in_markdown"
+          ],
+          "artifacts": []
+        }
+      }
+    },
+    {
+      "name": "blocked_review_summary_only",
+      "ok": true,
+      "expected": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_contains": [
+          "grounding_issue",
+          "lint:generic_heading_used"
+        ]
+      },
+      "actual": {
+        "pass_gate": false,
+        "overall_status": "blocked",
+        "blocking_codes": [
+          "grounding_issue",
+          "lint:generic_heading_used"
+        ]
+      },
+      "detail": {
+        "email_review": {
+          "path": "/home/runner/work/anshu92.github.io/anshu92.github.io/reports/benchmark_email_preview_blocked_review_summary_only.html",
+          "contains_ok": true,
+          "not_contains_ok": true,
+          "failed_contains": [],
+          "failed_not_contains": []
+        }
+      }
+    }
+  ]
+}

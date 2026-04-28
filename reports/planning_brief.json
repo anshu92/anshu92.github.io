@@ -1,0 +1,31 @@
+{
+  "mandatory_claims": [
+    "- The DiffNR method achieves an improvement of +5.79 dB when compared against an R2-Gaussian baseline.\n- The DiffNR method shows an improvement of +2.19 dB when compared against a NAF baseline.\n- DiffNR outperforms exist",
+    "DiffNR is proposed as a novel framework that combines neural representation with conditional diffusion priors. It designs an effective pipeline to adapt diffusion models for artifact correction on reconstructed slices an"
+  ],
+  "mandatory_sections": [
+    "why this works",
+    "what would falsify this",
+    "when to use it"
+  ],
+  "required_visuals": [
+    "one mechanism diagram"
+  ],
+  "likely_failures": [
+    "Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+    "Extensive experiments show that it improves NR reconstruction quality by 3.99 dB, generalizes well across domains, and maintains reasonable runtime."
+  ],
+  "preventive_checks": [
+    "verify numeric claims against evidence",
+    "confirm mermaid and table render cleanly"
+  ],
+  "backup_remedies": [
+    "drop unsupported metrics",
+    "replace broken visuals with summary-only output"
+  ],
+  "reviewer_focus": [
+    "evidence grounding",
+    "tradeoffs",
+    "decision usefulness"
+  ]
+}
