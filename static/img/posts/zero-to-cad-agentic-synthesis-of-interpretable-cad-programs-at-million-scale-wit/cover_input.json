@@ -1,0 +1,1 @@
+{"format": "opinion_with_receipts", "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data", "takeaway": "Zero-to-CAD synthesizes 1 million executable CAD construction sequences without real data, achieving an 82.1% success rate with a fine-tuned Qwen3-VL-2B versus 72.2% for GPT-5.2 High arXiv:2604.24479."}

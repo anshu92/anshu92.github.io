@@ -1,0 +1,45 @@
+{
+  "mandatory_claims": [
+    "Zero-to-CAD synthesizes approximately one million executable CAD construction sequences",
+    "The framework uses a large language model (LLM) within a feedback-driven CAD environment",
+    "The synthesized CAD sequences cover a rich vocabulary of operations beyond sketch-and-extrude workflows",
+    "Fine-tuning a vision-language model on the synthetic data outperforms strong baselines, including GPT-5.2"
+  ],
+  "mandatory_sections": [
+    "Introduction to CAD and the problem of construction history",
+    "Overview of the Zero-to-CAD framework",
+    "Agentic search problem and LLM integration",
+    "Synthesis and validation of CAD construction sequences",
+    "Results and comparison to baselines",
+    "What would falsify this: cheapest experiment to invalidate the main claim"
+  ],
+  "required_visuals": [
+    "Flowchart of the Zero-to-CAD framework",
+    "Examples of synthesized CAD construction sequences",
+    "Comparison chart of the performance of the vision-language model on synthetic data vs. baselines"
+  ],
+  "likely_failures": [
+    "Overemphasis on technical details without clear explanations",
+    "Lack of concrete examples and visual aids",
+    "Failure to provide alternative methods and cost comparisons",
+    "Insufficient discussion of limitations and potential falsification experiments"
+  ],
+  "preventive_checks": [
+    "Review for clarity and concision in technical explanations",
+    "Verify inclusion of concrete examples and visual aids",
+    "Check for alternative methods and cost comparisons in each section",
+    "Ensure discussion of limitations and potential falsification experiments"
+  ],
+  "backup_remedies": [
+    "Simplify technical explanations and add more visual aids",
+    "Add more concrete examples and case studies",
+    "Provide additional alternative methods and cost comparisons",
+    "Emphasize the importance of limitations and potential falsification experiments"
+  ],
+  "reviewer_focus": [
+    "Clarity and concision of technical explanations",
+    "Effectiveness of visual aids and examples",
+    "Thoroughness of alternative methods and cost comparisons",
+    "Sufficiency of discussion on limitations and potential falsification experiments"
+  ]
+}

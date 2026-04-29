@@ -1,0 +1,169 @@
+[
+  {
+    "kind": "item",
+    "source_id": "hf_2604.24479",
+    "key": "hf_2604.24479",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+    "metadata": {
+      "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+      "source": "huggingface_daily_papers"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_3351971488",
+    "key": "oa_3351971488",
+    "url": "https://openalex.org/W4383751021",
+    "text": "A Comprehensive Survey on TinyML",
+    "metadata": {
+      "title": "A Comprehensive Survey on TinyML",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_554882285",
+    "key": "oa_554882285",
+    "url": "https://openalex.org/W4388634755",
+    "text": "Explainable Artificial Intelligence in Alzheimer\u2019s Disease Classification: A Systematic Review",
+    "metadata": {
+      "title": "Explainable Artificial Intelligence in Alzheimer\u2019s Disease Classification: A Systematic Review",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "item",
+    "source_id": "oa_291595035",
+    "key": "oa_291595035",
+    "url": "https://openalex.org/W2766033597",
+    "text": "Moving Beyond Syntax: Lessons from 20 Years of Blocks Programing in AgentSheets",
+    "metadata": {
+      "title": "Moving Beyond Syntax: Lessons from 20 Years of Blocks Programing in AgentSheets",
+      "source": "openalex"
+    }
+  },
+  {
+    "kind": "benchmark",
+    "source_id": "hf_2604.24479",
+    "key": "benchmark:0",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "Zero-to-CAD: Agentic Synthesis of Interp: (see paper)",
+    "metadata": {
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:0",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language m",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:1",
+    "url": "https://arxiv.org/pdf/2604.24479.pdf",
+    "text": "Autodesk Research",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:2",
+    "url": "https://arxiv.org/pdf/2604.24479.pdf",
+    "text": "The loop is capped at 10 rollout turns per attempt and 100 attempts per design task",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:3",
+    "url": "https://arxiv.org/pdf/2604.24479.pdf",
+    "text": "Minimum complexity rejects designs with fewer than 7 B-Rep faces to prevent trivial solutions",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:4",
+    "url": "https://arxiv.org/pdf/2604.24479.pdf",
+    "text": "Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%\u2014 Disjoint multi-body solids 56.3%0%\u2014 Alignment to ABC Fr\u00e9chet distance\u21930.2680.164\u2014 k-ball coverage,k=5\u219145.3%57.2%\u2014 Such sequences are difficult for human engineers to edit manually.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:5",
+    "url": "https://arxiv.org/pdf/2604.24479.pdf",
+    "text": "This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent.",
+    "metadata": {}
+  },
+  {
+    "kind": "quote",
+    "source_id": "hf_2604.24479",
+    "key": "quote:6",
+    "url": "https://arxiv.org/pdf/2604.24479.pdf",
+    "text": "This architecture decouples generation throughput from model latency, enabling linear scaling with compute resources.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_outline",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "- Autodesk Research\n\nAutodesk Research\n\nAutodesk Research\n\nAutodesk Research\n- Abstract\n- Introduction\n- Motivation\n- System Prompt\n- User Input\n- Condition\n- Cadquery Code\n\nReasoning\n- Reasoning\n- Revised Cadquery\n\nCode\n\nSuccess\n- Resulting Cad Model\n- Related Work",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_problem",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "Generate executable CAD sequences from interpretable parameters",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_method",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "Use a large language model in an agentic search loop with a CAD interpreter to generate, execute, and self\u2011correct CadQuery code until it produces valid geometry.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_experiments",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "- Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%\u2014 Disjoint multi-body solids 56.3%0%\u2014 Alignment to ABC Fr\u00e9chet distance\u21930.2680.164\u2014 k-ball coverage,k=5\u219145.3%57.2%\u2014 Such sequences are difficult for human engineers to edit manually.\n- This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent.\n- This architecture decouples generation throughput from model latency, enabling linear scaling with compute resources.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_limitations",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "- However, these methods are fundamentally limited by their vocabulary.\n- While direct B-Rep methods produce valid geometry, their outputs lack construction histories, limiting downstream editability.\n- These approaches demonstrate growing interest in accessible CAD generation interfaces, though they remain constrained by the limited operation coverage and scale of existing sequence datasets.\n- The few datasets that include construction sequences, such as DeepCAD (Wu et al., 2021) and Fusion 360 Gallery (Willis et al., 2021), are limited in scope, restricted primarily to simple sketch-and-extrude operations that miss the rich vocabulary of real-world design, such as chamfers, fillets, and Boolean operations.",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_conclusion",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "We presented Zero-to-CAD, an agentic pipeline that synthesizes executable CAD construction sequences without relying on real-world design histories. By combining LLM generation with execution feedback, documentation lookup, and multi-stage validation, the pipeline produces geometrically valid, human-readable programs with named parameters and broad operation coverage, including Booleans, fillets, chamfers, shells, lofts, sweeps, and patterns. The resulting release contains 999,633 executable sequences, a curated subset of 100,000 with precomputed embeddings, the fine-tuned 2B vision-language model, system prompts, and inference code. Our Image-to-Sequence experiments show that models trained on this synthetic supervision can bootstrap editable CAD reconstruction, reaching 82.1% success in-distribution and generalizing to human-designed ABC parts. These results suggest that CAD sequence modeling can progress through scalable synthesis, while leaving open broader questions around synthet",
+    "metadata": {}
+  },
+  {
+    "kind": "section_evidence",
+    "source_id": "hf_2604.24479",
+    "key": "paper_reproducibility",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "text": "- IoU\u2191CD\u2193 (%) Mean Median P75 P90 Mean Median P75 P90 Zero-to-CAD test set Qwen3-VL-2B (fine-tuned)82.1 0.747 0.847 0.975 0.999 0.0143 0.001 0.007 0.03 Qwen3-VL-2B (base) 6.6 0.184 0.129 0.256 0.405 0.31 0.25 0.47 0.70 GPT-5.2 High\u2217 72.2 0.485 0.479 0.658 0.795 0.028 0.01 0.02 0.06 GPT-5.2 Medium\u2217 71.1 0.495 0.499 0.678 0.801 0.029 0.01 0.03 0.064 ABC out-of-distribution set Qwen3-VL-2B (fine-tuned) 61.00.377 0.303 0.644 0.854 0.100.0320.11 0.29 Qwen3-VL-2B (base) 5.4 0.131 0.073 0.185 0.355 0.45 0.35 0.65 1.01 GPT-5.2 High66.20.344 0.289 0.509 0.730 0.220.030.12 0.33 GPT-5.2 Medium 62.6 0.346 0.285 0.557 0.747 0.220.030.13 0.34 In-Distribution PerformanceOn Zero-to-CAD test data, the fine-tuned Qwen3-VL-2B-Instruct achieves an 82.1% success rate with mean IoU of 0.747, substantially outperforming GPT-5.2 High (72.2% success, 0.485 mean IoU).\n- The base Qwen3-VL-2B-Instruct without fine-tuning achieves only a 6.6% success rate, confirming that the task requires specialized training rather than relying on general vision-language capabilities.\n- Table 4 presents IoU metrics across models evaluated on both Zero-to-CAD test samples and the ABC dataset, the latter serving as an out-of-d",
+    "metadata": {}
+  }
+]

@@ -1,0 +1,139 @@
+{
+  "rubric_score": 8,
+  "rubric_items": [],
+  "five_questions": {},
+  "five_questions_ok": true,
+  "critique": {
+    "missing": [],
+    "weak": [],
+    "cut": []
+  },
+  "pass_gate": false,
+  "llm_ok": true,
+  "editor_warnings": [],
+  "lint_issues": [
+    "no_results_table"
+  ],
+  "grounding_ok": false,
+  "grounding_issues": [
+    "Specific success rates (82.1%, 72.2%) and model names (Qwen3-VL-2B, GPT-5.2 High) for the fine-tuned vision-language model's performance.",
+    "Agentic loop setup details: '10 rollout turns per attempt', '100 attempts per design task', and 'rejecting designs with fewer than 7 B-Rep faces'."
+  ],
+  "rubric_floor_applied": false,
+  "rubric_floor_reasons": [],
+  "rubric_score_raw": 8,
+  "evidence_utilization": {
+    "score": 0.6571,
+    "ratios": {
+      "numbers": 1.0,
+      "entities": 0.7273,
+      "quotes": 0.1667,
+      "analyst_claims": 0.1111
+    },
+    "totals": {
+      "numbers": 2,
+      "entities": 22,
+      "quotes": 6,
+      "analyst_claims": 18
+    },
+    "used_counts": {
+      "numbers": 2,
+      "entities": 16,
+      "quotes": 1,
+      "analyst_claims": 2
+    },
+    "unused": {
+      "numbers": [],
+      "entities": [
+        "A Comprehensive Survey on TinyML",
+        "Explainable Artificial Intelligence in Alzheimer\u2019s Disease Classification: A Systematic Review",
+        "Moving Beyond Syntax: Lessons from 20 Years of Blocks Programing in AgentSheets",
+        "Zero-to-CAD: Agentic Synthesis of Interp",
+        "ABC",
+        "CAD-Recode"
+      ],
+      "quotes": [
+        "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, st",
+        "The loop is capped at 10 rollout turns per attempt and 100 attempts per design task",
+        "Minimum complexity rejects designs with fewer than 7 B-Rep faces to prevent trivial solutions",
+        "Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%\u2014 Disjoint multi-body solids 56.3%0%\u2014 Alignment to ABC Fr\u00e9chet distance\u21930.2680.164\u2014 k-ball coverage,k=5\u219145.",
+        "This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent."
+      ],
+      "analyst_claims": [
+        "Decouple generation throughput from model latency to enable linear scaling with compute resources",
+        "Generate interpretable programs with meaningful variable names and richer operation vocabulary (e.",
+        "interpretable programs with meaningful variable names and a richer operation vocabulary",
+        "Zero-to-CAD \u2014 An agentic synthesis approach that generates executable CAD sequences from interpretable parameters using a large language model in a search loop ",
+        "CadQuery \u2014 A parametric CAD scripting language used to generate, execute, and self-correct geometry in the agentic synthesis framework",
+        "B-Rep \u2014 Boundary representation method for CAD that produces valid geometry but lacks construction histories, limiting downstream editability",
+        "ABC dataset \u2014 A benchmark for 3D CAD models used for evaluating shape complexity and alignment metrics in CAD generation",
+        "DeepCAD \u2014 A CAD sequence dataset limited primarily to simple sketch-and-extrude operations, missing rich vocabulary like chamfers and fillets"
+      ]
+    }
+  },
+  "undefined_acronyms": [
+    "CAD",
+    "VL",
+    "GPT",
+    "LLM"
+  ],
+  "missing_planned_visuals": {
+    "missing_figures": [],
+    "missing_equations": []
+  },
+  "review_notes": [
+    {
+      "role": "adversary",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "adversary found no blocking issues.",
+      "metadata": {}
+    },
+    {
+      "role": "evidence_verifier",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "evidence_verifier found no blocking issues.",
+      "metadata": {}
+    },
+    {
+      "role": "render_reviewer",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "Render review found no blocking issues.",
+      "metadata": {}
+    },
+    {
+      "role": "meta_reviewer",
+      "pass_review": true,
+      "reviewer_weight": 1.0,
+      "findings": [],
+      "rewrite_targets": [],
+      "summary": "adversary found no blocking issues. | evidence_verifier found no blocking issues. | Render review found no blocking issues.",
+      "metadata": {
+        "all_findings": [],
+        "weighted_score": 1.0,
+        "reviewer_weights": {
+          "evidence_verifier": 0.45,
+          "render_reviewer": 0.35,
+          "adversary": 0.2
+        }
+      }
+    }
+  ],
+  "citation_audit": {
+    "ok": true,
+    "verified_links": [
+      "https://arxiv.org/abs/2604.24479"
+    ],
+    "invalid_links": [],
+    "removed_links": [],
+    "warnings": []
+  }
+}

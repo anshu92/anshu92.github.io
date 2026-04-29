@@ -1,0 +1,37 @@
+[
+  {
+    "code": "no_results_table",
+    "message": "Results table is missing or was removed.",
+    "section_hint": "Numbers the paper actually gives us",
+    "required_evidence": [
+      "paper_experiments",
+      "benchmarks"
+    ],
+    "query_hint": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data benchmark results baseline metrics",
+    "blocking": true
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: Overview of the Zero-to-CAD framework",
+    "section_hint": "Overview of the Zero-to-CAD framework",
+    "required_evidence": [],
+    "query_hint": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data Overview of the Zero-to-CAD framework",
+    "blocking": false
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: Agentic search problem and LLM integration",
+    "section_hint": "Agentic search problem and LLM integration",
+    "required_evidence": [],
+    "query_hint": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data Agentic search problem and LLM integration",
+    "blocking": false
+  },
+  {
+    "code": "planning_section_gap",
+    "message": "Planned section missing: Results and comparison to baselines",
+    "section_hint": "Results and comparison to baselines",
+    "required_evidence": [],
+    "query_hint": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data Results and comparison to baselines",
+    "blocking": false
+  }
+]

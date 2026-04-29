@@ -1,0 +1,92 @@
+{
+  "committee_synthesis": {
+    "narrative": "Zero\u2011to\u2011CAD shows how an agentic loop that couples a large language model with a CadQuery interpreter can synthesize fully executable, interpretable CAD programs at million\u2011scale without ever seeing a real design. By treating code generation as a search problem that self\u2011corrects via geometric feedback, the approach sidesteps the need for large annotated CAD corpora while still producing sequences that carry meaningful variable names and a rich operation vocabulary\u2014Booleans, fillets, reference geometry\u2014making the output directly editable and understandable by engineers.\n\nThe central tension lies between the desire for interpretability and the pressure for raw scalability. The framework deliberately decouples generation throughput from model latency, allowing horizontal scaling with compute, yet it must still balance the expressive power of the operation set against the risk of generating syntactically correct but semantically meaningless programs that the interpreter must repeatedly reject. Moreover, while the method avoids reliance on boundary\u2011representation datasets like ABC or DeepCAD, it raises questions about how well the synthetic programs capture the nuanced design intent found in real\u2011world repositories such as the Fusion\u202f360 Gallery.\n\nReaders should come away seeing that scalable, programmatic CAD synthesis is feasible when the generation process is tightly coupled to a geometric verifier, and that interpretability need not be sacrificed for volume. The takeaway is that investing in richer language primitives and a self\u2011correcting search loop can yield millions of usable, editable CAD scripts, opening a path toward automated design exploration that remains accessible to human engineers.",
+    "n_analysts": 5,
+    "n_skipped": 0,
+    "analysts": [
+      {
+        "role": "methods",
+        "claims": [
+          "Use a large language model in an agentic search loop with a CAD interpreter to generate, execute, and self-correct CadQuery code until valid geometry is produced",
+          "Decouple generation throughput from model latency to enable linear scaling with compute resources",
+          "Generate interpretable programs with meaningful variable names and richer operation vocabulary (e.g., Booleans, fillets, reference geometry)"
+        ],
+        "citations": [
+          "First excerpt (agentic search loop)",
+          "Second excerpt (throughput decoupling)",
+          "Second excerpt (interpretable programs)"
+        ],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "empirical",
+        "claims": [
+          "interpretable programs with meaningful variable names and a richer operation vocabulary",
+          "architecture decouples generation throughput from model latency, enabling linear scaling with compute resources"
+        ],
+        "citations": [
+          "Mean face count 16.446.250.7",
+          "Median face count 153021",
+          "Parts below 7 faces 12.9%0%\u2014",
+          "Disjoint multi-body solids 56.3%0%\u2014",
+          "Alignment to ABC Fr\u00e9chet distance\u21930.2680.164\u2014",
+          "k-ball coverage,k=5\u219145.3%57.2%\u2014"
+        ],
+        "confidence": "medium",
+        "contradictions": [],
+        "suggested_section": "H2",
+        "skipped": false
+      },
+      {
+        "role": "glossary",
+        "claims": [
+          "Zero-to-CAD \u2014 An agentic synthesis approach that generates executable CAD sequences from interpretable parameters using a large language model in a search loop with a CAD interpreter",
+          "CadQuery \u2014 A parametric CAD scripting language used to generate, execute, and self-correct geometry in the agentic synthesis framework",
+          "B-Rep \u2014 Boundary representation method for CAD that produces valid geometry but lacks construction histories, limiting downstream editability",
+          "ABC dataset \u2014 A benchmark for 3D CAD models used for evaluating shape complexity and alignment metrics in CAD generation",
+          "DeepCAD \u2014 A CAD sequence dataset limited primarily to simple sketch-and-extrude operations, missing rich vocabulary like chamfers and fillets",
+          "Fusion 360 Gallery \u2014 A CAD dataset restricted to basic operations and lacking the full vocabulary of real-world design construction sequences",
+          "Fr\u00e9chet distance \u2014 A metric measuring alignment quality between generated and reference CAD models, with lower values indicating better alignment",
+          "k-ball coverage \u2014 A coverage metric for CAD generation evaluation where higher percentages indicate better geometric coverage",
+          "Construction history \u2014 The sequence of operations used to create a CAD model, which direct B-Rep methods lack and which enables downstream editability",
+          "Boolean operations \u2014 CAD operations including union, difference, and intersection that are part of the rich operation vocabulary missing from existing datasets",
+          "Agentic search \u2014 An iterative search loop architecture that uses a large language model with a CAD interpreter to generate and self-correct code",
+          "CAD-Recode \u2014 A metric for evaluating CAD program generation that measures reconstruction quality and interpretability"
+        ],
+        "citations": [],
+        "confidence": "high",
+        "contradictions": [],
+        "suggested_section": "Glossary of CAD Generation Terms",
+        "skipped": false
+      },
+      {
+        "role": "related",
+        "claims": [
+          "The paper proposes Zero-to-CAD as a scalable framework for generating executable CAD programs from scratch at large scales."
+        ],
+        "citations": [
+          "Semantic Scholar"
+        ],
+        "confidence": "low",
+        "contradictions": [
+          "Existing methods rely heavily on boundary representations, which are insufficient for full procedural synthesis."
+        ],
+        "suggested_section": "H2 or empty",
+        "skipped": false
+      },
+      {
+        "role": "code",
+        "claims": [],
+        "citations": [],
+        "confidence": "low",
+        "contradictions": [],
+        "suggested_section": "",
+        "skipped": false
+      }
+    ]
+  },
+  "narrative": "Zero\u2011to\u2011CAD shows how an agentic loop that couples a large language model with a CadQuery interpreter can synthesize fully executable, interpretable CAD programs at million\u2011scale without ever seeing a real design. By treating code generation as a search problem that self\u2011corrects via geometric feedback, the approach sidesteps the need for large annotated CAD corpora while still producing sequences that carry meaningful variable names and a rich operation vocabulary\u2014Booleans, fillets, reference geometry\u2014making the output directly editable and understandable by engineers.\n\nThe central tension lies between the desire for interpretability and the pressure for raw scalability. The framework deliberately decouples generation throughput from model latency, allowing horizontal scaling with compute, yet it must still balance the expressive power of the operation set against the risk of generating syntactically correct but semantically meaningless programs that the interpreter must repeatedly reject. Moreover, while the method avoids reliance on boundary\u2011representation datasets like ABC or DeepCAD, it raises questions about how well the synthetic programs capture the nuanced design intent found in real\u2011world repositories such as the Fusion\u202f360 Gallery.\n\nReaders should come away seeing that scalable, programmatic CAD synthesis is feasible when the generation process is tightly coupled to a geometric verifier, and that interpretability need not be sacrificed for volume. The takeaway is that investing in richer language primitives and a self\u2011correcting search loop can yield millions of usable, editable CAD scripts, opening a path toward automated design exploration that remains accessible to human engineers."
+}

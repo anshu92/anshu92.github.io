@@ -1,0 +1,640 @@
+{
+  "primary": {
+    "id": "hf_2604.24479",
+    "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "authors": [
+      "Mohammadmehdi Ataei",
+      "Farzaneh Askari",
+      "Kamal Rahimi Malekshan",
+      "Pradeep Kumar Jayaraman"
+    ],
+    "abstract": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+    "published_at": "2026-04-27T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.24479",
+          "authors": [
+            {
+              "_id": "69f02a6e647bea5bb85818c7",
+              "name": "Mohammadmehdi Ataei",
+              "hidden": false
+            },
+            {
+              "_id": "69f02a6e647bea5bb85818c8",
+              "name": "Farzaneh Askari",
+              "hidden": false
+            },
+            {
+              "_id": "69f02a6e647bea5bb85818c9",
+              "name": "Kamal Rahimi Malekshan",
+              "hidden": false
+            },
+            {
+              "_id": "69f02a6e647bea5bb85818ca",
+              "name": "Pradeep Kumar Jayaraman",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-27T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-28T02:03:05.685Z",
+          "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+          "submittedOnDailyBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "isPro": true,
+            "fullname": "taesiri",
+            "user": "taesiri",
+            "type": "user",
+            "name": "taesiri"
+          },
+          "summary": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+          "upvotes": 0,
+          "discussionId": "69f02a6f647bea5bb85818cb",
+          "ai_summary": "A scalable framework synthesizes executable CAD construction sequences by framing the process as an agentic search problem using large language models within a feedback-driven CAD environment.",
+          "ai_keywords": [
+            "CAD models",
+            "construction history",
+            "parametric recipe",
+            "boundary representations",
+            "meshes",
+            "large language model",
+            "agentic search problem",
+            "feedback-driven CAD environment",
+            "geometric validity",
+            "vision-language model",
+            "multi-view images"
+          ]
+        },
+        "publishedAt": "2026-04-26T20:00:00.000Z",
+        "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+        "summary": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.24479.png",
+        "numComments": 0,
+        "submittedBy": {
+          "_id": "6039478ab3ecf716b1a5fd4d",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+          "fullname": "taesiri",
+          "name": "taesiri",
+          "type": "user",
+          "isPro": true,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 283,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      }
+    }
+  },
+  "score": 1.0,
+  "rejected": [
+    {
+      "id": "hf_2604.17565",
+      "title": "UniGeo: Unifying Geometric Guidance for Camera-Controllable Image Editing via Video Models",
+      "url": "https://arxiv.org/abs/2604.17565",
+      "authors": [
+        "Hong Jiang",
+        "Wensong Song",
+        "Zongxing Yang",
+        "Ruijie Quan",
+        "Yi Yang"
+      ],
+      "abstract": "Camera-controllable image editing aims to synthesize novel views of a given scene under varying camera poses while strictly preserving cross-view geometric consistency. However, existing methods typically rely on fragmented geometric guidance, such as only injecting point clouds at the representation level despite models containing multiple levels, and are mainly based on image diffusion models that operate on discrete view mappings. These two limitations jointly lead to geometric drift and structural degradation under continuous camera motion.\n  We observe that while leveraging video models provides continuous viewpoint priors for camera-controllable image editing, they still struggle to form stable geometric understanding if geometric guidance remains fragmented. To systematically address this, we inject unified geometric guidance across three levels that jointly determine the generative output: representation, architecture, and loss function.\n  To this end, we propose UniGeo, a novel camera-controllable editing framework. Specifically, at the representation level, UniGeo incorporates a frame-decoupled geometric reference injection mechanism to provide robust cross-view geometry context. At the architecture level, it introduces geometric anchor attention to align multi-view features. At the loss function level, it proposes a trajectory-endpoint geometric supervision strategy to explicitly reinforce the structural fidelity of target views.\n  Comprehensive experiments across multiple public benchmarks, encompassing both extensive and limited camera motion settings, demonstrate that UniGeo significantly outperforms existing methods in both visual quality and geometric consistency.",
+      "published_at": "2026-04-19T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.17565",
+            "authors": [
+              {
+                "_id": "69f0a6344953c4db4262b74d",
+                "name": "Hong Jiang",
+                "hidden": false
+              },
+              {
+                "_id": "69f0a6344953c4db4262b74e",
+                "name": "Wensong Song",
+                "hidden": false
+              },
+              {
+                "_id": "69f0a6344953c4db4262b74f",
+                "name": "Zongxing Yang",
+                "hidden": false
+              },
+              {
+                "_id": "69f0a6344953c4db4262b750",
+                "name": "Ruijie Quan",
+                "hidden": false
+              },
+              {
+                "_id": "69f0a6344953c4db4262b751",
+                "name": "Yi Yang",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-19T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-28T10:54:06.831Z",
+            "title": "UniGeo: Unifying Geometric Guidance for Camera-Controllable Image Editing via Video Models",
+            "submittedOnDailyBy": {
+              "_id": "6719db917a0d8c16a25807e0",
+              "avatarUrl": "/avatars/9262aaf0feb80cf70ab2b28f39da9bc3.svg",
+              "isPro": true,
+              "fullname": "Hong Jiang",
+              "user": "123123aa123",
+              "type": "user",
+              "name": "123123aa123"
+            },
+            "summary": "Camera-controllable image editing aims to synthesize novel views of a given scene under varying camera poses while strictly preserving cross-view geometric consistency. However, existing methods typically rely on fragmented geometric guidance, such as only injecting point clouds at the representation level despite models containing multiple levels, and are mainly based on image diffusion models that operate on discrete view mappings. These two limitations jointly lead to geometric drift and structural degradation under continuous camera motion.\n  We observe that while leveraging video models provides continuous viewpoint priors for camera-controllable image editing, they still struggle to form stable geometric understanding if geometric guidance remains fragmented. To systematically address this, we inject unified geometric guidance across three levels that jointly determine the generative output: representation, architecture, and loss function.\n  To this end, we propose UniGeo, a novel camera-controllable editing framework. Specifically, at the representation level, UniGeo incorporates a frame-decoupled geometric reference injection mechanism to provide robust cross-view geometry context. At the architecture level, it introduces geometric anchor attention to align multi-view features. At the loss function level, it proposes a trajectory-endpoint geometric supervision strategy to explicitly reinforce the structural fidelity of target views.\n  Comprehensive experiments across multiple public benchmarks, encompassing both extensive and limited camera motion settings, demonstrate that UniGeo significantly outperforms existing methods in both visual quality and geometric consistency.",
+            "upvotes": 7,
+            "discussionId": "69f0a6344953c4db4262b752",
+            "projectPage": "https://mo230761.github.io/UniGeo.github.io/",
+            "githubRepo": "https://github.com/mo230761/UniGeo",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "UniGeo is a camera-controllable image editing framework that addresses geometric drift and structural degradation by injecting unified geometric guidance across representation, architecture, and loss function levels.",
+            "ai_keywords": [
+              "camera-controllable image editing",
+              "geometric consistency",
+              "video models",
+              "geometric guidance",
+              "frame-decoupled geometric reference injection",
+              "geometric anchor attention",
+              "trajectory-endpoint geometric supervision",
+              "cross-view geometry context",
+              "multi-view feature alignment"
+            ],
+            "githubStars": 46
+          },
+          "publishedAt": "2026-04-18T20:00:00.000Z",
+          "title": "UniGeo: Unifying Geometric Guidance for Camera-Controllable Image Editing via Video Models",
+          "summary": "Camera-controllable image editing aims to synthesize novel views of a given scene under varying camera poses while strictly preserving cross-view geometric consistency. However, existing methods typically rely on fragmented geometric guidance, such as only injecting point clouds at the representation level despite models containing multiple levels, and are mainly based on image diffusion models that operate on discrete view mappings. These two limitations jointly lead to geometric drift and structural degradation under continuous camera motion.\n  We observe that while leveraging video models provides continuous viewpoint priors for camera-controllable image editing, they still struggle to form stable geometric understanding if geometric guidance remains fragmented. To systematically address this, we inject unified geometric guidance across three levels that jointly determine the generative output: representation, architecture, and loss function.\n  To this end, we propose UniGeo, a novel camera-controllable editing framework. Specifically, at the representation level, UniGeo incorporates a frame-decoupled geometric reference injection mechanism to provide robust cross-view geometry context. At the architecture level, it introduces geometric anchor attention to align multi-view features. At the loss function level, it proposes a trajectory-endpoint geometric supervision strategy to explicitly reinforce the structural fidelity of target views.\n  Comprehensive experiments across multiple public benchmarks, encompassing both extensive and limited camera motion settings, demonstrate that UniGeo significantly outperforms existing methods in both visual quality and geometric consistency.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.17565.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "6719db917a0d8c16a25807e0",
+            "avatarUrl": "/avatars/9262aaf0feb80cf70ab2b28f39da9bc3.svg",
+            "fullname": "Hong Jiang",
+            "name": "123123aa123",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 2,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.21518",
+      "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+      "url": "https://arxiv.org/abs/2604.21518",
+      "authors": [
+        "Shiyan Su",
+        "Ruyi Zha",
+        "Danli Shi",
+        "Hongdong Li",
+        "Xuelian Cheng"
+      ],
+      "abstract": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+      "published_at": "2026-04-23T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.21518",
+            "authors": [
+              {
+                "_id": "69eade27a961c3f1b5f40d7a",
+                "user": {
+                  "_id": "693017c6ad61af29234132f1",
+                  "avatarUrl": "/avatars/1f96bc550e6d365fe1afa18ad200ea19.svg",
+                  "isPro": false,
+                  "fullname": "Shiyan Su",
+                  "user": "ShiyanSU",
+                  "type": "user",
+                  "name": "ShiyanSU"
+                },
+                "name": "Shiyan Su",
+                "status": "claimed_verified",
+                "statusLastChangedAt": "2026-04-24T13:57:03.982Z",
+                "hidden": false
+              },
+              {
+                "_id": "69eade27a961c3f1b5f40d7b",
+                "name": "Ruyi Zha",
+                "hidden": false
+              },
+              {
+                "_id": "69eade27a961c3f1b5f40d7c",
+                "name": "Danli Shi",
+                "hidden": false
+              },
+              {
+                "_id": "69eade27a961c3f1b5f40d7d",
+                "name": "Hongdong Li",
+                "hidden": false
+              },
+              {
+                "_id": "69eade27a961c3f1b5f40d7e",
+                "name": "Xuelian Cheng",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-23T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-27T01:40:46.556Z",
+            "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+            "submittedOnDailyBy": {
+              "_id": "693017c6ad61af29234132f1",
+              "avatarUrl": "/avatars/1f96bc550e6d365fe1afa18ad200ea19.svg",
+              "isPro": false,
+              "fullname": "Shiyan Su",
+              "user": "ShiyanSU",
+              "type": "user",
+              "name": "ShiyanSU"
+            },
+            "summary": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+            "upvotes": 27,
+            "discussionId": "69eade27a961c3f1b5f40d7f",
+            "projectPage": "https://ooonesevennn.github.io/DiffNR/",
+            "githubRepo": "https://github.com/ooonesevennn/DiffNR",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "DiffNR enhances neural representation optimization for CT reconstruction by integrating a single-step diffusion model with specialized conditioning layers and pseudo-reference volume generation for artifact correction.",
+            "ai_keywords": [
+              "neural fields",
+              "3D Gaussians",
+              "computed tomography",
+              "sparse-view settings",
+              "diffusion priors",
+              "SliceFixer",
+              "single-step diffusion model",
+              "artifact correction",
+              "neural representation optimization",
+              "pseudo-reference volumes",
+              "3D perceptual supervision"
+            ],
+            "githubStars": 6,
+            "organization": {
+              "_id": "64f6e94bf277a413f3372478",
+              "name": "Monash",
+              "fullname": "Monash University",
+              "avatar": "https://www.gravatar.com/avatar/bec32f98e55de16c7d2df635b6191ccc?d=retro&size=100"
+            }
+          },
+          "publishedAt": "2026-04-22T20:00:00.000Z",
+          "title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+          "summary": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.21518.png",
+          "numComments": 3,
+          "submittedBy": {
+            "_id": "693017c6ad61af29234132f1",
+            "avatarUrl": "/avatars/1f96bc550e6d365fe1afa18ad200ea19.svg",
+            "fullname": "Shiyan Su",
+            "name": "ShiyanSU",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "64f6e94bf277a413f3372478",
+            "name": "Monash",
+            "fullname": "Monash University",
+            "avatar": "https://www.gravatar.com/avatar/bec32f98e55de16c7d2df635b6191ccc?d=retro&size=100"
+          },
+          "isAuthorParticipating": true
+        }
+      }
+    },
+    {
+      "id": "hf_2604.22152",
+      "title": "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model",
+      "url": "https://arxiv.org/abs/2604.22152",
+      "authors": [
+        "Yaxuan Li",
+        "Zhongyi Zhou",
+        "Yefei Chen",
+        "Yaokai Xue",
+        "Yichen Zhu"
+      ],
+      "abstract": "Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities - including vision, language, and robotic actions - into a unified token space, modeling them via a single transformer-based denoising network. In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, we employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.",
+      "published_at": "2026-04-24T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.22152",
+            "authors": [
+              {
+                "_id": "69eec0537bd3cb2932a35e3e",
+                "name": "Yaxuan Li",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e3f",
+                "name": "Zhongyi Zhou",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e40",
+                "name": "Yefei Chen",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e41",
+                "name": "Yaokai Xue",
+                "hidden": false
+              },
+              {
+                "_id": "69eec0537bd3cb2932a35e42",
+                "name": "Yichen Zhu",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-24T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-27T00:18:05.764Z",
+            "title": "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model",
+            "submittedOnDailyBy": {
+              "_id": "6039478ab3ecf716b1a5fd4d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+              "isPro": true,
+              "fullname": "taesiri",
+              "user": "taesiri",
+              "type": "user",
+              "name": "taesiri"
+            },
+            "summary": "Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities - including vision, language, and robotic actions - into a unified token space, modeling them via a single transformer-based denoising network. In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, we employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.",
+            "upvotes": 2,
+            "discussionId": "69eec0537bd3cb2932a35e43",
+            "ai_summary": "dWorldEval employs a discrete diffusion world model with unified token space mapping and transformer-based denoising to enable scalable robotics policy evaluation across diverse modalities.",
+            "ai_keywords": [
+              "discrete diffusion world model",
+              "unified token space",
+              "transformer-based denoising network",
+              "sparse keyframe memory",
+              "progress token",
+              "joint prediction",
+              "world simulator"
+            ]
+          },
+          "publishedAt": "2026-04-23T20:00:00.000Z",
+          "title": "dWorldEval: Scalable Robotic Policy Evaluation via Discrete Diffusion World Model",
+          "summary": "Evaluating robotics policies across thousands of environments and thousands of tasks is infeasible with existing approaches. This motivates the need for a new methodology for scalable robotics policy evaluation. In this paper, we propose dWorldEval, which uses a discrete diffusion world model as a scalable evaluation proxy for robotics policies. Specifically, dWorldEval maps all modalities - including vision, language, and robotic actions - into a unified token space, modeling them via a single transformer-based denoising network. In this paper, we propose dWorldEval, using a discrete diffusion world model as a scalable evaluation proxy for robotics policy. Specifically, it maps all modalities, including vision, language, and robotics action into a unified token space, then denoises them with a single transformer network. Building on this architecture, we employ a sparse keyframe memory to maintain spatiotemporal consistency. We also introduce a progress token that indicates the degree of task completion. At inference, the model jointly predicts future observations and progress token, allowing automatically determine success when the progress reaches 1. Extensive experiments demonstrate that dWorldEval significantly outperforms previous approaches, i.e., WorldEval, Ctrl-World, and WorldGym, on LIBERO, RoboTwin, and multiple real-robot tasks. It paves the way for a new architectural paradigm in building world simulators for robotics evaluation at scale.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.22152.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "fullname": "taesiri",
+            "name": "taesiri",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 283,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.23446",
+      "title": "IndustryAssetEQA: A Neurosymbolic Operational Intelligence System for Embodied Question Answering in Industrial Asset Maintenance",
+      "url": "https://arxiv.org/abs/2604.23446",
+      "authors": [
+        "Chathurangi Shyalika",
+        "Dhaval Patel",
+        "Amit Sheth"
+      ],
+      "abstract": "Industrial maintenance environments increasingly rely on AI systems to assist operators in understanding asset behavior, diagnosing failures, and evaluating interventions. Although large language models (LLMs) enable fluent natural-language interaction, deployed maintenance assistants routinely produce generic explanations that are weakly grounded in telemetry, omit verifiable provenance, and offer no testable support for counterfactual or action-oriented reasoning that undermine trust in safety-critical settings. We present IndustryAssetEQA, a neurosymbolic operational intelligence system that combines episodic telemetry representations with a Failure Mode Effects Analysis Knowledge Graph (FMEA-KG) to enable Embodied Question Answering (EQA) over industrial assets. We evaluate on four datasets covering four industrial asset types, including rotating machinery, turbofan engines, hydraulic systems, and cyber-physical production systems. Compared to LLM-only baselines, IndustryAssetEQA improves structural validity by up to 0.51, counterfactual accuracy by up to 0.47, and explanation entailment by 0.64, while reducing severe expert-rated overclaims from 28% to 2% (approximately 93% reduction). Code, datasets, and the FMEA-KG are available at https://github.com/IBM/AssetOpsBench/tree/IndustryAssetEQA/IndustryAssetEQA.",
+      "published_at": "2026-04-25T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.23446",
+            "authors": [
+              {
+                "_id": "69f13c2125c3a7e5c5059cb8",
+                "name": "Chathurangi Shyalika",
+                "hidden": false
+              },
+              {
+                "_id": "69f13c2125c3a7e5c5059cb9",
+                "name": "Dhaval Patel",
+                "hidden": false
+              },
+              {
+                "_id": "69f13c2125c3a7e5c5059cba",
+                "name": "Amit Sheth",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-25T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-28T21:32:50.053Z",
+            "title": "IndustryAssetEQA: A Neurosymbolic Operational Intelligence System for Embodied Question Answering in Industrial Asset Maintenance",
+            "submittedOnDailyBy": {
+              "_id": "64c47f731d44fc06afc80953",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/UT2mHX2WuCm5Ws4rGKyCB.png",
+              "isPro": false,
+              "fullname": "Dhaval Patel",
+              "user": "DhavalPatel",
+              "type": "user",
+              "name": "DhavalPatel"
+            },
+            "summary": "Industrial maintenance environments increasingly rely on AI systems to assist operators in understanding asset behavior, diagnosing failures, and evaluating interventions. Although large language models (LLMs) enable fluent natural-language interaction, deployed maintenance assistants routinely produce generic explanations that are weakly grounded in telemetry, omit verifiable provenance, and offer no testable support for counterfactual or action-oriented reasoning that undermine trust in safety-critical settings. We present IndustryAssetEQA, a neurosymbolic operational intelligence system that combines episodic telemetry representations with a Failure Mode Effects Analysis Knowledge Graph (FMEA-KG) to enable Embodied Question Answering (EQA) over industrial assets. We evaluate on four datasets covering four industrial asset types, including rotating machinery, turbofan engines, hydraulic systems, and cyber-physical production systems. Compared to LLM-only baselines, IndustryAssetEQA improves structural validity by up to 0.51, counterfactual accuracy by up to 0.47, and explanation entailment by 0.64, while reducing severe expert-rated overclaims from 28% to 2% (approximately 93% reduction). Code, datasets, and the FMEA-KG are available at https://github.com/IBM/AssetOpsBench/tree/IndustryAssetEQA/IndustryAssetEQA.",
+            "upvotes": 1,
+            "discussionId": "69f13c2125c3a7e5c5059cbb",
+            "projectPage": "https://github.com/IBM/AssetOpsBench/tree/IndustryAssetEQA/IndustryAssetEQA",
+            "ai_summary": "An industrial maintenance system combines telemetry data with a knowledge graph to provide more reliable and explainable answers for asset diagnostics and failure analysis.",
+            "ai_keywords": [
+              "neurosymbolic",
+              "embodied question answering",
+              "failure mode effects analysis",
+              "knowledge graph",
+              "telemetry",
+              "industrial assets"
+            ],
+            "organization": {
+              "_id": "6760ab6c5c9a8ea8370ab95b",
+              "name": "ibm-research",
+              "fullname": "IBM Research",
+              "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/637bfdf60dc13843b468ac20/npxapKcW-cXX3J2JBl2vY.png"
+            }
+          },
+          "publishedAt": "2026-04-24T20:00:00.000Z",
+          "title": "IndustryAssetEQA: A Neurosymbolic Operational Intelligence System for Embodied Question Answering in Industrial Asset Maintenance",
+          "summary": "Industrial maintenance environments increasingly rely on AI systems to assist operators in understanding asset behavior, diagnosing failures, and evaluating interventions. Although large language models (LLMs) enable fluent natural-language interaction, deployed maintenance assistants routinely produce generic explanations that are weakly grounded in telemetry, omit verifiable provenance, and offer no testable support for counterfactual or action-oriented reasoning that undermine trust in safety-critical settings. We present IndustryAssetEQA, a neurosymbolic operational intelligence system that combines episodic telemetry representations with a Failure Mode Effects Analysis Knowledge Graph (FMEA-KG) to enable Embodied Question Answering (EQA) over industrial assets. We evaluate on four datasets covering four industrial asset types, including rotating machinery, turbofan engines, hydraulic systems, and cyber-physical production systems. Compared to LLM-only baselines, IndustryAssetEQA improves structural validity by up to 0.51, counterfactual accuracy by up to 0.47, and explanation entailment by 0.64, while reducing severe expert-rated overclaims from 28% to 2% (approximately 93% reduction). Code, datasets, and the FMEA-KG are available at https://github.com/IBM/AssetOpsBench/tree/IndustryAssetEQA/IndustryAssetEQA.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.23446.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "64c47f731d44fc06afc80953",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/no-auth/UT2mHX2WuCm5Ws4rGKyCB.png",
+            "fullname": "Dhaval Patel",
+            "name": "DhavalPatel",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 6,
+            "isUserFollowing": false
+          },
+          "organization": {
+            "_id": "6760ab6c5c9a8ea8370ab95b",
+            "name": "ibm-research",
+            "fullname": "IBM Research",
+            "avatar": "https://cdn-avatars.huggingface.co/v1/production/uploads/637bfdf60dc13843b468ac20/npxapKcW-cXX3J2JBl2vY.png"
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    },
+    {
+      "id": "hf_2604.16391",
+      "title": "Disentangled Robot Learning via Separate Forward and Inverse Dynamics Pretraining",
+      "url": "https://arxiv.org/abs/2604.16391",
+      "authors": [
+        "Wenyao Zhang",
+        "Bozhou Zhang",
+        "Zekun Qi",
+        "Wenjun Zeng",
+        "Xin Jin",
+        "Li Zhang"
+      ],
+      "abstract": "Vision-language-action (VLA) models have shown great potential in building generalist robots, but still face a dilemma-misalignment of 2D image forecasting and 3D action prediction. Besides, such a vision-action entangled training manner limits model learning from large-scale, action-free web video data. To address these issues, we propose DeFI, a novel framework that Decouples visual Forward and Inverse dynamics pretraining to exploit respective data sources, wherein video generation and action prediction are disentangled. We introduce the General Forward Dynamics Model (GFDM), pretrained on diverse human and robot videos for future prediction, and the General Inverse Dynamics Model (GIDM), trained via self-supervised learning to infer latent actions from unlabeled video transitions. These models are then integrated into a unified architecture for end-to-end finetuning on downstream tasks. In this manner, GFDM and GIDM first shine separately and then cooperate for mutual benefit. Extensive experiments on CALVIN ABC-D and SimplerEnv demonstrate state-of-the-art performance, with DeFI achieving an average task length of 4.51 for CALVIN, 51.2% success rate on SimplerEnv-Fractal benchmark and 81.3% success rate in real-world deployment, significantly outperforming prior methods.",
+      "published_at": "2026-03-27T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.16391",
+            "authors": [
+              {
+                "_id": "69f0b1c84953c4db4262b78c",
+                "name": "Wenyao Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69f0b1c84953c4db4262b78d",
+                "name": "Bozhou Zhang",
+                "hidden": false
+              },
+              {
+                "_id": "69f0b1c84953c4db4262b78e",
+                "name": "Zekun Qi",
+                "hidden": false
+              },
+              {
+                "_id": "69f0b1c84953c4db4262b78f",
+                "name": "Wenjun Zeng",
+                "hidden": false
+              },
+              {
+                "_id": "69f0b1c84953c4db4262b790",
+                "name": "Xin Jin",
+                "hidden": false
+              },
+              {
+                "_id": "69f0b1c84953c4db4262b791",
+                "name": "Li Zhang",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-03-27T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-28T11:43:42.912Z",
+            "title": "Disentangled Robot Learning via Separate Forward and Inverse Dynamics Pretraining",
+            "submittedOnDailyBy": {
+              "_id": "65f9533b136fb8ddbd14e1fa",
+              "avatarUrl": "/avatars/d88f75da0448093ccd1babba2a37d73f.svg",
+              "isPro": false,
+              "fullname": "Zhang",
+              "user": "WenyaoZhang",
+              "type": "user",
+              "name": "WenyaoZhang"
+            },
+            "summary": "Vision-language-action (VLA) models have shown great potential in building generalist robots, but still face a dilemma-misalignment of 2D image forecasting and 3D action prediction. Besides, such a vision-action entangled training manner limits model learning from large-scale, action-free web video data. To address these issues, we propose DeFI, a novel framework that Decouples visual Forward and Inverse dynamics pretraining to exploit respective data sources, wherein video generation and action prediction are disentangled. We introduce the General Forward Dynamics Model (GFDM), pretrained on diverse human and robot videos for future prediction, and the General Inverse Dynamics Model (GIDM), trained via self-supervised learning to infer latent actions from unlabeled video transitions. These models are then integrated into a unified architecture for end-to-end finetuning on downstream tasks. In this manner, GFDM and GIDM first shine separately and then cooperate for mutual benefit. Extensive experiments on CALVIN ABC-D and SimplerEnv demonstrate state-of-the-art performance, with DeFI achieving an average task length of 4.51 for CALVIN, 51.2% success rate on SimplerEnv-Fractal benchmark and 81.3% success rate in real-world deployment, significantly outperforming prior methods.",
+            "upvotes": 1,
+            "discussionId": "69f0b1c84953c4db4262b792",
+            "projectPage": "https://github.com/LogosRoboticsGroup/DeFi",
+            "githubRepo": "https://github.com/LogosRoboticsGroup/DeFi",
+            "githubRepoAddedBy": "user",
+            "ai_summary": "DeFI addresses vision-language-action model limitations by decoupling visual forward and inverse dynamics pretraining to improve 3D action prediction and enable learning from large-scale action-free video data.",
+            "ai_keywords": [
+              "Vision-language-action models",
+              "visual forward dynamics",
+              "inverse dynamics",
+              "video generation",
+              "action prediction",
+              "General Forward Dynamics Model",
+              "General Inverse Dynamics Model",
+              "self-supervised learning",
+              "end-to-end fine-tuning"
+            ],
+            "githubStars": 14
+          },
+          "publishedAt": "2026-03-26T20:00:00.000Z",
+          "title": "Disentangled Robot Learning via Separate Forward and Inverse Dynamics Pretraining",
+          "summary": "Vision-language-action (VLA) models have shown great potential in building generalist robots, but still face a dilemma-misalignment of 2D image forecasting and 3D action prediction. Besides, such a vision-action entangled training manner limits model learning from large-scale, action-free web video data. To address these issues, we propose DeFI, a novel framework that Decouples visual Forward and Inverse dynamics pretraining to exploit respective data sources, wherein video generation and action prediction are disentangled. We introduce the General Forward Dynamics Model (GFDM), pretrained on diverse human and robot videos for future prediction, and the General Inverse Dynamics Model (GIDM), trained via self-supervised learning to infer latent actions from unlabeled video transitions. These models are then integrated into a unified architecture for end-to-end finetuning on downstream tasks. In this manner, GFDM and GIDM first shine separately and then cooperate for mutual benefit. Extensive experiments on CALVIN ABC-D and SimplerEnv demonstrate state-of-the-art performance, with DeFI achieving an average task length of 4.51 for CALVIN, 51.2% success rate on SimplerEnv-Fractal benchmark and 81.3% success rate in real-world deployment, significantly outperforming prior methods.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.16391.png",
+          "numComments": 1,
+          "submittedBy": {
+            "_id": "65f9533b136fb8ddbd14e1fa",
+            "avatarUrl": "/avatars/d88f75da0448093ccd1babba2a37d73f.svg",
+            "fullname": "Zhang",
+            "name": "WenyaoZhang",
+            "type": "user",
+            "isPro": false,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 1,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        }
+      }
+    }
+  ],
+  "reasoning": "Zero-to-CAD aligns with AEC theme and showcases novel application of LLMs in CAD program synthesis, demonstrating potential for problem-oriented ML in design and construction."
+}

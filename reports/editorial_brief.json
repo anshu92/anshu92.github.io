@@ -1,0 +1,36 @@
+{
+  "pillar_weights": {
+    "research": 0.2,
+    "systems": 0.2,
+    "applied": 0.2,
+    "foundations": 0.2,
+    "aec": 0.2
+  },
+  "recent_topics": [
+    {
+      "slug": "attention-deep-dive",
+      "title": "Attention Mechanisms - tracking the evolution + pair programming in pytorch",
+      "pillar": "Pillar.foundations"
+    },
+    {
+      "slug": "speculative-decoding",
+      "title": "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss",
+      "pillar": "Pillar.systems"
+    },
+    {
+      "slug": "from-code-to-theory-llm",
+      "title": "from-code-to-theory-llm",
+      "pillar": "Pillar.foundations"
+    }
+  ],
+  "follow_up_candidates": [],
+  "avoid_topics": [],
+  "voice_guide": "Voice: pragmatic engineer-analyst who reads papers like code reviews. Skeleton is WHY -> WHAT -> HOW -> STEAL-THIS (Eugene Yan); evidence handling is adversarial (Sebastian Raschka). Plain English first, jargon parenthetical second. Every section that names a method must also name an alternative + a rough parameter-count or cost comparison. The 'Limitations' section is reframed as 'What would falsify this' - name the cheapest experiment that, if it succeeded, would invalidate the paper's main claim. First-person sparingly and only for judgment ('I'd test', 'I read this as'); never as 'we' for the paper's experiments. Close every section with a one-sentence applied takeaway.\nExample titles: Attention Mechanisms - tracking the evolution + pair programming in pytorch, Speculative Decoding: 2x to 4x speedup of LLMs without quality loss",
+  "suggested_series": null,
+  "format_name": "opinion_with_receipts",
+  "format_rationale": "Format opinion_with_receipts balances last 10 (counts {'field_notes': 3, 'dialogue': 1, 'deep_dive': 3, 'paper_to_code': 3}), systems_boost=False, dominant_pillar=research.",
+  "opener_hook": "single_concrete_pain_point_with_falsifier",
+  "art_direction": "minimal_geometric",
+  "diagram_style": "flowchart",
+  "proactive_topic": null
+}

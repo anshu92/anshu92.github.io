@@ -1,0 +1,17 @@
+{
+  "role": "meta_reviewer",
+  "pass_review": true,
+  "reviewer_weight": 1.0,
+  "findings": [],
+  "rewrite_targets": [],
+  "summary": "adversary found no blocking issues. | evidence_verifier found no blocking issues. | Render review found no blocking issues.",
+  "metadata": {
+    "all_findings": [],
+    "weighted_score": 1.0,
+    "reviewer_weights": {
+      "evidence_verifier": 0.45,
+      "render_reviewer": 0.35,
+      "adversary": 0.2
+    }
+  }
+}

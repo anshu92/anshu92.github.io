@@ -1,0 +1,441 @@
+{
+  "primary": {
+    "id": "hf_2604.24479",
+    "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+    "url": "https://arxiv.org/abs/2604.24479",
+    "authors": [
+      "Mohammadmehdi Ataei",
+      "Farzaneh Askari",
+      "Kamal Rahimi Malekshan",
+      "Pradeep Kumar Jayaraman"
+    ],
+    "abstract": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+    "published_at": "2026-04-27T00:00:00Z",
+    "source": "huggingface_daily_papers",
+    "tags": [
+      "llm",
+      "paper"
+    ],
+    "pillar": "research",
+    "extra": {
+      "raw": {
+        "paper": {
+          "id": "2604.24479",
+          "authors": [
+            {
+              "_id": "69f02a6e647bea5bb85818c7",
+              "name": "Mohammadmehdi Ataei",
+              "hidden": false
+            },
+            {
+              "_id": "69f02a6e647bea5bb85818c8",
+              "name": "Farzaneh Askari",
+              "hidden": false
+            },
+            {
+              "_id": "69f02a6e647bea5bb85818c9",
+              "name": "Kamal Rahimi Malekshan",
+              "hidden": false
+            },
+            {
+              "_id": "69f02a6e647bea5bb85818ca",
+              "name": "Pradeep Kumar Jayaraman",
+              "hidden": false
+            }
+          ],
+          "publishedAt": "2026-04-27T00:00:00.000Z",
+          "submittedOnDailyAt": "2026-04-28T02:03:05.685Z",
+          "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+          "submittedOnDailyBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "isPro": true,
+            "fullname": "taesiri",
+            "user": "taesiri",
+            "type": "user",
+            "name": "taesiri"
+          },
+          "summary": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+          "upvotes": 0,
+          "discussionId": "69f02a6f647bea5bb85818cb",
+          "ai_summary": "A scalable framework synthesizes executable CAD construction sequences by framing the process as an agentic search problem using large language models within a feedback-driven CAD environment.",
+          "ai_keywords": [
+            "CAD models",
+            "construction history",
+            "parametric recipe",
+            "boundary representations",
+            "meshes",
+            "large language model",
+            "agentic search problem",
+            "feedback-driven CAD environment",
+            "geometric validity",
+            "vision-language model",
+            "multi-view images"
+          ]
+        },
+        "publishedAt": "2026-04-26T20:00:00.000Z",
+        "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+        "summary": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+        "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.24479.png",
+        "numComments": 0,
+        "submittedBy": {
+          "_id": "6039478ab3ecf716b1a5fd4d",
+          "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+          "fullname": "taesiri",
+          "name": "taesiri",
+          "type": "user",
+          "isPro": true,
+          "isHf": false,
+          "isHfAdmin": false,
+          "isMod": false,
+          "followerCount": 283,
+          "isUserFollowing": false
+        },
+        "isAuthorParticipating": false
+      },
+      "paper_pdf_url": "https://arxiv.org/pdf/2604.24479.pdf",
+      "paper_digest": "Generate executable CAD sequences from interpretable parameters\n\nUse a large language model in an agentic search loop with a CAD interpreter to generate, execute, and self‑correct CadQuery code until it produces valid geometry.\n\n- Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%— Disjoint multi-body solids 56.3%0%— Alignment to ABC Fréchet distance↓0.2680.164— k-ball coverage,k=5↑45.3%57.2%— Such sequences are difficult for human engineers to edit manually.\n- This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent.\n- This architecture decouples generation throughput from model latency, enabling linear scaling with compute resources.\n\n- However, these methods are fundamentally limited by their vocabulary.\n- While direct B-Rep methods produce valid geometry, their outputs lack construction histories, limiting downstream editability.\n- These approaches demonstrate growing interest in accessible CAD generation interfaces, though they remain constrained by the limited operation coverage and scale of existing sequence datasets.\n- The few datasets that include construction sequences, such as DeepCAD (Wu et al., 2021) and Fusion 360 Gallery (Willis et al., 2021), are limited in scope, restricted primarily to simple sketch-and-extrude operations that miss the rich vocabulary of real-world design, such as chamfers, fillets, and Boolean operations."
+    }
+  },
+  "ancestors": [],
+  "competitors": [
+    {
+      "id": "oa_3351971488",
+      "title": "A Comprehensive Survey on TinyML",
+      "url": "https://openalex.org/W4383751021",
+      "authors": [],
+      "abstract": "Recent spectacular progress in computational technologies has led to an unprecedented boom the field of Artificial Intelligence (AI). AI is now used a plethora research areas and demonstrated its capability bring new approaches solutions various problems. However, extensive computation required train algorithms comes with cost. Driven by need reduce energy consumption, carbon footprint cost computers running machine learning algorithms, TinyML nowadays considered as promising alternative focusing on applications for extremely low-profile devices. This paper presents results literature survey all related efforts. Our builds taxonomy techniques that have been so far domains, such healthcare, smart farming, environment, anomaly detection. Finally, this highlights remaining challenges points out possible future directions. We anticipate will motivate further discussions fields synergy resource-constrained devices edge intelligence.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_554882285",
+      "title": "Explainable Artificial Intelligence in Alzheimer’s Disease Classification: A Systematic Review",
+      "url": "https://openalex.org/W4388634755",
+      "authors": [],
+      "abstract": "Abstract The unprecedented growth of computational capabilities in recent years has allowed Artificial Intelligence (AI) models to be developed for medical applications with remarkable results. However, a large number Computer Aided Diagnosis (CAD) methods powered by AI have limited acceptance and adoption the domain due typical blackbox nature these models. Therefore, facilitate among practitioners, models' predictions must explainable interpretable. emerging field (XAI) aims justify trustworthiness predictions. This work presents systematic review literature reporting Alzheimer's disease (AD) detection using XAI that were communicated during last decade. Research questions carefully formulated categorise into different conceptual approaches (e.g., Post-hoc, Ante-hoc, Model-Agnostic, Model-Specific, Global, Local etc.) frameworks (Local Interpretable Model-Agnostic Explanation or LIME, SHapley Additive exPlanations SHAP, Gradient-weighted Class Activation Mapping GradCAM, Layer-wise Relevance Propagation LRP, XAI. categorisation provides broad coverage interpretation spectrum from intrinsic Ante-hoc models) complex patterns Post-hoc taking local explanations global scope. Additionally, forms interpretations providing in-depth insight factors support clinical diagnosis AD are also discussed. Finally, limitations, needs open challenges research outlined possible prospects their usage detection.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    {
+      "id": "oa_291595035",
+      "title": "Moving Beyond Syntax: Lessons from 20 Years of Blocks Programing in AgentSheets",
+      "url": "https://openalex.org/W2766033597",
+      "authors": [],
+      "abstract": "The blocks programming community has been preoccupied with identifying syntactic obstacles that keep novices from learning to program. Unfortunately, this focus is now holding back research systematically investigating various technological affordances can make more accessible. Employing approaches program analysis, visualization, and real-time interfaces push beyond syntax towards the support of semantics even pragmatics. Syntactic could be compared checking spelling grammar in word processing. Spell relatively simple implement immediately useful, but provides essentially no create meaningful text. Over last 25 years, I have worked empower students their own games, simulations, robots. In time explored, combined, evaluated a number paradigms. Every paradigm including data flow, by example, through analogies brings its set obstacles. Twenty years ago, AgentSheets combined four key programming, since then evolved into highly accessible Computational Thinking Tool. This article describes journey overcome first syntactic, semantic, most recently pragmatic, computer science education.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  ],
+  "followups": [],
+  "benchmarks": [
+    {
+      "name": "Zero-to-CAD: Agentic Synthesis of Interp",
+      "value": "(see paper)",
+      "unit": "",
+      "baseline": "prior SOTA (paper Table 1)",
+      "notes": "[cite: primary]"
+    }
+  ],
+  "aec_links": [],
+  "enrichment_items": [],
+  "quotes": [
+    {
+      "source_id": "hf_2604.24479",
+      "text": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language m",
+      "url": "https://arxiv.org/abs/2604.24479"
+    },
+    {
+      "source_id": "hf_2604.24479",
+      "text": "Autodesk Research",
+      "url": "https://arxiv.org/pdf/2604.24479.pdf"
+    },
+    {
+      "source_id": "hf_2604.24479",
+      "text": "The loop is capped at 10 rollout turns per attempt and 100 attempts per design task",
+      "url": "https://arxiv.org/pdf/2604.24479.pdf"
+    },
+    {
+      "source_id": "hf_2604.24479",
+      "text": "Minimum complexity rejects designs with fewer than 7 B-Rep faces to prevent trivial solutions",
+      "url": "https://arxiv.org/pdf/2604.24479.pdf"
+    },
+    {
+      "source_id": "hf_2604.24479",
+      "text": "Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%— Disjoint multi-body solids 56.3%0%— Alignment to ABC Fréchet distance↓0.2680.164— k-ball coverage,k=5↑45.3%57.2%— Such sequences are difficult for human engineers to edit manually.",
+      "url": "https://arxiv.org/pdf/2604.24479.pdf"
+    },
+    {
+      "source_id": "hf_2604.24479",
+      "text": "This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent.",
+      "url": "https://arxiv.org/pdf/2604.24479.pdf"
+    },
+    {
+      "source_id": "hf_2604.24479",
+      "text": "This architecture decouples generation throughput from model latency, enabling linear scaling with compute resources.",
+      "url": "https://arxiv.org/pdf/2604.24479.pdf"
+    }
+  ],
+  "planner_buckets": [],
+  "planner_questions": [],
+  "section_evidence": {
+    "paper_outline": "- Autodesk Research\n\nAutodesk Research\n\nAutodesk Research\n\nAutodesk Research\n- Abstract\n- Introduction\n- Motivation\n- System Prompt\n- User Input\n- Condition\n- Cadquery Code\n\nReasoning\n- Reasoning\n- Revised Cadquery\n\nCode\n\nSuccess\n- Resulting Cad Model\n- Related Work",
+    "paper_problem": "Generate executable CAD sequences from interpretable parameters",
+    "paper_method": "Use a large language model in an agentic search loop with a CAD interpreter to generate, execute, and self‑correct CadQuery code until it produces valid geometry.",
+    "paper_experiments": "- Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%— Disjoint multi-body solids 56.3%0%— Alignment to ABC Fréchet distance↓0.2680.164— k-ball coverage,k=5↑45.3%57.2%— Such sequences are difficult for human engineers to edit manually.\n- This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent.\n- This architecture decouples generation throughput from model latency, enabling linear scaling with compute resources.",
+    "paper_limitations": "- However, these methods are fundamentally limited by their vocabulary.\n- While direct B-Rep methods produce valid geometry, their outputs lack construction histories, limiting downstream editability.\n- These approaches demonstrate growing interest in accessible CAD generation interfaces, though they remain constrained by the limited operation coverage and scale of existing sequence datasets.\n- The few datasets that include construction sequences, such as DeepCAD (Wu et al., 2021) and Fusion 360 Gallery (Willis et al., 2021), are limited in scope, restricted primarily to simple sketch-and-extrude operations that miss the rich vocabulary of real-world design, such as chamfers, fillets, and Boolean operations.",
+    "paper_conclusion": "We presented Zero-to-CAD, an agentic pipeline that synthesizes executable CAD construction sequences without relying on real-world design histories. By combining LLM generation with execution feedback, documentation lookup, and multi-stage validation, the pipeline produces geometrically valid, human-readable programs with named parameters and broad operation coverage, including Booleans, fillets, chamfers, shells, lofts, sweeps, and patterns. The resulting release contains 999,633 executable sequences, a curated subset of 100,000 with precomputed embeddings, the fine-tuned 2B vision-language model, system prompts, and inference code. Our Image-to-Sequence experiments show that models trained on this synthetic supervision can bootstrap editable CAD reconstruction, reaching 82.1% success in-distribution and generalizing to human-designed ABC parts. These results suggest that CAD sequence modeling can progress through scalable synthesis, while leaving open broader questions around synthet",
+    "paper_reproducibility": "- IoU↑CD↓ (%) Mean Median P75 P90 Mean Median P75 P90 Zero-to-CAD test set Qwen3-VL-2B (fine-tuned)82.1 0.747 0.847 0.975 0.999 0.0143 0.001 0.007 0.03 Qwen3-VL-2B (base) 6.6 0.184 0.129 0.256 0.405 0.31 0.25 0.47 0.70 GPT-5.2 High∗ 72.2 0.485 0.479 0.658 0.795 0.028 0.01 0.02 0.06 GPT-5.2 Medium∗ 71.1 0.495 0.499 0.678 0.801 0.029 0.01 0.03 0.064 ABC out-of-distribution set Qwen3-VL-2B (fine-tuned) 61.00.377 0.303 0.644 0.854 0.100.0320.11 0.29 Qwen3-VL-2B (base) 5.4 0.131 0.073 0.185 0.355 0.45 0.35 0.65 1.01 GPT-5.2 High66.20.344 0.289 0.509 0.730 0.220.030.12 0.33 GPT-5.2 Medium 62.6 0.346 0.285 0.557 0.747 0.220.030.13 0.34 In-Distribution PerformanceOn Zero-to-CAD test data, the fine-tuned Qwen3-VL-2B-Instruct achieves an 82.1% success rate with mean IoU of 0.747, substantially outperforming GPT-5.2 High (72.2% success, 0.485 mean IoU).\n- The base Qwen3-VL-2B-Instruct without fine-tuning achieves only a 6.6% success rate, confirming that the task requires specialized training rather than relying on general vision-language capabilities.\n- Table 4 presents IoU metrics across models evaluated on both Zero-to-CAD test samples and the ABC dataset, the latter serving as an out-of-d"
+  },
+  "contradiction_notes": [
+    "Existing methods rely heavily on boundary representations, which are insufficient for full procedural synthesis.",
+    "However, these methods are fundamentally limited by their vocabulary.",
+    "While direct B-Rep methods produce valid geometry, their outputs lack construction histories, limiting downstream editability.",
+    "These approaches demonstrate growing interest in accessible CAD generation interfaces, though they remain constrained by the limited operation coverage and scale of existing sequence datasets.",
+    "The few datasets that include construction sequences, such as DeepCAD (Wu et al., 2021) and Fusion 360 Gallery (Willis et al., 2021), are limited in scope, restricted primarily to simple sketch-and-extrude operations that miss the rich vocabulary of real-world design, such as chamfers, fillets, and Boolean operations.",
+    "DeepCAD (Wu et al., 2021) scales this up synthetically but remains limited to the same narrow operation set."
+  ],
+  "by_id": {
+    "hf_2604.24479": {
+      "id": "hf_2604.24479",
+      "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+      "url": "https://arxiv.org/abs/2604.24479",
+      "authors": [
+        "Mohammadmehdi Ataei",
+        "Farzaneh Askari",
+        "Kamal Rahimi Malekshan",
+        "Pradeep Kumar Jayaraman"
+      ],
+      "abstract": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+      "published_at": "2026-04-27T00:00:00Z",
+      "source": "huggingface_daily_papers",
+      "tags": [
+        "llm",
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {
+        "raw": {
+          "paper": {
+            "id": "2604.24479",
+            "authors": [
+              {
+                "_id": "69f02a6e647bea5bb85818c7",
+                "name": "Mohammadmehdi Ataei",
+                "hidden": false
+              },
+              {
+                "_id": "69f02a6e647bea5bb85818c8",
+                "name": "Farzaneh Askari",
+                "hidden": false
+              },
+              {
+                "_id": "69f02a6e647bea5bb85818c9",
+                "name": "Kamal Rahimi Malekshan",
+                "hidden": false
+              },
+              {
+                "_id": "69f02a6e647bea5bb85818ca",
+                "name": "Pradeep Kumar Jayaraman",
+                "hidden": false
+              }
+            ],
+            "publishedAt": "2026-04-27T00:00:00.000Z",
+            "submittedOnDailyAt": "2026-04-28T02:03:05.685Z",
+            "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+            "submittedOnDailyBy": {
+              "_id": "6039478ab3ecf716b1a5fd4d",
+              "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+              "isPro": true,
+              "fullname": "taesiri",
+              "user": "taesiri",
+              "type": "user",
+              "name": "taesiri"
+            },
+            "summary": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+            "upvotes": 0,
+            "discussionId": "69f02a6f647bea5bb85818cb",
+            "ai_summary": "A scalable framework synthesizes executable CAD construction sequences by framing the process as an agentic search problem using large language models within a feedback-driven CAD environment.",
+            "ai_keywords": [
+              "CAD models",
+              "construction history",
+              "parametric recipe",
+              "boundary representations",
+              "meshes",
+              "large language model",
+              "agentic search problem",
+              "feedback-driven CAD environment",
+              "geometric validity",
+              "vision-language model",
+              "multi-view images"
+            ]
+          },
+          "publishedAt": "2026-04-26T20:00:00.000Z",
+          "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+          "summary": "Computer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.",
+          "thumbnail": "https://cdn-thumbnails.huggingface.co/social-thumbnails/papers/2604.24479.png",
+          "numComments": 0,
+          "submittedBy": {
+            "_id": "6039478ab3ecf716b1a5fd4d",
+            "avatarUrl": "https://cdn-avatars.huggingface.co/v1/production/uploads/6039478ab3ecf716b1a5fd4d/_Thy4E7taiSYBLKxEKJbT.jpeg",
+            "fullname": "taesiri",
+            "name": "taesiri",
+            "type": "user",
+            "isPro": true,
+            "isHf": false,
+            "isHfAdmin": false,
+            "isMod": false,
+            "followerCount": 283,
+            "isUserFollowing": false
+          },
+          "isAuthorParticipating": false
+        },
+        "paper_pdf_url": "https://arxiv.org/pdf/2604.24479.pdf",
+        "paper_digest": "Generate executable CAD sequences from interpretable parameters\n\nUse a large language model in an agentic search loop with a CAD interpreter to generate, execute, and self‑correct CadQuery code until it produces valid geometry.\n\n- Metric CAD-Recode Zero-to-CAD ABC\n\nShape complexity Mean face count 16.446.250.7 Median face count 153021 Parts below 7 faces 12.9%0%— Disjoint multi-body solids 56.3%0%— Alignment to ABC Fréchet distance↓0.2680.164— k-ball coverage,k=5↑45.3%57.2%— Such sequences are difficult for human engineers to edit manually.\n- This yields interpretable programs with meaningful variable names and a richer operation vocabulary, including Booleans, fillets, and reference geometry, bridging the gap between synthetic execution and human design intent.\n- This architecture decouples generation throughput from model latency, enabling linear scaling with compute resources.\n\n- However, these methods are fundamentally limited by their vocabulary.\n- While direct B-Rep methods produce valid geometry, their outputs lack construction histories, limiting downstream editability.\n- These approaches demonstrate growing interest in accessible CAD generation interfaces, though they remain constrained by the limited operation coverage and scale of existing sequence datasets.\n- The few datasets that include construction sequences, such as DeepCAD (Wu et al., 2021) and Fusion 360 Gallery (Willis et al., 2021), are limited in scope, restricted primarily to simple sketch-and-extrude operations that miss the rich vocabulary of real-world design, such as chamfers, fillets, and Boolean operations."
+      }
+    },
+    "oa_3351971488": {
+      "id": "oa_3351971488",
+      "title": "A Comprehensive Survey on TinyML",
+      "url": "https://openalex.org/W4383751021",
+      "authors": [],
+      "abstract": "Recent spectacular progress in computational technologies has led to an unprecedented boom the field of Artificial Intelligence (AI). AI is now used a plethora research areas and demonstrated its capability bring new approaches solutions various problems. However, extensive computation required train algorithms comes with cost. Driven by need reduce energy consumption, carbon footprint cost computers running machine learning algorithms, TinyML nowadays considered as promising alternative focusing on applications for extremely low-profile devices. This paper presents results literature survey all related efforts. Our builds taxonomy techniques that have been so far domains, such healthcare, smart farming, environment, anomaly detection. Finally, this highlights remaining challenges points out possible future directions. We anticipate will motivate further discussions fields synergy resource-constrained devices edge intelligence.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_554882285": {
+      "id": "oa_554882285",
+      "title": "Explainable Artificial Intelligence in Alzheimer’s Disease Classification: A Systematic Review",
+      "url": "https://openalex.org/W4388634755",
+      "authors": [],
+      "abstract": "Abstract The unprecedented growth of computational capabilities in recent years has allowed Artificial Intelligence (AI) models to be developed for medical applications with remarkable results. However, a large number Computer Aided Diagnosis (CAD) methods powered by AI have limited acceptance and adoption the domain due typical blackbox nature these models. Therefore, facilitate among practitioners, models' predictions must explainable interpretable. emerging field (XAI) aims justify trustworthiness predictions. This work presents systematic review literature reporting Alzheimer's disease (AD) detection using XAI that were communicated during last decade. Research questions carefully formulated categorise into different conceptual approaches (e.g., Post-hoc, Ante-hoc, Model-Agnostic, Model-Specific, Global, Local etc.) frameworks (Local Interpretable Model-Agnostic Explanation or LIME, SHapley Additive exPlanations SHAP, Gradient-weighted Class Activation Mapping GradCAM, Layer-wise Relevance Propagation LRP, XAI. categorisation provides broad coverage interpretation spectrum from intrinsic Ante-hoc models) complex patterns Post-hoc taking local explanations global scope. Additionally, forms interpretations providing in-depth insight factors support clinical diagnosis AD are also discussed. Finally, limitations, needs open challenges research outlined possible prospects their usage detection.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    },
+    "oa_291595035": {
+      "id": "oa_291595035",
+      "title": "Moving Beyond Syntax: Lessons from 20 Years of Blocks Programing in AgentSheets",
+      "url": "https://openalex.org/W2766033597",
+      "authors": [],
+      "abstract": "The blocks programming community has been preoccupied with identifying syntactic obstacles that keep novices from learning to program. Unfortunately, this focus is now holding back research systematically investigating various technological affordances can make more accessible. Employing approaches program analysis, visualization, and real-time interfaces push beyond syntax towards the support of semantics even pragmatics. Syntactic could be compared checking spelling grammar in word processing. Spell relatively simple implement immediately useful, but provides essentially no create meaningful text. Over last 25 years, I have worked empower students their own games, simulations, robots. In time explored, combined, evaluated a number paradigms. Every paradigm including data flow, by example, through analogies brings its set obstacles. Twenty years ago, AgentSheets combined four key programming, since then evolved into highly accessible Computational Thinking Tool. This article describes journey overcome first syntactic, semantic, most recently pragmatic, computer science education.",
+      "published_at": null,
+      "source": "openalex",
+      "tags": [
+        "paper"
+      ],
+      "pillar": "research",
+      "extra": {}
+    }
+  },
+  "analyst_notes": [
+    {
+      "role": "methods",
+      "claims": [
+        "Use a large language model in an agentic search loop with a CAD interpreter to generate, execute, and self-correct CadQuery code until valid geometry is produced",
+        "Decouple generation throughput from model latency to enable linear scaling with compute resources",
+        "Generate interpretable programs with meaningful variable names and richer operation vocabulary (e.g., Booleans, fillets, reference geometry)"
+      ],
+      "citations": [
+        "First excerpt (agentic search loop)",
+        "Second excerpt (throughput decoupling)",
+        "Second excerpt (interpretable programs)"
+      ],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "empirical",
+      "claims": [
+        "interpretable programs with meaningful variable names and a richer operation vocabulary",
+        "architecture decouples generation throughput from model latency, enabling linear scaling with compute resources"
+      ],
+      "citations": [
+        "Mean face count 16.446.250.7",
+        "Median face count 153021",
+        "Parts below 7 faces 12.9%0%—",
+        "Disjoint multi-body solids 56.3%0%—",
+        "Alignment to ABC Fréchet distance↓0.2680.164—",
+        "k-ball coverage,k=5↑45.3%57.2%—"
+      ],
+      "confidence": "medium",
+      "contradictions": [],
+      "suggested_section": "H2",
+      "skipped": false
+    },
+    {
+      "role": "glossary",
+      "claims": [
+        "Zero-to-CAD — An agentic synthesis approach that generates executable CAD sequences from interpretable parameters using a large language model in a search loop with a CAD interpreter",
+        "CadQuery — A parametric CAD scripting language used to generate, execute, and self-correct geometry in the agentic synthesis framework",
+        "B-Rep — Boundary representation method for CAD that produces valid geometry but lacks construction histories, limiting downstream editability",
+        "ABC dataset — A benchmark for 3D CAD models used for evaluating shape complexity and alignment metrics in CAD generation",
+        "DeepCAD — A CAD sequence dataset limited primarily to simple sketch-and-extrude operations, missing rich vocabulary like chamfers and fillets",
+        "Fusion 360 Gallery — A CAD dataset restricted to basic operations and lacking the full vocabulary of real-world design construction sequences",
+        "Fréchet distance — A metric measuring alignment quality between generated and reference CAD models, with lower values indicating better alignment",
+        "k-ball coverage — A coverage metric for CAD generation evaluation where higher percentages indicate better geometric coverage",
+        "Construction history — The sequence of operations used to create a CAD model, which direct B-Rep methods lack and which enables downstream editability",
+        "Boolean operations — CAD operations including union, difference, and intersection that are part of the rich operation vocabulary missing from existing datasets",
+        "Agentic search — An iterative search loop architecture that uses a large language model with a CAD interpreter to generate and self-correct code",
+        "CAD-Recode — A metric for evaluating CAD program generation that measures reconstruction quality and interpretability"
+      ],
+      "citations": [],
+      "confidence": "high",
+      "contradictions": [],
+      "suggested_section": "Glossary of CAD Generation Terms",
+      "skipped": false
+    },
+    {
+      "role": "related",
+      "claims": [
+        "The paper proposes Zero-to-CAD as a scalable framework for generating executable CAD programs from scratch at large scales."
+      ],
+      "citations": [
+        "Semantic Scholar"
+      ],
+      "confidence": "low",
+      "contradictions": [
+        "Existing methods rely heavily on boundary representations, which are insufficient for full procedural synthesis."
+      ],
+      "suggested_section": "H2 or empty",
+      "skipped": false
+    },
+    {
+      "role": "code",
+      "claims": [],
+      "citations": [],
+      "confidence": "low",
+      "contradictions": [],
+      "suggested_section": "",
+      "skipped": false
+    }
+  ],
+  "committee_synthesis": "Zero‑to‑CAD shows how an agentic loop that couples a large language model with a CadQuery interpreter can synthesize fully executable, interpretable CAD programs at million‑scale without ever seeing a real design. By treating code generation as a search problem that self‑corrects via geometric feedback, the approach sidesteps the need for large annotated CAD corpora while still producing sequences that carry meaningful variable names and a rich operation vocabulary—Booleans, fillets, reference geometry—making the output directly editable and understandable by engineers.\n\nThe central tension lies between the desire for interpretability and the pressure for raw scalability. The framework deliberately decouples generation throughput from model latency, allowing horizontal scaling with compute, yet it must still balance the expressive power of the operation set against the risk of generating syntactically correct but semantically meaningless programs that the interpreter must repeatedly reject. Moreover, while the method avoids reliance on boundary‑representation datasets like ABC or DeepCAD, it raises questions about how well the synthetic programs capture the nuanced design intent found in real‑world repositories such as the Fusion 360 Gallery.\n\nReaders should come away seeing that scalable, programmatic CAD synthesis is feasible when the generation process is tightly coupled to a geometric verifier, and that interpretability need not be sacrificed for volume. The takeaway is that investing in richer language primitives and a self‑correcting search loop can yield millions of usable, editable CAD scripts, opening a path toward automated design exploration that remains accessible to human engineers.",
+  "visual_plan": null
+}

@@ -1,0 +1,107 @@
+{
+"kind": "search",
+"exp": 1777425278.2376564,
+"items": [
+{
+"id": "ss_dafdd261478ffae4c556769a832324e1b719d56c",
+"title": "DiffNR: Diffusion-Enhanced Neural Representation Optimization for Sparse-View 3D Tomographic Reconstruction",
+"url": "https://www.semanticscholar.org/paper/dafdd261478ffae4c556769a832324e1b719d56c",
+"authors": [
+"Shiyan Su",
+"Ruyi Zha",
+"D. Shi",
+"Hongdong Li",
+"Xuelian Cheng"
+],
+"abstract": "Neural representations (NRs), such as neural fields and 3D Gaussians, effectively model volumetric data in computed tomography (CT) but suffer from severe artifacts under sparse-view settings. To address this, we propose DiffNR, a novel framework that enhances NR optimization with diffusion priors. At its core is SliceFixer, a single-step diffusion model designed to correct artifacts in degraded slices. We integrate specialized conditioning layers into the network and develop tailored data curation strategies to support model finetuning. During reconstruction, SliceFixer periodically generates pseudo-reference volumes, providing auxiliary 3D perceptual supervision to fix underconstrained regions. Compared to prior methods that embed CT solvers into time-consuming iterative denoising, our repair-and-augment strategy avoids frequent diffusion model queries, leading to better runtime performance. Extensive experiments show that DiffNR improves PSNR by 3.99 dB on average, generalizes well across domains, and maintains efficient optimization.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+},
+{
+"id": "ss_95837c0d4e89eaa359465f1a357dff00491837e2",
+"title": "Regularizing neural fields for 3D computed tomographic imaging from sparse projections",
+"url": "https://www.semanticscholar.org/paper/95837c0d4e89eaa359465f1a357dff00491837e2",
+"authors": [
+"Jooho Lee",
+"Byeongjoon Kim",
+"Jongduk Baek"
+],
+"abstract": "Neural fields have recently emerged as a promising approach for solving imaging inverse problems. In the context of computed tomography (CT), neural field resembles an iterative reconstruction method but leverages a deep neural network optimized through gradient descent. Specifically, this neural network is optimized to represent the attenuation coefficients. In this work, we propose a novel method for regularizing neural fields by incorporating ray directions from arbitrary viewpoints. We introduce the total variation prior along the attenuation coefficients sampled from both observed and unobserved views. This approach promotes smoothness along the ray samples from multi-viewpoints, enabling the network to learn more informative signals and represent accurate geometry. Experimental results on cone-beam CT dataset demonstrate the effectiveness of our method in improving sparse-view CT reconstructions, with notable reductions in streak artifacts and enhanced representation of anatomical features. In summary, this work presents a simple yet effective regularization to improve 3D tomographic imaging from sparsely-sampled x-ray projections.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+},
+{
+"id": "ss_d7cffb13dc787cd5bca894a65bb3815dae2d5e74",
+"title": "Deceptive-NeRF/3DGS: Diffusion-Generated Pseudo-observations for High-Quality Sparse-View Reconstruction",
+"url": "https://www.semanticscholar.org/paper/d7cffb13dc787cd5bca894a65bb3815dae2d5e74",
+"authors": [
+"Xinhang Liu",
+"Shiu-hong Kao",
+"Jiaben Chen",
+"Yu-Wing Tai",
+"Chi-Keung Tang"
+],
+"abstract": "Novel view synthesis via Neural Radiance Fields (NeRFs) or 3D Gaussian Splatting (3DGS) typically necessitates dense observations with hundreds of input images to circumvent artifacts. We introduce Deceptive-NeRF/3DGS to enhance sparse-view reconstruction with only a limited set of input images, by leveraging a diffusion model pre-trained from multiview datasets. Different from using diffusion priors to regularize representation optimization, our method directly uses diffusion-generated images to train NeRF/3DGS as if they were real input views. Specifically, we propose a deceptive diffusion model turning noisy images rendered from few-view reconstructions into high-quality photorealistic pseudo-observations. To resolve consistency among pseudo-observations and real input views, we develop an uncertainty measure to guide the diffusion model's generation. Our system progressively incorporates diffusion-generated pseudo-observations into the training image sets, ultimately densifying the sparse input observations by 5 to 10 times. Extensive experiments across diverse and challenging datasets validate that our approach outperforms existing state-of-the-art methods and is capable of synthesizing novel views with super-resolution in the few-view setting.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+},
+{
+"id": "ss_3510eabcb181a2fd34389c33f548f4465245ed4c",
+"title": "Incomplete Data Multi-Source Static Computed Tomography Reconstruction with Diffusion Priors and Implicit Neural Representation",
+"url": "https://www.semanticscholar.org/paper/3510eabcb181a2fd34389c33f548f4465245ed4c",
+"authors": [
+"Ziju Shen",
+"Haimiao Zhang",
+"Bin Dong",
+"Jun Qiu",
+"Yunxiang Li",
+"Zhili Cui"
+],
+"abstract": "The dose of X-ray radiation and the scanning time are crucial factors in computed tomography (CT) for clinical applications. In this work, we introduce a multi-source static CT imaging system designed to rapidly acquire sparse view and limited angle data in CT imaging, addressing these critical factors. This linear imaging inverse problem is solved by a conditional generation process within the denoising diffusion image reconstruction framework. The noisy volume data sample generated by the reverse time diffusion process is projected onto the affine set to ensure its consistency to the measured data. To enhance the quality of the reconstruction, the 3D phantom's orthogonal space projector is parameterized implicitly by a neural network. Then, a self-supervised learning algorithm is adopted to optimize the implicit neural representation. Through this multistage conditional generation process, we obtain a new approximate posterior sampling strategy for MSCT volume reconstruction. Numerical experiments are implemented with various imaging settings to verify the effectiveness of our methods for incomplete data MSCT volume reconstruction.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+},
+{
+"id": "ss_88f6820ef774d7da34a8276ce9f6f4ebe4085912",
+"title": "Decompositional Neural Scene Reconstruction with Generative Diffusion Prior",
+"url": "https://www.semanticscholar.org/paper/88f6820ef774d7da34a8276ce9f6f4ebe4085912",
+"authors": [
+"Junfeng Ni",
+"Yu Liu",
+"Ruijie Lu",
+"Zirui Zhou",
+"Song-Chun Zhu",
+"Yixin Chen",
+"Siyuan Huang"
+],
+"abstract": "Decompositional reconstruction of 3D scenes, with complete shapes and detailed texture of all objects within, is intriguing for downstream applications but remains challenging, particularly with sparse views as input. Recent approaches incorporate semantic or geometric regularization to address this issue, but they suffer significant degradation in underconstrained areas and fail to recover occluded regions. We argue that the key to solving this problem lies in supplementing missing information for these areas. To this end, we propose DP-Recon, which employs diffusion priors in the form of Score Distillation Sampling (SDS) to optimize the neural representation of each individual object under novel views. This provides additional information for the underconstrained areas, but directly incorporating diffusion prior raises potential conflicts between the reconstruction and generative guidance. Therefore, we further introduce a visibility-guided approach to dynamically adjust the per-pixel SDS loss weights. Together these components enhance both geometry and appearance recovery while remaining faithful to input images. Extensive experiments across Replica and ScanNet++ demonstrate that our method significantly outperforms state-of-the-art methods. Notably, it achieves better object reconstruction under 10 views than the baselines under 100 views. Our method enables seamless text-based editing for geometry and appearance through SDS optimization and produces decomposed object meshes with detailed UV maps that support photo-realistic Visual effects (VFX) editing. The project page is available at https://dp-recon.github.io/.",
+"published_at": null,
+"source": "semantic_scholar",
+"tags": [
+"paper"
+],
+"pillar": "research",
+"extra": {}
+}
+]
+}

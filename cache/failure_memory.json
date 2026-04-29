@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data",
+    "overall_status": "blocked",
+    "codes": [
+      "editor:grounding_issue",
+      "editor:grounding_issue",
+      "draft:lint:no_results_table"
+    ],
+    "query_text": "Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data\nComputer-Aided Design (CAD) models are defined by their construction history: a parametric recipe that encodes design intent. However, existing large-scale 3D datasets predominantly consist of boundary representations (B-Reps) or meshes, stripping away this critical procedural information. To address this scarcity, we introduce Zero-to-CAD, a scalable framework for synthesizing executable CAD construction sequences. We frame synthesis as an agentic search problem: by embedding a large language model (LLM) within a feedback-driven CAD environment, our system iteratively generates, executes, and validates code using tools and documentation lookup to promote geometric validity and operation diversity. This agentic approach enables the synthesis of approximately one million executable, readable, editable CAD sequences, covering a rich vocabulary of operations beyond sketch-and-extrude workflows. We also release a curated subset of 100,000 high-quality models selected for geometric diversity. To demonstrate the dataset's utility, we fine-tune a vision-language model on our synthetic data to reconstruct editable CAD programs from multi-view images, outperforming strong baselines, including GPT-5.2, and effectively bootstrapping sequence generation capabilities without real construction-history training data. Zero-to-CAD bridges the gap between geometric scale and parametric interpretability, offering a vital resource for the next generation of CAD AI.\nllm paper\nExisting methods rely heavily on boundary representations, which are insufficient for full procedural synthesis.\nHowever, these methods are fundamentally limited by their vocabulary.\nWhile direct B-Rep methods produce valid geometry, their outputs lack construction histories, limiting downstream editability.\nThese approaches demonstrate growing interest in accessible CAD generation interfaces, though they remain constrained by the limited operation coverage and scale of existing sequence datasets.\nThe few datasets that include construction sequences, such as DeepCAD (Wu et al., 2021) and Fusion 360 Gallery (Willis et al., 2021), are limited in scope, restricted primarily to simple sketch-and-extrude operations that miss the rich vocabulary of real-world design, such as chamfers, fillets, and Boolean operations.\nDeepCAD (Wu et al., 2021) scales this up synthetically but remains limited to the same narrow operation set.\nno_results_table\nopinion_with_receipts\nflowchart\nsingle_concrete_pain_point_with_falsifier\nWhy CAD construction history matters but is missing from datasets [the paper](https://arxiv.org/abs/2604.24479)\nThe agentic loop that couples LLMs with geometric verification\nBeyond sketch-and-extrude: rich operation vocabulary at million-scale\nWhat would falsify this: the cheapest invalidation test\nEngineering habit: steal the self-correcting generation pattern\nWhat I would test next",
+    "signals": {
+      "format_name": "opinion_with_receipts",
+      "diagram_style": "flowchart",
+      "blocking_stages": [
+        "draft",
+        "editor"
+      ]
+    }
+  }
+]
