@@ -36,6 +36,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ./scripts
 
+      - name: Remove legacy Hugo data artifacts
+        run: git rm -r --ignore-unmatch data
+
       - name: Run research radar
         env:
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
@@ -52,10 +55,11 @@ jobs:
       - name: Commit generated source content
         run: |
           set -euo pipefail
-          if [[ -n "$(git status --porcelain content data static/img/posts)" ]]; then
+          if [[ -n "$(git status --porcelain content radar-data static/img/posts data)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add content data static/img/posts
+            git add content radar-data static/img/posts
+            if [ -d data ]; then git rm -r --ignore-unmatch data; fi
             git commit -m "chore(blog): research radar update"
             git push
           fi

@@ -21,7 +21,7 @@ def repo_root() -> Path:
 
 
 ROOT = repo_root()
-DATA = ROOT / "data"
+DATA = ROOT / "radar-data"
 DAILY_DATA = DATA / "daily"
 REPORTS = ROOT / "reports"
 CONTENT_POST = ROOT / "content" / "post"

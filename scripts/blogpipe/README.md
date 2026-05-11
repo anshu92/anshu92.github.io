@@ -38,8 +38,8 @@ If those are unset, the client falls back to `OPENROUTER_BASE`,
 
 ## Data Policy
 
-- Durable index: `data/items.sqlite`
-- Recent snapshots: `data/daily/*.jsonl.gz`
+- Durable index: `radar-data/items.sqlite`
+- Recent snapshots: `radar-data/daily/*.jsonl.gz`
 - Published Markdown: `content/post/`
 - Generated assets: `static/img/posts/<slug>/`
 - Raw PDFs and built site output are not committed.

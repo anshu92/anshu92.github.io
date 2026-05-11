@@ -31,8 +31,8 @@ npm-debug.log*
 # blogpipe local artifacts
 /reports/
 /cache/
-data/*.sqlite-shm
-data/*.sqlite-wal
+radar-data/*.sqlite-shm
+radar-data/*.sqlite-wal
 
 # Local API keys (loaded by blogpipe config; never commit)
 .env.local

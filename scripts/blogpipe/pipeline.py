@@ -25,6 +25,8 @@ def run_all(
     ingest_count = ingest.run(window_hours=window_hours, fixtures=fixtures, db=db)
     ranked = rank.run(db=db)
     daily = write_daily(ranked=ranked, dry_run=dry_run)
+    if not dry_run and not daily.ok:
+        raise RuntimeError(f"daily writer failed validation: {daily.errors}")
     deep = write_deep_dives(ranked=ranked, max_new=max_deep_dives, dry_run=dry_run)
     render_assets(ranked=ranked)
     result = {

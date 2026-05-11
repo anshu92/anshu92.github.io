@@ -22,8 +22,8 @@ def _pack():
 
 def _patch_root(monkeypatch, tmp_path):
     monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "data" / "daily")
+    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
+    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
     monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
     monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
     monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
