@@ -46,6 +46,13 @@ def test_unsupported_number_fails():
     assert "unsupported_number:99.9%" in errors
 
 
+def test_plain_reference_numbers_are_not_metric_claims():
+    pack = _pack()
+    body = Path("tests/fixtures/fake_daily.md").read_text() + "\n\nRelated citation marker [49] is not a metric. [E1]"
+    errors = validate_body(body, pack)
+    assert "unsupported_number:49" not in errors
+
+
 def test_missing_source_link_fails():
     pack = _pack()
     body = "Grounded claim [E1]. Source: https://arxiv.org/abs/2605.00001"

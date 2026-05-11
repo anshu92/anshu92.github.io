@@ -13,6 +13,32 @@ from .models import EvidencePack, RankedItem, WriteResult
 
 EVIDENCE_REF_RE = re.compile(r"\[E(\d+)\]")
 NUMBER_RE = re.compile(r"(?<![\w-])\d+(?:\.\d+)?%?(?![\w-])")
+NUMERIC_CLAIM_CUES = (
+    "%",
+    "percent",
+    "x ",
+    "ms",
+    "s latency",
+    "seconds",
+    "tokens",
+    "tasks",
+    "examples",
+    "samples",
+    "parameters",
+    "billion",
+    "million",
+    "accuracy",
+    "score",
+    "benchmark",
+    "throughput",
+    "latency",
+    "faster",
+    "slower",
+    "lower",
+    "higher",
+    "reduced",
+    "improved",
+)
 
 
 def write_daily(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run: bool = False) -> WriteResult:
@@ -213,8 +239,17 @@ def _meaningful_numbers(body: str) -> list[str]:
             continue
         if token in {"1", "2", "3", "4", "5", "6", "7", "8"}:
             continue
+        if not _looks_like_numeric_claim(scan, match.start(), match.end(), token):
+            continue
         out.append(token)
     return out
+
+
+def _looks_like_numeric_claim(text: str, start: int, end: int, token: str) -> bool:
+    if token.endswith("%"):
+        return True
+    window = text[max(0, start - 48) : min(len(text), end + 64)].lower()
+    return any(cue in window for cue in NUMERIC_CLAIM_CUES)
 
 
 def _copies_large_evidence_span(body: str, pack: EvidencePack) -> bool:
