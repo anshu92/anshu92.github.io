@@ -1,111 +1,90 @@
-"""Blogpipe CLI."""
-
 from __future__ import annotations
 
 import argparse
 import logging
 import sys
 
-from . import logging_utils
+from . import config, logging_utils
 
 logging_utils.setup_logging()
 LOG = logging.getLogger(__name__)
 
 
-def main() -> int:
-    p = argparse.ArgumentParser(prog="blogpipe", description="ML blog pipeline")
-    p.add_argument(
-        "command",
-        choices=[
-            "curate",
-            "harvest",
-            "rank",
-            "research",
-            "draft",
-            "edit",
-            "visuals",
-            "package",
-            "benchmark",
-            "graph",
-            "partial",
-            "run",
-            "resume",
-        ],
-    )
-    p.add_argument(
-        "thread_id",
-        nargs="?",
-        default="",
-        help="for resume: thread_id (or BLOGPIPE_THREAD_ID); for partial: stop-after stage name",
-    )
-    a = p.parse_args()
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="blogpipe", description="Evidence-grounded research radar")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    ingest_p = sub.add_parser("ingest")
+    ingest_p.add_argument("--window", default="72h")
+    ingest_p.add_argument("--fixtures", default="")
+    ingest_p.add_argument("--db", default="")
+
+    rank_p = sub.add_parser("rank")
+    rank_p.add_argument("--db", default="")
+    rank_p.add_argument("--limit", type=int, default=50)
+
+    daily_p = sub.add_parser("write-daily")
+    daily_p.add_argument("--dry-run", action="store_true")
+
+    deep_p = sub.add_parser("write-deep-dives")
+    deep_p.add_argument("--max-new", type=int, default=1)
+    deep_p.add_argument("--dry-run", action="store_true")
+
+    assets_p = sub.add_parser("render-assets")
+    assets_p.set_defaults(render_assets=True)
+
+    run_p = sub.add_parser("run")
+    run_p.add_argument("--window", default="72h")
+    run_p.add_argument("--fixtures", default="")
+    run_p.add_argument("--dry-run", action="store_true")
+    run_p.add_argument("--db", default="")
+    run_p.add_argument("--max-deep-dives", type=int, default=1)
+
+    args = parser.parse_args(argv)
     try:
-        if a.command == "curate":
-            from . import curator
+        if args.command == "ingest":
+            from . import ingest
 
-            curator.run()
-        elif a.command == "harvest":
-            from . import harvest as hv
-
-            hv.run()
-        elif a.command == "rank":
+            ingest.run(window_hours=_window_hours(args.window), fixtures=args.fixtures, db=args.db)
+        elif args.command == "rank":
             from . import rank
 
-            rank.run()
-        elif a.command == "research":
-            from . import research
+            rank.run(db=args.db, limit=args.limit)
+        elif args.command == "write-daily":
+            from . import pipeline
 
-            research.run()
-        elif a.command == "draft":
-            from . import draft
+            pipeline.write_daily(dry_run=args.dry_run or config.dry_run_env())
+        elif args.command == "write-deep-dives":
+            from . import pipeline
 
-            draft.run()
-        elif a.command == "edit":
-            from . import editor
+            pipeline.write_deep_dives(max_new=args.max_new, dry_run=args.dry_run or config.dry_run_env())
+        elif args.command == "render-assets":
+            from . import pipeline
 
-            editor.run()
-        elif a.command == "visuals":
-            from . import visuals
+            pipeline.render_assets()
+        elif args.command == "run":
+            from . import pipeline
 
-            visuals.run()
-        elif a.command == "package":
-            from . import package
-
-            package.run()
-        elif a.command == "benchmark":
-            from . import benchmark
-
-            benchmark.run()
-        elif a.command == "graph":
-            from .graph import runner
-
-            runner.run_graph_pipeline()
-        elif a.command == "partial":
-            from .graph import runner
-
-            stop = (a.thread_id or "").strip() or "draft"
-            runner.run_partial(stop)
-        elif a.command == "resume":
-            from . import config
-
-            from .graph import runner
-
-            tid = (a.thread_id or "").strip() or config.graph_thread_id_override()
-            if not tid:
-                LOG.error("resume requires thread_id: blogpipe resume <thread_id>")
-                return 1
-            runner.resume_graph_after_interrupt(tid)
-        elif a.command == "run":
-            from .graph import runner
-            from . import package, visuals
-
-            runner.run_graph_pipeline()
-            visuals.run()
-            package.run()
-    except Exception as e:
-        LOG.exception("command failed: %s", e)
+            pipeline.run_all(
+                window_hours=_window_hours(args.window),
+                fixtures=args.fixtures,
+                dry_run=args.dry_run or config.dry_run_env(),
+                db=args.db,
+                max_deep_dives=args.max_deep_dives,
+            )
+    except Exception as exc:
+        LOG.exception("command failed: %s", exc)
         return 1
     return 0
+
+
+def _window_hours(value: str) -> int:
+    raw = (value or "72h").strip().lower()
+    if raw.endswith("h"):
+        return max(1, int(raw[:-1]))
+    if raw.endswith("d"):
+        return max(1, int(raw[:-1]) * 24)
+    return max(1, int(raw))
 
 
 if __name__ == "__main__":

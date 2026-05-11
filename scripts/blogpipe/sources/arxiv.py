@@ -1,91 +1,77 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
+from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
-from ..models import Item, Pillar
+from ..models import Author, SourceItem
 from ._http import client
 
 LOG = logging.getLogger(__name__)
-
-# Last 2 days, categories LLM + systems
-_CATS = "cat:cs.CL+OR+cat:cs.LG+OR+cat:cs.AI+OR+cat:cs.CV+OR+cat:cs.DC+OR+cat:cs.PF"
-
-
-def _atom_url() -> str:
-    base = "http://export.arxiv.org/api/query"
-    q = f"search_query={quote(_CATS)}&start=0&maxResults=50&sortBy=submittedDate&sortOrder=descending"
-    return f"{base}?{q}"
+ARXIV_NS = {"a": "http://www.w3.org/2005/Atom"}
+CATEGORIES = "cat:cs.CL OR cat:cs.LG OR cat:cs.AI OR cat:cs.CV OR cat:cs.DC OR cat:cs.PF"
 
 
-def fetch() -> list[Item]:
-    url = _atom_url()
+def fetch(window_hours: int = 72) -> list[SourceItem]:
+    since = datetime.now(timezone.utc) - timedelta(hours=window_hours)
+    date_filter = since.strftime("%Y%m%d%H%M")
+    query = f"({CATEGORIES}) AND submittedDate:[{date_filter} TO 999912312359]"
+    url = (
+        "http://export.arxiv.org/api/query?"
+        f"search_query={quote(query)}&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100"
+    )
     try:
-        r = client().get(
-            url, headers={"User-Agent": "blogpipe/0.1 (+https://anshu92.github.io)"}
-        )
-        r.raise_for_status()
-    except Exception as e:
-        LOG.warning("arxiv: %s", e)
+        resp = client().get(url)
+        resp.raise_for_status()
+        root = ET.fromstring(resp.text)
+    except Exception as exc:
+        LOG.warning("arxiv fetch failed: %s", exc)
         return []
-    try:
-        root = ET.fromstring(r.text)
-    except ET.ParseError as e:
-        LOG.warning("arxiv parse: %s", e)
-        return []
-    ns = {"a": "http://www.w3.org/2005/Atom"}
-    out: list[Item] = []
-    for ent in root.findall("a:entry", ns):
-        title_el = ent.find("a:title", ns)
-        id_el = ent.find("a:id", ns)
-        summ_el = ent.find("a:summary", ns)
-        pub_el = ent.find("a:published", ns)
-        title = (title_el.text or "").replace("\n", " ").strip() if title_el is not None else ""
-        eid = (id_el.text or "").strip() if id_el is not None else ""
-        abstract = (summ_el.text or "").strip() if summ_el is not None else ""
-        pub = _parse_ts(pub_el.text if pub_el is not None else None)
-        authors: list[str] = []
-        for a in ent.findall("a:author", ns):
-            n = a.find("a:name", ns)
-            if n is not None and n.text:
-                authors.append(n.text.strip())
-        arxiv_id = eid.rsplit("/abs/", 1)[-1] if eid else title[:64]
-        pillar = Pillar.systems if any(
-            c in (eid + title) for c in ("/cs.DC", "/cs.PF")
-        ) else Pillar.research
-        if pillar is Pillar.research and any(
-            x in title.lower() for x in ("distributed", "inference", "throughput", "kernel")
-        ):
-            pillar = Pillar.systems
-        out.append(
-            Item(
-                id=f"arxiv_{arxiv_id}",
-                title=title or "arXiv",
-                url=eid or f"https://arxiv.org/abs/{arxiv_id}",
-                authors=authors,
-                abstract=abstract[:4000],
-                published_at=pub,
-                source="arxiv",
-                tags=["arxiv", "ml"],
-                pillar=pillar,
-            )
-        )
+    out: list[SourceItem] = []
+    for entry in root.findall("a:entry", ARXIV_NS):
+        item = _entry(entry)
+        if item:
+            out.append(item)
     return out
 
 
-def _parse_ts(s: Optional[str]) -> Optional[datetime]:
-    if not s:
+def _text(entry: ET.Element, tag: str) -> str:
+    node = entry.find(f"a:{tag}", ARXIV_NS)
+    return " ".join((node.text or "").split()) if node is not None else ""
+
+
+def _entry(entry: ET.Element) -> SourceItem | None:
+    title = _text(entry, "title")
+    url = _text(entry, "id")
+    if not title or not url:
+        return None
+    arxiv_id = url.rsplit("/abs/", 1)[-1]
+    authors = []
+    for author in entry.findall("a:author", ARXIV_NS):
+        name_node = author.find("a:name", ARXIV_NS)
+        if name_node is not None and name_node.text:
+            authors.append(Author(name=name_node.text.strip()))
+    return SourceItem(
+        canonical_url=url,
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title=title,
+        authors=authors,
+        published_at=_parse_dt(_text(entry, "published")),
+        updated_at=_parse_dt(_text(entry, "updated")),
+        arxiv_id=arxiv_id,
+        venue_or_blog="arXiv",
+        abstract_or_excerpt=_text(entry, "summary"),
+        tags=["paper", "arxiv"],
+    ).normalized()
+
+
+def _parse_dt(value: str) -> datetime | None:
+    if not value:
         return None
     try:
-        if "T" in s:
-            return datetime.fromisoformat(s.replace("Z", "+00:00"))
-    except Exception:
-        pass
-    try:
-        return parsedate_to_datetime(s)
-    except Exception:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
         return None

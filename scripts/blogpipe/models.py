@@ -1,345 +1,131 @@
-"""Pydantic models for blogpipe."""
+from __future__ import annotations
 
-from __future__ import annotations  # noqa: F401 — enables PEP 604 on Python 3.9 + pydantic
-
-from datetime import datetime
-from enum import Enum
-from typing import Any, List, Optional
+import hashlib
+import json
+from datetime import datetime, timezone
+from typing import Any, Optional
+from urllib.parse import urlsplit, urlunsplit
 
 from pydantic import BaseModel, Field
 
 
-class Pillar(str, Enum):
-    research = "research"
-    systems = "systems"
-    applied = "applied"
-    foundations = "foundations"
-    aec = "aec"
+class Author(BaseModel):
+    name: str
+    affiliation: str = ""
 
 
-class Item(BaseModel):
-    """A normalized source item (paper, blog post, etc.)."""
-
-    id: str
+class SourceItem(BaseModel):
+    item_id: str = ""
+    canonical_url: str
+    source_kind: str
+    source_name: str
+    source_tier: int = 2
     title: str
-    url: str
-    authors: list[str] = Field(default_factory=list)
-    abstract: str = ""
+    authors: list[Author] = Field(default_factory=list)
     published_at: Optional[datetime] = None
-    source: str
+    updated_at: Optional[datetime] = None
+    doi: str = ""
+    arxiv_id: str = ""
+    venue_or_blog: str = ""
+    abstract_or_excerpt: str = ""
+    body_text: str = ""
     tags: list[str] = Field(default_factory=list)
-    pillar: Pillar = Pillar.research
     extra: dict[str, Any] = Field(default_factory=dict)
 
+    def stable_id(self) -> str:
+        if self.doi:
+            return "doi:" + self.doi.lower().strip()
+        if self.arxiv_id:
+            return "arxiv:" + self.arxiv_id.lower().strip()
+        url = canonicalize_url(self.canonical_url)
+        if url:
+            return "url:" + hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
+        title = " ".join((self.title or "").lower().split())
+        return "title:" + hashlib.sha1(title.encode("utf-8")).hexdigest()[:20]
 
-class BenchmarkRow(BaseModel):
-    """One row in a results/benchmark table."""
+    def normalized(self) -> "SourceItem":
+        clone = self.model_copy(deep=True)
+        clone.canonical_url = canonicalize_url(clone.canonical_url)
+        clone.item_id = clone.item_id or clone.stable_id()
+        clone.title = " ".join(clone.title.split())
+        clone.abstract_or_excerpt = " ".join((clone.abstract_or_excerpt or "").split())
+        clone.body_text = " ".join((clone.body_text or "").split())
+        return clone
 
-    name: str
-    value: str
-    unit: str = ""
-    baseline: str = ""
-    notes: str = ""
+
+class TopicScores(BaseModel):
+    llm: float = 0.0
+    mle: float = 0.0
+    aec: float = 0.0
+    matched_keywords: list[str] = Field(default_factory=list)
+
+    @property
+    def best(self) -> float:
+        return max(self.llm, self.mle, self.aec)
+
+    @property
+    def tracks(self) -> list[str]:
+        out = []
+        if self.llm >= 0.25:
+            out.append("LLM")
+        if self.mle >= 0.25:
+            out.append("MLE")
+        if self.aec >= 0.25:
+            out.append("AEC")
+        return out or ["ML"]
 
 
-class Quote(BaseModel):
-    source_id: str
+class RankedItem(BaseModel):
+    item: SourceItem
+    topic_scores: TopicScores
+    daily_score: float
+    deep_dive_score: float
+    quality_signals: dict[str, Any] = Field(default_factory=dict)
+    citation_signals: dict[str, Any] = Field(default_factory=dict)
+    rank_reason: str = ""
+
+
+class EvidenceChunk(BaseModel):
+    evidence_id: str
+    item_id: str
+    title: str
+    url: str
     text: str
-    url: str = ""
-
-
-class AnalystNote(BaseModel):
-    """One committee analyst output."""
-
-    role: str
-    claims: list[str] = Field(default_factory=list)
-    citations: list[str] = Field(default_factory=list)
-    confidence: str = "medium"
-    contradictions: list[str] = Field(default_factory=list)
-    suggested_section: str = ""
-    skipped: bool = False
+    section: str = ""
 
 
 class EvidencePack(BaseModel):
-    """Scout output: primary paper context before committee LLM and bundle merge."""
-
-    primary: Item
-    ss_id: Optional[str] = None
-    ancestors: list[Item] = Field(default_factory=list)
-    competitors: list[Item] = Field(default_factory=list)
-    followups: list[Item] = Field(default_factory=list)
-    aec_links: list[Item] = Field(default_factory=list)
-    section_evidence: dict[str, str] = Field(default_factory=dict)
-    paper_limitations: list[str] = Field(default_factory=list)
-    paper_result_notes: list[str] = Field(default_factory=list)
-    paper_quotes: list[Quote] = Field(default_factory=list)
-    outline: list[str] = Field(default_factory=list)
-    by_id: dict[str, Item] = Field(default_factory=dict)
-    trace: list[dict[str, Any]] = Field(default_factory=list)
-    calls_used: int = 0
-    # Raw refs from Semantic Scholar (for related-work analyst)
-    refs: list[Item] = Field(default_factory=list)
-    cits: list[Item] = Field(default_factory=list)
-
-
-class FigureSpec(BaseModel):
-    """One planned body figure (LLM + image chain output)."""
-
-    id: str
-    kind: str = "concept"  # concept|architecture|comparison|plot
-    prompt: str = ""
-    alt: str = ""
-    caption: str = ""
-    placement_hint: str = ""
-
-
-class EquationSpec(BaseModel):
-    """One planned LaTeX block for the body."""
-
-    id: str
-    latex: str
-    caption: str = ""
-    placement_hint: str = ""
-
-
-class VisualPlan(BaseModel):
-    """0–3 figures and 0–3 equations; only what clarifies the paper’s concepts."""
-
-    figures: list[FigureSpec] = Field(default_factory=list)
-    equations: list[EquationSpec] = Field(default_factory=list)
-
-
-class EvidenceBundle(BaseModel):
-    primary: Item
-    ancestors: list[Item] = Field(default_factory=list)
-    competitors: list[Item] = Field(default_factory=list)
-    followups: list[Item] = Field(default_factory=list)
-    benchmarks: list[BenchmarkRow] = Field(default_factory=list)
-    aec_links: list[Item] = Field(default_factory=list)
-    enrichment_items: list[Item] = Field(default_factory=list)
-    quotes: list[Quote] = Field(default_factory=list)
-    planner_buckets: list[str] = Field(default_factory=list)
-    planner_questions: list[str] = Field(default_factory=list)
-    section_evidence: dict[str, str] = Field(default_factory=dict)
-    contradiction_notes: list[str] = Field(default_factory=list)
-    by_id: dict[str, Item] = Field(default_factory=dict)
-    analyst_notes: list[AnalystNote] = Field(default_factory=list)
-    committee_synthesis: str = ""
-    visual_plan: Optional[VisualPlan] = None
-
-    def register_ids(self) -> None:
-        self.by_id = {self.primary.id: self.primary}
-        for it in (
-            self.ancestors
-            + self.competitors
-            + self.followups
-            + self.aec_links
-            + self.enrichment_items
-        ):
-            if it.id not in self.by_id:
-                self.by_id[it.id] = it
-
-
-class PostMeta(BaseModel):
-    """Per-post index row for the curator."""
-
-    path: str
-    slug: str
-    title: str
-    date: str
-    categories: list[str] = Field(default_factory=list)
-    tags: list[str] = Field(default_factory=list)
-    h2_titles: list[str] = Field(default_factory=list)
-    tldr: str = ""
-    pillar: Pillar = Pillar.research
-    word_count: int = 0
-    embedding: Optional[List[float]] = None
-
-
-class EditorialBrief(BaseModel):
-    """Steers ranker, drafter, and visuals."""
-
-    pillar_weights: dict[str, float] = Field(default_factory=dict)
-    recent_topics: list[dict[str, str]] = Field(
-        default_factory=list
-    )  # {slug, title, pillar}
-    follow_up_candidates: list[str] = Field(default_factory=list)
-    avoid_topics: list[str] = Field(default_factory=list)
-    voice_guide: str = ""
-    suggested_series: Optional[str] = None
-    format_name: str = "deep_dive"
-    format_rationale: str = ""
-    opener_hook: str = "in_medias_res_scene"
-    art_direction: str = "editorial_illustration"
-    diagram_style: str = "flowchart"
-    proactive_topic: Optional[str] = None
-
-
-class PlanningBrief(BaseModel):
-    """Structured writing plan produced before drafting."""
-
-    mandatory_claims: list[str] = Field(default_factory=list)
-    mandatory_sections: list[str] = Field(default_factory=list)
-    required_visuals: list[str] = Field(default_factory=list)
-    likely_failures: list[str] = Field(default_factory=list)
-    preventive_checks: list[str] = Field(default_factory=list)
-    backup_remedies: list[str] = Field(default_factory=list)
-    reviewer_focus: list[str] = Field(default_factory=list)
-
-
-class ReviewNote(BaseModel):
-    """One specialist review note over a draft."""
-
-    role: str
-    pass_review: bool = True
-    reviewer_weight: float = 1.0
-    findings: list[str] = Field(default_factory=list)
-    rewrite_targets: list[str] = Field(default_factory=list)
-    summary: str = ""
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class SourceRegistryEntry(BaseModel):
     kind: str
-    source_id: str = ""
-    key: str = ""
-    url: str = ""
-    text: str = ""
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ranked_items: list[RankedItem]
+    chunks: list[EvidenceChunk]
+    prior_posts: list[dict[str, str]] = Field(default_factory=list)
+
+    def evidence_blob(self) -> str:
+        return "\n".join(c.text for c in self.chunks)
+
+    def urls(self) -> list[str]:
+        return sorted({r.item.canonical_url for r in self.ranked_items if r.item.canonical_url})
+
+    def as_prompt_json(self) -> str:
+        return json.dumps(self.model_dump(mode="json"), indent=2, ensure_ascii=False)
 
 
-class CitationAuditReport(BaseModel):
-    ok: bool = True
-    verified_links: list[str] = Field(default_factory=list)
-    invalid_links: list[str] = Field(default_factory=list)
-    removed_links: list[str] = Field(default_factory=list)
-    warnings: list[str] = Field(default_factory=list)
-
-
-class GapNote(BaseModel):
-    code: str
-    message: str = ""
-    section_hint: str = ""
-    required_evidence: list[str] = Field(default_factory=list)
-    query_hint: str = ""
-    blocking: bool = True
-
-
-class RankResult(BaseModel):
-    primary: Item
-    score: float = 0.0
-    rejected: list[Item] = Field(default_factory=list)
-    reasoning: str = ""
-
-
-class EditorReport(BaseModel):
-    """15-point rubric + five-question gate."""
-
-    rubric_score: int = 0
-    rubric_items: list[dict[str, Any]] = Field(default_factory=list)
-    five_questions: dict[str, str] = Field(default_factory=dict)
-    five_questions_ok: bool = True
-    critique: dict[str, list[str]] = Field(
-        default_factory=lambda: {"missing": [], "weak": [], "cut": []}
-    )
-    pass_gate: bool = False
-    llm_ok: bool = True
-    editor_warnings: list[str] = Field(default_factory=list)
-    lint_issues: list[str] = Field(default_factory=list)
-    grounding_ok: bool = True
-    grounding_issues: list[str] = Field(default_factory=list)
-    rubric_floor_applied: bool = False
-    rubric_floor_reasons: list[str] = Field(default_factory=list)
-    rubric_score_raw: int = 0
-    evidence_utilization: dict[str, Any] = Field(default_factory=dict)
-
-
-class FailureReason(BaseModel):
-    code: str
-    message: str = ""
-    stage: str = ""
-    blocking: bool = True
-
-
-class ArtifactResult(BaseModel):
-    artifact_type: str
-    ok: bool = False
-    artifact_path: str = ""
+class WriteResult(BaseModel):
+    ok: bool
+    path: str = ""
+    title: str = ""
+    body: str = ""
     errors: list[str] = Field(default_factory=list)
-    warnings: list[str] = Field(default_factory=list)
+    repair_attempted: bool = False
 
 
-class RenderReport(BaseModel):
-    html_valid: bool = False
-    pdf_valid: bool = False
-    mermaid_rendered: bool = False
-    tables_rendered: bool = False
-    images_resolved: bool = True
-    captions_ok: bool = True
-    density_ok: bool = True
-    errors: list[str] = Field(default_factory=list)
-    warnings: list[str] = Field(default_factory=list)
-    artifacts: list[ArtifactResult] = Field(default_factory=list)
-
-    @property
-    def ok(self) -> bool:
-        return (
-            self.html_valid
-            and self.pdf_valid
-            and self.mermaid_rendered
-            and self.tables_rendered
-            and self.images_resolved
-            and self.captions_ok
-            and self.density_ok
-            and not self.errors
-        )
-
-
-class QualityReport(BaseModel):
-    evidence_valid: bool = False
-    draft_valid: bool = False
-    render_valid: bool = False
-    package_valid: bool = False
-    render_checked: bool = False
-    package_checked: bool = False
-    overall_status: str = "blocked"
-    blocking_reasons: list[FailureReason] = Field(default_factory=list)
-    editor_report: Optional[EditorReport] = None
-    render_report: Optional[RenderReport] = None
-    artifact_paths: dict[str, str] = Field(default_factory=dict)
-    llm_ok: bool = True
-    pass_gate: bool = False
-
-
-# --- Requests for HTTP allow-lists (no user-controlled URLs) ---
-
-ALLOWED_FETCH_HOSTS = frozenset(
-    {
-        "arxiv.org",
-        "export.arxiv.org",
-        "api.semanticscholar.org",
-        "www.semanticscholar.org",
-        "api.openalex.org",
-        "openalex.org",
-        "paperswithcode.com",
-        "huggingface.co",
-        "api.github.com",
-        "www.research.autodesk.com",
-        "research.autodesk.com",
-        "blogs.nvidia.com",
-    }
-)
-
-
-def is_allowed_url(url: str) -> bool:
-    from urllib.parse import urlparse
-
-    try:
-        p = urlparse(url)
-    except Exception:
-        return False
-    host = (p.netloc or "").lower().removeprefix("www.")
-    for h in ALLOWED_FETCH_HOSTS:
-        if host == h or host.endswith("." + h):
-            return True
-    return False
+def canonicalize_url(url: str) -> str:
+    raw = (url or "").strip()
+    if not raw:
+        return ""
+    parts = urlsplit(raw)
+    scheme = parts.scheme or "https"
+    netloc = parts.netloc.lower()
+    path = parts.path.rstrip("/") or "/"
+    return urlunsplit((scheme, netloc, path, "", ""))

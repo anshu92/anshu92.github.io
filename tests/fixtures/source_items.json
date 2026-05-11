@@ -1,0 +1,63 @@
+{
+  "items": [
+    {
+      "canonical_url": "https://arxiv.org/abs/2605.00001",
+      "source_kind": "paper",
+      "source_name": "arxiv",
+      "source_tier": 1,
+      "title": "Cache-Aware Long Context Inference for Language Model Agents",
+      "authors": [{"name": "A. Researcher"}],
+      "published_at": "2026-05-10T12:00:00+00:00",
+      "arxiv_id": "2605.00001",
+      "venue_or_blog": "arXiv",
+      "abstract_or_excerpt": "We propose a cache-aware inference method for long-context language model agents. The method reduces latency by 35% on a benchmark with 128k token traces and reports ablation studies for retrieval boundaries, KV cache movement, and throughput.",
+      "tags": ["paper", "llm", "inference"]
+    },
+    {
+      "canonical_url": "https://arxiv.org/abs/2605.00002",
+      "source_kind": "paper",
+      "source_name": "arxiv",
+      "source_tier": 1,
+      "title": "Reproducible Evaluation Pipelines for RAG Systems",
+      "authors": [{"name": "B. Engineer"}],
+      "published_at": "2026-05-10T10:00:00+00:00",
+      "arxiv_id": "2605.00002",
+      "venue_or_blog": "arXiv",
+      "abstract_or_excerpt": "This paper introduces an evaluation pipeline for retrieval augmented generation with dataset curation, monitoring, benchmark slices, reproducibility notes, and observability metrics for production deployment.",
+      "tags": ["paper", "mle", "rag"]
+    },
+    {
+      "canonical_url": "https://www.research.autodesk.com/blog/bim-digital-twin-controls",
+      "source_kind": "blog",
+      "source_name": "autodesk_research",
+      "source_tier": 1,
+      "title": "BIM Digital Twins for Building Controls",
+      "published_at": "2026-05-10T09:00:00+00:00",
+      "venue_or_blog": "Autodesk Research",
+      "abstract_or_excerpt": "The engineering post describes BIM, IFC, HVAC, digital twin workflows, building controls, and facility operations. It includes implementation details for graph extraction from Revit models and deployment caveats.",
+      "tags": ["blog", "aec"]
+    },
+    {
+      "canonical_url": "https://pytorch.org/blog/kernel-fusion-training-throughput",
+      "source_kind": "blog",
+      "source_name": "pytorch",
+      "source_tier": 1,
+      "title": "Kernel Fusion for Distributed Training Throughput",
+      "published_at": "2026-05-09T09:00:00+00:00",
+      "venue_or_blog": "PyTorch Blog",
+      "abstract_or_excerpt": "This engineering blog explains GPU kernel fusion, distributed training throughput, profiling, latency, memory layout, and production monitoring tradeoffs for large model training infrastructure.",
+      "tags": ["blog", "mle"]
+    },
+    {
+      "canonical_url": "https://openreview.net/forum?id=agent-eval-2026",
+      "source_kind": "paper",
+      "source_name": "openreview",
+      "source_tier": 1,
+      "title": "Agent Evaluation with Tool Use Failure Modes",
+      "published_at": "2026-05-08T09:00:00+00:00",
+      "venue_or_blog": "OpenReview",
+      "abstract_or_excerpt": "We introduce a benchmark for language model agents using tools. The experiments measure reasoning failures, retrieval errors, latency, and reproducibility across 500 tasks with ablation studies.",
+      "tags": ["paper", "llm", "agents"]
+    }
+  ]
+}

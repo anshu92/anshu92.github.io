@@ -1,3 +1,5 @@
-"""Blog pipeline: harvest, draft, and publish flow."""
+"""Research radar pipeline for anshu92.github.io."""
 
-__version__ = "0.1.0"
+__all__ = ["__version__"]
+
+__version__ = "0.2.0"

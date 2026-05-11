@@ -1,42 +1,61 @@
 from __future__ import annotations
 
+import gzip
+import json
 import logging
+from datetime import datetime, timezone
+from pathlib import Path
 
-from ..models import Item
-from . import (
-    aec_scholar,
-    arxiv,
-    autodesk_research,
-    eng_blogs,
-    huggingface_papers,
-    mlsys_proceedings,
-    nvidia_aec,
-    paperswithcode,
-)
+from pydantic import TypeAdapter
+
+from .. import memory
+from ..models import SourceItem
+from . import acl, arxiv, blogs, enrichers, openreview
 
 LOG = logging.getLogger(__name__)
+ITEMS = TypeAdapter(list[SourceItem])
 
 
-def harvest_all() -> list[Item]:
-    """Merge all fixed sources; dedupe by URL."""
-    batches: list[list[Item]] = [
-        huggingface_papers.fetch(),
-        arxiv.fetch(),
-        paperswithcode.fetch(),
-        mlsys_proceedings.fetch(),
-        eng_blogs.fetch(),
-        autodesk_research.fetch(),
-        nvidia_aec.fetch(),
-        aec_scholar.fetch(),
+def harvest_all(*, window_hours: int = 72, fixtures: str = "") -> list[SourceItem]:
+    if fixtures:
+        return _load_fixtures(fixtures)
+    batches = [
+        arxiv.fetch(window_hours),
+        acl.fetch(window_hours),
+        openreview.fetch(window_hours),
+        blogs.fetch(window_hours),
     ]
+    merged = _dedupe([item for batch in batches for item in batch])
+    return enrichers.enrich(merged)
+
+
+def write_snapshot(items: list[SourceItem]) -> Path:
+    memory.ensure_dirs()
+    name = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%SZ.jsonl.gz")
+    path = memory.DAILY_DATA / name
+    with gzip.open(path, "wt", encoding="utf-8") as fh:
+        for item in items:
+            fh.write(item.normalized().model_dump_json() + "\n")
+    return path
+
+
+def _dedupe(items: list[SourceItem]) -> list[SourceItem]:
+    out: list[SourceItem] = []
     seen: set[str] = set()
-    out: list[Item] = []
-    for batch in batches:
-        for it in batch:
-            key = it.url.split("#", 1)[0].rstrip("/")
-            if key in seen:
-                continue
-            seen.add(key)
-            out.append(it)
-    LOG.info("harvest_all: %d unique items", len(out))
+    for item in items:
+        norm = item.normalized()
+        key = norm.item_id
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(norm)
     return out
+
+
+def _load_fixtures(path: str) -> list[SourceItem]:
+    p = Path(path)
+    if p.is_dir():
+        p = p / "source_items.json"
+    data = json.loads(p.read_text(encoding="utf-8"))
+    raw = data.get("items", data) if isinstance(data, dict) else data
+    return [item.normalized() for item in ITEMS.validate_python(raw)]
