@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
 
-from . import assets, config, memory
+from . import assets, config, jsonish, memory
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, RankedItem, SelectionResult, WriteResult
 
@@ -109,9 +109,12 @@ SYNTHESIS_CUES = (
     "the common pattern",
 )
 FIRST_PERSON_AUTODESK_RE = re.compile(
-    r"\b(as a principal machine learning engineer at autodesk|at autodesk,\s+(my|our)|our vision at autodesk|our strategic direction)\b",
+    r"\b(as a principal (?:machine learning engineer|mle).*?(?:at|for) autodesk|"
+    r"at autodesk,\s+(?:my|our)|our (?:vision|strategic direction|roadmap|pipeline|pipelines|product|products)|"
+    r"we (?:face|use|need|build|ship|own|have|could|should)|my focus)\b",
     re.I,
 )
+REPEATED_TOKEN_RE = re.compile(r"\b([A-Za-z][A-Za-z0-9_-]{2,}),\1\b", re.I)
 DAILY_CONCEPTS: dict[str, tuple[str, ...]] = {
     "technical_thesis": ("thesis", "technical pattern", "framing", "claim"),
     "mechanism": ("method", "mechanism", "architecture", "pipeline", "model"),
@@ -190,12 +193,19 @@ def validate_body(body: str, pack: EvidencePack, *, outline: DailyOutline | None
     for url in _required_urls_for_refs(refs, chunks_by_id):
         if url and not (_url_keys(url) & body_url_keys):
             errors.append("missing_source_link:" + url)
+    errors.extend(_paragraph_source_errors(body, refs, chunks_by_id))
     evidence_blob = pack.evidence_blob()
     for number in sorted(set(_meaningful_numbers(body))):
         if number not in evidence_blob:
             errors.append("unsupported_number:" + number)
     if _copies_large_evidence_span(body, pack):
         errors.append("copied_large_evidence_span")
+    if REPEATED_TOKEN_RE.search(body or ""):
+        errors.append("repeated_token_artifact")
+    if "```mermaid" in (body or "").lower():
+        errors.append("mermaid_diagram_present")
+    if "## visual map" in (body or "").lower():
+        errors.append("generic_visual_map_present")
     if pack.kind == "daily":
         errors.extend(_validate_daily_technical_focus(body, pack, outline=outline))
     try:
@@ -453,9 +463,10 @@ def _final_editor_system(post_type: str) -> str:
         "Merge section drafts into one cohesive Markdown body with smooth transitions. "
         "Preserve evidence markers [E#] and include source URL links for substantive claims. "
         "Keep section headings specific and non-generic. "
-        "Ensure one mermaid diagram block is present and include the provided SVG image links in the body. "
-        "Remove corporate strategy language, repeated hype adjectives, unsupported first-person Autodesk claims, "
-        "and paper-by-paper abstract summaries that do not add engineering judgment. "
+        "Do not include Mermaid diagrams, generic visual maps, or visual diagnostics unless the source evidence directly supports a useful technical figure. "
+        "Remove corporate strategy language, repeated hype adjectives, duplicated-token artifacts such as 'multiple,multiple', "
+        "unsupported first-person Autodesk claims, first-person 'we/our/my' product-roadmap claims, and paper-by-paper abstract summaries that do not add engineering judgment. "
+        "If supporting papers are discussed, label them as supporting rather than counting them as primary papers. "
         "Do not invent claims, numbers, or references. "
         "If a numeric detail is not explicitly grounded in evidence, rewrite it qualitatively instead of guessing. "
         "Output Markdown only."
@@ -472,17 +483,10 @@ def _final_editor_user(
     outline: DailyOutline | None,
     selection: SelectionResult | None,
 ) -> str:
-    image_paths = [
-        f"/img/posts/{slug}/source-mix.svg",
-        f"/img/posts/{slug}/topic-mix.svg",
-    ]
     return (
         f"POST_TYPE: {post_type}\n"
         f"TITLE: {title}\n"
-        "REQUIRED_VISUALS:\n"
-        f"- mermaid diagram from this source graph if needed:\n```mermaid\n{assets.mermaid_for_ranked(pack.ranked_items)}\n```\n"
-        + "\n".join(f"- embed image link: {path}" for path in image_paths)
-        + "\n\n"
+        "VISUAL_POLICY: Do not include Mermaid. Omit visuals unless they are a source-grounded mechanism diagram that adds technical signal.\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"SECTION_DRAFTS:\n{json.dumps(section_drafts, indent=2, ensure_ascii=False)}\n\n"
@@ -519,23 +523,26 @@ def _validate_repair_and_publish(
     post_type: str,
     dry_run: bool,
 ) -> WriteResult:
-    _prepare_visual_assets(pack, slug)
     body = _ensure_visual_blocks(body, pack, slug)
+    quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection) if post_type == "daily" else {}
     body, errors = _sanitize_then_validate(body, pack, outline=outline)
+    errors.extend(_llm_quality_errors(quality_review))
     repair_attempted = False
     if errors:
         repair_attempted = True
-        repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection)
+        repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection, quality_review=quality_review)
         try:
             body = _call_writer(client, _repair_system(), repair_user, task="repair")
             body = _ensure_visual_blocks(body, pack, slug)
+            quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection) if post_type == "daily" else {}
             body, errors = _sanitize_then_validate(body, pack, outline=outline)
+            errors.extend(_llm_quality_errors(quality_review))
         except Exception as exc:
             errors.append(f"repair_failed:{exc}")
     if errors:
         report = memory.REPORTS / f"{slug}.blocked.json"
         memory.ensure_dirs()
-        rubric = _signal_rubric(body, pack) if pack.kind == "daily" else {}
+        rubric = quality_review or (_signal_rubric(body, pack) if pack.kind == "daily" else {})
         report.write_text(
             json.dumps(
                 {"title": title, "slug": slug, "errors": errors, "signal_rubric": rubric, "body": body},
@@ -583,7 +590,7 @@ def _frontmatter(
             f"paper_count: {paper_count}",
             f"blog_count: {blog_count}",
             "math: true",
-            "mermaid: true",
+            "mermaid: false",
             "---",
         ]
     )
@@ -628,7 +635,7 @@ def _deep_system() -> str:
         "You write guided technical deep dives for ML engineers. Use only the evidence pack. "
         "Center the method, math/objective interpretation, experiment analysis, reproduction notes, limits, and impact. "
         "Write original Markdown. Include evidence markers [E1] and source links for substantive claims. "
-        "Include a Mermaid diagram and one code or pseudocode block only if supported by evidence. "
+        "Do not include Mermaid diagrams or generic visual maps. Include code or pseudocode only if supported by evidence. "
         "Do not invent numbers or implementation details. Target 2500-4500 words when evidence supports it."
     )
 
@@ -659,6 +666,7 @@ def _repair_user(
     *,
     outline: DailyOutline | None,
     selection: SelectionResult | None,
+    quality_review: dict[str, object] | None = None,
 ) -> str:
     chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
     refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
@@ -683,8 +691,10 @@ def _repair_user(
         "- For every evidence ID you cite, include the matching source URL inline in that paragraph.\n"
         "- You do not need to cover every item in EVIDENCE_PACK; omit weak items rather than inventing details.\n"
         "- Remove unsupported numbers and unsupported claims; prefer qualitative phrasing when uncertain.\n"
+        "- Remove Mermaid diagrams, generic visual maps, stale source lists, duplicated-token artifacts, and first-person Autodesk employment/product claims.\n"
         "- Do not output JSON, explanations, or a validation report.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
+        f"LLM_QUALITY_REVIEW:\n{json.dumps(quality_review or {}, indent=2, ensure_ascii=False)}\n\n"
         f"CITED_SOURCE_URLS:\n{json.dumps(cited_source_requirements, indent=2, ensure_ascii=False)}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
@@ -793,27 +803,91 @@ def _prepare_visual_assets(pack: EvidencePack, slug: str) -> None:
 
 
 def _ensure_visual_blocks(body: str, pack: EvidencePack, slug: str) -> str:
-    text = (body or "").strip()
-    mermaid_src = assets.mermaid_for_ranked(pack.ranked_items)
-    if "```mermaid" not in text:
-        text = (
-            text.rstrip()
-            + "\n\n## Visual map\n```mermaid\n"
-            + mermaid_src
-            + "\n```\n"
+    return (body or "").strip()
+
+
+def _llm_quality_review(
+    client: LLMClient,
+    *,
+    body: str,
+    pack: EvidencePack,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+) -> dict[str, object]:
+    if not isinstance(client, LLMClient) or not _has_call_budget(client, 1):
+        return {}
+    try:
+        raw = client.complete(
+            system=_quality_review_system(),
+            user=_quality_review_user(body=body, pack=pack, outline=outline, selection=selection),
+            max_tokens=1600,
+            task="quality_review",
         )
-    source_img = f"/img/posts/{slug}/source-mix.svg"
-    topic_img = f"/img/posts/{slug}/topic-mix.svg"
-    missing_source = source_img not in text
-    missing_topic = topic_img not in text
-    if missing_source or missing_topic:
-        lines = ["", "## Visual diagnostics"]
-        if missing_source:
-            lines.append(f"![Source mix chart]({source_img})")
-        if missing_topic:
-            lines.append(f"![Topic mix chart]({topic_img})")
-        text = text.rstrip() + "\n\n" + "\n".join(lines) + "\n"
-    return text.strip()
+        return jsonish.loads_object(raw)
+    except Exception as exc:  # noqa: BLE001
+        LOG.warning("quality review failed; using deterministic validators only: %s", exc)
+        return {}
+
+
+def _quality_review_system() -> str:
+    return (
+        "You are a quality review judge for a technical ML research blog. Return JSON only. "
+        "Score and identify blocking issues. Use strict engineering-blog standards."
+    )
+
+
+def _quality_review_user(
+    *,
+    body: str,
+    pack: EvidencePack,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+) -> str:
+    return (
+        "Review the draft for publication quality. Return JSON with this shape:\n"
+        "{\n"
+        '  "pass": true,\n'
+        '  "scores": {"technical_specificity": 0.0, "engineering_judgment": 0.0, "synthesis": 0.0, "noise_control": 0.0, "primary_depth": 0.0},\n'
+        '  "errors": ["short machine-readable error"],\n'
+        '  "examples": ["quoted short failing text"],\n'
+        '  "notes": "short explanation"\n'
+        "}\n\n"
+        "Blocking criteria:\n"
+        "- generic corporate prose, hype, or paper-by-paper abstract summaries without insight\n"
+        "- first-person employment or product ownership claims involving Autodesk, including 'we', 'our', 'my', 'our roadmap', or 'our pipelines'\n"
+        "- duplicated-token artifacts such as 'multiple,multiple'\n"
+        "- missing source URL in the same paragraph as each cited evidence marker\n"
+        "- Mermaid diagrams, generic visual maps, or stale visuals that mention non-discussed papers\n"
+        "- intro says four primary papers but body materially adds more without marking them supporting\n"
+        "- weak mechanism/objective/experiment/limitation coverage for primary papers\n\n"
+        f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
+        f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
+        f"DRAFT:\n{body}\n"
+    )
+
+
+def _llm_quality_errors(review: dict[str, object]) -> list[str]:
+    if not review:
+        return []
+    errors: list[str] = []
+    scores = review.get("scores")
+    threshold = config.min_signal_score()
+    if isinstance(scores, dict):
+        for name, value in scores.items():
+            try:
+                score = float(value)
+            except (TypeError, ValueError):
+                continue
+            if score < threshold:
+                errors.append(f"llm_low_signal:{name}:{score:.2f}/{threshold:.2f}")
+    if review.get("pass") is False:
+        raw_errors = review.get("errors")
+        if isinstance(raw_errors, list) and raw_errors:
+            errors.extend(f"llm_quality:{str(error)[:120]}" for error in raw_errors[:8])
+        else:
+            errors.append("llm_quality:failed")
+    return errors
 
 
 def _strip_fence(text: str) -> str:
@@ -870,6 +944,21 @@ def _required_urls_for_refs(refs: set[str], chunks_by_id: dict[str, object]) -> 
 
 def _body_url_keys(body: str) -> set[str]:
     return {key for url in URL_RE.findall(body or "") for key in _url_keys(_strip_url_punctuation(url))}
+
+
+def _paragraph_source_errors(body: str, refs: set[str], chunks_by_id: dict[str, object]) -> list[str]:
+    errors: list[str] = []
+    for paragraph in re.split(r"\n\s*\n", body or ""):
+        paragraph_refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(paragraph)}
+        if not paragraph_refs:
+            continue
+        paragraph_keys = _body_url_keys(paragraph)
+        for evidence_id in sorted(paragraph_refs & refs):
+            chunk = chunks_by_id.get(evidence_id)
+            url = getattr(chunk, "url", "") if chunk is not None else ""
+            if url and not (_url_keys(url) & paragraph_keys):
+                errors.append(f"missing_paragraph_source_link:{evidence_id}:{url}")
+    return errors
 
 
 def _strip_url_punctuation(url: str) -> str:
@@ -999,18 +1088,8 @@ def _validate_daily_coverage(body: str, pack: EvidencePack) -> list[str]:
 
 def _validate_signal_quality(body: str, pack: EvidencePack) -> list[str]:
     errors: list[str] = []
-    lower = (body or "").lower()
-    rubric = _signal_rubric(body, pack)
-    threshold = config.min_signal_score()
-    for name, score in rubric["scores"].items():
-        if score < threshold:
-            errors.append(f"low_signal:{name}:{score:.2f}/{threshold:.2f}")
-    if rubric["generic_density"] > config.generic_phrase_max_density():
-        errors.append(f"generic_phrase_density:{rubric['generic_density']:.4f}/{config.generic_phrase_max_density():.4f}")
     if FIRST_PERSON_AUTODESK_RE.search(body or ""):
         errors.append("first_person_autodesk_claim")
-    if _paper_by_paper_without_synthesis(lower, pack):
-        errors.append("paper_by_paper_summary_without_synthesis")
     return errors
 
 

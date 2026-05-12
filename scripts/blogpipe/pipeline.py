@@ -28,7 +28,8 @@ def run_all(
     daily = write_daily(ranked=ranked, dry_run=dry_run, llm=client)
     if daily.ok:
         deep = write_deep_dives(ranked=ranked, max_new=max_deep_dives, dry_run=dry_run, llm=client)
-        render_assets()
+        if "/img/posts/" in daily.body:
+            render_assets()
     else:
         LOG.warning("daily writer blocked publication: %s", daily.errors)
         deep = []

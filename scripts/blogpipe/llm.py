@@ -11,7 +11,7 @@ from . import config
 
 LOG = logging.getLogger(__name__)
 RETRY_STATUS_CODES = {429, 500, 502, 503, 504}
-FAST_TASKS = {"selector", "outline", "outline_repair", "repair"}
+FAST_TASKS = {"selector", "outline", "outline_repair", "quality_review", "repair"}
 SMART_TASKS = {"draft", "draft_section", "editor"}
 
 
@@ -199,6 +199,8 @@ def _fake_response(system: str, call_index: int) -> str:
         return config._get("BLOGPIPE_FAKE_OUTLINE_RESPONSE")
     if "repair markdown" in lower:
         return config._get("BLOGPIPE_FAKE_REPAIR_RESPONSE", config._get("BLOGPIPE_FAKE_LLM_RESPONSE"))
+    if "quality review" in lower:
+        return config._get("BLOGPIPE_FAKE_QUALITY_RESPONSE")
     return config._get("BLOGPIPE_FAKE_LLM_RESPONSE", "")
 
 

@@ -10,6 +10,7 @@ LLM_TASK_ENV_VARS: dict[str, str] = {
     "draft": "BLOGPIPE_LLM_MODEL_DRAFT",
     "draft_section": "BLOGPIPE_LLM_MODEL_DRAFT_SECTION",
     "editor": "BLOGPIPE_LLM_MODEL_EDITOR",
+    "quality_review": "BLOGPIPE_LLM_MODEL_QUALITY_REVIEW",
     "repair": "BLOGPIPE_LLM_MODEL_REPAIR",
 }
 
@@ -20,6 +21,7 @@ LLM_TASK_CHAIN_ENV_VARS: dict[str, str] = {
     "draft": "BLOGPIPE_LLM_CHAIN_DRAFT",
     "draft_section": "BLOGPIPE_LLM_CHAIN_DRAFT_SECTION",
     "editor": "BLOGPIPE_LLM_CHAIN_EDITOR",
+    "quality_review": "BLOGPIPE_LLM_CHAIN_QUALITY_REVIEW",
     "repair": "BLOGPIPE_LLM_CHAIN_REPAIR",
 }
 
