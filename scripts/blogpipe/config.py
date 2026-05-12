@@ -137,6 +137,22 @@ def max_blogs() -> int:
     return _int("BLOGPIPE_MAX_BLOGS", 2, 0, 8)
 
 
+def daily_primary_papers() -> int:
+    return _int("BLOGPIPE_DAILY_PRIMARY_PAPERS", 4, 2, 5)
+
+
+def daily_supporting_items() -> int:
+    return _int("BLOGPIPE_DAILY_SUPPORTING_ITEMS", 2, 0, 4)
+
+
+def min_signal_score() -> float:
+    return _float("BLOGPIPE_MIN_SIGNAL_SCORE", 0.75, 0.0, 1.0)
+
+
+def generic_phrase_max_density() -> float:
+    return _float("BLOGPIPE_GENERIC_PHRASE_MAX_DENSITY", 0.015, 0.0, 0.1)
+
+
 def profile_results() -> int:
     return _int("BLOGPIPE_PROFILE_RESULTS", 40, 5, 100)
 

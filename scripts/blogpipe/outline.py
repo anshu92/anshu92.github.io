@@ -25,7 +25,17 @@ REQUIRED_INTENTS: dict[str, tuple[str, ...]] = {
     "limitations": ("limit", "caveat", "failure", "risk", "tradeoff"),
     "impact": ("impact", "engineering", "production", "practical"),
     "autodesk_relevance": ("autodesk", "aec", "document", "drawing", "sheet", "cad", "bim"),
+    "cross_paper_synthesis": ("compare", "contrast", "cross-paper", "synthesis", "tradeoff"),
 }
+
+GENERIC_HEADING_PATTERNS = (
+    "navigating the future",
+    "bridging the digital divide",
+    "our path forward",
+    "future of ai",
+    "ai's blueprint",
+    "what mattered today",
+)
 
 
 def generate_daily_outline(
@@ -107,11 +117,16 @@ def validate_outline(outline: DailyOutline, pack: EvidencePack) -> list[str]:
     errors: list[str] = []
     if not outline.title.strip():
         errors.append("missing_outline_title")
+    if not outline.angle.strip():
+        errors.append("missing_outline_angle")
     headings = [section.heading.strip().lower() for section in outline.sections]
     if len(headings) < 4:
         errors.append("too_few_outline_sections")
     if len(headings) != len(set(headings)):
         errors.append("duplicate_outline_headings")
+    for heading in headings:
+        if any(pattern in heading for pattern in GENERIC_HEADING_PATTERNS):
+            errors.append(f"generic_outline_heading:{heading}")
     known_evidence = {chunk.evidence_id for chunk in pack.chunks}
     for section in outline.sections:
         if not section.heading.strip():
@@ -133,8 +148,10 @@ def _outline_system() -> str:
     return (
         "You are the Research Radar outline planner. Return JSON only. "
         "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE at Autodesk. "
-        "The outline must cover thesis, mechanisms, math/objectives where supported, experiments, limitations, engineering impact, "
-        "and relevance to AEC foundation models or 2D document workflows."
+        "The outline must be thesis-led, deep, and mechanism-first, not a broad roundup. "
+        "It must cover thesis, mechanisms, math/objectives where supported, experiments, limitations, engineering impact, "
+        "cross-paper synthesis, and relevance to AEC foundation models or 2D document workflows. "
+        "Ban vague corporate headings such as 'Navigating the Future', 'Bridging the Digital Divide', and 'Our Path Forward'."
     )
 
 
@@ -142,6 +159,8 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
     return (
         f"Create an outline for a daily post of at least {config.daily_min_words()} words. "
         "Do not use fixed headings such as 'Paper mechanisms' or 'Why it matters'. "
+        "Use 3-4 deep primary-paper sections, one cross-paper comparison section, and one adoption section for Autodesk/AEC document workflows. "
+        "Headings must name a technical object, mechanism, benchmark, or tradeoff. "
         "Return JSON in this exact shape:\n"
         "{\n"
         '  "title": "short post title",\n'
@@ -150,6 +169,7 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
         '  "suggested_tags": ["tag"]\n'
         "}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
+        f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -158,7 +178,8 @@ def _outline_repair_system() -> str:
     return (
         "You repair an invalid research outline. Return JSON only in the exact DailyOutline schema. "
         "Keep concrete, non-template headings and ensure intents cover thesis, mechanism, math/objective, "
-        "experiments, limitations, impact, and Autodesk/AEC/document relevance."
+        "experiments, limitations, impact, cross-paper synthesis, and Autodesk/AEC/document relevance. "
+        "Avoid corporate-strategy headings and name technical mechanisms or tradeoffs."
     )
 
 
@@ -175,8 +196,10 @@ def _outline_repair_user(
         f"PARSE_ERROR: {parse_error or 'none'}\n"
         f"VALIDATION_ERRORS: {json.dumps(errors)}\n\n"
         f"PREVIOUS_OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
-        "Fix the outline and return JSON with: title, angle, sections[{heading,intent,evidence_ids,word_budget}], suggested_tags.\n\n"
+        "Fix the outline and return JSON with: title, angle, sections[{heading,intent,evidence_ids,word_budget}], suggested_tags. "
+        "Include 3-4 deep primary-paper sections, one cross-paper comparison section, and one Autodesk/AEC adoption section.\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
+        f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -213,39 +236,45 @@ def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOu
     per_section = max(140, min_words // 6)
     sections = [
         {
-            "heading": "Why this batch matters for Autodesk document workflows",
+            "heading": "Document-model reliability starts with measurable failure boundaries",
             "intent": "technical thesis angle framing Autodesk AEC document relevance",
             "evidence_ids": pick_ids(("impact", "mechanism")),
             "word_budget": per_section,
         },
         {
-            "heading": "Mechanisms and architectures worth understanding",
+            "heading": "Primary mechanisms worth testing against drawing workflows",
             "intent": "mechanism method architecture pipeline",
             "evidence_ids": pick_ids(("mechanism",)),
             "word_budget": per_section,
         },
         {
-            "heading": "Objectives, metrics, and operational math",
+            "heading": "Objectives and metrics define the adoption boundary",
             "intent": "math objective loss optimization metric",
             "evidence_ids": pick_ids(("math_or_objective", "experiment")),
             "word_budget": per_section,
         },
         {
-            "heading": "Evidence from experiments and evaluations",
+            "heading": "Evaluation evidence separates prototypes from product bets",
             "intent": "experiments evidence benchmark evaluation ablation",
             "evidence_ids": pick_ids(("experiment",)),
             "word_budget": per_section,
         },
         {
-            "heading": "Limitations, risks, and open questions",
-            "intent": "limitations caveat failure risk tradeoff",
-            "evidence_ids": pick_ids(("limitation",)),
+            "heading": "Cross-paper tradeoffs that change the engineering plan",
+            "intent": "cross-paper synthesis compare contrast tradeoff limitations caveat failure risk",
+            "evidence_ids": pick_ids(("limitation", "experiment")),
             "word_budget": per_section,
         },
         {
-            "heading": "Engineering impact and adoption implications",
-            "intent": "impact engineering production practical Autodesk AEC document",
+            "heading": "Adoption tests for Autodesk AEC document systems",
+            "intent": "impact engineering production practical Autodesk AEC document drawing sheet CAD BIM",
             "evidence_ids": pick_ids(("impact", "limitation")),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Risks to validate before implementation",
+            "intent": "limitations caveat failure risk tradeoff",
+            "evidence_ids": pick_ids(("limitation",)),
             "word_budget": per_section,
         },
     ]

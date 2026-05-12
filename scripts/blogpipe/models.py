@@ -96,11 +96,27 @@ class EvidenceChunk(BaseModel):
     evidence_type: str = ""
 
 
+class EvidenceCard(BaseModel):
+    item_id: str
+    title: str
+    url: str
+    role: str = "primary"
+    problem: str = "not found in evidence"
+    mechanism: str = "not found in evidence"
+    math_or_objective: str = "not found in evidence"
+    experiment: str = "not found in evidence"
+    limitation: str = "not found in evidence"
+    impact: str = "not found in evidence"
+    transfer_hypothesis: str = ""
+    evidence_ids: dict[str, list[str]] = Field(default_factory=dict)
+
+
 class EvidencePack(BaseModel):
     kind: str
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     ranked_items: list[RankedItem]
     chunks: list[EvidenceChunk]
+    evidence_cards: list[EvidenceCard] = Field(default_factory=list)
     prior_posts: list[dict[str, str]] = Field(default_factory=list)
 
     def evidence_blob(self) -> str:
@@ -124,8 +140,10 @@ class WriteResult(BaseModel):
 
 class SelectionItem(BaseModel):
     item_id: str
+    role: str = ""
     relevance_label: str = ""
     reason: str = ""
+    scores: dict[str, float] = Field(default_factory=dict)
     suggested_tags: list[str] = Field(default_factory=list)
 
 

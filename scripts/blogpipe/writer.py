@@ -45,6 +45,73 @@ NUMERIC_CLAIM_CUES = (
     "reduced",
     "improved",
 )
+GENERIC_PHRASES = (
+    "digital transformation",
+    "stands at the precipice",
+    "rapid evolution of artificial intelligence",
+    "paving the way",
+    "game-changer",
+    "paramount",
+    "crucial",
+    "holistic strategy",
+    "shape the future",
+    "unlock value",
+    "seamlessly",
+    "revolutionize",
+    "our vision at autodesk",
+    "our strategic direction",
+    "our path forward",
+)
+TECHNICAL_SPECIFICITY_CUES = (
+    "algorithm",
+    "architecture",
+    "objective",
+    "loss",
+    "benchmark",
+    "ablation",
+    "latency",
+    "throughput",
+    "cache",
+    "retrieval",
+    "quantization",
+    "calibration",
+    "layout",
+    "cadquery",
+    "parametric",
+    "grounding",
+    "failure mode",
+    "evaluation",
+)
+ENGINEERING_JUDGMENT_CUES = (
+    "would test",
+    "prototype",
+    "blocker",
+    "release gate",
+    "adoption",
+    "production",
+    "tradeoff",
+    "monitoring",
+    "rollback",
+    "latency budget",
+    "failure category",
+    "risk",
+)
+SYNTHESIS_CUES = (
+    "compare",
+    "contrast",
+    "together",
+    "whereas",
+    "tradeoff",
+    "across",
+    "combined",
+    "separates",
+    "complements",
+    "the common pattern",
+)
+FIRST_PERSON_AUTODESK_RE = re.compile(
+    r"\b(as a principal machine learning engineer at autodesk|at autodesk,\s+(my|our)|our vision at autodesk|our strategic direction)\b",
+    re.I,
+)
 DAILY_CONCEPTS: dict[str, tuple[str, ...]] = {
     "technical_thesis": ("thesis", "technical pattern", "framing", "claim"),
     "mechanism": ("method", "mechanism", "architecture", "pipeline", "model"),
@@ -309,6 +376,8 @@ def _section_system(post_type: str) -> str:
         f"You are drafting a {scope}. "
         "Output a heading line '## ...' followed by concise technical prose. "
         "Use only supplied evidence and cite with [E#] plus source URL links for substantive claims. "
+        "Open with a concrete claim, then cover mechanism, engineering implication, and a limitation or adoption blocker. "
+        "Avoid corporate transformation language and broad industry setup unless it directly supports the mechanism. "
         "Do not invent numbers, tables, or results. No frontmatter, no JSON, no preamble."
     )
 
@@ -385,6 +454,8 @@ def _final_editor_system(post_type: str) -> str:
         "Preserve evidence markers [E#] and include source URL links for substantive claims. "
         "Keep section headings specific and non-generic. "
         "Ensure one mermaid diagram block is present and include the provided SVG image links in the body. "
+        "Remove corporate strategy language, repeated hype adjectives, unsupported first-person Autodesk claims, "
+        "and paper-by-paper abstract summaries that do not add engineering judgment. "
         "Do not invent claims, numbers, or references. "
         "If a numeric detail is not explicitly grounded in evidence, rewrite it qualitatively instead of guessing. "
         "Output Markdown only."
@@ -464,9 +535,10 @@ def _validate_repair_and_publish(
     if errors:
         report = memory.REPORTS / f"{slug}.blocked.json"
         memory.ensure_dirs()
+        rubric = _signal_rubric(body, pack) if pack.kind == "daily" else {}
         report.write_text(
             json.dumps(
-                {"title": title, "slug": slug, "errors": errors, "body": body},
+                {"title": title, "slug": slug, "errors": errors, "signal_rubric": rubric, "body": body},
                 indent=2,
                 ensure_ascii=False,
             ),
@@ -523,9 +595,10 @@ def _daily_system() -> str:
         "Write from the practical point of view of a Principal Machine Learning Engineer at Autodesk evaluating research for "
         "AEC foundation models and 2D document intelligence. Do not claim to be employed by Autodesk. "
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
+        "Prefer deep synthesis over breadth: focus on 3-4 primary papers and use supporting items only when they sharpen the thesis. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
-        "Do not publish a single-source post: cite at least four distinct items and at least three papers when available. "
+        "Do not publish a single-source post: cite at least three distinct primary papers when available. "
         f"Do not invent numbers, benchmarks, authors, or claims. The daily post must be at least {config.daily_min_words()} words."
     )
 
@@ -535,14 +608,17 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
         f"TITLE: {title}\n\n"
         "Write a paper-first technical blog post using the OUTLINE headings exactly as provided. "
         "Do not use fixed template headings such as 'Paper mechanisms', 'Math or objective details', or 'Why it matters' unless the outline uses them. "
-        "Cover 5-8 strongest items when evidence supports them, prioritizing papers over source blogs. "
-        "Cite at least four distinct items and at least three paper items when they exist in the evidence pack. "
+        "Cover 3-4 primary papers deeply and mention supporting items briefly only when they strengthen a comparison. "
+        "Cite at least three distinct primary papers when they exist in the evidence pack. "
         "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
         "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
+        "Include at least one cross-paper comparison or tradeoff and at least one concrete adoption test for Autodesk/AEC 2D document systems. "
         "Make the Autodesk/AEC/2D-document implications concrete where supported by the evidence. "
+        "Do not use first-person employment claims such as 'As a Principal MLE at Autodesk'; write from that practical viewpoint without claiming identity. "
         "Avoid exact numeric claims unless the number appears verbatim in the evidence text.\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2)}\n\n"
+        f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -594,8 +670,8 @@ def _repair_user(
     section_contract = (
         "For daily posts, preserve the OUTLINE headings exactly and write from the practical viewpoint "
         "of a Principal MLE at Autodesk evaluating AEC foundation model and 2D-document relevance. "
-        f"The daily post must be at least {config.daily_min_words()} words. Cite at least four distinct items and "
-        "at least three paper items when they exist in the evidence pack."
+        f"The daily post must be at least {config.daily_min_words()} words. Cite at least three primary papers "
+        "when they exist in the evidence pack. Remove generic corporate prose and add concrete engineering judgment."
         if pack.kind == "daily"
         else "Preserve the requested deep-dive technical structure."
     )
@@ -861,6 +937,7 @@ def _validate_daily_technical_focus(body: str, pack: EvidencePack, *, outline: D
     if outline is not None:
         errors.extend(_validate_outline_headings(body, outline))
     errors.extend(_validate_daily_coverage(body, pack))
+    errors.extend(_validate_signal_quality(body, pack))
     if not any(r.item.source_kind == "paper" for r in pack.ranked_items):
         errors.append("daily_no_papers")
     if _looks_like_generic_roundup(headings):
@@ -905,10 +982,12 @@ def _validate_daily_coverage(body: str, pack: EvidencePack) -> list[str]:
     }
     pack_paper_ids = {item_id for item_id, kind in item_kind.items() if kind == "paper"}
     cited_paper_ids = {item_id for item_id in cited_item_ids if item_kind.get(item_id) == "paper"}
-    required_items = _required_daily_item_count(len(pack_item_ids))
-    required_papers = min(3, len(pack_paper_ids))
-    if len(cited_item_ids) < required_items:
-        errors.append(f"insufficient_cited_items:{len(cited_item_ids)}/{required_items}")
+    primary_ids = set(_primary_item_ids(pack))
+    required_items = min(3, len(primary_ids or pack_item_ids))
+    required_papers = min(3, len(pack_paper_ids & (primary_ids or pack_paper_ids)))
+    cited_primary_ids = cited_item_ids & primary_ids if primary_ids else cited_item_ids
+    if len(cited_primary_ids) < required_items:
+        errors.append(f"insufficient_cited_primary_items:{len(cited_primary_ids)}/{required_items}")
     if required_papers and len(cited_paper_ids) < required_papers:
         errors.append(f"insufficient_cited_papers:{len(cited_paper_ids)}/{required_papers}")
     word_count = len(re.findall(r"\b[\w'-]+\b", body or ""))
@@ -916,6 +995,104 @@ def _validate_daily_coverage(body: str, pack: EvidencePack) -> list[str]:
     if word_count < min_words:
         errors.append(f"daily_too_short:{word_count}/{min_words}")
     return errors
+
+
+def _validate_signal_quality(body: str, pack: EvidencePack) -> list[str]:
+    errors: list[str] = []
+    lower = (body or "").lower()
+    rubric = _signal_rubric(body, pack)
+    threshold = config.min_signal_score()
+    for name, score in rubric["scores"].items():
+        if score < threshold:
+            errors.append(f"low_signal:{name}:{score:.2f}/{threshold:.2f}")
+    if rubric["generic_density"] > config.generic_phrase_max_density():
+        errors.append(f"generic_phrase_density:{rubric['generic_density']:.4f}/{config.generic_phrase_max_density():.4f}")
+    if FIRST_PERSON_AUTODESK_RE.search(body or ""):
+        errors.append("first_person_autodesk_claim")
+    if _paper_by_paper_without_synthesis(lower, pack):
+        errors.append("paper_by_paper_summary_without_synthesis")
+    return errors
+
+
+def _signal_rubric(body: str, pack: EvidencePack) -> dict[str, object]:
+    lower = (body or "").lower()
+    words = max(1, len(re.findall(r"\b[\w'-]+\b", lower)))
+    technical = _cue_score(lower, TECHNICAL_SPECIFICITY_CUES, target=8)
+    judgment = _cue_score(lower, ENGINEERING_JUDGMENT_CUES, target=5)
+    synthesis = _cue_score(lower, SYNTHESIS_CUES, target=4)
+    primary_depth = _primary_depth_score(body, pack)
+    generic_hits = sum(lower.count(phrase) for phrase in GENERIC_PHRASES)
+    generic_density = generic_hits / words
+    noise_control = 1.0 if generic_density <= config.generic_phrase_max_density() else 0.0
+    return {
+        "scores": {
+            "technical_specificity": technical,
+            "engineering_judgment": judgment,
+            "synthesis": synthesis,
+            "noise_control": noise_control,
+            "primary_depth": primary_depth,
+        },
+        "generic_density": generic_density,
+        "examples": _signal_failure_examples(body or ""),
+    }
+
+
+def _cue_score(lower_body: str, cues: tuple[str, ...], *, target: int) -> float:
+    hits = sum(1 for cue in cues if cue in lower_body)
+    return min(1.0, hits / max(1, target))
+
+
+def _signal_failure_examples(body: str, *, limit: int = 3) -> list[str]:
+    examples: list[str] = []
+    sentences = re.split(r"(?<=[.!?])\s+", body or "")
+    for sentence in sentences:
+        lower = sentence.lower()
+        if any(phrase in lower for phrase in GENERIC_PHRASES) or FIRST_PERSON_AUTODESK_RE.search(sentence):
+            cleaned = re.sub(r"\s+", " ", sentence).strip()
+            if cleaned:
+                examples.append(cleaned[:240])
+            if len(examples) >= limit:
+                break
+    return examples
+
+
+def _primary_depth_score(body: str, pack: EvidencePack) -> float:
+    primary_ids = _primary_item_ids(pack)
+    if not primary_ids:
+        return 1.0
+    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
+    refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
+    passed = 0
+    for item_id in primary_ids:
+        available_types = {chunk.evidence_type for chunk in pack.chunks if chunk.item_id == item_id}
+        cited_types = {
+            chunks_by_id[evidence_id].evidence_type
+            for evidence_id in refs
+            if evidence_id in chunks_by_id and chunks_by_id[evidence_id].item_id == item_id
+        }
+        required_secondary = available_types & {"limitation", "experiment", "math_or_objective"}
+        if "mechanism" in cited_types and (not required_secondary or cited_types & required_secondary):
+            passed += 1
+    return passed / len(primary_ids)
+
+
+def _primary_item_ids(pack: EvidencePack) -> list[str]:
+    explicit = [
+        ranked.item.item_id
+        for ranked in pack.ranked_items
+        if str(ranked.item.extra.get("selector_role", "")).lower() == "primary"
+    ]
+    if explicit:
+        return explicit[: config.daily_primary_papers()]
+    paper_ids = [ranked.item.item_id for ranked in pack.ranked_items if ranked.item.source_kind == "paper"]
+    return paper_ids[: min(3, len(paper_ids))]
+
+
+def _paper_by_paper_without_synthesis(lower_body: str, pack: EvidencePack) -> bool:
+    if _cue_score(lower_body, SYNTHESIS_CUES, target=3) >= 1.0:
+        return False
+    cited_titles = sum(1 for ranked in pack.ranked_items if ranked.item.title.lower()[:24] in lower_body)
+    return cited_titles >= 3
 
 
 def _required_daily_item_count(item_count: int) -> int:

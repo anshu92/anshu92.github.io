@@ -3,14 +3,21 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import extract, memory
-from .models import EvidenceChunk, EvidencePack, RankedItem
+from .models import EvidenceCard, EvidenceChunk, EvidencePack, RankedItem
 
 
 def build_daily_pack(ranked: list[RankedItem], *, prior_limit: int = 5) -> EvidencePack:
     chunks: list[EvidenceChunk] = []
     for item in ranked:
-        chunks.extend(_chunks_for_item(item, len(chunks), max_chunks=3))
-    return EvidencePack(kind="daily", ranked_items=ranked, chunks=chunks, prior_posts=_prior_posts(prior_limit))
+        max_chunks = 5 if _selector_role(item) == "primary" else 2
+        chunks.extend(_chunks_for_item(item, len(chunks), max_chunks=max_chunks))
+    return EvidencePack(
+        kind="daily",
+        ranked_items=ranked,
+        chunks=chunks,
+        evidence_cards=_evidence_cards(ranked, chunks),
+        prior_posts=_prior_posts(prior_limit),
+    )
 
 
 def build_deep_dive_pack(ranked: RankedItem) -> EvidencePack:
@@ -18,8 +25,80 @@ def build_deep_dive_pack(ranked: RankedItem) -> EvidencePack:
         kind="deep_dive",
         ranked_items=[ranked],
         chunks=_chunks_for_item(ranked, 0, max_chunks=10),
+        evidence_cards=[],
         prior_posts=_prior_posts(5),
     )
+
+
+def _evidence_cards(ranked: list[RankedItem], chunks: list[EvidenceChunk]) -> list[EvidenceCard]:
+    chunks_by_item: dict[str, list[EvidenceChunk]] = {}
+    for chunk in chunks:
+        chunks_by_item.setdefault(chunk.item_id, []).append(chunk)
+    cards: list[EvidenceCard] = []
+    for ranked_item in ranked:
+        item = ranked_item.item
+        item_chunks = chunks_by_item.get(item.item_id, [])
+        by_type: dict[str, list[EvidenceChunk]] = {}
+        for chunk in item_chunks:
+            by_type.setdefault(chunk.evidence_type or "context", []).append(chunk)
+        problem = _best_sentence(item_chunks, ("problem", "challenge", "gap", "lack", "bottleneck")) or item.abstract_or_excerpt[:500]
+        mechanism = _chunk_text(by_type, "mechanism")
+        math_or_objective = _chunk_text(by_type, "math_or_objective")
+        experiment = _chunk_text(by_type, "experiment")
+        limitation = _chunk_text(by_type, "limitation")
+        impact = _chunk_text(by_type, "impact")
+        role = _selector_role(ranked_item)
+        cards.append(
+            EvidenceCard(
+                item_id=item.item_id,
+                title=item.title,
+                url=item.canonical_url,
+                role=role,
+                problem=problem or "not found in evidence",
+                mechanism=mechanism,
+                math_or_objective=math_or_objective,
+                experiment=experiment,
+                limitation=limitation,
+                impact=impact,
+                transfer_hypothesis=_transfer_hypothesis(item),
+                evidence_ids={
+                    evidence_type: [chunk.evidence_id for chunk in typed_chunks]
+                    for evidence_type, typed_chunks in sorted(by_type.items())
+                },
+            )
+        )
+    return cards
+
+
+def _selector_role(ranked: RankedItem) -> str:
+    role = str(ranked.item.extra.get("selector_role", "") or "").lower()
+    return "supporting" if role == "supporting" else "primary"
+
+
+def _chunk_text(by_type: dict[str, list[EvidenceChunk]], evidence_type: str) -> str:
+    chunks = by_type.get(evidence_type, [])
+    return chunks[0].text if chunks else "not found in evidence"
+
+
+def _best_sentence(chunks: list[EvidenceChunk], cues: tuple[str, ...]) -> str:
+    for chunk in chunks:
+        lower = chunk.text.lower()
+        if any(cue in lower for cue in cues):
+            return chunk.text
+    return chunks[0].text if chunks else ""
+
+
+def _transfer_hypothesis(item) -> str:
+    blob = f"{item.title} {item.abstract_or_excerpt} {' '.join(item.tags)}".lower()
+    if any(cue in blob for cue in ("drawing", "sheet", "pdf", "ocr", "layout", "document")):
+        return "Directly relevant to 2D document intelligence workflows."
+    if any(cue in blob for cue in ("cad", "bim", "ifc", "revit", "construction", "building")):
+        return "Directly relevant to AEC model and building-data workflows."
+    if any(cue in blob for cue in ("evaluation", "benchmark", "retrieval", "rag", "agent")):
+        return "Transferable as an evaluation or agent-system pattern for AEC document products."
+    if any(cue in blob for cue in ("inference", "latency", "throughput", "serving", "quantization")):
+        return "Transferable as production infrastructure for document-scale model serving."
+    return "Potentially relevant as adjacent ML research; validate transfer before adoption."
 
 
 def _chunks_for_item(ranked: RankedItem, offset: int, *, max_chunks: int) -> list[EvidenceChunk]:

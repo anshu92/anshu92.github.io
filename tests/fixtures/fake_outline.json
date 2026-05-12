@@ -3,13 +3,13 @@
   "angle": "Recent papers matter because they turn long-context, retrieval, and agent behavior into measurable engineering boundaries for AEC document workflows.",
   "sections": [
     {
-      "heading": "Why this batch matters for AEC foundation-model work",
-      "intent": "technical thesis and Autodesk AEC document relevance",
+      "heading": "Document-model reliability starts with measurable failure boundaries",
+      "intent": "technical thesis angle framing Autodesk AEC document relevance",
       "evidence_ids": ["E1", "E5", "E6"],
       "word_budget": 220
     },
     {
-      "heading": "Cache and retrieval boundaries are becoming model architecture",
+      "heading": "Cache and retrieval boundaries become architecture",
       "intent": "mechanism method architecture pipeline",
       "evidence_ids": ["E1", "E3"],
       "word_budget": 240
@@ -27,8 +27,8 @@
       "word_budget": 220
     },
     {
-      "heading": "What I would test before trusting these results",
-      "intent": "limitations caveat failure risk tradeoff",
+      "heading": "Cross-paper tradeoffs change the adoption plan",
+      "intent": "cross-paper synthesis compare contrast tradeoff limitations caveat failure risk",
       "evidence_ids": ["E1", "E4", "E5"],
       "word_budget": 220
     },

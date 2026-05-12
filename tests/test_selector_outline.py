@@ -92,11 +92,11 @@ def test_selector_prefers_aec_2d_document_candidates():
     fake = {
         "selected_item_ids": ["aec-doc", "cad", "rag", "agent", "systems"],
         "items": [
-            {"item_id": "aec-doc", "relevance_label": "direct_aec_2d", "reason": "direct", "suggested_tags": ["aec", "document-ai"]},
-            {"item_id": "cad", "relevance_label": "direct_aec_2d", "reason": "direct", "suggested_tags": ["cad"]},
-            {"item_id": "rag", "relevance_label": "aec_adjacent", "reason": "adjacent", "suggested_tags": ["mle"]},
-            {"item_id": "agent", "relevance_label": "ml_engineering", "reason": "adjacent", "suggested_tags": ["llm"]},
-            {"item_id": "systems", "relevance_label": "ml_engineering", "reason": "adjacent", "suggested_tags": ["mle"]},
+            {"item_id": "aec-doc", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "direct", "suggested_tags": ["aec", "document-ai"]},
+            {"item_id": "cad", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "direct", "suggested_tags": ["cad"]},
+            {"item_id": "rag", "role": "primary", "relevance_label": "aec_adjacent", "reason": "adjacent", "suggested_tags": ["mle"]},
+            {"item_id": "agent", "role": "primary", "relevance_label": "ml_engineering", "reason": "adjacent", "suggested_tags": ["llm"]},
+            {"item_id": "systems", "role": "supporting", "relevance_label": "ml_engineering", "reason": "adjacent", "suggested_tags": ["mle"]},
         ],
         "suggested_tags": ["aec", "document-ai"],
     }
@@ -105,6 +105,8 @@ def test_selector_prefers_aec_2d_document_candidates():
     assert "aec-doc" in selected_ids
     assert "generic" not in selected_ids
     assert result.items[0].relevance_label == "direct_aec_2d"
+    assert sum(1 for r in selected if r.item.extra.get("selector_role") == "primary") == 4
+    assert sum(1 for r in selected if r.item.extra.get("selector_role") == "supporting") <= 2
 
 
 def test_selector_malformed_json_blocks_publication():
@@ -126,6 +128,7 @@ def test_selector_salvages_selected_ids_from_truncated_json():
     selected, result = select_daily_items(ranked, llm=FakeLLM(raw))
     assert [r.item.item_id for r in selected[:2]] == ["p2", "p1"]
     assert result.selected_item_ids[:2] == ["p2", "p1"]
+    assert result.items[0].role == "primary"
 
 
 def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
@@ -137,7 +140,7 @@ def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
     ]
     fake = {
         "selected_item_ids": ["p3", "p2", "p1"],
-        "items": [{"item_id": "p3", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
+        "items": [{"item_id": "p3", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
         "suggested_tags": ["aec"],
     }
     llm = RecordingLLM(json.dumps(fake))
@@ -155,7 +158,7 @@ def test_selector_uses_selector_task_for_llm_client():
     ]
     fake = {
         "selected_item_ids": ["p2", "p1"],
-        "items": [{"item_id": "p2", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
+        "items": [{"item_id": "p2", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
         "suggested_tags": ["aec"],
     }
     llm = TaskRecordingLLM([json.dumps(fake)])
@@ -180,6 +183,25 @@ def test_outline_missing_required_intent_fails():
     errors = validate_outline(outline, pack)
     assert "missing_outline_intent:autodesk_relevance" in errors
     assert any(error.startswith("missing_outline_intent:") for error in errors)
+
+
+def test_outline_rejects_generic_corporate_headings():
+    ranked = _fixture_ranked()
+    pack = build_daily_pack(ranked[:5])
+    outline = DailyOutline(
+        title="Generic",
+        angle="Generic angle",
+        sections=[
+            {"heading": "Navigating the Future of AI", "intent": "technical thesis angle framing", "evidence_ids": ["E1"], "word_budget": 300},
+            {"heading": "Mechanisms", "intent": "mechanism method architecture pipeline", "evidence_ids": ["E1"], "word_budget": 300},
+            {"heading": "Objectives", "intent": "math objective metric optimization", "evidence_ids": ["E1"], "word_budget": 300},
+            {"heading": "Experiments", "intent": "experiments evidence benchmark evaluation", "evidence_ids": ["E1"], "word_budget": 300},
+            {"heading": "Limits", "intent": "limitations caveat failure risk tradeoff", "evidence_ids": ["E1"], "word_budget": 300},
+            {"heading": "Comparison", "intent": "cross-paper synthesis compare contrast tradeoff", "evidence_ids": ["E1"], "word_budget": 300},
+            {"heading": "Adoption", "intent": "impact engineering production practical Autodesk AEC document", "evidence_ids": ["E1"], "word_budget": 300},
+        ],
+    )
+    assert any(error.startswith("generic_outline_heading:") for error in validate_outline(outline, pack))
 
 
 def test_generate_outline_malformed_json_uses_fallback_outline():

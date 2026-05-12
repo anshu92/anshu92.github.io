@@ -9,31 +9,71 @@
   "items": [
     {
       "item_id": "arxiv:2605.00001",
+      "role": "primary",
       "relevance_label": "ml_engineering",
+      "scores": {
+        "aec_document_relevance": 0.62,
+        "transferable_mechanism": 0.9,
+        "experiment_strength": 0.78,
+        "engineering_actionability": 0.88,
+        "novelty": 0.7
+      },
       "reason": "Cache-aware long-context inference is relevant to document-scale agent workloads.",
       "suggested_tags": ["llm", "mle"]
     },
     {
       "item_id": "url:0bb755d6e56ce424bc31",
+      "role": "primary",
       "relevance_label": "ml_engineering",
+      "scores": {
+        "aec_document_relevance": 0.58,
+        "transferable_mechanism": 0.84,
+        "experiment_strength": 0.82,
+        "engineering_actionability": 0.86,
+        "novelty": 0.7
+      },
       "reason": "Tool-use failure modes matter for drawing and document agents.",
       "suggested_tags": ["llm", "mle"]
     },
     {
       "item_id": "arxiv:2605.00002",
+      "role": "primary",
       "relevance_label": "aec_adjacent",
+      "scores": {
+        "aec_document_relevance": 0.82,
+        "transferable_mechanism": 0.78,
+        "experiment_strength": 0.8,
+        "engineering_actionability": 0.9,
+        "novelty": 0.72
+      },
       "reason": "RAG evaluation pipelines map to retrieval over sheets, specs, and construction documents.",
       "suggested_tags": ["document-ai", "mle"]
     },
     {
       "item_id": "url:c7572541ccdee07d456d",
+      "role": "supporting",
       "relevance_label": "direct_aec_2d",
+      "scores": {
+        "aec_document_relevance": 0.9,
+        "transferable_mechanism": 0.6,
+        "experiment_strength": 0.45,
+        "engineering_actionability": 0.78,
+        "novelty": 0.55
+      },
       "reason": "BIM, IFC, Revit graph extraction, and facility workflows are directly relevant to AEC foundation models.",
       "suggested_tags": ["aec", "bim", "cad"]
     },
     {
       "item_id": "url:5face7348982b3ed6ded",
+      "role": "supporting",
       "relevance_label": "supporting_blog",
+      "scores": {
+        "aec_document_relevance": 0.3,
+        "transferable_mechanism": 0.75,
+        "experiment_strength": 0.45,
+        "engineering_actionability": 0.8,
+        "novelty": 0.5
+      },
       "reason": "Kernel fusion and profiling provide supporting production context.",
       "suggested_tags": ["mle"]
     }

@@ -135,6 +135,18 @@ def test_evidence_chunks_are_typed():
     assert "impact" in types
 
 
+def test_daily_pack_builds_structured_evidence_cards():
+    pack = _pack()
+    assert pack.evidence_cards
+    first = pack.evidence_cards[0]
+    assert first.role == "primary"
+    assert first.problem
+    assert first.mechanism != "not found in evidence"
+    assert first.evidence_ids["mechanism"]
+    assert any(card.math_or_objective == "not found in evidence" for card in pack.evidence_cards)
+    assert any("AEC" in card.transfer_hypothesis or "document" in card.transfer_hypothesis for card in pack.evidence_cards)
+
+
 def test_generic_roundup_without_required_sections_fails():
     pack = _pack()
     body = """
@@ -144,6 +156,63 @@ Generic roundup text with a source [E1]. Source: https://arxiv.org/abs/2605.0000
 """
     errors = validate_body(body, pack, outline=_outline())
     assert "generic_roundup_structure" in errors or any(e.startswith("missing_daily_concept:") for e in errors)
+
+
+def test_generic_corporate_prose_fails_signal_rubric(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "50")
+    pack = _pack()
+    body = """
+## Document-model reliability starts with measurable failure boundaries
+This thesis is about digital transformation and the rapid evolution of artificial intelligence. The method, objective, benchmark, limitation, risk, impact, production, engineering, Autodesk, AEC, document, drawing, and tradeoff are mentioned only as broad strategy words. It is crucial and paramount, paving the way for a holistic strategy. [E1] Source: https://arxiv.org/abs/2605.00001
+
+## Retrieval memory should be measured as a product boundary
+This is a game-changer for digital transformation and it will revolutionize workflows. The architecture, pipeline, metric, experiment, evaluation, adoption, and production story remains generic. [E3] Source: https://openreview.net/forum
+
+## Cache and retrieval boundaries become architecture
+This section says the future is bright and important. It names benchmark and mechanism but gives no concrete adoption blocker. [E4] Source: https://openreview.net/forum
+
+## Cross-paper tradeoffs change the adoption plan
+Across these items there is a comparison and tradeoff, but the wording still stays at corporate altitude and does not make an engineering decision. [E5] Source: https://arxiv.org/abs/2605.00002
+
+## Release gates for AEC document intelligence
+The Autodesk AEC document path needs production validation, monitoring, and practical evaluation before deployment. [E5] Source: https://arxiv.org/abs/2605.00002
+"""
+    errors = validate_body(body, pack, outline=_outline())
+    assert any(error.startswith("generic_phrase_density:") for error in errors)
+    assert any(error.startswith("low_signal:") for error in errors)
+
+
+def test_paper_by_paper_summary_without_synthesis_fails(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "50")
+    pack = _pack()
+    body = """
+## Document-model reliability starts with measurable failure boundaries
+Thesis claim: document systems need reliable evidence before release. Cache-Aware Long Context Inference for Language Model Agents proposes a method with cache architecture, retrieval mechanism, benchmark evidence, latency evaluation, and production risk for AEC document inference. [E1] Source: https://arxiv.org/abs/2605.00001
+
+## Retrieval memory should be measured as a product boundary
+Agent Evaluation with Tool Use Failure Modes introduces a benchmark, evaluation pipeline, experiment design, failure category, risk, objective, metric, and production implication for agentic drawing review. [E3] Source: https://openreview.net/forum [E4] Source: https://openreview.net/forum
+
+## Cache and retrieval boundaries become architecture
+Reproducible Evaluation Pipelines for RAG Systems introduces dataset curation, monitoring, benchmark slices, observability metric, deployment mechanism, limitation, and practical engineering impact for document retrieval. [E5] Source: https://arxiv.org/abs/2605.00002
+
+## Cross-paper tradeoffs change the adoption plan
+The sections above list each paper in sequence. The adoption decision is to prototype release gates, rollback monitoring, and latency budget checks for Autodesk AEC document systems. [E5] Source: https://arxiv.org/abs/2605.00002
+
+## Release gates for AEC document intelligence
+Autodesk AEC document and drawing workflows need a practical prototype before deployment, with objective scoring, benchmark slices, evaluation evidence, risk review, and production monitoring. [E1] Source: https://arxiv.org/abs/2605.00001
+"""
+    errors = validate_body(body, pack, outline=_outline())
+    assert "paper_by_paper_summary_without_synthesis" in errors
+
+
+def test_first_person_autodesk_claim_fails():
+    pack = _pack()
+    body = (
+        Path("tests/fixtures/fake_daily.md").read_text()
+        + "\n\nAs a Principal Machine Learning Engineer at Autodesk, my focus is this claim [E1]. "
+        "Source: https://arxiv.org/abs/2605.00001\n"
+    )
+    assert "first_person_autodesk_claim" in validate_body(body, pack, outline=_outline())
 
 
 def test_single_source_daily_post_fails_even_with_required_sections():
@@ -170,7 +239,7 @@ The practical impact is described without connecting the broader paper set [E5].
 Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
 """
     errors = validate_body(body, pack, outline=_outline())
-    assert any(error.startswith("insufficient_cited_items:") for error in errors)
+    assert any(error.startswith("insufficient_cited_primary_items:") for error in errors)
     assert any(error.startswith("insufficient_cited_papers:") for error in errors)
     assert any(error.startswith("daily_too_short:") for error in errors)
 
@@ -193,7 +262,7 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     assert "VALIDATOR_ERRORS" in calls[1]
     assert "CITED_SOURCE_URLS" in calls[1]
     assert "OUTLINE" in calls[1]
-    assert "Why this batch matters for AEC foundation-model work" in calls[1]
+    assert "Document-model reliability starts with measurable failure boundaries" in calls[1]
     assert "99.9%" not in calls[1]
 
 

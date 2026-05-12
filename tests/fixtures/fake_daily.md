@@ -1,10 +1,10 @@
-## Why this batch matters for AEC foundation-model work
+## Document-model reliability starts with measurable failure boundaries
 
 The useful thread in this batch is that several papers move model behavior from vague capability claims into measurable engineering boundaries. From the point of view of a Principal MLE evaluating AEC foundation-model work, that is exactly the shift that matters. A foundation model for drawings, sheets, plans, specifications, and BIM-linked documents has to reason across long context, retrieve the right project evidence, and expose failure modes that can be debugged before a product team trusts it. The cache-aware long-context paper, the RAG evaluation paper, and the agent evaluation paper each attack one part of that system boundary [E1] [E3] [E5]. Sources: https://arxiv.org/abs/2605.00001 https://openreview.net/forum https://arxiv.org/abs/2605.00002
 
 The AEC signal is clearest in the Autodesk Research source, which connects BIM, IFC, HVAC, digital twins, facility operations, and Revit graph extraction to deployment workflows [E6]. That source is not a paper, so it should not dominate the post, but it provides the domain check: methods only matter if they can survive messy building data, 2D document context, and production constraints. The PyTorch infrastructure post adds the serving and training lens: kernel fusion, profiling, latency, memory layout, monitoring, and throughput tradeoffs shape whether a promising method can be deployed [E8]. Sources: https://www.research.autodesk.com/blog/bim-digital-twin-controls https://pytorch.org/blog/kernel-fusion-training-throughput
 
-## Cache and retrieval boundaries are becoming model architecture
+## Cache and retrieval boundaries become architecture
 
 The cache-aware long-context paper frames agent inference as a mechanism problem around retrieval boundaries, KV cache movement, and throughput [E1]. That framing is important because long context is not just a model-size story. In a document-heavy AEC workflow, a system may need to carry sheet notes, schedules, callouts, raster evidence, OCR text, and linked BIM context through an agent loop. The question is not only whether the model can accept more tokens; it is whether the inference path can move the right context through memory without turning every interaction into an expensive full-document pass. Source: https://arxiv.org/abs/2605.00001
 
@@ -28,7 +28,7 @@ The RAG evaluation paper defines measurement objectives around benchmark slices,
 
 The agent evaluation paper gives an implicit objective for tool-use systems: preserve enough failure structure that engineering teams can decide what to fix [E3] [E4]. That is a mathematically modest objective, but an operationally important one. If a benchmark can distinguish retrieval errors from reasoning failures, it supports targeted intervention. The model team can improve prompts or planning for reasoning issues, the retrieval team can revise indexing and chunking, and the platform team can address latency and tool reliability. Sources: https://openreview.net/forum
 
-## What I would test before trusting these results
+## Cross-paper tradeoffs change the adoption plan
 
 The main limitation is that the evidence here is compact. For the cache-aware paper, I would want to inspect the full benchmark, workload assumptions, cache policy, and failure cases before using the latency result as a production planning number [E1]. In an AEC setting, the important test is not just generic long-context traces. It is whether the method handles sheet-level references, repeated details, OCR noise, title-block metadata, and cross-document dependencies without increasing hallucination risk. Source: https://arxiv.org/abs/2605.00001
 

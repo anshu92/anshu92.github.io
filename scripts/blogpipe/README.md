@@ -4,10 +4,11 @@ Blogpipe is now a metadata-first research radar for Synaptic Radio. It ingests
 papers and first-party engineering blogs, stores normalized records in SQLite +
 FTS5, ranks them deterministically, builds compact evidence packs, and asks a
 single OpenAI-compatible LLM pipeline to produce evidence-grounded Hugo posts.
-Generated posts are paper-first technical blogs planned for a Principal Machine
-Learning Engineer at Autodesk evaluating AEC foundation models and 2D document
-intelligence. Source blogs are used as supporting engineering context rather
-than as generic roundup items.
+Generated posts are paper-first technical synthesis blogs planned for a
+Principal Machine Learning Engineer at Autodesk evaluating AEC foundation models
+and 2D document intelligence. Daily posts now prioritize depth over breadth:
+they should build one sharp thesis around 3-4 primary papers, with optional
+supporting mentions only when they clarify a tradeoff or adoption decision.
 
 ## Commands
 
@@ -80,6 +81,10 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
 - `BLOGPIPE_DAILY_MIN_WORDS` (default `1200`)
+- `BLOGPIPE_DAILY_PRIMARY_PAPERS` (default `4`)
+- `BLOGPIPE_DAILY_SUPPORTING_ITEMS` (default `2`)
+- `BLOGPIPE_MIN_SIGNAL_SCORE` (default `0.75`)
+- `BLOGPIPE_GENERIC_PHRASE_MAX_DENSITY` (default `0.015`)
 - `BLOGPIPE_MIN_PAPERS` (default `4`)
 - `BLOGPIPE_MAX_BLOGS` (default `2`)
 - `BLOGPIPE_PROFILE_RESULTS` (default `40`)
@@ -100,20 +105,73 @@ MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
 queries a small best-effort venue list unless overridden. The 72h recency window
 is strict for live sources; undated or stale items are dropped before ranking.
 
-The daily flow asks the selector LLM to choose directly from all available
-paper titles in the current run for Autodesk/AEC foundation-model and
-2D-document work, rather than pre-filtering with score-ranked candidate slices.
+The daily flow asks the selector LLM to choose directly from all available paper
+titles in the current run for Autodesk/AEC foundation-model and 2D-document
+work, rather than pre-filtering with score-ranked candidate slices. The selector
+classifies selected items as:
 
-An LLM outline stage then creates natural post headings. The writer now drafts
-each section with separate LLM calls and then runs a final editor LLM pass to
-merge, de-duplicate, and polish the full draft. Validation still requires
-method/objective, experiment, limitation, impact, and Autodesk/AEC/document
-relevance coverage, resolved evidence IDs, source links, supported numbers, and
-at least `BLOGPIPE_DAILY_MIN_WORDS` words. Single-source or generic summaries
-are blocked instead of published. When the draft contains unsupported numeric
-claims, blogpipe first rewrites them into qualitative phrasing before giving up
-on the run. Frontmatter tags are derived from the actual selected/cited content
-rather than applying every global radar tag.
+- `primary`: papers that must receive deep treatment in the article.
+- `supporting`: optional context used briefly for comparison, implementation
+  detail, or an "also watch" mention.
+
+The selector scores candidates for direct AEC/document relevance, transferable
+mechanism, experiment strength, engineering actionability, and novelty relative
+to prior radar posts. It should prefer a coherent thesis cluster over topic
+diversity for its own sake.
+
+## Daily Synthesis Format
+
+For each primary paper, blogpipe builds a structured evidence card with:
+
+- problem statement
+- core mechanism or architecture
+- objective, metric, or math detail when present
+- evaluation setup
+- key result text without invented numbers
+- limitations or failure modes
+- AEC / 2D-document transfer hypothesis
+
+An LLM outline stage then creates thesis-led natural headings instead of public
+template sections. Good headings name the technical object or tradeoff:
+
+- `Executable CAD is the evaluation target, not visual plausibility`
+- `Layout preservation is a systems problem, not a translation feature`
+- `Grounding confidence needs counterfactual visual evidence`
+
+Bad headings are blocked or repaired because they add noise:
+
+- `Navigating the Future`
+- `Bridging the Digital Divide`
+- `Our Path Forward`
+- `AI's Blueprint for AEC`
+
+The writer drafts each section with separate LLM calls and then runs a final
+editor pass. Each section should open with a concrete claim, walk through the
+mechanism, state the engineering implication, and name a limitation or adoption
+blocker. The editor removes corporate transformation language, repeated
+`crucial` / `paramount` / `game-changer` phrasing, unsupported first-person
+Autodesk claims, and paper-by-paper abstract summaries that lack synthesis.
+
+Validation requires method/objective, experiment, limitation, impact, and
+Autodesk/AEC/document relevance coverage, resolved evidence IDs, source links,
+supported numbers, at least `BLOGPIPE_DAILY_MIN_WORDS` words, and enough cited
+primary papers. It also runs a signal rubric:
+
+- `technical_specificity`: concrete algorithms, objectives, system components,
+  or evaluation design.
+- `engineering_judgment`: adoption decision, blocker, prototype recommendation,
+  benchmark, release gate, or production risk.
+- `synthesis`: cross-paper comparison or tradeoff.
+- `noise_control`: low density of generic strategy/corporate phrases.
+- `primary_depth`: each primary paper has mechanism evidence and a limitation,
+  experiment, or objective when available.
+
+Low-signal drafts are blocked, not merely warned. Blocked reports include the
+validator errors, rubric scores, and examples of failing text where available.
+When a draft contains unsupported numeric claims, blogpipe first rewrites them
+into qualitative phrasing before giving up on the run. Frontmatter tags are
+derived from the actual selected/cited content rather than applying every global
+radar tag.
 
 Generated posts also embed:
 - one mermaid flow graph (paper/source map)
