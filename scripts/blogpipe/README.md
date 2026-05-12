@@ -16,6 +16,17 @@ python -m blogpipe render-assets
 python -m blogpipe run
 ```
 
+## Publishing flow
+
+The scheduled `Research radar` workflow does not publish directly. It generates
+Hugo posts with `draft: true`, pushes them to a `radar/draft-*` branch, opens a
+pull request, and emails the PR link for review.
+
+Merge the generated PR to approve publication. The
+`Publish approved research radar` workflow then flips changed draft posts to
+`draft: false`, commits that publish change to `main`, builds Hugo, and deploys
+GitHub Pages.
+
 For local fixture checks:
 
 ```bash

@@ -161,7 +161,7 @@ def _frontmatter(title: str, post_type: str, pack: EvidencePack) -> str:
         [
             "---",
             f'date: "{datetime.now(timezone.utc).date().isoformat()}"',
-            "draft: false",
+            "draft: true",
             f'title: "{_yaml_escape(title)}"',
             f"post_type: {post_type}",
             "categories: [\"Machine Learning\"]",

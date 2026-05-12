@@ -1,0 +1,80 @@
+name: Publish approved research radar
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'radar/draft-')
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.147.9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish merged draft posts
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git pull origin main
+          BASE="${{ github.event.pull_request.base.sha }}"
+          MERGE="${{ github.event.pull_request.merge_commit_sha }}"
+          CHANGED="$(git diff --name-only "$BASE" "$MERGE" -- content/post/ || true)"
+          echo "Changed posts: $CHANGED"
+          ANY=0
+          for file in $CHANGED; do
+            [ -f "$file" ] || continue
+            if grep -q '^draft: true$' "$file"; then
+              sed -i 's/^draft: true$/draft: false/' "$file"
+              ANY=1
+            fi
+          done
+          if [ "$ANY" -eq 1 ]; then
+            git add content/post/
+            git commit -m "chore(blog): publish approved research radar"
+            git push origin main
+          else
+            echo "No draft posts needed publishing."
+          fi
+
+      - name: Install Hugo
+        run: |
+          wget -O "${RUNNER_TEMP}/hugo.deb" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
+          sudo dpkg -i "${RUNNER_TEMP}/hugo.deb"
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build Hugo site
+        env:
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./public
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

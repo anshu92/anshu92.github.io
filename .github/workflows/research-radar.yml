@@ -7,18 +7,15 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
+  pull-requests: write
 
 concurrency:
   group: research-radar
   cancel-in-progress: false
 
 jobs:
-  generate-and-deploy:
+  generate-draft:
     runs-on: ubuntu-latest
-    env:
-      HUGO_VERSION: 0.147.9
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,38 +49,47 @@ jobs:
           AEC_SCHOLAR_RSS: ${{ vars.AEC_SCHOLAR_RSS }}
         run: python -m blogpipe run --window 72h
 
-      - name: Commit generated source content
+      - name: Create draft branch and PR
+        id: draft_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -n "$(git status --porcelain content radar-data static/img/posts data)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            SLUG="$(date -u +%F)-research-radar"
+            BR="radar/draft-${SLUG}-${GITHUB_RUN_ID}"
+            git checkout -b "$BR"
             git add content radar-data static/img/posts
             if [ -d data ]; then git rm -r --ignore-unmatch data; fi
-            git commit -m "chore(blog): research radar update"
-            git push
+            git commit -m "chore(blog): draft research radar $SLUG"
+            git push -u origin "$BR"
+            PR_URL="$(gh pr create \
+              --base main \
+              --head "$BR" \
+              --title "Research radar draft: $SLUG" \
+              --body "Automated research radar draft. Review and merge this PR to publish.")"
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+            echo "$PR_URL" > reports/pr_url.txt
+          else
+            echo "No generated changes to review."
+            echo "pr_url=" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Install Hugo
-        run: |
-          wget -O "${RUNNER_TEMP}/hugo.deb" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"
-          sudo dpkg -i "${RUNNER_TEMP}/hugo.deb"
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
-      - name: Build Hugo site
-        env:
-          HUGO_ENVIRONMENT: production
-          HUGO_ENV: production
-        run: hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Send approval email
+        if: steps.draft_pr.outputs.pr_url != ''
+        uses: dawidd6/action-send-mail@v4
         with:
-          path: ./public
-
-      - name: Deploy Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "[Research radar draft] approval needed"
+          to: ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
+          from: Research Radar <${{ secrets.EMAIL_USERNAME }}>
+          html_body: |
+            <p>A new research radar draft is ready for review.</p>
+            <p><a href="${{ steps.draft_pr.outputs.pr_url }}">Open the draft PR</a></p>
+            <p>Merge the PR to publish it.</p>

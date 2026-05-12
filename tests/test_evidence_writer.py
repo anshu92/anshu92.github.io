@@ -37,6 +37,7 @@ def test_valid_llm_daily_post_passes(monkeypatch, tmp_path):
     result = write_daily(pack, llm=LLMClient(), dry_run=True)
     assert result.ok, result.errors
     assert result.path.startswith("reports/")
+    assert "draft: true" in (tmp_path / result.path).read_text()
 
 
 def test_unsupported_number_fails():
