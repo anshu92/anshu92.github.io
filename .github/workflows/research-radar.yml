@@ -73,7 +73,8 @@ jobs:
           GH_TOKEN: ${{ secrets.PR_CREATION_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          if [[ -n "$(git status --porcelain content)" ]]; then
+          BLOCKED_REPORT="$(find reports -maxdepth 1 -name '*.blocked.json' -print -quit 2>/dev/null || true)"
+          if [[ -n "$(git status --porcelain content radar-data static/img/posts)" ]]; then
             mkdir -p reports
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -98,10 +99,25 @@ jobs:
               PR_URL="$FALLBACK_PR_URL"
             fi
             echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+            echo "blocked_report=" >> "$GITHUB_OUTPUT"
+            echo "blocked_summary=" >> "$GITHUB_OUTPUT"
             echo "$PR_URL" > reports/pr_url.txt
+          elif [[ -n "$BLOCKED_REPORT" ]]; then
+            BLOCKED_SUMMARY="$(python -c 'import json,sys; data=json.load(open(sys.argv[1], encoding=\"utf-8\")); print(\"; \".join(data.get(\"errors\", [])[:8]))' "$BLOCKED_REPORT")"
+            echo "::warning::Draft generation was blocked by validation."
+            echo "$BLOCKED_SUMMARY"
+            echo "pr_url=" >> "$GITHUB_OUTPUT"
+            echo "blocked_report=$BLOCKED_REPORT" >> "$GITHUB_OUTPUT"
+            {
+              echo "blocked_summary<<EOF"
+              echo "$BLOCKED_SUMMARY"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "No generated changes to review."
             echo "pr_url=" >> "$GITHUB_OUTPUT"
+            echo "blocked_report=" >> "$GITHUB_OUTPUT"
+            echo "blocked_summary=" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Send approval email
@@ -120,3 +136,20 @@ jobs:
             <p>A new research radar draft is ready for review.</p>
             <p><a href="${{ steps.draft_pr.outputs.pr_url }}">Open or create the draft PR</a></p>
             <p>Merge the PR to publish it. If the link opens GitHub's new-PR page, create the PR first.</p>
+
+      - name: Send blocked-run email
+        if: steps.draft_pr.outputs.pr_url == '' && steps.draft_pr.outputs.blocked_report != ''
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "[Research radar blocked] validation prevented draft creation"
+          to: ${{ secrets.EMAIL_TO || secrets.EMAIL_USERNAME }}
+          from: Research Radar <${{ secrets.EMAIL_USERNAME }}>
+          html_body: |
+            <p>Research radar generation completed, but validation blocked draft creation.</p>
+            <p><strong>Summary:</strong> ${{ steps.draft_pr.outputs.blocked_summary }}</p>
+            <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">Open the workflow run</a></p>

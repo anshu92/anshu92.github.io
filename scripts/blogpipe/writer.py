@@ -385,7 +385,9 @@ def _final_editor_system(post_type: str) -> str:
         "Preserve evidence markers [E#] and include source URL links for substantive claims. "
         "Keep section headings specific and non-generic. "
         "Ensure one mermaid diagram block is present and include the provided SVG image links in the body. "
-        "Do not invent claims, numbers, or references. Output Markdown only."
+        "Do not invent claims, numbers, or references. "
+        "If a numeric detail is not explicitly grounded in evidence, rewrite it qualitatively instead of guessing. "
+        "Output Markdown only."
     )
 
 
@@ -448,7 +450,7 @@ def _validate_repair_and_publish(
 ) -> WriteResult:
     _prepare_visual_assets(pack, slug)
     body = _ensure_visual_blocks(body, pack, slug)
-    errors = validate_body(body, pack, outline=outline)
+    body, errors = _sanitize_then_validate(body, pack, outline=outline)
     repair_attempted = False
     if errors:
         repair_attempted = True
@@ -456,7 +458,7 @@ def _validate_repair_and_publish(
         try:
             body = _call_writer(client, _repair_system(), repair_user, task="repair")
             body = _ensure_visual_blocks(body, pack, slug)
-            errors = validate_body(body, pack, outline=outline)
+            body, errors = _sanitize_then_validate(body, pack, outline=outline)
         except Exception as exc:
             errors.append(f"repair_failed:{exc}")
     if errors:
@@ -569,7 +571,8 @@ def _repair_system() -> str:
         "Repair Markdown for factuality and source grounding. Return only Markdown body. "
         "Keep the required daily technical sections when repairing daily posts. "
         "Every substantive paragraph must include valid evidence IDs such as [E1] and source URLs from the evidence pack. "
-        "Do not add unsupported facts. Remove claims that cannot be tied to evidence."
+        "Do not add unsupported facts. Remove claims that cannot be tied to evidence. "
+        "When a numeric detail is unsupported, replace it with qualitative wording instead of inventing a new number."
     )
 
 
@@ -634,8 +637,76 @@ def _repair_safe_draft(body: str, errors: list[str]) -> str:
     for error in errors:
         if error.startswith("unsupported_number:"):
             token = error.split(":", 1)[1]
-            safe = safe.replace(token, "[unsupported number]")
+            safe = safe.replace(token, "[qualitative wording only]")
     return safe
+
+
+def _sanitize_then_validate(
+    body: str,
+    pack: EvidencePack,
+    *,
+    outline: DailyOutline | None,
+) -> tuple[str, list[str]]:
+    errors = validate_body(body, pack, outline=outline)
+    if not any(error.startswith("unsupported_number:") for error in errors):
+        return body, errors
+    sanitized = _sanitize_unsupported_numbers(body, errors)
+    if sanitized == body:
+        return body, errors
+    sanitized_errors = validate_body(sanitized, pack, outline=outline)
+    return sanitized, sanitized_errors
+
+
+def _sanitize_unsupported_numbers(body: str, errors: list[str]) -> str:
+    tokens = sorted(
+        {
+            error.split(":", 1)[1]
+            for error in errors
+            if error.startswith("unsupported_number:") and ":" in error
+        },
+        key=len,
+        reverse=True,
+    )
+    if not tokens:
+        return body
+    lines = (body or "").splitlines()
+    cleaned: list[str] = []
+    in_fence = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            cleaned.append(line)
+            continue
+        if in_fence or stripped.startswith("#"):
+            cleaned.append(line)
+            continue
+        updated = line
+        for token in tokens:
+            if token not in updated:
+                continue
+            updated = _replace_numeric_token(updated, token)
+        cleaned.append(updated)
+    return "\n".join(cleaned)
+
+
+def _replace_numeric_token(line: str, token: str) -> str:
+    pattern = re.compile(rf"(?<![\w-]){re.escape(token)}(?![\w-])")
+    replacement = _qualitative_number_replacement(line, token)
+    return pattern.sub(replacement, line)
+
+
+def _qualitative_number_replacement(line: str, token: str) -> str:
+    lower = line.lower()
+    if token.endswith("%"):
+        if any(cue in lower for cue in ("latency", "runtime", "throughput", "accuracy", "score", "benchmark")):
+            return "a reported margin"
+        return "a measurable margin"
+    if any(cue in lower for cue in ("benchmark", "task", "dataset", "example", "sample", "document", "drawing", "sheet")):
+        return "multiple"
+    if any(cue in lower for cue in ("parameter", "token", "layer", "step", "epoch")):
+        return "many"
+    return "several"
 
 
 def _prepare_visual_assets(pack: EvidencePack, slug: str) -> None:

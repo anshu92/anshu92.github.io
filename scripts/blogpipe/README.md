@@ -26,6 +26,11 @@ The scheduled `Research radar` workflow does not publish directly. It generates
 Hugo posts with `draft: true`, pushes them to a `radar/draft-*` branch, opens a
 pull request, and emails the PR link for review.
 
+If validation blocks the draft, the workflow does not publish or open a review
+PR. Instead it writes a blocked report under `reports/` and sends a failure
+email with the workflow run link and validator summary so the run does not fail
+silently.
+
 If repository settings block GitHub Actions from creating pull requests, the
 workflow still pushes the branch and emails a GitHub PR creation URL. To restore
 fully automatic PR creation, enable "Allow GitHub Actions to create and approve
@@ -105,8 +110,10 @@ merge, de-duplicate, and polish the full draft. Validation still requires
 method/objective, experiment, limitation, impact, and Autodesk/AEC/document
 relevance coverage, resolved evidence IDs, source links, supported numbers, and
 at least `BLOGPIPE_DAILY_MIN_WORDS` words. Single-source or generic summaries
-are blocked instead of published. Frontmatter tags are derived from the actual
-selected/cited content rather than applying every global radar tag.
+are blocked instead of published. When the draft contains unsupported numeric
+claims, blogpipe first rewrites them into qualitative phrasing before giving up
+on the run. Frontmatter tags are derived from the actual selected/cited content
+rather than applying every global radar tag.
 
 Generated posts also embed:
 - one mermaid flow graph (paper/source map)

@@ -197,6 +197,29 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     assert "99.9%" not in calls[1]
 
 
+def test_write_daily_auto_sanitizes_unsupported_numbers_with_source_links(monkeypatch, tmp_path):
+    pack = _pack()
+    outline = _outline()
+    selection = _selection()
+    body = (
+        Path("tests/fixtures/fake_daily.md").read_text()
+        + "\n\nThe batch spans 106 tasks across 17 benchmarks and a 900 document slice [E1]. "
+        "Source: https://arxiv.org/abs/2605.00001\n"
+    )
+
+    class StaticLLM:
+        def complete(self, *, system, user, max_tokens=None):
+            return body
+
+    _patch_root(monkeypatch, tmp_path)
+    result = write_daily(pack, outline=outline, selection=selection, llm=StaticLLM(), dry_run=True)
+    assert result.ok, result.errors
+    assert "106" not in result.body
+    assert "17" not in result.body
+    assert "900" not in result.body
+    assert "multiple tasks" in result.body or "several tasks" in result.body or "many tasks" in result.body
+
+
 def test_blocked_post_is_not_published_after_failed_repair(monkeypatch, tmp_path):
     pack = _pack()
 
