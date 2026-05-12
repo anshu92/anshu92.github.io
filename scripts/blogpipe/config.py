@@ -71,3 +71,29 @@ def semantic_scholar_key() -> str:
 
 def aec_scholar_rss() -> str:
     return _get("AEC_SCHOLAR_RSS")
+
+
+def min_papers() -> int:
+    return _int("BLOGPIPE_MIN_PAPERS", 4, 0, 8)
+
+
+def max_blogs() -> int:
+    return _int("BLOGPIPE_MAX_BLOGS", 2, 0, 8)
+
+
+def profile_results() -> int:
+    return _int("BLOGPIPE_PROFILE_RESULTS", 40, 5, 100)
+
+
+def openreview_venues() -> tuple[str, ...]:
+    raw = _get("BLOGPIPE_OPENREVIEW_VENUES")
+    if raw:
+        venues = tuple(part.strip() for part in raw.split(",") if part.strip())
+        if venues:
+            return venues
+    return (
+        "ICLR.cc/2026/Conference",
+        "ICLR.cc/2025/Conference",
+        "NeurIPS.cc/2025/Conference",
+        "ICML.cc/2026/Conference",
+    )

@@ -1,31 +1,29 @@
-## What mattered today
+## Technical thesis
 
-The useful pattern today is that inference, evaluation, and building operations are converging around evidence boundaries rather than bigger models alone. Cache-aware agents report 35% lower latency on 128k token traces [E1], while RAG evaluation and BIM digital twin work both emphasize observable pipelines over generic demos [E3] [E4].
+The technical pattern today is that recent papers are turning model behavior into measurable systems boundaries: cache movement for long-context agents, evaluation slices for RAG, and tool-use failure modes for agents [E1] [E4] [E7]. The practical impact is that teams get method-level knobs rather than only leaderboard prose. Sources: https://arxiv.org/abs/2605.00001 https://arxiv.org/abs/2605.00002 https://openreview.net/forum?id=agent-eval-2026
 
-## Top papers
+## Paper mechanisms
 
-### Cache-aware long context inference
+The cache-aware long-context paper frames agent inference as a mechanism problem around retrieval boundaries, KV cache movement, and throughput rather than a simple context-length upgrade [E1]. Its source is https://arxiv.org/abs/2605.00001.
 
-The cache paper matters because it turns long-context agent work into a systems problem: retrieval boundaries, KV cache movement, and throughput all become first-class design choices [E1]. Source: https://arxiv.org/abs/2605.00001
+The RAG evaluation paper focuses on the pipeline mechanism: dataset curation, benchmark slices, observability metrics, and reproducibility notes become the operating structure for retrieval augmented generation [E4]. Its source is https://arxiv.org/abs/2605.00002.
 
-### RAG evaluation pipelines
+The OpenReview agent evaluation paper is about failure-mode measurement for tool-using language model agents, including reasoning failures and retrieval errors [E7]. Its source is https://openreview.net/forum?id=agent-eval-2026.
 
-The RAG evaluation paper is practical because it ties dataset curation, benchmark slices, observability metrics, and reproducibility notes into one deployment-facing evaluation pipeline [E3]. Source: https://arxiv.org/abs/2605.00002
+## Math or objective details
 
-### Agent evaluation failure modes
+The evidence pack does not expose a formal loss or theorem for these papers, so the safest mathematical reading is operational: each paper defines what should be measured and optimized, such as latency, throughput, benchmark slices, reproducibility, or task-level failure categories [E1] [E4] [E7].
 
-The OpenReview agent evaluation item is useful because it measures tool-use reasoning failures and retrieval errors across 500 tasks rather than treating agent quality as a single score [E7]. Source: https://openreview.net/forum?id=agent-eval-2026
+## Experiments and limits
 
-## Top engineering blogs
+The cache paper reports 35% lower latency and ablations over retrieval boundaries, KV cache movement, and throughput [E1]. The agent evaluation paper measures tool-use reasoning failures and retrieval errors across 500 tasks, which is useful because it avoids compressing agent quality into a single opaque score [E7]. The main caveat is that the available evidence is abstract-level, so implementation details and reproduction constraints need the full papers before treating the numbers as deployment-ready.
 
-### BIM digital twins
+## Why it matters
 
-The Autodesk item is the AEC signal: BIM, IFC, HVAC, digital twins, facility operations, and Revit graph extraction appear together as an implementation workflow, not as a marketing wrapper [E4]. Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
+For ML engineers, the impact is a shift toward bounded evaluation and systems accounting: long-context agents need cache-aware inference design, RAG needs observable evaluation pipelines, and agent benchmarks need error taxonomies [E1] [E4] [E7]. That makes these papers more actionable than a generic model announcement.
 
-### Kernel fusion
+## Supporting engineering context
 
-The PyTorch engineering post is the systems signal: kernel fusion, profiling, latency, memory layout, and monitoring are framed as production throughput tradeoffs [E6]. Source: https://pytorch.org/blog/kernel-fusion-training-throughput
+The Autodesk and PyTorch posts are supporting engineering context. The Autodesk source connects BIM, IFC, HVAC, digital twins, facility operations, and Revit graph extraction into an AEC deployment workflow [E5]. Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
 
-## Cross-cutting patterns
-
-The shared lesson is to make boundaries measurable: context boundaries for agents, benchmark boundaries for RAG, graph boundaries for BIM, and kernel boundaries for training systems [E1] [E3] [E4] [E6].
+The PyTorch source connects kernel fusion, profiling, latency, memory layout, and monitoring to production throughput tradeoffs for training infrastructure [E6]. Source: https://pytorch.org/blog/kernel-fusion-training-throughput

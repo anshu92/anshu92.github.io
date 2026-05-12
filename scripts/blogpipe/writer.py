@@ -13,6 +13,7 @@ from .models import EvidencePack, RankedItem, WriteResult
 
 EVIDENCE_REF_RE = re.compile(r"\[E(\d+)\]")
 NUMBER_RE = re.compile(r"(?<![\w-])\d+(?:\.\d+)?%?(?![\w-])")
+HEADING_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.M)
 NUMERIC_CLAIM_CUES = (
     "%",
     "percent",
@@ -39,12 +40,19 @@ NUMERIC_CLAIM_CUES = (
     "reduced",
     "improved",
 )
+DAILY_REQUIRED_SECTIONS: dict[str, tuple[str, ...]] = {
+    "technical_thesis": ("technical thesis",),
+    "paper_mechanisms": ("paper mechanisms", "mechanisms"),
+    "math_or_objective": ("math", "objective"),
+    "experiments_and_limits": ("experiments", "limits"),
+    "why_it_matters": ("why it matters", "impact"),
+}
 
 
 def write_daily(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run: bool = False) -> WriteResult:
     client = llm or LLMClient()
     today = datetime.now(timezone.utc).date().isoformat()
-    title = f"Daily LLM, MLE, and AEC Technical Radar - {today}"
+    title = f"Research Radar: Paper Mechanisms and Impact - {today}"
     body = _call_writer(client, _daily_system(), _daily_user(pack, title))
     return _validate_repair_and_publish(
         client=client,
@@ -93,6 +101,8 @@ def validate_body(body: str, pack: EvidencePack) -> list[str]:
             errors.append("unsupported_number:" + number)
     if _copies_large_evidence_span(body, pack):
         errors.append("copied_large_evidence_span")
+    if pack.kind == "daily":
+        errors.extend(_validate_daily_technical_focus(body, pack))
     try:
         MarkdownIt().parse(body)
     except Exception as exc:
@@ -180,6 +190,7 @@ def _frontmatter(title: str, post_type: str, pack: EvidencePack) -> str:
 def _daily_system() -> str:
     return (
         "You are writing Synaptic Radio, a technical ML research blog. Write polished Markdown, not JSON. "
+        "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
         "Do not invent numbers, benchmarks, authors, or claims. Target 1200-2000 words when evidence supports it."
@@ -189,8 +200,11 @@ def _daily_system() -> str:
 def _daily_user(pack: EvidencePack, title: str) -> str:
     return (
         f"TITLE: {title}\n\n"
-        "Write a daily radar post with: what mattered today, top papers, top engineering blogs, "
-        "cross-cutting patterns, caveats, and what to learn next. Include source URLs inline.\n\n"
+        "Write a paper-first technical blog post. Use these Markdown sections exactly: "
+        "Technical thesis, Paper mechanisms, Math or objective details, Experiments and limits, Why it matters, "
+        "Supporting engineering context. Do not create a Top engineering blogs section; source blogs are supporting context only. "
+        "For each paper, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
+        "what limitation or caveat is visible, and why it matters. Include source URLs inline.\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -198,6 +212,7 @@ def _daily_user(pack: EvidencePack, title: str) -> str:
 def _deep_system() -> str:
     return (
         "You write guided technical deep dives for ML engineers. Use only the evidence pack. "
+        "Center the method, math/objective interpretation, experiment analysis, reproduction notes, limits, and impact. "
         "Write original Markdown. Include evidence markers [E1] and source links for substantive claims. "
         "Include a Mermaid diagram and one code or pseudocode block only if supported by evidence. "
         "Do not invent numbers or implementation details. Target 2500-4500 words when evidence supports it."
@@ -207,8 +222,8 @@ def _deep_system() -> str:
 def _deep_user(pack: EvidencePack, title: str) -> str:
     return (
         f"TITLE: {title}\n\n"
-        "Write sections for why it matters, prerequisites, problem framing, method walkthrough, "
-        "experiments, visual intuition, reproduction notes, limits, and study questions.\n\n"
+        "Write sections for technical thesis, prerequisites, problem framing, method walkthrough, "
+        "math or objective interpretation, experiments, reproduction notes, limits, impact, and study questions.\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -216,6 +231,7 @@ def _deep_user(pack: EvidencePack, title: str) -> str:
 def _repair_system() -> str:
     return (
         "Repair Markdown for factuality and source grounding. Return only Markdown body. "
+        "Keep the required daily technical sections when repairing daily posts. "
         "Do not add unsupported facts. Remove claims that cannot be tied to evidence."
     )
 
@@ -259,3 +275,29 @@ def _copies_large_evidence_span(body: str, pack: EvidencePack) -> bool:
         if len(text) >= 300 and text[:300] in compact_body:
             return True
     return False
+
+
+def _validate_daily_technical_focus(body: str, pack: EvidencePack) -> list[str]:
+    errors: list[str] = []
+    headings = [h.lower() for h in HEADING_RE.findall(body or "")]
+    for name, aliases in DAILY_REQUIRED_SECTIONS.items():
+        if not any(any(alias in heading for alias in aliases) for heading in headings):
+            errors.append(f"missing_daily_section:{name}")
+    if not any(r.item.source_kind == "paper" for r in pack.ranked_items):
+        return errors
+    if _looks_like_generic_roundup(headings):
+        errors.append("generic_roundup_structure")
+    lower = (body or "").lower()
+    technical_terms = (
+        "method", "mechanism", "objective", "loss", "equation", "algorithm",
+        "architecture", "experiment", "ablation", "benchmark", "limitation", "impact",
+    )
+    if sum(1 for term in technical_terms if term in lower) < 4:
+        errors.append("insufficient_technical_focus")
+    return errors
+
+
+def _looks_like_generic_roundup(headings: list[str]) -> bool:
+    generic = {"top papers", "top engineering blogs", "what mattered today"}
+    required = {"technical thesis", "paper mechanisms", "math or objective details"}
+    return bool(generic & set(headings)) and not bool(required & set(headings))

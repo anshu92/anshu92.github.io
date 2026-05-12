@@ -64,3 +64,41 @@ def test_rank_items_drops_stale_and_undated_items():
     )
     ranked = rank_items([stale, undated, fresh], now=now, max_age_hours=72)
     assert [r.item.title for r in ranked] == ["Fresh LLM benchmark"]
+
+
+def test_daily_shortlist_prefers_papers_and_diverse_profiles():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+
+    def item(idx: int, *, kind: str = "paper", profile: str = "llm_methods", track: str = "llm") -> SourceItem:
+        topic = {
+            "llm": "language model inference benchmark with architecture ablation latency throughput",
+            "mle": "evaluation benchmark reproducibility monitoring dataset pipeline deployment",
+            "aec": "BIM IFC CAD digital twin HVAC building controls benchmark deployment",
+        }[track]
+        return SourceItem(
+            canonical_url=f"https://example.com/{kind}/{idx}",
+            source_kind=kind,
+            source_name="arxiv" if kind == "paper" else "pytorch",
+            source_tier=1,
+            title=f"{kind.title()} {idx} {topic}",
+            published_at=now,
+            abstract_or_excerpt=f"We propose a method with objective, benchmark, ablation, limitation, and practical impact. {topic}",
+            tags=[kind, track, profile],
+            extra={"search_profile": profile},
+        )
+
+    items = [
+        item(1, profile="llm_methods", track="llm"),
+        item(2, profile="llm_methods", track="llm"),
+        item(3, profile="llm_systems", track="mle"),
+        item(4, profile="mle_eval", track="mle"),
+        item(5, profile="aec_ai", track="aec"),
+        item(6, profile="multimodal_geometry", track="llm"),
+        item(7, kind="blog", profile="blog:pytorch", track="mle"),
+        item(8, kind="blog", profile="blog:pytorch", track="mle"),
+    ]
+    shortlist = daily_shortlist(rank_items(items, now=now, max_age_hours=72), maximum=6, min_papers=4, max_blogs=1)
+    assert sum(1 for r in shortlist if r.item.source_kind == "paper") >= 4
+    assert sum(1 for r in shortlist if r.item.source_kind == "blog") <= 1
+    profiles = [r.item.extra.get("search_profile") for r in shortlist]
+    assert max(profiles.count(profile) for profile in set(profiles)) <= 2

@@ -30,9 +30,10 @@ def _chunks_for_item(ranked: RankedItem, offset: int, *, max_chunks: int) -> lis
     sentences = extract.sentence_split(text)
     if not sentences and text:
         sentences = [text[:900]]
-    scored = sorted(sentences, key=_sentence_value, reverse=True)[:max_chunks]
+    scored = sorted(sentences, key=_sentence_value, reverse=True)
+    selected = _select_evidence_sentences(scored, max_chunks=max_chunks)
     out: list[EvidenceChunk] = []
-    for idx, sentence in enumerate(scored, start=1):
+    for idx, (sentence, evidence_type) in enumerate(selected, start=1):
         out.append(
             EvidenceChunk(
                 evidence_id=f"E{offset + idx}",
@@ -40,7 +41,8 @@ def _chunks_for_item(ranked: RankedItem, offset: int, *, max_chunks: int) -> lis
                 title=item.title,
                 url=item.canonical_url,
                 text=sentence[:1100],
-                section="abstract_or_body",
+                section=f"abstract_or_body:{evidence_type}",
+                evidence_type=evidence_type,
             )
         )
     return out
@@ -48,15 +50,73 @@ def _chunks_for_item(ranked: RankedItem, offset: int, *, max_chunks: int) -> lis
 
 def _sentence_value(sentence: str) -> tuple[int, int]:
     lower = sentence.lower()
-    cues = sum(
-        1
-        for cue in (
-            "benchmark", "ablation", "latency", "throughput", "dataset", "method",
-            "we propose", "we introduce", "code", "result", "accuracy", "%",
-        )
-        if cue in lower
-    )
-    return cues, len(sentence)
+    cues = sum(1 for cue in _all_cues() if cue in lower)
+    return len(_evidence_types(sentence)), cues, len(sentence)
+
+
+def _select_evidence_sentences(sentences: list[str], *, max_chunks: int) -> list[tuple[str, str]]:
+    selected: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for evidence_type in ("mechanism", "math_or_objective", "experiment", "limitation", "impact"):
+        for sentence in sentences:
+            if sentence in seen:
+                continue
+            if evidence_type in _evidence_types(sentence):
+                selected.append((sentence, evidence_type))
+                seen.add(sentence)
+                break
+        if len(selected) >= max_chunks:
+            return selected
+    for sentence in sentences:
+        if sentence in seen:
+            continue
+        selected.append((sentence, _primary_evidence_type(sentence)))
+        seen.add(sentence)
+        if len(selected) >= max_chunks:
+            break
+    return selected
+
+
+def _primary_evidence_type(sentence: str) -> str:
+    types = _evidence_types(sentence)
+    return types[0] if types else "context"
+
+
+def _evidence_types(sentence: str) -> list[str]:
+    lower = sentence.lower()
+    out: list[str] = []
+    for evidence_type, cues in _CUES_BY_TYPE.items():
+        if any(cue in lower for cue in cues):
+            out.append(evidence_type)
+    return out
+
+
+_CUES_BY_TYPE: dict[str, tuple[str, ...]] = {
+    "mechanism": (
+        "algorithm", "architecture", "method", "pipeline", "framework", "training",
+        "inference", "retrieval", "cache", "graph", "model", "we propose", "we introduce",
+    ),
+    "math_or_objective": (
+        "objective", "loss", "equation", "theorem", "bound", "gradient", "complexity",
+        "o(", "optimization", "regularization", "likelihood", "posterior", "reward",
+    ),
+    "experiment": (
+        "benchmark", "ablation", "result", "accuracy", "dataset", "evaluation",
+        "experiment", "tasks", "throughput", "latency", "%", "table", "compare",
+    ),
+    "limitation": (
+        "limitation", "caveat", "failure", "error", "tradeoff", "robustness",
+        "sensitivity", "future work", "fails",
+    ),
+    "impact": (
+        "deployment", "production", "cost", "practical", "facility", "building",
+        "operations", "reproducibility", "monitoring", "serving", "open source", "code",
+    ),
+}
+
+
+def _all_cues() -> tuple[str, ...]:
+    return tuple(cue for cues in _CUES_BY_TYPE.values() for cue in cues)
 
 
 def _prior_posts(limit: int) -> list[dict[str, str]]:

@@ -61,6 +61,25 @@ def test_missing_source_link_fails():
     assert any(e.startswith("missing_source_link:") for e in errors)
 
 
+def test_evidence_chunks_are_typed():
+    pack = _pack()
+    types = {chunk.evidence_type for chunk in pack.chunks}
+    assert "mechanism" in types
+    assert "experiment" in types
+    assert "impact" in types
+
+
+def test_generic_roundup_without_required_sections_fails():
+    pack = _pack()
+    body = """
+## What mattered today
+
+Generic roundup text with a source [E1]. Source: https://arxiv.org/abs/2605.00001
+"""
+    errors = validate_body(body, pack)
+    assert "generic_roundup_structure" in errors or any(e.startswith("missing_daily_section:") for e in errors)
+
+
 def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     pack = _pack()
     bad = "Unsupported 99.9% claim [E1]. Source: https://arxiv.org/abs/2605.00001"

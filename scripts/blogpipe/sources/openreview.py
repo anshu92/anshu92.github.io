@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
+from .. import config
 from ..models import SourceItem
 from ._http import client
 
@@ -10,17 +11,24 @@ LOG = logging.getLogger(__name__)
 
 
 def fetch(window_hours: int = 72) -> list[SourceItem]:
+    out: list[SourceItem] = []
+    for venue in config.openreview_venues():
+        out.extend(_fetch_venue(venue))
+    return out
+
+
+def _fetch_venue(venue: str) -> list[SourceItem]:
     params = {
         "limit": 50,
         "sort": "tmdate:desc",
-        "content.venue": "ICLR.cc/2026/Conference",
+        "content.venue": venue,
     }
     try:
         resp = client().get("https://api2.openreview.net/notes", params=params)
         resp.raise_for_status()
         payload = resp.json()
     except Exception as exc:
-        LOG.debug("openreview fetch skipped: %s", exc)
+        LOG.debug("openreview venue %s skipped: %s", venue, exc)
         return []
     out: list[SourceItem] = []
     for note in payload.get("notes") or []:
@@ -39,10 +47,10 @@ def fetch(window_hours: int = 72) -> list[SourceItem]:
                 title=title,
                 published_at=_ms_dt(note.get("pdate") or note.get("cdate")),
                 updated_at=_ms_dt(note.get("tmdate")),
-                venue_or_blog="OpenReview",
+                venue_or_blog=venue,
                 abstract_or_excerpt=abstract,
-                tags=["paper", "openreview"],
-                extra={"openreview_id": note_id},
+                tags=["paper", "openreview", venue],
+                extra={"openreview_id": note_id, "search_profile": f"openreview:{venue}"},
             ).normalized()
         )
     return out

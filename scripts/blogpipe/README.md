@@ -4,6 +4,9 @@ Blogpipe is now a metadata-first research radar for Synaptic Radio. It ingests
 papers and first-party engineering blogs, stores normalized records in SQLite +
 FTS5, ranks them deterministically, builds compact evidence packs, and asks a
 single OpenAI-compatible LLM writer to produce evidence-grounded Hugo posts.
+Generated posts are paper-first technical blogs: they explain methods,
+math/objectives when available, experiments, limits, and impact. Source blogs
+are used as supporting engineering context rather than as generic roundup items.
 
 ## Commands
 
@@ -43,9 +46,24 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_LLM_MODEL`
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
+- `BLOGPIPE_MIN_PAPERS` (default `4`)
+- `BLOGPIPE_MAX_BLOGS` (default `2`)
+- `BLOGPIPE_PROFILE_RESULTS` (default `40`)
+- `BLOGPIPE_OPENREVIEW_VENUES` (comma-separated venue override)
 
 If those are unset, the client falls back to `OPENROUTER_BASE`,
 `OPENROUTER_API_KEY`, and `BLOGPIPE_MODEL` for continuity.
+
+## Search and Ranking
+
+arXiv ingest fans out across named profiles for LLM methods, LLM systems,
+MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
+queries a small best-effort venue list unless overridden. The 72h recency window
+is strict for live sources; undated or stale items are dropped before ranking.
+
+The daily shortlist prefers recent papers, limits source blogs, and penalizes
+repeated source/profile/topic clusters so a post does not collapse into one
+category or venue.
 
 ## Data Policy
 

@@ -92,6 +92,7 @@ class EvidenceChunk(BaseModel):
     url: str
     text: str
     section: str = ""
+    evidence_type: str = ""
 
 
 class EvidencePack(BaseModel):
