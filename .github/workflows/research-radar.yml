@@ -77,7 +77,9 @@ jobs:
         run: |
           set -euo pipefail
           BLOCKED_REPORT="$(find reports -maxdepth 1 -name '*.blocked.json' -print -quit 2>/dev/null || true)"
-          if [[ -n "$(git status --porcelain content radar-data static/img/posts)" ]]; then
+          POST_CHANGES="$(git status --porcelain content/post)"
+          GENERATED_CHANGES="$(git status --porcelain content radar-data static/img/posts)"
+          if [[ -n "$POST_CHANGES" ]]; then
             mkdir -p reports
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -116,6 +118,11 @@ jobs:
               echo "$BLOCKED_SUMMARY"
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
+          elif [[ -n "$GENERATED_CHANGES" ]]; then
+            echo "::warning::Generated radar data/assets changed, but no content/post draft was created. Skipping PR."
+            echo "pr_url=" >> "$GITHUB_OUTPUT"
+            echo "blocked_report=" >> "$GITHUB_OUTPUT"
+            echo "blocked_summary=" >> "$GITHUB_OUTPUT"
           else
             echo "No generated changes to review."
             echo "pr_url=" >> "$GITHUB_OUTPUT"
