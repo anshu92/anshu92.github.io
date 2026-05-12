@@ -3,6 +3,8 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
+import httpx
+
 from blogpipe.sources import arxiv
 from blogpipe.sources.aggregator import _dedupe, _filter_recent, harvest_all
 
@@ -81,6 +83,72 @@ def test_arxiv_fetch_fans_out_and_tags_profiles(monkeypatch):
     assert all(url.startswith("https://export.arxiv.org/api/query?") for url in calls)
     assert len(items) == len(arxiv.ARXIV_PROFILES)
     assert {item.extra["search_profile"] for item in items} == {profile.name for profile in arxiv.ARXIV_PROFILES}
+
+
+def test_arxiv_fetch_retries_on_429(monkeypatch):
+    xml = """
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <entry>
+        <id>https://arxiv.org/abs/2605.00001</id>
+        <title> Test Paper </title>
+        <summary> We propose a benchmark. </summary>
+        <published>2026-05-10T00:00:00Z</published>
+        <updated>2026-05-10T00:00:00Z</updated>
+      </entry>
+    </feed>
+    """
+
+    class OkResponse:
+        text = xml
+
+        def raise_for_status(self):
+            return None
+
+    class FakeClient:
+        def __init__(self):
+            self.calls = 0
+
+        def get(self, url):
+            self.calls += 1
+            if self.calls == 1:
+                request = httpx.Request("GET", url)
+                response = httpx.Response(429, request=request, headers={"Retry-After": "0.1"})
+                raise httpx.HTTPStatusError("rate limited", request=request, response=response)
+            return OkResponse()
+
+    fake = FakeClient()
+    sleep_calls: list[float] = []
+    monkeypatch.setattr(arxiv, "client", lambda: fake)
+    monkeypatch.setattr(arxiv.time, "sleep", lambda seconds: sleep_calls.append(seconds))
+    monkeypatch.setattr(arxiv.config, "arxiv_max_retries", lambda: 2)
+    monkeypatch.setattr(arxiv.config, "profile_results", lambda: 1)
+    items = arxiv.fetch(window_hours=72)
+    assert len(items) == len(arxiv.ARXIV_PROFILES)
+    assert fake.calls == len(arxiv.ARXIV_PROFILES) + 1
+    assert sleep_calls and sleep_calls[0] == 0.5
+
+
+def test_arxiv_fetch_does_not_retry_on_4xx_other_than_429(monkeypatch):
+    class FakeClient:
+        def __init__(self):
+            self.calls = 0
+
+        def get(self, url):
+            self.calls += 1
+            request = httpx.Request("GET", url)
+            response = httpx.Response(400, request=request)
+            raise httpx.HTTPStatusError("bad request", request=request, response=response)
+
+    fake = FakeClient()
+    sleep_calls: list[float] = []
+    monkeypatch.setattr(arxiv, "client", lambda: fake)
+    monkeypatch.setattr(arxiv.time, "sleep", lambda seconds: sleep_calls.append(seconds))
+    monkeypatch.setattr(arxiv.config, "arxiv_max_retries", lambda: 2)
+    monkeypatch.setattr(arxiv.config, "profile_results", lambda: 1)
+    items = arxiv.fetch(window_hours=72)
+    assert items == []
+    assert fake.calls == len(arxiv.ARXIV_PROFILES)
+    assert not sleep_calls
 
 
 def test_aggregator_dedupes_and_keeps_recent_only():

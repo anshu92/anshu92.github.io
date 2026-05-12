@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
+
+import httpx
 
 from .. import config
 from ..models import Author, SourceItem
@@ -69,12 +72,29 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
         "https://export.arxiv.org/api/query?"
         f"search_query={quote(query)}&sortBy=submittedDate&sortOrder=descending&start=0&max_results={max_results}"
     )
-    try:
-        resp = client().get(url)
-        resp.raise_for_status()
-        root = ET.fromstring(resp.text)
-    except Exception as exc:
-        LOG.warning("arxiv fetch failed for %s: %s", profile.name, exc)
+    root: ET.Element | None = None
+    max_retries = config.arxiv_max_retries()
+    for attempt in range(max_retries + 1):
+        try:
+            resp = client().get(url)
+            resp.raise_for_status()
+            root = ET.fromstring(resp.text)
+            break
+        except Exception as exc:
+            if attempt >= max_retries or not _is_retryable(exc):
+                LOG.warning("arxiv fetch failed for %s: %s", profile.name, exc)
+                return []
+            delay = _retry_delay_seconds(exc, attempt)
+            LOG.warning(
+                "arxiv fetch retry %s/%s for %s in %.1fs: %s",
+                attempt + 1,
+                max_retries,
+                profile.name,
+                delay,
+                exc,
+            )
+            time.sleep(delay)
+    if root is None:
         return []
     out: list[SourceItem] = []
     for entry in root.findall("a:entry", ARXIV_NS):
@@ -82,6 +102,26 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
         if item:
             out.append(item)
     return out
+
+
+def _is_retryable(exc: Exception) -> bool:
+    if isinstance(exc, httpx.HTTPStatusError):
+        return exc.response.status_code == 429 or exc.response.status_code >= 500
+    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError)):
+        return True
+    return False
+
+
+def _retry_delay_seconds(exc: Exception, attempt: int) -> float:
+    if isinstance(exc, httpx.HTTPStatusError):
+        retry_after = exc.response.headers.get("Retry-After", "").strip()
+        if retry_after:
+            try:
+                return max(0.5, float(retry_after))
+            except ValueError:
+                pass
+    base = config.arxiv_retry_backoff_seconds()
+    return min(30.0, base * (2**attempt))
 
 
 def _term_clause(term: str) -> str:

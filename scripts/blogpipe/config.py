@@ -85,6 +85,14 @@ def profile_results() -> int:
     return _int("BLOGPIPE_PROFILE_RESULTS", 40, 5, 100)
 
 
+def arxiv_max_retries() -> int:
+    return _int("BLOGPIPE_ARXIV_MAX_RETRIES", 3, 0, 6)
+
+
+def arxiv_retry_backoff_seconds() -> float:
+    return _float("BLOGPIPE_ARXIV_RETRY_BACKOFF_SECONDS", 2.0, 0.5, 30.0)
+
+
 def selector_candidates() -> int:
     return _int("BLOGPIPE_SELECTOR_CANDIDATES", 24, 8, 60)
 
