@@ -46,8 +46,8 @@ DAILY_REQUIRED_SECTIONS: dict[str, tuple[str, ...]] = {
     "technical_thesis": ("technical thesis",),
     "paper_mechanisms": ("paper mechanisms", "mechanisms"),
     "math_or_objective": ("math", "objective"),
-    "experiments_and_limits": ("experiments", "limits"),
-    "why_it_matters": ("why it matters", "impact"),
+    "experiments_and_limits": ("experiments", "evaluation", "evidence", "benchmark", "limits", "caveats"),
+    "why_it_matters": ("why it matters", "impact", "implications", "why this matters"),
 }
 
 
@@ -87,7 +87,8 @@ def write_deep_dive(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run
 
 def validate_body(body: str, pack: EvidencePack) -> list[str]:
     errors: list[str] = []
-    evidence_ids = {chunk.evidence_id for chunk in pack.chunks}
+    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
+    evidence_ids = set(chunks_by_id)
     refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
     unknown = sorted(refs - evidence_ids)
     if unknown:
@@ -95,11 +96,11 @@ def validate_body(body: str, pack: EvidencePack) -> list[str]:
     if not refs:
         errors.append("no_evidence_ids")
     body_url_keys = _body_url_keys(body)
-    for url in pack.urls():
+    for url in _required_urls_for_refs(refs, chunks_by_id):
         if url and not (_url_keys(url) & body_url_keys):
             errors.append("missing_source_link:" + url)
     evidence_blob = pack.evidence_blob()
-    for number in _meaningful_numbers(body):
+    for number in sorted(set(_meaningful_numbers(body))):
         if number not in evidence_blob:
             errors.append("unsupported_number:" + number)
     if _copies_large_evidence_span(body, pack):
@@ -200,8 +201,10 @@ def _daily_user(pack: EvidencePack, title: str) -> str:
         "Write a paper-first technical blog post. Use these Markdown sections exactly: "
         "Technical thesis, Paper mechanisms, Math or objective details, Experiments and limits, Why it matters, "
         "Supporting engineering context. Do not create a Top engineering blogs section; source blogs are supporting context only. "
-        "For each paper, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
-        "what limitation or caveat is visible, and why it matters. Include source URLs inline.\n\n"
+        "Cover 5-8 strongest items when evidence supports them; do not force coverage of every input item. "
+        "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
+        "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
+        "Avoid exact numeric claims unless the number appears verbatim in the evidence text.\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -235,9 +238,12 @@ def _repair_system() -> str:
 
 
 def _repair_user(pack: EvidencePack, body: str, errors: list[str]) -> str:
-    source_requirements = [
-        {"title": ranked.item.title, "url": ranked.item.canonical_url, "item_id": ranked.item.item_id}
-        for ranked in pack.ranked_items
+    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
+    refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
+    cited_source_requirements = [
+        {"evidence_id": evidence_id, "title": chunks_by_id[evidence_id].title, "url": chunks_by_id[evidence_id].url}
+        for evidence_id in sorted(refs)
+        if evidence_id in chunks_by_id
     ]
     section_contract = (
         "For daily posts, include these exact level-2 headings: Technical thesis, "
@@ -251,14 +257,39 @@ def _repair_user(pack: EvidencePack, body: str, errors: list[str]) -> str:
         f"{section_contract}\n"
         "Hard requirements:\n"
         "- Use only evidence IDs present in EVIDENCE_PACK, formatted exactly like [E1].\n"
-        "- Include every required source URL listed below at least once.\n"
-        "- Remove unsupported numbers and unsupported claims.\n"
+        "- For every evidence ID you cite, include the matching source URL inline in that paragraph.\n"
+        "- You do not need to cover every item in EVIDENCE_PACK; omit weak items rather than inventing details.\n"
+        "- Remove unsupported numbers and unsupported claims; prefer qualitative phrasing when uncertain.\n"
         "- Do not output JSON, explanations, or a validation report.\n\n"
-        f"VALIDATOR_ERRORS:\n{json.dumps(errors, indent=2)}\n\n"
-        f"REQUIRED_SOURCE_URLS:\n{json.dumps(source_requirements, indent=2, ensure_ascii=False)}\n\n"
+        f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
+        f"CITED_SOURCE_URLS:\n{json.dumps(cited_source_requirements, indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
-        f"DRAFT:\n{body}"
+        f"DRAFT:\n{_repair_safe_draft(body, errors)}"
     )
+
+
+def _repair_safe_errors(errors: list[str]) -> list[str]:
+    safe: list[str] = []
+    for error in errors:
+        if error.startswith("unsupported_number:"):
+            if "unsupported_number" not in safe:
+                safe.append("unsupported_number")
+            continue
+        if error.startswith("missing_source_link:"):
+            if "missing_source_link_for_cited_evidence" not in safe:
+                safe.append("missing_source_link_for_cited_evidence")
+            continue
+        safe.append(error)
+    return safe
+
+
+def _repair_safe_draft(body: str, errors: list[str]) -> str:
+    safe = body
+    for error in errors:
+        if error.startswith("unsupported_number:"):
+            token = error.split(":", 1)[1]
+            safe = safe.replace(token, "[unsupported number]")
+    return safe
 
 
 def _strip_fence(text: str) -> str:
@@ -269,6 +300,15 @@ def _strip_fence(text: str) -> str:
 
 def _yaml_escape(text: str) -> str:
     return text.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _required_urls_for_refs(refs: set[str], chunks_by_id: dict[str, object]) -> list[str]:
+    urls = {
+        chunk.url
+        for evidence_id in refs
+        if (chunk := chunks_by_id.get(evidence_id)) is not None and getattr(chunk, "url", "")
+    }
+    return sorted(urls)
 
 
 def _body_url_keys(body: str) -> set[str]:
@@ -306,10 +346,16 @@ def _meaningful_numbers(body: str) -> list[str]:
             continue
         if token in {"1", "2", "3", "4", "5", "6", "7", "8"}:
             continue
+        if _looks_like_arxiv_identifier(token):
+            continue
         if not _looks_like_numeric_claim(scan, match.start(), match.end(), token):
             continue
         out.append(token)
     return out
+
+
+def _looks_like_arxiv_identifier(token: str) -> bool:
+    return bool(re.fullmatch(r"\d{4}\.\d{4,5}", token or ""))
 
 
 def _looks_like_numeric_claim(text: str, start: int, end: int, token: str) -> bool:

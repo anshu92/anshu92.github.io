@@ -54,11 +54,43 @@ def test_plain_reference_numbers_are_not_metric_claims():
     assert "unsupported_number:49" not in errors
 
 
+def test_arxiv_ids_are_not_metric_claims():
+    pack = _pack()
+    body = Path("tests/fixtures/fake_daily.md").read_text() + "\n\nArXiv identifier 2605.10195 is not a metric claim. [E1]"
+    errors = validate_body(body, pack)
+    assert "unsupported_number:2605.10195" not in errors
+
+
 def test_missing_source_link_fails():
     pack = _pack()
-    body = "Grounded claim [E1]. Source: https://arxiv.org/abs/2605.00001"
+    body = "Grounded claim [E1] without the source URL."
     errors = validate_body(body, pack)
     assert any(e.startswith("missing_source_link:") for e in errors)
+
+
+def test_uncited_sources_do_not_require_links():
+    pack = _pack()
+    first = pack.ranked_items[0].item
+    pack.ranked_items = [pack.ranked_items[0]]
+    pack.chunks = [chunk for chunk in pack.chunks if chunk.item_id == first.item_id]
+    body = """
+## Technical thesis
+Mechanism, objective, experiment, limitation, and impact are covered [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Paper mechanisms
+The method uses a cache-aware mechanism [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Math or objective details
+The objective is operational rather than formal in this evidence [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Experiments and limits
+The benchmark and limitation are described in the evidence [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Why it matters
+The impact is practical for inference systems [E1]. Source: https://arxiv.org/abs/2605.00001
+"""
+    errors = validate_body(body, pack)
+    assert not any(error.startswith("missing_source_link:") for error in errors)
 
 
 def test_arxiv_source_link_accepts_scheme_and_version_variants():
@@ -121,8 +153,9 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     assert result.ok
     assert result.repair_attempted
     assert "VALIDATOR_ERRORS" in calls[1]
-    assert "REQUIRED_SOURCE_URLS" in calls[1]
+    assert "CITED_SOURCE_URLS" in calls[1]
     assert "Technical thesis" in calls[1]
+    assert "99.9%" not in calls[1]
 
 
 def test_blocked_post_is_not_published_after_failed_repair(monkeypatch, tmp_path):
