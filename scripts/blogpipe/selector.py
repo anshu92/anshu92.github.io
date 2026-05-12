@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 
 from pydantic import ValidationError
@@ -14,6 +15,9 @@ class SelectionError(RuntimeError):
     pass
 
 
+LOG = logging.getLogger(__name__)
+
+
 def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[list[RankedItem], SelectionResult]:
     # Let the selector reason over all available paper titles for the run.
     # This intentionally avoids pre-filtering by deterministic score buckets.
@@ -21,7 +25,15 @@ def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[lis
     candidates = papers or list(ranked)
     if not candidates:
         raise SelectionError("selector_no_candidates")
-    result = _parse_selection(_call_selector(llm, candidates))
+    raw = _call_selector(llm, candidates)
+    try:
+        result = _parse_selection(raw)
+    except SelectionError as exc:
+        recovered = _salvage_selection(raw, candidates)
+        if recovered is None:
+            raise
+        LOG.warning("selector parse failed (%s); using salvaged selected_item_ids", exc)
+        result = recovered
     if not result.selected_item_ids:
         raise SelectionError("selector_empty")
     selected = _apply_selection(candidates, result)
@@ -31,9 +43,15 @@ def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[lis
 
 
 def _call_selector(llm: LLMClient, candidates: list[RankedItem]) -> str:
+    max_tokens = config.selector_max_tokens()
     if isinstance(llm, LLMClient):
-        return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=2200, task="selector")
-    return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=2200)
+        return llm.complete(
+            system=_selector_system(),
+            user=_selector_user(candidates),
+            max_tokens=max_tokens,
+            task="selector",
+        )
+    return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=max_tokens)
 
 
 def _selector_system() -> str:
@@ -84,6 +102,11 @@ def _parse_selection(text: str) -> SelectionResult:
 
 def _json_payload(text: str) -> str:
     raw = (text or "").strip()
+    if raw.startswith("```"):
+        parts = raw.split("\n", 1)
+        raw = parts[1].strip() if len(parts) == 2 else raw.lstrip("`").strip()
+        if raw.endswith("```"):
+            raw = raw[:-3].strip()
     fenced = re.match(r"^```(?:json)?\n([\s\S]*?)\n```$", raw, re.I)
     if fenced:
         raw = fenced.group(1).strip()
@@ -92,6 +115,32 @@ def _json_payload(text: str) -> str:
     if start >= 0 and end > start:
         return raw[start : end + 1]
     return raw
+
+
+def _salvage_selection(raw: str, candidates: list[RankedItem]) -> SelectionResult | None:
+    text = (raw or "").strip()
+    if not text:
+        return None
+    match = re.search(
+        r'"selected_item_ids"\s*:\s*\[([\s\S]*?)(?:\]|"items"\s*:|"suggested_tags"\s*:|\}\s*$)',
+        text,
+        re.I,
+    )
+    if not match:
+        return None
+    candidate_ids = {r.item.item_id for r in candidates}
+    found = re.findall(r'"([^"\n]{1,200})"', match.group(1))
+    selected_ids: list[str] = []
+    seen: set[str] = set()
+    for item_id in found:
+        normalized = item_id.strip()
+        if not normalized or normalized in seen or normalized not in candidate_ids:
+            continue
+        selected_ids.append(normalized)
+        seen.add(normalized)
+    if not selected_ids:
+        return None
+    return SelectionResult(selected_item_ids=selected_ids, items=[], suggested_tags=[])
 
 
 def _apply_selection(candidates: list[RankedItem], selection: SelectionResult) -> list[RankedItem]:

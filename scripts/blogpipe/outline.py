@@ -34,11 +34,18 @@ def generate_daily_outline(
     selection: SelectionResult,
     llm: LLMClient,
 ) -> DailyOutline:
+    max_tokens = config.outline_max_tokens()
     parse_error = ""
     outline: DailyOutline | None = None
     try:
         outline = _parse_outline(
-            _outline_complete(llm, system=_outline_system(), user=_outline_user(pack, selection), task="outline")
+            _outline_complete(
+                llm,
+                system=_outline_system(),
+                user=_outline_user(pack, selection),
+                task="outline",
+                max_tokens=max_tokens,
+            )
         )
     except OutlineError as exc:
         parse_error = str(exc)
@@ -64,7 +71,7 @@ def generate_daily_outline(
                     parse_error=parse_error,
                 ),
                 task="outline_repair",
-                max_tokens=2200,
+                max_tokens=max_tokens,
             )
         )
         repaired_errors = validate_outline(repaired, pack)
@@ -89,7 +96,7 @@ def _outline_complete(
     system: str,
     user: str,
     task: str,
-    max_tokens: int = 2200,
+    max_tokens: int,
 ) -> str:
     if isinstance(llm, LLMClient):
         return llm.complete(system=system, user=user, max_tokens=max_tokens, task=task)

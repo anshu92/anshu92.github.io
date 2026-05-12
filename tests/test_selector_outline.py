@@ -112,6 +112,22 @@ def test_selector_malformed_json_blocks_publication():
         select_daily_items(_fixture_ranked(), llm=FakeLLM("not json"))
 
 
+def test_selector_salvages_selected_ids_from_truncated_json():
+    ranked = [
+        _ranked_item("p1", text="Generic serving benchmark"),
+        _ranked_item("p2", text="AEC drawing PDF OCR foundation model"),
+        _ranked_item("p3", text="Another systems benchmark"),
+    ]
+    raw = """```json
+{
+  "selected_item_ids": ["p2", "p1",
+  "items": [
+"""
+    selected, result = select_daily_items(ranked, llm=FakeLLM(raw))
+    assert [r.item.item_id for r in selected[:2]] == ["p2", "p1"]
+    assert result.selected_item_ids[:2] == ["p2", "p1"]
+
+
 def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_SELECTOR_CANDIDATES", "2")
     ranked = [

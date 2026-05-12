@@ -79,6 +79,8 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_MAX_BLOGS` (default `2`)
 - `BLOGPIPE_PROFILE_RESULTS` (default `40`)
 - `BLOGPIPE_SELECTOR_CANDIDATES` (default `24`)
+- `BLOGPIPE_SELECTOR_MAX_TOKENS` (default `3200`)
+- `BLOGPIPE_OUTLINE_MAX_TOKENS` (default `3200`)
 - `BLOGPIPE_OPENREVIEW_VENUES` (comma-separated venue override)
 
 If those are unset, the client falls back to `OPENROUTER_BASE`,

@@ -153,6 +153,14 @@ def selector_candidates() -> int:
     return _int("BLOGPIPE_SELECTOR_CANDIDATES", 24, 8, 60)
 
 
+def selector_max_tokens() -> int:
+    return _int("BLOGPIPE_SELECTOR_MAX_TOKENS", 3200, 512, 12000)
+
+
+def outline_max_tokens() -> int:
+    return _int("BLOGPIPE_OUTLINE_MAX_TOKENS", 3200, 512, 12000)
+
+
 def daily_min_words() -> int:
     return _int("BLOGPIPE_DAILY_MIN_WORDS", 1200, 300, 4000)
 
