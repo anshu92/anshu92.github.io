@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import httpx
+import pytest
 
 from blogpipe.llm import LLMClient
 
@@ -108,3 +109,34 @@ def test_openrouter_free_roster_can_be_overridden(monkeypatch):
     chain = llm._model_chain("outline")
     assert "openai/gpt-oss-120b:free" in chain
     assert "inclusionai/ring-2.6-1t:free" not in chain
+
+
+def test_llm_uses_task_specific_timeout(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "base-model")
+    monkeypatch.setenv("BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS", "33")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+
+    seen: list[float] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        seen.append(float(timeout.read))
+        return _StubResponse(200, {"choices": [{"message": {"content": "ok"}}]})
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    assert llm.complete(system="sys", user="usr", task="draft") == "ok"
+    assert seen == [33.0]
+
+
+def test_llm_runtime_budget_blocks_new_calls(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "base-model")
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", "60")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    llm = LLMClient()
+    monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 60.0)
+    with pytest.raises(RuntimeError, match="BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"):
+        llm.complete(system="sys", user="usr", task="outline")

@@ -229,6 +229,8 @@ def _generate_daily_body(
 
     if not isinstance(client, LLMClient):
         return _fallback()
+    if not config.sectionwise_drafting_enabled():
+        return _fallback()
 
     section_specs = [
         {
@@ -275,6 +277,8 @@ def _generate_deep_dive_body(*, client: LLMClient, pack: EvidencePack, title: st
         return _call_writer(client, _deep_system(), _deep_user(pack, title), task="draft")
 
     if not isinstance(client, LLMClient):
+        return _fallback()
+    if not config.sectionwise_drafting_enabled():
         return _fallback()
 
     section_specs = _deep_dive_section_specs(pack)

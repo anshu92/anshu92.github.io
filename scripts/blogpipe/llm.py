@@ -30,6 +30,7 @@ class LLMUsage:
 class LLMClient:
     cfg: config.LLMConfig = field(default_factory=config.llm_config)
     usage: LLMUsage = field(default_factory=LLMUsage)
+    started_at: float = field(default_factory=time.monotonic)
 
     def configured(self) -> bool:
         return bool(self.cfg.api_key and self.cfg.model and self.cfg.max_calls > 0)
@@ -56,6 +57,8 @@ class LLMClient:
             raise RuntimeError("BLOGPIPE_LLM_API_KEY is required for non-dry-run writing")
         if self.usage.calls >= self.cfg.max_calls:
             raise RuntimeError("BLOGPIPE_LLM_MAX_CALLS reached")
+        if self._runtime_exhausted():
+            raise RuntimeError("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached")
         self.usage.calls += 1
         self.usage.model = model
         self.usage.calls_by_task[task_name] = self.usage.calls_by_task.get(task_name, 0) + 1
@@ -82,12 +85,18 @@ class LLMClient:
                 "max_tokens": max_tokens or self.cfg.max_tokens,
             }
             for attempt in range(3):
+                remaining = self._remaining_runtime_seconds()
+                if remaining <= 1.0:
+                    last_error = RuntimeError("llm_runtime_budget_exhausted")
+                    break
                 try:
+                    task_timeout = self._task_timeout_seconds(task_name)
+                    read_timeout = max(1.0, min(task_timeout, remaining))
                     resp = httpx.post(
                         f"{base_url}/chat/completions",
                         headers=headers,
                         json=payload,
-                        timeout=httpx.Timeout(120.0, connect=10.0),
+                        timeout=httpx.Timeout(read_timeout, connect=min(10.0, read_timeout)),
                     )
                     if resp.status_code in RETRY_STATUS_CODES and attempt < 2:
                         time.sleep(2 ** attempt)
@@ -134,6 +143,15 @@ class LLMClient:
         raise RuntimeError(
             f"LLM completion failed for task={task_name}; chain={model_chain}; last_error={last_error}"
         ) from last_error
+
+    def _remaining_runtime_seconds(self) -> float:
+        return max(0.0, self.cfg.max_runtime_seconds - (time.monotonic() - self.started_at))
+
+    def _runtime_exhausted(self) -> bool:
+        return self._remaining_runtime_seconds() <= 1.0
+
+    def _task_timeout_seconds(self, task: str) -> float:
+        return self.cfg.smart_timeout_seconds if task in SMART_TASKS else self.cfg.fast_timeout_seconds
 
     def _model_chain(self, task: str) -> list[str]:
         fallback = self._fallback_chain(task)

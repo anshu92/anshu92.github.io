@@ -72,6 +72,7 @@ The writer uses one OpenAI-compatible endpoint:
   - `BLOGPIPE_LLM_MODEL_DRAFT`
   - `BLOGPIPE_LLM_MODEL_DRAFT_SECTION`
   - `BLOGPIPE_LLM_MODEL_EDITOR`
+  - `BLOGPIPE_LLM_MODEL_QUALITY_REVIEW`
   - `BLOGPIPE_LLM_MODEL_REPAIR`
   - workflow convenience knobs: `BLOGPIPE_LLM_MODEL_FAST` and `BLOGPIPE_LLM_MODEL_SMART`
 - optional failover chains (comma-separated):
@@ -82,9 +83,15 @@ The writer uses one OpenAI-compatible endpoint:
   - `BLOGPIPE_LLM_CHAIN_DRAFT`
   - `BLOGPIPE_LLM_CHAIN_DRAFT_SECTION`
   - `BLOGPIPE_LLM_CHAIN_EDITOR`
+  - `BLOGPIPE_LLM_CHAIN_QUALITY_REVIEW`
   - `BLOGPIPE_LLM_CHAIN_REPAIR`
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
+- `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `900`)
+- `BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS` (workflow default `45`)
+- `BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS` (workflow default `90`)
+- `BLOGPIPE_SECTIONWISE_DRAFTING` (default `0`; opt in only when a longer,
+  higher-call run is acceptable)
 - `BLOGPIPE_DAILY_MIN_WORDS` (default `1200`)
 - `BLOGPIPE_DAILY_PRIMARY_PAPERS` (default `4`)
 - `BLOGPIPE_DAILY_SUPPORTING_ITEMS` (default `2`)

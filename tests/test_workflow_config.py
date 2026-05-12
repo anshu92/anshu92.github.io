@@ -16,3 +16,10 @@ def test_research_radar_pr_requires_content_post_change():
     assert 'POST_CHANGES="$(git status --porcelain content/post)"' in workflow
     assert 'if [[ -n "$POST_CHANGES" ]]; then' in workflow
     assert "Generated radar data/assets changed, but no content/post draft was created. Skipping PR." in workflow
+
+
+def test_research_radar_workflow_caps_runtime():
+    workflow = Path(".github/workflows/research-radar.yml").read_text()
+    assert "timeout-minutes: 20" in workflow
+    assert "BLOGPIPE_LLM_MAX_RUNTIME_SECONDS: ${{ vars.BLOGPIPE_LLM_MAX_RUNTIME_SECONDS || '900' }}" in workflow
+    assert "BLOGPIPE_SECTIONWISE_DRAFTING: ${{ vars.BLOGPIPE_SECTIONWISE_DRAFTING || '0' }}" in workflow

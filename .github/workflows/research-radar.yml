@@ -16,6 +16,7 @@ concurrency:
 jobs:
   generate-draft:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,6 +62,10 @@ jobs:
           BLOGPIPE_LLM_CHAIN_REPAIR: ${{ vars.BLOGPIPE_LLM_CHAIN_REPAIR }}
           BLOGPIPE_LLM_MAX_TOKENS: ${{ vars.BLOGPIPE_LLM_MAX_TOKENS || '4096' }}
           BLOGPIPE_LLM_MAX_CALLS: ${{ vars.BLOGPIPE_LLM_MAX_CALLS || '6' }}
+          BLOGPIPE_LLM_MAX_RUNTIME_SECONDS: ${{ vars.BLOGPIPE_LLM_MAX_RUNTIME_SECONDS || '900' }}
+          BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS: ${{ vars.BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS || '45' }}
+          BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS: ${{ vars.BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS || '90' }}
+          BLOGPIPE_SECTIONWISE_DRAFTING: ${{ vars.BLOGPIPE_SECTIONWISE_DRAFTING || '0' }}
           BLOGPIPE_OPENROUTER_FREE_MODELS: ${{ vars.BLOGPIPE_OPENROUTER_FREE_MODELS }}
           BLOGPIPE_SELECTOR_MAX_TOKENS: ${{ vars.BLOGPIPE_SELECTOR_MAX_TOKENS || '3200' }}
           BLOGPIPE_OUTLINE_MAX_TOKENS: ${{ vars.BLOGPIPE_OUTLINE_MAX_TOKENS || '3200' }}

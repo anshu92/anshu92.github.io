@@ -342,6 +342,7 @@ def test_daily_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp
         )
     final_body = Path("tests/fixtures/fake_daily.md").read_text()
     monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "20")
+    monkeypatch.setenv("BLOGPIPE_SECTIONWISE_DRAFTING", "1")
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSES", json.dumps([*section_outputs, final_body]))
     monkeypatch.setenv(
         "BLOGPIPE_FAKE_QUALITY_RESPONSE",
@@ -392,6 +393,7 @@ def test_deep_dive_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch,
         "## Engineering implications and next actions\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n"
     )
     monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "20")
+    monkeypatch.setenv("BLOGPIPE_SECTIONWISE_DRAFTING", "1")
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSES", json.dumps([*section_outputs, final_body]))
     monkeypatch.setenv(
         "BLOGPIPE_FAKE_QUALITY_RESPONSE",

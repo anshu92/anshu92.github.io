@@ -87,6 +87,9 @@ class LLMConfig:
     max_calls: int
     max_tokens: int
     temperature: float
+    max_runtime_seconds: float
+    fast_timeout_seconds: float
+    smart_timeout_seconds: float
 
 
 def contact_email() -> str:
@@ -136,6 +139,9 @@ def llm_config() -> LLMConfig:
         max_calls=_int("BLOGPIPE_LLM_MAX_CALLS", 6, 0, 20),
         max_tokens=_int("BLOGPIPE_LLM_MAX_TOKENS", 4096, 512, 12000),
         temperature=_float("BLOGPIPE_LLM_TEMPERATURE", 0.25, 0.0, 1.2),
+        max_runtime_seconds=_float("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", 900.0, 60.0, 1800.0),
+        fast_timeout_seconds=_float("BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS", 45.0, 10.0, 180.0),
+        smart_timeout_seconds=_float("BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS", 90.0, 15.0, 240.0),
     )
 
 
@@ -205,6 +211,10 @@ def outline_max_tokens() -> int:
 
 def daily_min_words() -> int:
     return _int("BLOGPIPE_DAILY_MIN_WORDS", 1200, 300, 4000)
+
+
+def sectionwise_drafting_enabled() -> bool:
+    return _get("BLOGPIPE_SECTIONWISE_DRAFTING", "0").lower() in {"1", "true", "yes", "on"}
 
 
 def openreview_venues() -> tuple[str, ...]:
