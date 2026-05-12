@@ -143,6 +143,9 @@ def test_daily_pack_builds_structured_evidence_cards():
     assert first.problem
     assert first.mechanism != "not found in evidence"
     assert first.evidence_ids["mechanism"]
+    assert first.paper_supported_claim != "not found in evidence"
+    assert first.paper_supported_limit
+    assert first.open_research_question.startswith("Open question:")
     assert any(card.math_or_objective == "not found in evidence" for card in pack.evidence_cards)
     assert any("AEC" in card.transfer_hypothesis or "document" in card.transfer_hypothesis for card in pack.evidence_cards)
 
@@ -200,6 +203,32 @@ def test_paper_by_paper_summary_without_synthesis_fails_llm_quality_review(monke
     assert any("paper-by-paper abstract summaries" in error for error in errors)
 
 
+def test_evidence_discipline_and_redundancy_scores_fail_llm_quality_review(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    review = {
+        "pass": False,
+        "scores": {
+            "technical_specificity": 0.88,
+            "engineering_judgment": 0.80,
+            "synthesis": 0.78,
+            "noise_control": 0.92,
+            "primary_depth": 0.81,
+            "evidence_discipline": 0.42,
+            "section_nonredundancy": 0.55,
+            "experiment_detail": 0.51,
+        },
+        "errors": ["overstated_transfer_claim", "duplicate_primary_section"],
+        "examples": ["creates a principled stack for robust AEC intelligence"],
+        "notes": "Claims outrun evidence.",
+        "top_editorial_failure": "Speculative transfer is phrased as a demonstrated system.",
+    }
+    errors = _llm_quality_errors(review)
+    assert "llm_low_signal:evidence_discipline:0.42/0.75" in errors
+    assert "llm_low_signal:section_nonredundancy:0.55/0.75" in errors
+    assert "llm_low_signal:experiment_detail:0.51/0.75" in errors
+    assert "llm_quality:overstated_transfer_claim" in errors
+
+
 def test_first_person_autodesk_claim_fails():
     pack = _pack()
     body = (
@@ -255,6 +284,8 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     assert result.ok
     assert result.repair_attempted
     assert "VALIDATOR_ERRORS" in calls[1]
+    assert "LLM_QUALITY_REVIEW" in calls[1]
+    assert "RELEVANT_EVIDENCE_CARDS" in calls[1]
     assert "CITED_SOURCE_URLS" in calls[1]
     assert "OUTLINE" in calls[1]
     assert "Document-model reliability starts with measurable failure boundaries" in calls[1]

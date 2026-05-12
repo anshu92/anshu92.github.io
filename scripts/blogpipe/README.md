@@ -147,7 +147,10 @@ For each primary paper, blogpipe builds a structured evidence card with:
 - evaluation setup
 - key result text without invented numbers
 - limitations or failure modes
+- paper-supported claim
+- paper-supported limitation
 - AEC / 2D-document transfer hypothesis
+- open research question when the transfer remains unproven
 
 An LLM outline stage then creates thesis-led natural headings instead of public
 template sections. Good headings name the technical object or tradeoff:
@@ -168,7 +171,8 @@ editor pass. Each section should open with a concrete claim, walk through the
 mechanism, state the engineering implication, and name a limitation or adoption
 blocker. The editor removes corporate transformation language, repeated
 `crucial` / `paramount` / `game-changer` phrasing, unsupported first-person
-Autodesk claims, and paper-by-paper abstract summaries that lack synthesis.
+Autodesk claims, paper-by-paper abstract summaries that lack synthesis, and
+speculative AEC transfer claims that are phrased as proven results.
 
 Validation requires method/objective, experiment, limitation, impact, and
 Autodesk/AEC/document relevance coverage, resolved evidence IDs, source links,
@@ -183,6 +187,12 @@ primary papers. It also runs a signal rubric:
 - `noise_control`: low density of generic strategy/corporate phrases.
 - `primary_depth`: each primary paper has mechanism evidence and a limitation,
   experiment, or objective when available.
+- `evidence_discipline`: transfer hypotheses stay clearly separated from
+  paper-supported findings.
+- `section_nonredundancy`: repeated same-paper sections do not restate the same
+  mechanism without a distinct technical purpose.
+- `experiment_detail`: evaluation detail keeps pace with the strength of the
+  mechanism claims.
 
 Low-signal drafts are blocked, not merely warned. The rubric is assigned by an
 LLM quality-review pass so signal, synthesis, and editorial judgment are scored

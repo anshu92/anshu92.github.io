@@ -467,6 +467,8 @@ def _final_editor_system(post_type: str) -> str:
         "Remove corporate strategy language, repeated hype adjectives, duplicated-token artifacts such as 'multiple,multiple', "
         "unsupported first-person Autodesk claims, first-person 'we/our/my' product-roadmap claims, and paper-by-paper abstract summaries that do not add engineering judgment. "
         "If supporting papers are discussed, label them as supporting rather than counting them as primary papers. "
+        "Separate paper-supported claims from plausible transfers and open hypotheses; do not edit hypotheses into established findings. "
+        "If two papers suggest a possible architecture together, present that as a proposed transfer hypothesis unless the evidence directly proves integration. "
         "Do not invent claims, numbers, or references. "
         "If a numeric detail is not explicitly grounded in evidence, rewrite it qualitatively instead of guessing. "
         "Output Markdown only."
@@ -604,6 +606,7 @@ def _daily_system() -> str:
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
         "Prefer deep synthesis over breadth: focus on 3-4 primary papers and use supporting items only when they sharpen the thesis. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
+        "Distinguish direct implication, plausible transfer, and open hypothesis when discussing AEC use. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
         "Do not publish a single-source post: cite at least three distinct primary papers when available. "
         f"Do not invent numbers, benchmarks, authors, or claims. The daily post must be at least {config.daily_min_words()} words."
@@ -620,7 +623,8 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
         "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
         "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
         "Include at least one cross-paper comparison or tradeoff and at least one concrete adoption test for Autodesk/AEC 2D document systems. "
-        "Make the Autodesk/AEC/2D-document implications concrete where supported by the evidence. "
+        "Make the Autodesk/AEC/2D-document implications concrete where supported by the evidence; otherwise label them as plausible transfer or open hypothesis. "
+        "Do not present a cross-paper stack, architecture, or workflow as proven unless the evidence cards directly support that integration. "
         "Do not use first-person employment claims such as 'As a Principal MLE at Autodesk'; write from that practical viewpoint without claiming identity. "
         "Avoid exact numeric claims unless the number appears verbatim in the evidence text.\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
@@ -692,9 +696,15 @@ def _repair_user(
         "- You do not need to cover every item in EVIDENCE_PACK; omit weak items rather than inventing details.\n"
         "- Remove unsupported numbers and unsupported claims; prefer qualitative phrasing when uncertain.\n"
         "- Remove Mermaid diagrams, generic visual maps, stale source lists, duplicated-token artifacts, and first-person Autodesk employment/product claims.\n"
+        "- Downgrade unsupported assertions into explicit plausible-transfer or open-hypothesis language.\n"
+        "- Merge redundant same-paper sections unless the OUTLINE split is technically justified.\n"
+        "- Mark supporting-paper mentions as supporting instead of presenting them as additional primaries.\n"
+        "- Add experiment/evaluation detail where the evidence cards provide it.\n"
+        "- Remove late paper insertions that are not justified by the selected primary/supporting scope.\n"
         "- Do not output JSON, explanations, or a validation report.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
         f"LLM_QUALITY_REVIEW:\n{json.dumps(quality_review or {}, indent=2, ensure_ascii=False)}\n\n"
+        f"RELEVANT_EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"CITED_SOURCE_URLS:\n{json.dumps(cited_source_requirements, indent=2, ensure_ascii=False)}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
@@ -840,10 +850,12 @@ def _quality_review_user(
         "Review the draft for publication quality. Return JSON with this shape:\n"
         "{\n"
         '  "pass": true,\n'
-        '  "scores": {"technical_specificity": 0.0, "engineering_judgment": 0.0, "synthesis": 0.0, "noise_control": 0.0, "primary_depth": 0.0},\n'
-        '  "errors": ["short machine-readable error"],\n'
+        '  "scores": {"technical_specificity": 0.0, "engineering_judgment": 0.0, "synthesis": 0.0, "noise_control": 0.0, '
+        '"primary_depth": 0.0, "evidence_discipline": 0.0, "section_nonredundancy": 0.0, "experiment_detail": 0.0},\n'
+        '  "errors": ["machine_readable_error_code"],\n'
         '  "examples": ["quoted short failing text"],\n'
-        '  "notes": "short explanation"\n'
+        '  "notes": "short explanation",\n'
+        '  "top_editorial_failure": "one sentence on the most important problem"\n'
         "}\n\n"
         "Blocking criteria:\n"
         "- generic corporate prose, hype, or paper-by-paper abstract summaries without insight\n"
@@ -852,7 +864,12 @@ def _quality_review_user(
         "- missing source URL in the same paragraph as each cited evidence marker\n"
         "- Mermaid diagrams, generic visual maps, or stale visuals that mention non-discussed papers\n"
         "- intro says four primary papers but body materially adds more without marking them supporting\n"
-        "- weak mechanism/objective/experiment/limitation coverage for primary papers\n\n"
+        "- weak mechanism/objective/experiment/limitation coverage for primary papers\n"
+        "- repeated sections that cover the same mechanism or limitation with little new technical value\n"
+        "- supporting paper introduced late or treated like a primary paper\n"
+        "- experiment detail much weaker than the mechanism claims when experiments exist in the evidence cards\n"
+        "- speculative Autodesk/AEC adoption prose that outruns paper-supported claims or transfer hypotheses\n"
+        "- claims that fuse multiple papers into a proven stack/system without direct support in the evidence cards\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"

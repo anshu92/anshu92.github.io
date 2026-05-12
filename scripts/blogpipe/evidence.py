@@ -60,7 +60,10 @@ def _evidence_cards(ranked: list[RankedItem], chunks: list[EvidenceChunk]) -> li
                 experiment=experiment,
                 limitation=limitation,
                 impact=impact,
+                paper_supported_claim=_paper_supported_claim(problem, mechanism, experiment, impact),
+                paper_supported_limit=_paper_supported_limit(limitation),
                 transfer_hypothesis=_transfer_hypothesis(item),
+                open_research_question=_open_research_question(item, mechanism, experiment, limitation),
                 evidence_ids={
                     evidence_type: [chunk.evidence_id for chunk in typed_chunks]
                     for evidence_type, typed_chunks in sorted(by_type.items())
@@ -68,6 +71,17 @@ def _evidence_cards(ranked: list[RankedItem], chunks: list[EvidenceChunk]) -> li
             )
         )
     return cards
+
+
+def _paper_supported_claim(problem: str, mechanism: str, experiment: str, impact: str) -> str:
+    for candidate in (mechanism, experiment, impact, problem):
+        if candidate and candidate != "not found in evidence":
+            return candidate
+    return "not found in evidence"
+
+
+def _paper_supported_limit(limitation: str) -> str:
+    return limitation if limitation and limitation != "not found in evidence" else "not found in evidence"
 
 
 def _selector_role(ranked: RankedItem) -> str:
@@ -99,6 +113,15 @@ def _transfer_hypothesis(item) -> str:
     if any(cue in blob for cue in ("inference", "latency", "throughput", "serving", "quantization")):
         return "Transferable as production infrastructure for document-scale model serving."
     return "Potentially relevant as adjacent ML research; validate transfer before adoption."
+
+
+def _open_research_question(item, mechanism: str, experiment: str, limitation: str) -> str:
+    if limitation and limitation != "not found in evidence":
+        return f"Open question: validate whether the reported limitation transfers to AEC or 2D-document workflows: {limitation}"
+    blob = f"{item.title} {mechanism} {experiment}".strip()
+    if blob:
+        return "Open question: validate whether this paper's mechanism remains useful under AEC document distributions and evaluation constraints."
+    return "Open question: more source-grounded evidence is needed before deriving an AEC transfer claim."
 
 
 def _chunks_for_item(ranked: RankedItem, offset: int, *, max_chunks: int) -> list[EvidenceChunk]:

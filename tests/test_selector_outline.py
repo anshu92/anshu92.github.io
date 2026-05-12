@@ -247,6 +247,44 @@ def test_outline_rejects_generic_corporate_headings():
     assert any(error.startswith("generic_outline_heading:") for error in validate_outline(outline, pack))
 
 
+def test_outline_rejects_duplicate_primary_focus_without_split_reason():
+    ranked = _fixture_ranked()
+    pack = build_daily_pack(ranked[:5])
+    first_item_id = pack.ranked_items[0].item.item_id
+    outline = DailyOutline(
+        title="Duplicate primary focus",
+        angle="Two overlapping sections should not pass.",
+        sections=[
+            {"heading": "Thesis", "intent": "technical thesis angle framing Autodesk AEC document relevance", "evidence_ids": ["E1"], "word_budget": 220},
+            {"heading": "Mechanism one", "intent": "mechanism method architecture pipeline", "evidence_ids": ["E1"], "word_budget": 220, "focus_item_ids": [first_item_id], "section_role": "primary"},
+            {"heading": "Mechanism two", "intent": "math objective metric optimization experiments evidence benchmark evaluation limitations caveat failure risk", "evidence_ids": ["E1"], "word_budget": 220, "focus_item_ids": [first_item_id], "section_role": "primary"},
+            {"heading": "Comparison", "intent": "cross-paper synthesis compare contrast tradeoff", "evidence_ids": ["E1"], "word_budget": 220},
+            {"heading": "Adoption", "intent": "impact engineering production practical Autodesk AEC document", "evidence_ids": ["E1"], "word_budget": 220},
+        ],
+    )
+    assert f"duplicate_primary_outline_focus:{first_item_id}" in validate_outline(outline, pack)
+
+
+def test_outline_rejects_primary_section_with_nonprimary_focus():
+    ranked = _fixture_ranked()
+    ranked[0].item.extra["selector_role"] = "primary"
+    ranked[1].item.extra["selector_role"] = "supporting"
+    pack = build_daily_pack(ranked[:5])
+    supporting_item_id = pack.ranked_items[1].item.item_id
+    outline = DailyOutline(
+        title="Scope drift",
+        angle="Supporting paper should not be elevated.",
+        sections=[
+            {"heading": "Thesis", "intent": "technical thesis angle framing Autodesk AEC document relevance", "evidence_ids": ["E1"], "word_budget": 220},
+            {"heading": "Primary", "intent": "mechanism method architecture pipeline", "evidence_ids": ["E1"], "word_budget": 220, "focus_item_ids": [supporting_item_id], "section_role": "primary"},
+            {"heading": "Objectives", "intent": "math objective metric optimization", "evidence_ids": ["E1"], "word_budget": 220},
+            {"heading": "Experiments", "intent": "experiments evidence benchmark evaluation limitations caveat failure risk", "evidence_ids": ["E1"], "word_budget": 220},
+            {"heading": "Adoption", "intent": "cross-paper synthesis compare contrast tradeoff impact engineering production practical Autodesk AEC document", "evidence_ids": ["E1"], "word_budget": 220},
+        ],
+    )
+    assert "primary_section_uses_nonprimary_focus" in validate_outline(outline, pack)
+
+
 def test_generate_outline_malformed_json_uses_fallback_outline():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
     pack = build_daily_pack(_fixture_ranked()[:5])

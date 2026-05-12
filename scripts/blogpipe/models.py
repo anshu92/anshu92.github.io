@@ -107,7 +107,10 @@ class EvidenceCard(BaseModel):
     experiment: str = "not found in evidence"
     limitation: str = "not found in evidence"
     impact: str = "not found in evidence"
+    paper_supported_claim: str = "not found in evidence"
+    paper_supported_limit: str = "not found in evidence"
     transfer_hypothesis: str = ""
+    open_research_question: str = ""
     evidence_ids: dict[str, list[str]] = Field(default_factory=dict)
 
 
@@ -158,6 +161,9 @@ class OutlineSection(BaseModel):
     intent: str
     evidence_ids: list[str] = Field(default_factory=list)
     word_budget: int = 0
+    focus_item_ids: list[str] = Field(default_factory=list)
+    section_role: str = ""
+    split_reason: str = ""
 
 
 class DailyOutline(BaseModel):
