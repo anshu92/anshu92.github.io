@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import logging
+import signal
+import threading
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 
 import httpx
@@ -92,12 +95,13 @@ class LLMClient:
                 try:
                     task_timeout = self._task_timeout_seconds(task_name)
                     read_timeout = max(1.0, min(task_timeout, remaining))
-                    resp = httpx.post(
-                        f"{base_url}/chat/completions",
-                        headers=headers,
-                        json=payload,
-                        timeout=httpx.Timeout(read_timeout, connect=min(10.0, read_timeout)),
-                    )
+                    with _wall_clock_deadline(read_timeout):
+                        resp = httpx.post(
+                            f"{base_url}/chat/completions",
+                            headers=headers,
+                            json=payload,
+                            timeout=httpx.Timeout(read_timeout, connect=min(10.0, read_timeout)),
+                        )
                     if resp.status_code in RETRY_STATUS_CODES and attempt < 2:
                         time.sleep(2 ** attempt)
                         continue
@@ -129,6 +133,14 @@ class LLMClient:
                     return text
                 except Exception as exc:
                     last_error = exc
+                    if isinstance(exc, TimeoutError):
+                        LOG.warning(
+                            "llm task=%s model=%s exceeded wall-clock timeout (%s); trying next model",
+                            task_name,
+                            chain_model,
+                            exc,
+                        )
+                        break
                     if attempt < 2:
                         time.sleep(2 ** attempt)
                         continue
@@ -245,3 +257,33 @@ def _can_fallback_status(status_code: int) -> bool:
     if status_code in {401, 403}:
         return False
     return status_code >= 400
+
+
+@contextmanager
+def _wall_clock_deadline(seconds: float):
+    # httpx read timeouts are inactivity timers, not whole-request deadlines.
+    # CI runs on Unix in the main thread, so SIGALRM gives us a hard ceiling for
+    # providers that slowly stream or hold the response open.
+    if (
+        seconds <= 0
+        or threading.current_thread() is not threading.main_thread()
+        or not hasattr(signal, "SIGALRM")
+        or not hasattr(signal, "setitimer")
+    ):
+        yield
+        return
+
+    def _raise_timeout(_signum, _frame):  # noqa: ANN001
+        raise TimeoutError(f"llm_wall_clock_timeout:{seconds:.1f}s")
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    previous_timer = signal.getitimer(signal.ITIMER_REAL)
+    signal.signal(signal.SIGALRM, _raise_timeout)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous_handler)
+        if previous_timer[0] > 0:
+            signal.setitimer(signal.ITIMER_REAL, *previous_timer)

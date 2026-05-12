@@ -106,13 +106,36 @@ def _selector_user(candidates: list[RankedItem]) -> str:
 
 def _parse_selection(text: str) -> SelectionResult:
     try:
-        return SelectionResult.model_validate(jsonish.loads_object(text))
+        return SelectionResult.model_validate(_normalize_selection_payload(jsonish.loads_object(text)))
     except (SyntaxError, ValidationError, ValueError, json.JSONDecodeError) as exc:
         raise SelectionError(f"selector_malformed:{exc}") from exc
 
 
 def _json_payload(text: str) -> str:
     return jsonish.extract_object(text)
+
+
+def _normalize_selection_payload(data: object) -> object:
+    if not isinstance(data, dict):
+        return data
+    normalized = dict(data)
+    cleaned_items = []
+    for raw_item in data.get("items") or []:
+        if not isinstance(raw_item, dict):
+            continue
+        item = dict(raw_item)
+        scores = raw_item.get("scores")
+        if isinstance(scores, dict):
+            clean_scores: dict[str, float] = {}
+            for key, value in scores.items():
+                try:
+                    clean_scores[str(key)] = float(value)
+                except (TypeError, ValueError):
+                    continue
+            item["scores"] = clean_scores
+        cleaned_items.append(item)
+    normalized["items"] = cleaned_items
+    return normalized
 
 
 def _salvage_selection(raw: str, candidates: list[RankedItem]) -> SelectionResult | None:

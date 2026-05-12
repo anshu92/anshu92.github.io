@@ -140,3 +140,25 @@ def test_llm_runtime_budget_blocks_new_calls(monkeypatch):
     monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 60.0)
     with pytest.raises(RuntimeError, match="BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"):
         llm.complete(system="sys", user="usr", task="outline")
+
+
+def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "base-model")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_SELECTOR", "slow-model,backup-model")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
+
+    attempted: list[str] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        attempted.append(str(json["model"]))
+        if json["model"] == "slow-model":
+            raise TimeoutError("llm_wall_clock_timeout:45.0s")
+        return _StubResponse(200, {"choices": [{"message": {"content": "ok"}}]})
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    assert llm.complete(system="sys", user="usr", task="selector") == "ok"
+    assert attempted == ["slow-model", "backup-model"]

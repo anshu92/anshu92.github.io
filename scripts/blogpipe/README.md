@@ -109,6 +109,10 @@ If those are unset, the client falls back to `OPENROUTER_BASE`,
 `OPENROUTER_API_KEY`, and `BLOGPIPE_MODEL` for continuity.
 When a chain is provided, blogpipe tries models in order and automatically
 falls back to the next model on retriable/server/model-availability failures.
+Each live LLM request also has a hard wall-clock deadline in addition to HTTP
+read timeouts, so a slow fallback provider cannot hold a workflow open for
+several minutes past the configured task budget. A model that exceeds that
+deadline is skipped instead of being retried repeatedly.
 If the primary endpoint is Gemini-compatible and a chain includes an OpenRouter
 model name, that model is sent to `OPENROUTER_BASE` with `OPENROUTER_API_KEY`
 instead of being sent to the Gemini endpoint.
@@ -216,7 +220,10 @@ The review also rejects title/body drift, generic recommendations without an
 engineering decision, and synthesis claims that sound stronger than the cited
 evidence supports.
 When a draft contains unsupported numeric claims, blogpipe first rewrites them
-into qualitative phrasing before giving up on the run. Frontmatter tags are
+into qualitative phrasing before giving up on the run. Paragraphs that already
+cite an evidence ID but omit its same-paragraph source URL are normalized
+deterministically before repair, which keeps LLM repair budget focused on
+substantive editorial problems. Frontmatter tags are
 derived from the final body text rather than applying every selected-paper or
 global radar tag. The edited body `# H1` is the canonical publication title and
 frontmatter title source.

@@ -774,6 +774,7 @@ def _sanitize_then_validate(
     *,
     outline: DailyOutline | None,
 ) -> tuple[str, list[str]]:
+    body = _ensure_paragraph_source_links(body, pack)
     errors = validate_body(body, pack, outline=outline)
     if not any(error.startswith("unsupported_number:") for error in errors):
         return body, errors
@@ -782,6 +783,35 @@ def _sanitize_then_validate(
         return body, errors
     sanitized_errors = validate_body(sanitized, pack, outline=outline)
     return sanitized, sanitized_errors
+
+
+def _ensure_paragraph_source_links(body: str, pack: EvidencePack) -> str:
+    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
+    paragraphs = re.split(r"(\n\s*\n)", body or "")
+    updated: list[str] = []
+    changed = False
+    for part in paragraphs:
+        if not part or re.fullmatch(r"\n\s*\n", part):
+            updated.append(part)
+            continue
+        refs = {f"E{match.group(1)}" for match in EVIDENCE_REF_RE.finditer(part)}
+        if not refs:
+            updated.append(part)
+            continue
+        paragraph_keys = _body_url_keys(part)
+        missing_urls = []
+        for evidence_id in sorted(refs):
+            chunk = chunks_by_id.get(evidence_id)
+            url = getattr(chunk, "url", "") if chunk is not None else ""
+            if url and not (_url_keys(url) & paragraph_keys) and url not in missing_urls:
+                missing_urls.append(url)
+        if not missing_urls:
+            updated.append(part)
+            continue
+        suffix = " Source:" if len(missing_urls) == 1 else " Sources:"
+        updated.append(part.rstrip() + suffix + " " + " ".join(missing_urls))
+        changed = True
+    return "".join(updated) if changed else (body or "")
 
 
 def _sanitize_unsupported_numbers(body: str, errors: list[str]) -> str:

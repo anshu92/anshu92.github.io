@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from pydantic import TypeAdapter
@@ -365,6 +366,23 @@ def test_write_daily_auto_sanitizes_unsupported_numbers_with_source_links(monkey
     assert "17" not in result.body
     assert "900" not in result.body
     assert "multiple tasks" in result.body or "several tasks" in result.body or "many tasks" in result.body
+
+
+def test_write_daily_auto_adds_missing_paragraph_source_links(monkeypatch, tmp_path):
+    pack = _pack()
+    outline = _outline()
+    selection = _selection()
+    body = re.sub(r"\s+Sources?: https?://[^\n]+", "", Path("tests/fixtures/fake_daily.md").read_text())
+
+    class StaticLLM:
+        def complete(self, *, system, user, max_tokens=None):
+            return body
+
+    _patch_root(monkeypatch, tmp_path)
+    result = write_daily(pack, outline=outline, selection=selection, llm=StaticLLM(), dry_run=True)
+    assert result.ok, result.errors
+    assert "Source:" in result.body or "Sources:" in result.body
+    assert not any(error.startswith("missing_paragraph_source_link:") for error in result.errors)
 
 
 def test_blocked_post_is_not_published_after_failed_repair(monkeypatch, tmp_path):

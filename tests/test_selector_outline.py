@@ -174,6 +174,30 @@ def test_selector_accepts_pythonish_dict_output():
     assert result.suggested_tags == ["aec"]
 
 
+def test_selector_ignores_misplaced_nonnumeric_score_fields():
+    ranked = [
+        _ranked_item("p1", text="Generic serving benchmark"),
+        _ranked_item("p2", text="AEC drawing PDF OCR foundation model"),
+    ]
+    raw = json.dumps(
+        {
+            "selected_item_ids": ["p2"],
+            "items": [
+                {
+                    "item_id": "p2",
+                    "role": "primary",
+                    "relevance_label": "aec_adjacent",
+                    "scores": {"aec_document_relevance": 0.9, "relevance_label": "aec_adjacent"},
+                }
+            ],
+        }
+    )
+    selected, result = select_daily_items(ranked, llm=FakeLLM(raw))
+    assert selected[0].item.item_id == "p2"
+    assert result.items[0].scores == {"aec_document_relevance": 0.9}
+    assert result.items[0].relevance_label == "aec_adjacent"
+
+
 def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_SELECTOR_CANDIDATES", "2")
     ranked = [
