@@ -180,7 +180,10 @@ Bad headings are blocked or repaired because they add noise:
 The writer drafts each section with separate LLM calls and then runs a final
 editor pass. Each section should open with a concrete claim, walk through the
 mechanism, state the engineering implication, and name a limitation or adoption
-blocker. The editor removes corporate transformation language, repeated
+blocker. Daily posts should stay research-deep while reading like engineering
+judgment: benchmark design, failure modes, deployment constraints, integration
+dependencies, latency/cost tradeoffs, and validation tests should shape the
+practical takeaway. The editor removes corporate transformation language, repeated
 `crucial` / `paramount` / `game-changer` phrasing, unsupported first-person
 Autodesk claims, paper-by-paper abstract summaries that lack synthesis, and
 speculative AEC transfer claims that are phrased as proven results.
@@ -209,10 +212,14 @@ Low-signal drafts are blocked, not merely warned. The rubric is assigned by an
 LLM quality-review pass so signal, synthesis, and editorial judgment are scored
 in context rather than by brittle keyword heuristics. Blocked reports include
 validator errors, rubric scores, and examples of failing text where available.
+The review also rejects title/body drift, generic recommendations without an
+engineering decision, and synthesis claims that sound stronger than the cited
+evidence supports.
 When a draft contains unsupported numeric claims, blogpipe first rewrites them
 into qualitative phrasing before giving up on the run. Frontmatter tags are
-derived from the actual selected/cited content rather than applying every global
-radar tag.
+derived from the final body text rather than applying every selected-paper or
+global radar tag. The edited body `# H1` is the canonical publication title and
+frontmatter title source.
 
 Generated posts do not include generic Mermaid maps or auto-injected chart
 decorations. A visual should appear only when the writing model produces a

@@ -1,3 +1,5 @@
+# Evidence Boundaries for AEC Foundation Models
+
 ## Document-model reliability starts with measurable failure boundaries
 
 The useful thread in this batch is that several papers move model behavior from vague capability claims into measurable engineering boundaries. From the point of view of a Principal MLE evaluating AEC foundation-model work, that is exactly the shift that matters. A foundation model for drawings, sheets, plans, specifications, and BIM-linked documents has to reason across long context, retrieve the right project evidence, and expose failure modes that can be debugged before a product team trusts it. The cache-aware long-context paper, the RAG evaluation paper, and the agent evaluation paper each attack one part of that system boundary [E1] [E3] [E5]. Sources: https://arxiv.org/abs/2605.00001 https://openreview.net/forum https://arxiv.org/abs/2605.00002

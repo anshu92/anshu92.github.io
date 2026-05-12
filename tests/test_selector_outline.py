@@ -334,9 +334,49 @@ def test_frontmatter_tags_are_dynamic():
     ]
     pack = EvidencePack(kind="daily", ranked_items=ranked, chunks=[])
     outline = DailyOutline(title="Plain ML systems")
-    frontmatter = _frontmatter("Plain ML systems", "daily", pack, outline=outline, selection=None, body="serving latency monitoring")
+    frontmatter = _frontmatter(
+        "Plain ML systems",
+        "daily",
+        pack,
+        outline=outline,
+        selection=None,
+        body="language model serving latency monitoring",
+    )
     assert 'tags: ["research-radar", "llm", "mle"]' in frontmatter
     assert '"aec"' not in frontmatter
+
+
+def test_frontmatter_tags_ignore_metadata_without_body_support():
+    ranked = [
+        _ranked_item("cad", text="AEC BIM CAD foundation model benchmark", score=0.8)
+    ]
+    ranked[0].item.tags = ["paper", "aec", "bim", "cad", "foundation-models"]
+    pack = EvidencePack(kind="daily", ranked_items=ranked, chunks=[])
+    outline = DailyOutline(title="Metadata-only tag drift", suggested_tags=["aec", "bim", "cad", "foundation-models"])
+    selection = SelectionResult(suggested_tags=["aec", "bim", "cad", "foundation-models"])
+    frontmatter = _frontmatter("Metadata-only tag drift", "daily", pack, outline=outline, selection=selection, body="Latency and monitoring matter for deployment.")
+    assert 'tags: ["research-radar", "mle"]' in frontmatter
+    assert '"aec"' not in frontmatter
+    assert '"bim"' not in frontmatter
+    assert '"cad"' not in frontmatter
+    assert '"foundation-models"' not in frontmatter
+
+
+def test_frontmatter_specialized_tags_require_body_support():
+    ranked = [_ranked_item("doc", text="Generic benchmark", score=0.8)]
+    pack = EvidencePack(kind="daily", ranked_items=ranked, chunks=[])
+    body = (
+        "This document intelligence pipeline evaluates drawing sheet layout preservation for AEC workflows. "
+        "A BIM-aware CAD prototype connects CadQuery evidence to deployment validation. "
+        "The multimodal foundation model framing remains explicit."
+    )
+    frontmatter = _frontmatter("Supported tags", "daily", pack, outline=None, selection=None, body=body)
+    assert '"aec"' in frontmatter
+    assert '"document-ai"' in frontmatter
+    assert '"cad"' in frontmatter
+    assert '"bim"' in frontmatter
+    assert '"foundation-models"' in frontmatter
+    assert '"multimodal"' in frontmatter
 
 
 def test_non_openrouter_endpoint_can_fall_back_to_openrouter(monkeypatch):

@@ -18,6 +18,7 @@ LOG = logging.getLogger(__name__)
 EVIDENCE_REF_RE = re.compile(r"\[E(\d+)\]")
 NUMBER_RE = re.compile(r"(?<![\w-])\d+(?:\.\d+)?%?(?![\w-])")
 HEADING_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.M)
+H1_RE = re.compile(r"^#\s+(.+?)\s*$", re.M)
 URL_RE = re.compile(r"https?://[^\s<>\])\"]+")
 NUMERIC_CLAIM_CUES = (
     "%",
@@ -107,6 +108,21 @@ SYNTHESIS_CUES = (
     "separates",
     "complements",
     "the common pattern",
+)
+ENGINEERING_LENS_CUES = (
+    "benchmark",
+    "failure mode",
+    "release gate",
+    "validation",
+    "latency",
+    "cost",
+    "throughput",
+    "deployment",
+    "integration",
+    "dependency",
+    "prototype",
+    "adoption test",
+    "monitoring",
 )
 FIRST_PERSON_AUTODESK_RE = re.compile(
     r"\b(as a principal (?:machine learning engineer|mle).*?(?:at|for) autodesk|"
@@ -202,6 +218,8 @@ def validate_body(body: str, pack: EvidencePack, *, outline: DailyOutline | None
         errors.append("copied_large_evidence_span")
     if REPEATED_TOKEN_RE.search(body or ""):
         errors.append("repeated_token_artifact")
+    if pack.kind == "daily":
+        errors.extend(_validate_final_title(body))
     if "```mermaid" in (body or "").lower():
         errors.append("mermaid_diagram_present")
     if "## visual map" in (body or "").lower():
@@ -558,14 +576,15 @@ def _validate_repair_and_publish(
             encoding="utf-8",
         )
         return WriteResult(ok=False, title=title, body=body, errors=errors, repair_attempted=repair_attempted)
-    post = _frontmatter(title, post_type, pack, outline=outline, selection=selection, body=body) + "\n" + body.strip() + "\n"
+    final_title = _canonical_title_from_body(body) if pack.kind == "daily" else title
+    post = _frontmatter(final_title, post_type, pack, outline=outline, selection=selection, body=body) + "\n" + body.strip() + "\n"
     if dry_run:
         path = memory.REPORTS / f"{slug}.preview.md"
     else:
         path = memory.CONTENT_POST / f"{slug}.md"
     memory.ensure_dirs()
     path.write_text(post, encoding="utf-8")
-    return WriteResult(ok=True, path=str(path.relative_to(memory.ROOT)), title=title, body=body, repair_attempted=repair_attempted)
+    return WriteResult(ok=True, path=str(path.relative_to(memory.ROOT)), title=final_title, body=body, repair_attempted=repair_attempted)
 
 
 def _frontmatter(
@@ -608,6 +627,8 @@ def _daily_system() -> str:
         "Write from the practical point of view of a Principal Machine Learning Engineer at Autodesk evaluating research for "
         "AEC foundation models and 2D document intelligence. Do not claim to be employed by Autodesk. "
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
+        "Keep the research depth, but make the article engineering-forward: benchmark design, failure modes, integration constraints, "
+        "deployment dependencies, latency/cost tradeoffs, validation plans, and adoption tests should drive the practical judgment. "
         "Prefer deep synthesis over breadth: focus on 3-4 primary papers and use supporting items only when they sharpen the thesis. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
         "Distinguish direct implication, plausible transfer, and open hypothesis when discussing AEC use. "
@@ -627,6 +648,9 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
         "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
         "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
         "Include at least one cross-paper comparison or tradeoff and at least one concrete adoption test for Autodesk/AEC 2D document systems. "
+        "Every major section should connect the paper to at least one operational lens where evidence permits: benchmark design, failure mode, "
+        "deployment constraint, latency/cost tradeoff, integration dependency, or prototype/validation test. "
+        "The adoption section should read like an engineering decision memo, not a broad relevance section. "
         "Make the Autodesk/AEC/2D-document implications concrete where supported by the evidence; otherwise label them as plausible transfer or open hypothesis. "
         "Do not present a cross-paper stack, architecture, or workflow as proven unless the evidence cards directly support that integration. "
         "Do not use first-person employment claims such as 'As a Principal MLE at Autodesk'; write from that practical viewpoint without claiming identity. "
@@ -704,6 +728,9 @@ def _repair_user(
         "- Merge redundant same-paper sections unless the OUTLINE split is technically justified.\n"
         "- Mark supporting-paper mentions as supporting instead of presenting them as additional primaries.\n"
         "- Add experiment/evaluation detail where the evidence cards provide it.\n"
+        "- Strengthen operational judgment with concrete benchmarks, failure modes, deployment constraints, integration dependencies, latency/cost tradeoffs, or validation tests when the evidence supports them.\n"
+        "- If the body focus no longer matches the current headline, revise the H1 so the final title matches the actual article.\n"
+        "- Downgrade phrases such as 'defines the reliability envelope', 'beyond prototype stage', and 'non-negotiable' unless the evidence clearly warrants them.\n"
         "- Remove late paper insertions that are not justified by the selected primary/supporting scope.\n"
         "- Do not output JSON, explanations, or a validation report.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
@@ -869,11 +896,15 @@ def _quality_review_user(
         "- Mermaid diagrams, generic visual maps, or stale visuals that mention non-discussed papers\n"
         "- intro says four primary papers but body materially adds more without marking them supporting\n"
         "- weak mechanism/objective/experiment/limitation coverage for primary papers\n"
+        "- research exposition with weak engineering usefulness: no benchmark, blocker, deployment implication, integration constraint, validation test, or operational tradeoff\n"
+        "- 'why it matters' or recommendation prose that remains generic rather than decision-oriented\n"
         "- repeated sections that cover the same mechanism or limitation with little new technical value\n"
         "- supporting paper introduced late or treated like a primary paper\n"
         "- experiment detail much weaker than the mechanism claims when experiments exist in the evidence cards\n"
         "- speculative Autodesk/AEC adoption prose that outruns paper-supported claims or transfer hypotheses\n"
-        "- claims that fuse multiple papers into a proven stack/system without direct support in the evidence cards\n\n"
+        "- claims that fuse multiple papers into a proven stack/system without direct support in the evidence cards\n"
+        "- synthesis claims whose strength exceeds the evidence, including phrases such as 'defines the reliability envelope', 'beyond prototype stage', or 'non-negotiable'\n"
+        "- title/body mismatch: the H1 centers one paper or axis, but the body mainly argues a different throughline\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
@@ -921,22 +952,14 @@ def _frontmatter_tags(
     selection: SelectionResult | None,
     body: str,
 ) -> list[str]:
-    blob = " ".join(
-        [
-            body or "",
-            outline.model_dump_json() if outline is not None else "",
-            selection.model_dump_json() if selection is not None else "",
-            " ".join(" ".join(r.item.tags) for r in pack.ranked_items),
-            " ".join(f"{r.item.title} {r.item.abstract_or_excerpt}" for r in pack.ranked_items),
-        ]
-    ).lower()
+    blob = (body or "").lower()
     tags = ["research-radar"]
     rules = (
-        ("aec", ("aec", "bim", "ifc", "construction", "revit", "building controls")),
-        ("document-ai", ("document", "drawing", "sheet", "plan", "pdf", "ocr", "layout")),
-        ("foundation-models", ("foundation model", "pretraining", "multimodal", "vision-language")),
-        ("multimodal", ("multimodal", "vision-language", "image", "visual")),
-        ("cad", ("cad", "ifc", "bim", "revit", "scan-to-bim")),
+        ("aec", ("aec", "construction", "building workflow", "facility workflow")),
+        ("document-ai", ("document intelligence", "drawing sheet", "sheet-level", "pdf translation", "ocr", "layout preservation")),
+        ("foundation-models", ("foundation model", "foundation-model")),
+        ("multimodal", ("multimodal", "vision-language", "visual grounding")),
+        ("cad", ("cad", "cadquery", "programmatic cad", "scan-to-bim")),
         ("bim", ("bim", "ifc", "revit")),
         ("llm", ("llm", "language model", "agent", "rag", "transformer")),
         ("mle", ("serving", "evaluation", "monitoring", "pipeline", "latency", "throughput", "deployment")),
@@ -945,6 +968,40 @@ def _frontmatter_tags(
         if any(cue in blob for cue in cues):
             tags.append(tag)
     return tags
+
+
+def _validate_final_title(body: str) -> list[str]:
+    titles = _h1_titles(body)
+    if not titles:
+        return ["missing_final_h1"]
+    if len(titles) > 1:
+        return [f"multiple_final_h1:{len(titles)}"]
+    title = titles[0]
+    errors: list[str] = []
+    if _looks_like_truncated_fallback_title(title):
+        errors.append("truncated_or_fallback_final_h1")
+    return errors
+
+
+def _canonical_title_from_body(body: str) -> str:
+    titles = _h1_titles(body)
+    return titles[0] if titles else ""
+
+
+def _h1_titles(body: str) -> list[str]:
+    return [re.sub(r"\s+", " ", match.group(1)).strip() for match in H1_RE.finditer(body or "")]
+
+
+def _looks_like_truncated_fallback_title(title: str) -> bool:
+    normalized = (title or "").strip()
+    lower = normalized.lower()
+    if lower.startswith("research radar: ") and len(normalized) >= 72 and not re.search(r"[.!?]$", normalized):
+        return True
+    if normalized.endswith(("...", "…")):
+        return True
+    if lower.startswith("research radar: benchcad: a comprehensive, industry-standard benchmark for programmati"):
+        return True
+    return False
 
 
 def _required_urls_for_refs(refs: set[str], chunks_by_id: dict[str, object]) -> list[str]:

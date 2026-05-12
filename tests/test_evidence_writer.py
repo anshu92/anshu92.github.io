@@ -11,7 +11,14 @@ from blogpipe.llm import LLMClient
 from blogpipe import memory
 from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
-from blogpipe.writer import _llm_quality_errors, validate_body, write_daily, write_deep_dive
+from blogpipe.writer import (
+    _canonical_title_from_body,
+    _llm_quality_errors,
+    _validate_final_title,
+    validate_body,
+    write_daily,
+    write_deep_dive,
+)
 
 
 def _pack():
@@ -46,7 +53,26 @@ def test_valid_llm_daily_post_passes(monkeypatch, tmp_path):
     result = write_daily(pack, outline=_outline(), selection=_selection(), llm=LLMClient(), dry_run=True)
     assert result.ok, result.errors
     assert result.path.startswith("reports/")
-    assert "draft: true" in (tmp_path / result.path).read_text()
+    rendered = (tmp_path / result.path).read_text()
+    assert "draft: true" in rendered
+    assert 'title: "Evidence Boundaries for AEC Foundation Models"' in rendered
+    assert result.title == "Evidence Boundaries for AEC Foundation Models"
+
+
+def test_final_h1_is_canonical_title():
+    body = "# Final engineering title\n\n## Mechanism\nGrounded."
+    assert _canonical_title_from_body(body) == "Final engineering title"
+    assert _validate_final_title(body) == []
+
+
+def test_missing_or_multiple_final_h1_fails():
+    assert _validate_final_title("## No headline") == ["missing_final_h1"]
+    assert _validate_final_title("# One\n\n# Two") == ["multiple_final_h1:2"]
+
+
+def test_truncated_fallback_style_h1_fails():
+    body = "# Research Radar: BenchCAD: A Comprehensive, Industry-Standard Benchmark for Programmati"
+    assert _validate_final_title(body) == ["truncated_or_fallback_final_h1"]
 
 
 def test_unsupported_number_fails():
@@ -227,6 +253,32 @@ def test_evidence_discipline_and_redundancy_scores_fail_llm_quality_review(monke
     assert "llm_low_signal:section_nonredundancy:0.55/0.75" in errors
     assert "llm_low_signal:experiment_detail:0.51/0.75" in errors
     assert "llm_quality:overstated_transfer_claim" in errors
+
+
+def test_engineering_focus_and_title_alignment_fail_llm_quality_review(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    review = {
+        "pass": False,
+        "scores": {
+            "technical_specificity": 0.88,
+            "engineering_judgment": 0.46,
+            "synthesis": 0.81,
+            "noise_control": 0.91,
+            "primary_depth": 0.84,
+            "evidence_discipline": 0.82,
+            "section_nonredundancy": 0.86,
+            "experiment_detail": 0.80,
+        },
+        "errors": ["weak_engineering_focus", "title_body_mismatch", "claim_strength_exceeds_evidence"],
+        "examples": ["This defines the reliability envelope for production AEC systems."],
+        "notes": "Mechanisms are explained, but the engineering decisions stay vague.",
+        "top_editorial_failure": "The article promises an operational brief but closes with generic research synthesis.",
+    }
+    errors = _llm_quality_errors(review)
+    assert "llm_low_signal:engineering_judgment:0.46/0.75" in errors
+    assert "llm_quality:weak_engineering_focus" in errors
+    assert "llm_quality:title_body_mismatch" in errors
+    assert "llm_quality:claim_strength_exceeds_evidence" in errors
 
 
 def test_first_person_autodesk_claim_fails():
