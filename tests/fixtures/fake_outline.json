@@ -1,0 +1,43 @@
+{
+  "title": "Research Radar: Evidence Boundaries for AEC Foundation Models",
+  "angle": "Recent papers matter because they turn long-context, retrieval, and agent behavior into measurable engineering boundaries for AEC document workflows.",
+  "sections": [
+    {
+      "heading": "Why this batch matters for AEC foundation-model work",
+      "intent": "technical thesis and Autodesk AEC document relevance",
+      "evidence_ids": ["E1", "E5", "E6"],
+      "word_budget": 220
+    },
+    {
+      "heading": "Cache and retrieval boundaries are becoming model architecture",
+      "intent": "mechanism method architecture pipeline",
+      "evidence_ids": ["E1", "E3"],
+      "word_budget": 240
+    },
+    {
+      "heading": "Evaluation is the product surface for document intelligence",
+      "intent": "experiments evidence benchmark evaluation",
+      "evidence_ids": ["E4", "E5"],
+      "word_budget": 220
+    },
+    {
+      "heading": "The math is mostly operational, but the objectives are clear",
+      "intent": "math objective metric optimization",
+      "evidence_ids": ["E1", "E5"],
+      "word_budget": 220
+    },
+    {
+      "heading": "What I would test before trusting these results",
+      "intent": "limitations caveat failure risk tradeoff",
+      "evidence_ids": ["E1", "E4", "E5"],
+      "word_budget": 220
+    },
+    {
+      "heading": "Autodesk-facing implications for drawings, BIM, and production tooling",
+      "intent": "engineering impact production practical Autodesk AEC drawing sheet CAD BIM",
+      "evidence_ids": ["E6", "E8"],
+      "word_budget": 240
+    }
+  ],
+  "suggested_tags": ["aec", "document-ai", "llm", "mle"]
+}

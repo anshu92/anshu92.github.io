@@ -30,7 +30,7 @@ class LLMClient:
         return bool(self.cfg.api_key and self.cfg.model and self.cfg.max_calls > 0)
 
     def complete(self, *, system: str, user: str, max_tokens: int | None = None) -> str:
-        fake = _fake_response()
+        fake = _fake_response(system, self.usage.calls)
         if fake:
             self.usage.calls += 1
             self.usage.model = "fake"
@@ -85,5 +85,20 @@ def write_usage(path: str, client: LLMClient) -> None:
         json.dump(client.usage.__dict__, fh, indent=2)
 
 
-def _fake_response() -> str:
+def _fake_response(system: str, call_index: int) -> str:
+    sequence = config._get("BLOGPIPE_FAKE_LLM_RESPONSES")
+    if sequence:
+        try:
+            values = json.loads(sequence)
+        except json.JSONDecodeError:
+            values = []
+        if isinstance(values, list) and call_index < len(values):
+            return str(values[call_index])
+    lower = (system or "").lower()
+    if "research radar selector" in lower:
+        return config._get("BLOGPIPE_FAKE_SELECTOR_RESPONSE")
+    if "research radar outline" in lower:
+        return config._get("BLOGPIPE_FAKE_OUTLINE_RESPONSE")
+    if "repair markdown" in lower:
+        return config._get("BLOGPIPE_FAKE_REPAIR_RESPONSE", config._get("BLOGPIPE_FAKE_LLM_RESPONSE"))
     return config._get("BLOGPIPE_FAKE_LLM_RESPONSE", "")

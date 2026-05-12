@@ -8,9 +8,9 @@ from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
 
-from . import memory
+from . import config, memory
 from .llm import LLMClient
-from .models import EvidencePack, RankedItem, WriteResult
+from .models import DailyOutline, EvidencePack, RankedItem, SelectionResult, WriteResult
 
 EVIDENCE_REF_RE = re.compile(r"\[E(\d+)\]")
 NUMBER_RE = re.compile(r"(?<![\w-])\d+(?:\.\d+)?%?(?![\w-])")
@@ -42,23 +42,34 @@ NUMERIC_CLAIM_CUES = (
     "reduced",
     "improved",
 )
-DAILY_REQUIRED_SECTIONS: dict[str, tuple[str, ...]] = {
-    "technical_thesis": ("technical thesis",),
-    "paper_mechanisms": ("paper mechanisms", "mechanisms"),
-    "math_or_objective": ("math", "objective"),
-    "experiments_and_limits": ("experiments", "evaluation", "evidence", "benchmark", "limits", "caveats"),
-    "why_it_matters": ("why it matters", "impact", "implications", "why this matters"),
+DAILY_CONCEPTS: dict[str, tuple[str, ...]] = {
+    "technical_thesis": ("thesis", "technical pattern", "framing", "claim"),
+    "mechanism": ("method", "mechanism", "architecture", "pipeline", "model"),
+    "math_or_objective": ("objective", "loss", "optimization", "metric", "measure", "score"),
+    "experiments": ("experiment", "ablation", "benchmark", "evaluation", "evidence"),
+    "limitations": ("limitation", "caveat", "failure", "risk", "tradeoff"),
+    "impact": ("impact", "production", "deployment", "engineering", "practical"),
+    "autodesk_relevance": ("autodesk", "aec", "document", "drawing", "sheet", "cad", "bim", "construction"),
 }
 
 
-def write_daily(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run: bool = False) -> WriteResult:
+def write_daily(
+    pack: EvidencePack,
+    *,
+    outline: DailyOutline,
+    selection: SelectionResult,
+    llm: LLMClient | None = None,
+    dry_run: bool = False,
+) -> WriteResult:
     client = llm or LLMClient()
     today = datetime.now(timezone.utc).date().isoformat()
-    title = f"Research Radar: Paper Mechanisms and Impact - {today}"
-    body = _call_writer(client, _daily_system(), _daily_user(pack, title))
+    title = outline.title or f"Research Radar: Autodesk MLE Brief - {today}"
+    body = _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title))
     return _validate_repair_and_publish(
         client=client,
         pack=pack,
+        outline=outline,
+        selection=selection,
         title=title,
         body=body,
         slug=f"{today}-research-radar",
@@ -77,6 +88,8 @@ def write_deep_dive(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run
     return _validate_repair_and_publish(
         client=client,
         pack=pack,
+        outline=None,
+        selection=None,
         title=title,
         body=body,
         slug=slug,
@@ -85,7 +98,7 @@ def write_deep_dive(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run
     )
 
 
-def validate_body(body: str, pack: EvidencePack) -> list[str]:
+def validate_body(body: str, pack: EvidencePack, *, outline: DailyOutline | None = None) -> list[str]:
     errors: list[str] = []
     chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
     evidence_ids = set(chunks_by_id)
@@ -106,7 +119,7 @@ def validate_body(body: str, pack: EvidencePack) -> list[str]:
     if _copies_large_evidence_span(body, pack):
         errors.append("copied_large_evidence_span")
     if pack.kind == "daily":
-        errors.extend(_validate_daily_technical_focus(body, pack))
+        errors.extend(_validate_daily_technical_focus(body, pack, outline=outline))
     try:
         MarkdownIt().parse(body)
     except Exception as exc:
@@ -122,20 +135,22 @@ def _validate_repair_and_publish(
     *,
     client: LLMClient,
     pack: EvidencePack,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
     title: str,
     body: str,
     slug: str,
     post_type: str,
     dry_run: bool,
 ) -> WriteResult:
-    errors = validate_body(body, pack)
+    errors = validate_body(body, pack, outline=outline)
     repair_attempted = False
     if errors:
         repair_attempted = True
-        repair_user = _repair_user(pack, body, errors)
+        repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection)
         try:
             body = _call_writer(client, _repair_system(), repair_user)
-            errors = validate_body(body, pack)
+            errors = validate_body(body, pack, outline=outline)
         except Exception as exc:
             errors.append(f"repair_failed:{exc}")
     if errors:
@@ -150,7 +165,7 @@ def _validate_repair_and_publish(
             encoding="utf-8",
         )
         return WriteResult(ok=False, title=title, body=body, errors=errors, repair_attempted=repair_attempted)
-    post = _frontmatter(title, post_type, pack) + "\n" + body.strip() + "\n"
+    post = _frontmatter(title, post_type, pack, outline=outline, selection=selection, body=body) + "\n" + body.strip() + "\n"
     if dry_run:
         path = memory.REPORTS / f"{slug}.preview.md"
     else:
@@ -160,11 +175,20 @@ def _validate_repair_and_publish(
     return WriteResult(ok=True, path=str(path.relative_to(memory.ROOT)), title=title, body=body, repair_attempted=repair_attempted)
 
 
-def _frontmatter(title: str, post_type: str, pack: EvidencePack) -> str:
+def _frontmatter(
+    title: str,
+    post_type: str,
+    pack: EvidencePack,
+    *,
+    outline: DailyOutline | None = None,
+    selection: SelectionResult | None = None,
+    body: str = "",
+) -> str:
     tracks = sorted({track for ranked in pack.ranked_items for track in ranked.topic_scores.tracks})
     source_count = len(pack.ranked_items)
     paper_count = sum(1 for r in pack.ranked_items if r.item.source_kind == "paper")
     blog_count = sum(1 for r in pack.ranked_items if r.item.source_kind == "blog")
+    tags = _frontmatter_tags(pack, outline=outline, selection=selection, body=body)
     return "\n".join(
         [
             "---",
@@ -173,7 +197,7 @@ def _frontmatter(title: str, post_type: str, pack: EvidencePack) -> str:
             f'title: "{_yaml_escape(title)}"',
             f"post_type: {post_type}",
             "categories: [\"Machine Learning\"]",
-            "tags: [\"research-radar\", \"llm\", \"mle\", \"aec\"]",
+            f"tags: {json.dumps(tags)}",
             f"tracks: {json.dumps(tracks)}",
             f"source_count: {source_count}",
             f"paper_count: {paper_count}",
@@ -188,23 +212,29 @@ def _frontmatter(title: str, post_type: str, pack: EvidencePack) -> str:
 def _daily_system() -> str:
     return (
         "You are writing Synaptic Radio, a technical ML research blog. Write polished Markdown, not JSON. "
+        "Write from the practical point of view of a Principal Machine Learning Engineer at Autodesk evaluating research for "
+        "AEC foundation models and 2D document intelligence. Do not claim to be employed by Autodesk. "
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
-        "Do not invent numbers, benchmarks, authors, or claims. Target 1200-2000 words when evidence supports it."
+        "Do not publish a single-source post: cite at least four distinct items and at least three papers when available. "
+        f"Do not invent numbers, benchmarks, authors, or claims. The daily post must be at least {config.daily_min_words()} words."
     )
 
 
-def _daily_user(pack: EvidencePack, title: str) -> str:
+def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionResult, title: str) -> str:
     return (
         f"TITLE: {title}\n\n"
-        "Write a paper-first technical blog post. Use these Markdown sections exactly: "
-        "Technical thesis, Paper mechanisms, Math or objective details, Experiments and limits, Why it matters, "
-        "Supporting engineering context. Do not create a Top engineering blogs section; source blogs are supporting context only. "
-        "Cover 5-8 strongest items when evidence supports them; do not force coverage of every input item. "
+        "Write a paper-first technical blog post using the OUTLINE headings exactly as provided. "
+        "Do not use fixed template headings such as 'Paper mechanisms', 'Math or objective details', or 'Why it matters' unless the outline uses them. "
+        "Cover 5-8 strongest items when evidence supports them, prioritizing papers over source blogs. "
+        "Cite at least four distinct items and at least three paper items when they exist in the evidence pack. "
         "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
         "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
+        "Make the Autodesk/AEC/2D-document implications concrete where supported by the evidence. "
         "Avoid exact numeric claims unless the number appears verbatim in the evidence text.\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
+        f"OUTLINE:\n{outline.model_dump_json(indent=2)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
     )
 
@@ -237,7 +267,14 @@ def _repair_system() -> str:
     )
 
 
-def _repair_user(pack: EvidencePack, body: str, errors: list[str]) -> str:
+def _repair_user(
+    pack: EvidencePack,
+    body: str,
+    errors: list[str],
+    *,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+) -> str:
     chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
     refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
     cited_source_requirements = [
@@ -246,9 +283,10 @@ def _repair_user(pack: EvidencePack, body: str, errors: list[str]) -> str:
         if evidence_id in chunks_by_id
     ]
     section_contract = (
-        "For daily posts, include these exact level-2 headings: Technical thesis, "
-        "Paper mechanisms, Math or objective details, Experiments and limits, Why it matters, "
-        "Supporting engineering context."
+        "For daily posts, preserve the OUTLINE headings exactly and write from the practical viewpoint "
+        "of a Principal MLE at Autodesk evaluating AEC foundation model and 2D-document relevance. "
+        f"The daily post must be at least {config.daily_min_words()} words. Cite at least four distinct items and "
+        "at least three paper items when they exist in the evidence pack."
         if pack.kind == "daily"
         else "Preserve the requested deep-dive technical structure."
     )
@@ -263,6 +301,8 @@ def _repair_user(pack: EvidencePack, body: str, errors: list[str]) -> str:
         "- Do not output JSON, explanations, or a validation report.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
         f"CITED_SOURCE_URLS:\n{json.dumps(cited_source_requirements, indent=2, ensure_ascii=False)}\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
+        f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
         f"DRAFT:\n{_repair_safe_draft(body, errors)}"
     )
@@ -300,6 +340,39 @@ def _strip_fence(text: str) -> str:
 
 def _yaml_escape(text: str) -> str:
     return text.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _frontmatter_tags(
+    pack: EvidencePack,
+    *,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+    body: str,
+) -> list[str]:
+    blob = " ".join(
+        [
+            body or "",
+            outline.model_dump_json() if outline is not None else "",
+            selection.model_dump_json() if selection is not None else "",
+            " ".join(" ".join(r.item.tags) for r in pack.ranked_items),
+            " ".join(f"{r.item.title} {r.item.abstract_or_excerpt}" for r in pack.ranked_items),
+        ]
+    ).lower()
+    tags = ["research-radar"]
+    rules = (
+        ("aec", ("aec", "bim", "ifc", "construction", "revit", "building controls")),
+        ("document-ai", ("document", "drawing", "sheet", "plan", "pdf", "ocr", "layout")),
+        ("foundation-models", ("foundation model", "pretraining", "multimodal", "vision-language")),
+        ("multimodal", ("multimodal", "vision-language", "image", "visual")),
+        ("cad", ("cad", "ifc", "bim", "revit", "scan-to-bim")),
+        ("bim", ("bim", "ifc", "revit")),
+        ("llm", ("llm", "language model", "agent", "rag", "transformer")),
+        ("mle", ("serving", "evaluation", "monitoring", "pipeline", "latency", "throughput", "deployment")),
+    )
+    for tag, cues in rules:
+        if any(cue in blob for cue in cues):
+            tags.append(tag)
+    return tags
 
 
 def _required_urls_for_refs(refs: set[str], chunks_by_id: dict[str, object]) -> list[str]:
@@ -374,24 +447,75 @@ def _copies_large_evidence_span(body: str, pack: EvidencePack) -> bool:
     return False
 
 
-def _validate_daily_technical_focus(body: str, pack: EvidencePack) -> list[str]:
+def _validate_daily_technical_focus(body: str, pack: EvidencePack, *, outline: DailyOutline | None) -> list[str]:
     errors: list[str] = []
     headings = [h.lower() for h in HEADING_RE.findall(body or "")]
-    for name, aliases in DAILY_REQUIRED_SECTIONS.items():
-        if not any(any(alias in heading for alias in aliases) for heading in headings):
-            errors.append(f"missing_daily_section:{name}")
+    if outline is not None:
+        errors.extend(_validate_outline_headings(body, outline))
+    errors.extend(_validate_daily_coverage(body, pack))
     if not any(r.item.source_kind == "paper" for r in pack.ranked_items):
-        return errors
+        errors.append("daily_no_papers")
     if _looks_like_generic_roundup(headings):
         errors.append("generic_roundup_structure")
     lower = (body or "").lower()
-    technical_terms = (
-        "method", "mechanism", "objective", "loss", "equation", "algorithm",
-        "architecture", "experiment", "ablation", "benchmark", "limitation", "impact",
-    )
-    if sum(1 for term in technical_terms if term in lower) < 4:
-        errors.append("insufficient_technical_focus")
+    errors.extend(_validate_daily_concepts(lower))
     return errors
+
+
+def _validate_outline_headings(body: str, outline: DailyOutline) -> list[str]:
+    body_headings = {_normalize_heading(heading) for heading in HEADING_RE.findall(body or "")}
+    errors: list[str] = []
+    for section in outline.sections:
+        expected = _normalize_heading(section.heading)
+        if expected and expected not in body_headings:
+            errors.append(f"missing_outline_section:{section.heading}")
+    return errors
+
+
+def _normalize_heading(heading: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]+", " ", (heading or "").lower())).strip()
+
+
+def _validate_daily_concepts(lower_body: str) -> list[str]:
+    errors: list[str] = []
+    for concept, cues in DAILY_CONCEPTS.items():
+        if not any(cue in lower_body for cue in cues):
+            errors.append(f"missing_daily_concept:{concept}")
+    return errors
+
+
+def _validate_daily_coverage(body: str, pack: EvidencePack) -> list[str]:
+    errors: list[str] = []
+    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
+    refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
+    item_kind = {ranked.item.item_id: ranked.item.source_kind for ranked in pack.ranked_items}
+    pack_item_ids = {ranked.item.item_id for ranked in pack.ranked_items}
+    cited_item_ids = {
+        chunks_by_id[evidence_id].item_id
+        for evidence_id in refs
+        if evidence_id in chunks_by_id and chunks_by_id[evidence_id].item_id in pack_item_ids
+    }
+    pack_paper_ids = {item_id for item_id, kind in item_kind.items() if kind == "paper"}
+    cited_paper_ids = {item_id for item_id in cited_item_ids if item_kind.get(item_id) == "paper"}
+    required_items = _required_daily_item_count(len(pack_item_ids))
+    required_papers = min(3, len(pack_paper_ids))
+    if len(cited_item_ids) < required_items:
+        errors.append(f"insufficient_cited_items:{len(cited_item_ids)}/{required_items}")
+    if required_papers and len(cited_paper_ids) < required_papers:
+        errors.append(f"insufficient_cited_papers:{len(cited_paper_ids)}/{required_papers}")
+    word_count = len(re.findall(r"\b[\w'-]+\b", body or ""))
+    min_words = config.daily_min_words()
+    if word_count < min_words:
+        errors.append(f"daily_too_short:{word_count}/{min_words}")
+    return errors
+
+
+def _required_daily_item_count(item_count: int) -> int:
+    if item_count >= 5:
+        return 4
+    if item_count >= 2:
+        return 2
+    return min(1, item_count)
 
 
 def _looks_like_generic_roundup(headings: list[str]) -> bool:

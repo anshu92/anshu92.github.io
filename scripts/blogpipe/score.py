@@ -36,9 +36,15 @@ def daily_shortlist(
     min_papers = config.min_papers() if min_papers is None else min_papers
     max_blogs = config.max_blogs() if max_blogs is None else max_blogs
     strong = [r for r in ranked if r.daily_score >= 0.68]
-    if len(strong) < minimum:
-        strong = [r for r in ranked if r.daily_score >= 0.50] or ranked
-    return _paper_first_shortlist(strong, minimum=minimum, maximum=maximum, min_papers=min_papers, max_blogs=max_blogs)
+    medium = [r for r in ranked if r.daily_score >= 0.50]
+    required_papers = min(min_papers, sum(1 for r in ranked if r.item.source_kind == "paper"), maximum)
+    if _shortlist_pool_is_sufficient(strong, minimum=minimum, required_papers=required_papers):
+        pool = strong
+    elif _shortlist_pool_is_sufficient(medium, minimum=minimum, required_papers=required_papers):
+        pool = medium
+    else:
+        pool = ranked
+    return _paper_first_shortlist(pool, minimum=minimum, maximum=maximum, min_papers=min_papers, max_blogs=max_blogs)
 
 
 def deep_dive_shortlist(ranked: list[RankedItem], *, maximum: int = 1) -> list[RankedItem]:
@@ -122,9 +128,15 @@ def _passes_gate(ranked: RankedItem) -> bool:
     if ranked.item.source_kind == "blog" and ranked.item.source_tier > 2:
         return False
     if ranked.item.source_kind == "blog":
-        if ranked.quality_signals.get("technical_depth", 0) < 0.28 and ranked.quality_signals.get("practical_impact", 0) < 0.25:
+        if ranked.quality_signals.get("technical_depth", 0) < 0.28 or ranked.quality_signals.get("practical_impact", 0) < 0.25:
             return False
     return True
+
+
+def _shortlist_pool_is_sufficient(pool: list[RankedItem], *, minimum: int, required_papers: int) -> bool:
+    if len(pool) < minimum:
+        return False
+    return sum(1 for r in pool if r.item.source_kind == "paper") >= required_papers
 
 
 def _freshness(item: SourceItem, now: datetime) -> float:

@@ -51,7 +51,7 @@ def llm_config() -> LLMConfig:
         base_url=base.rstrip("/"),
         api_key=key,
         model=model,
-        max_calls=_int("BLOGPIPE_LLM_MAX_CALLS", 4, 0, 20),
+        max_calls=_int("BLOGPIPE_LLM_MAX_CALLS", 6, 0, 20),
         max_tokens=_int("BLOGPIPE_LLM_MAX_TOKENS", 4096, 512, 12000),
         temperature=_float("BLOGPIPE_LLM_TEMPERATURE", 0.25, 0.0, 1.2),
     )
@@ -83,6 +83,14 @@ def max_blogs() -> int:
 
 def profile_results() -> int:
     return _int("BLOGPIPE_PROFILE_RESULTS", 40, 5, 100)
+
+
+def selector_candidates() -> int:
+    return _int("BLOGPIPE_SELECTOR_CANDIDATES", 24, 8, 60)
+
+
+def daily_min_words() -> int:
+    return _int("BLOGPIPE_DAILY_MIN_WORDS", 1200, 300, 4000)
 
 
 def openreview_venues() -> tuple[str, ...]:

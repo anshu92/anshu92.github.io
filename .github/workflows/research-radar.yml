@@ -42,7 +42,7 @@ jobs:
           BLOGPIPE_LLM_BASE_URL: ${{ vars.BLOGPIPE_LLM_BASE_URL }}
           BLOGPIPE_LLM_API_KEY: ${{ secrets.BLOGPIPE_LLM_API_KEY || secrets.OPENROUTER_API_KEY }}
           BLOGPIPE_LLM_MODEL: ${{ vars.BLOGPIPE_LLM_MODEL || vars.BLOGPIPE_MODEL }}
-          BLOGPIPE_LLM_MAX_CALLS: ${{ vars.BLOGPIPE_LLM_MAX_CALLS || '4' }}
+          BLOGPIPE_LLM_MAX_CALLS: ${{ vars.BLOGPIPE_LLM_MAX_CALLS || '6' }}
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
           CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL || vars.CONTACT_EMAIL }}

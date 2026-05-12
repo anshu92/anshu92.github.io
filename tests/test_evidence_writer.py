@@ -8,7 +8,7 @@ from pydantic import TypeAdapter
 from blogpipe.evidence import build_daily_pack
 from blogpipe.llm import LLMClient
 from blogpipe import memory
-from blogpipe.models import SourceItem
+from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
 from blogpipe.writer import validate_body, write_daily
 
@@ -18,6 +18,14 @@ def _pack():
     items = TypeAdapter(list[SourceItem]).validate_python(data["items"])
     ranked = daily_shortlist(rank_items(items, max_age_hours=None))
     return build_daily_pack(ranked)
+
+
+def _selection() -> SelectionResult:
+    return SelectionResult.model_validate_json(Path("tests/fixtures/fake_selector.json").read_text())
+
+
+def _outline() -> DailyOutline:
+    return DailyOutline.model_validate_json(Path("tests/fixtures/fake_outline.json").read_text())
 
 
 def _patch_root(monkeypatch, tmp_path):
@@ -34,7 +42,7 @@ def test_valid_llm_daily_post_passes(monkeypatch, tmp_path):
     fake = Path("tests/fixtures/fake_daily.md").read_text()
     _patch_root(monkeypatch, tmp_path)
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSE", fake)
-    result = write_daily(pack, llm=LLMClient(), dry_run=True)
+    result = write_daily(pack, outline=_outline(), selection=_selection(), llm=LLMClient(), dry_run=True)
     assert result.ok, result.errors
     assert result.path.startswith("reports/")
     assert "draft: true" in (tmp_path / result.path).read_text()
@@ -43,28 +51,28 @@ def test_valid_llm_daily_post_passes(monkeypatch, tmp_path):
 def test_unsupported_number_fails():
     pack = _pack()
     body = Path("tests/fixtures/fake_daily.md").read_text() + "\n\nInvented result: 99.9% faster. [E1]"
-    errors = validate_body(body, pack)
+    errors = validate_body(body, pack, outline=_outline())
     assert "unsupported_number:99.9%" in errors
 
 
 def test_plain_reference_numbers_are_not_metric_claims():
     pack = _pack()
     body = Path("tests/fixtures/fake_daily.md").read_text() + "\n\nRelated citation marker [49] is not a metric. [E1]"
-    errors = validate_body(body, pack)
+    errors = validate_body(body, pack, outline=_outline())
     assert "unsupported_number:49" not in errors
 
 
 def test_arxiv_ids_are_not_metric_claims():
     pack = _pack()
     body = Path("tests/fixtures/fake_daily.md").read_text() + "\n\nArXiv identifier 2605.10195 is not a metric claim. [E1]"
-    errors = validate_body(body, pack)
+    errors = validate_body(body, pack, outline=_outline())
     assert "unsupported_number:2605.10195" not in errors
 
 
 def test_missing_source_link_fails():
     pack = _pack()
     body = "Grounded claim [E1] without the source URL."
-    errors = validate_body(body, pack)
+    errors = validate_body(body, pack, outline=_outline())
     assert any(e.startswith("missing_source_link:") for e in errors)
 
 
@@ -89,7 +97,7 @@ The benchmark and limitation are described in the evidence [E1]. Source: https:/
 ## Why it matters
 The impact is practical for inference systems [E1]. Source: https://arxiv.org/abs/2605.00001
 """
-    errors = validate_body(body, pack)
+    errors = validate_body(body, pack, outline=_outline())
     assert not any(error.startswith("missing_source_link:") for error in errors)
 
 
@@ -133,8 +141,37 @@ def test_generic_roundup_without_required_sections_fails():
 
 Generic roundup text with a source [E1]. Source: https://arxiv.org/abs/2605.00001
 """
-    errors = validate_body(body, pack)
-    assert "generic_roundup_structure" in errors or any(e.startswith("missing_daily_section:") for e in errors)
+    errors = validate_body(body, pack, outline=_outline())
+    assert "generic_roundup_structure" in errors or any(e.startswith("missing_daily_concept:") for e in errors)
+
+
+def test_single_source_daily_post_fails_even_with_required_sections():
+    pack = _pack()
+    body = """
+## Technical thesis
+One item is discussed as the whole radar, which is not enough coverage for a daily technical post [E5].
+Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
+
+## Paper mechanisms
+The post describes a workflow mechanism but does not cite any paper evidence [E5].
+Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
+
+## Math or objective details
+No paper objective is discussed from the available evidence [E5].
+Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
+
+## Experiments and limits
+The limitation is that this is a short single-source discussion [E5].
+Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
+
+## Why it matters
+The practical impact is described without connecting the broader paper set [E5].
+Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
+"""
+    errors = validate_body(body, pack, outline=_outline())
+    assert any(error.startswith("insufficient_cited_items:") for error in errors)
+    assert any(error.startswith("insufficient_cited_papers:") for error in errors)
+    assert any(error.startswith("daily_too_short:") for error in errors)
 
 
 def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
@@ -149,12 +186,13 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
             return bad if len(calls) == 1 else good
 
     _patch_root(monkeypatch, tmp_path)
-    result = write_daily(pack, llm=FakeLLM(), dry_run=True)
+    result = write_daily(pack, outline=_outline(), selection=_selection(), llm=FakeLLM(), dry_run=True)
     assert result.ok
     assert result.repair_attempted
     assert "VALIDATOR_ERRORS" in calls[1]
     assert "CITED_SOURCE_URLS" in calls[1]
-    assert "Technical thesis" in calls[1]
+    assert "OUTLINE" in calls[1]
+    assert "Why this batch matters for AEC foundation-model work" in calls[1]
     assert "99.9%" not in calls[1]
 
 
@@ -166,7 +204,7 @@ def test_blocked_post_is_not_published_after_failed_repair(monkeypatch, tmp_path
             return "Unsupported 99.9% claim [E1]. Source: https://arxiv.org/abs/2605.00001"
 
     _patch_root(monkeypatch, tmp_path)
-    result = write_daily(pack, llm=BadLLM(), dry_run=False)
+    result = write_daily(pack, outline=_outline(), selection=_selection(), llm=BadLLM(), dry_run=False)
     assert not result.ok
     assert not list((tmp_path / "content" / "post").glob("*.md"))
     assert list((tmp_path / "reports").glob("*.blocked.json"))

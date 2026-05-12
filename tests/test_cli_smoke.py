@@ -8,6 +8,8 @@ from blogpipe.cli import main
 
 def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
     fake = Path("tests/fixtures/fake_daily.md").read_text()
+    selector = Path("tests/fixtures/fake_selector.json").read_text()
+    outline = Path("tests/fixtures/fake_outline.json").read_text()
     monkeypatch.setattr(memory, "ROOT", tmp_path)
     monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
     monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
@@ -15,6 +17,8 @@ def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
     monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
     monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
     monkeypatch.setenv("BLOGPIPE_REPO_ROOT", str(tmp_path))
+    monkeypatch.setenv("BLOGPIPE_FAKE_SELECTOR_RESPONSE", selector)
+    monkeypatch.setenv("BLOGPIPE_FAKE_OUTLINE_RESPONSE", outline)
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSE", fake)
     code = main(
         [
@@ -34,6 +38,8 @@ def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
 
 
 def test_run_with_invalid_daily_writes_blocked_report_without_failing(monkeypatch, tmp_path):
+    selector = Path("tests/fixtures/fake_selector.json").read_text()
+    outline = Path("tests/fixtures/fake_outline.json").read_text()
     monkeypatch.setattr(memory, "ROOT", tmp_path)
     monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
     monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
@@ -41,6 +47,8 @@ def test_run_with_invalid_daily_writes_blocked_report_without_failing(monkeypatc
     monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
     monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
     monkeypatch.setenv("BLOGPIPE_REPO_ROOT", str(tmp_path))
+    monkeypatch.setenv("BLOGPIPE_FAKE_SELECTOR_RESPONSE", selector)
+    monkeypatch.setenv("BLOGPIPE_FAKE_OUTLINE_RESPONSE", outline)
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSE", "No citations or source links.")
     code = main(
         [

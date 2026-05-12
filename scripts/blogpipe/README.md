@@ -3,10 +3,11 @@
 Blogpipe is now a metadata-first research radar for Synaptic Radio. It ingests
 papers and first-party engineering blogs, stores normalized records in SQLite +
 FTS5, ranks them deterministically, builds compact evidence packs, and asks a
-single OpenAI-compatible LLM writer to produce evidence-grounded Hugo posts.
-Generated posts are paper-first technical blogs: they explain methods,
-math/objectives when available, experiments, limits, and impact. Source blogs
-are used as supporting engineering context rather than as generic roundup items.
+single OpenAI-compatible LLM pipeline to produce evidence-grounded Hugo posts.
+Generated posts are paper-first technical blogs planned for a Principal Machine
+Learning Engineer at Autodesk evaluating AEC foundation models and 2D document
+intelligence. Source blogs are used as supporting engineering context rather
+than as generic roundup items.
 
 ## Commands
 
@@ -39,7 +40,10 @@ GitHub Pages.
 For local fixture checks:
 
 ```bash
-PYTHONPATH=scripts BLOGPIPE_FAKE_LLM_RESPONSE="$(cat tests/fixtures/fake_daily.md)" \
+PYTHONPATH=scripts \
+BLOGPIPE_FAKE_SELECTOR_RESPONSE="$(cat tests/fixtures/fake_selector.json)" \
+BLOGPIPE_FAKE_OUTLINE_RESPONSE="$(cat tests/fixtures/fake_outline.json)" \
+BLOGPIPE_FAKE_LLM_RESPONSE="$(cat tests/fixtures/fake_daily.md)" \
   python -m blogpipe run --fixtures tests/fixtures --dry-run
 ```
 
@@ -52,9 +56,11 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_LLM_MODEL`
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
+- `BLOGPIPE_DAILY_MIN_WORDS` (default `1200`)
 - `BLOGPIPE_MIN_PAPERS` (default `4`)
 - `BLOGPIPE_MAX_BLOGS` (default `2`)
 - `BLOGPIPE_PROFILE_RESULTS` (default `40`)
+- `BLOGPIPE_SELECTOR_CANDIDATES` (default `24`)
 - `BLOGPIPE_OPENREVIEW_VENUES` (comma-separated venue override)
 
 If those are unset, the client falls back to `OPENROUTER_BASE`,
@@ -67,9 +73,18 @@ MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
 queries a small best-effort venue list unless overridden. The 72h recency window
 is strict for live sources; undated or stale items are dropped before ranking.
 
-The daily shortlist prefers recent papers, limits source blogs, and penalizes
-repeated source/profile/topic clusters so a post does not collapse into one
-category or venue.
+The daily flow uses deterministic ranking as the candidate generator, then an
+LLM selector chooses the most relevant papers for Autodesk/AEC foundation-model
+and 2D-document work. The selected set is still constrained to be paper-first,
+diverse, recent, and light on source blogs.
+
+An LLM outline stage then creates natural post headings. The writer follows
+that outline rather than fixed public templates. Validation still requires
+method/objective, experiment, limitation, impact, and Autodesk/AEC/document
+relevance coverage, resolved evidence IDs, source links, supported numbers, and
+at least `BLOGPIPE_DAILY_MIN_WORDS` words. Single-source or generic summaries
+are blocked instead of published. Frontmatter tags are derived from the actual
+selected/cited content rather than applying every global radar tag.
 
 ## Data Policy
 

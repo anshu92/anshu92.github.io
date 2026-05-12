@@ -1,0 +1,42 @@
+{
+  "selected_item_ids": [
+    "arxiv:2605.00001",
+    "url:0bb755d6e56ce424bc31",
+    "arxiv:2605.00002",
+    "url:c7572541ccdee07d456d",
+    "url:5face7348982b3ed6ded"
+  ],
+  "items": [
+    {
+      "item_id": "arxiv:2605.00001",
+      "relevance_label": "ml_engineering",
+      "reason": "Cache-aware long-context inference is relevant to document-scale agent workloads.",
+      "suggested_tags": ["llm", "mle"]
+    },
+    {
+      "item_id": "url:0bb755d6e56ce424bc31",
+      "relevance_label": "ml_engineering",
+      "reason": "Tool-use failure modes matter for drawing and document agents.",
+      "suggested_tags": ["llm", "mle"]
+    },
+    {
+      "item_id": "arxiv:2605.00002",
+      "relevance_label": "aec_adjacent",
+      "reason": "RAG evaluation pipelines map to retrieval over sheets, specs, and construction documents.",
+      "suggested_tags": ["document-ai", "mle"]
+    },
+    {
+      "item_id": "url:c7572541ccdee07d456d",
+      "relevance_label": "direct_aec_2d",
+      "reason": "BIM, IFC, Revit graph extraction, and facility workflows are directly relevant to AEC foundation models.",
+      "suggested_tags": ["aec", "bim", "cad"]
+    },
+    {
+      "item_id": "url:5face7348982b3ed6ded",
+      "relevance_label": "supporting_blog",
+      "reason": "Kernel fusion and profiling provide supporting production context.",
+      "suggested_tags": ["mle"]
+    }
+  ],
+  "suggested_tags": ["aec", "document-ai", "llm", "mle"]
+}

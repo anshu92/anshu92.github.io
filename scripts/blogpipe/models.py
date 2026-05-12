@@ -122,6 +122,33 @@ class WriteResult(BaseModel):
     repair_attempted: bool = False
 
 
+class SelectionItem(BaseModel):
+    item_id: str
+    relevance_label: str = ""
+    reason: str = ""
+    suggested_tags: list[str] = Field(default_factory=list)
+
+
+class SelectionResult(BaseModel):
+    selected_item_ids: list[str] = Field(default_factory=list)
+    items: list[SelectionItem] = Field(default_factory=list)
+    suggested_tags: list[str] = Field(default_factory=list)
+
+
+class OutlineSection(BaseModel):
+    heading: str
+    intent: str
+    evidence_ids: list[str] = Field(default_factory=list)
+    word_budget: int = 0
+
+
+class DailyOutline(BaseModel):
+    title: str
+    angle: str = ""
+    sections: list[OutlineSection] = Field(default_factory=list)
+    suggested_tags: list[str] = Field(default_factory=list)
+
+
 def canonicalize_url(url: str) -> str:
     raw = (url or "").strip()
     if not raw:

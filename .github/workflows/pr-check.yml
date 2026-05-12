@@ -35,14 +35,11 @@ jobs:
       - name: Fixture dry run
         env:
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
-          BLOGPIPE_FAKE_LLM_RESPONSE: |
-            ## What mattered today
-            Cache-aware long-context inference reports 35% lower latency on 128k token traces [E1]. Source: https://arxiv.org/abs/2605.00001
-            RAG evaluation emphasizes benchmark slices and observability [E3]. Source: https://arxiv.org/abs/2605.00002
-            BIM digital twins connect IFC, HVAC, and facility operations [E4]. Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
-            Kernel fusion affects distributed training throughput [E6]. Source: https://pytorch.org/blog/kernel-fusion-training-throughput
-            Agent evaluation measures tool-use failures across 500 tasks [E7]. Source: https://openreview.net/forum?id=agent-eval-2026
-        run: PYTHONPATH=scripts python -m blogpipe run --fixtures tests/fixtures --dry-run --max-deep-dives 0
+        run: |
+          BLOGPIPE_FAKE_SELECTOR_RESPONSE="$(cat tests/fixtures/fake_selector.json)" \
+          BLOGPIPE_FAKE_OUTLINE_RESPONSE="$(cat tests/fixtures/fake_outline.json)" \
+          BLOGPIPE_FAKE_LLM_RESPONSE="$(cat tests/fixtures/fake_daily.md)" \
+          PYTHONPATH=scripts python -m blogpipe run --fixtures tests/fixtures --dry-run --max-deep-dives 0
 
       - name: Install Hugo
         run: |

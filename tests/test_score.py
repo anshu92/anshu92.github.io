@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from blogpipe.models import SourceItem
+from blogpipe.models import RankedItem, SourceItem, TopicScores
 from blogpipe.score import daily_shortlist, rank_items
 
 
@@ -102,3 +102,39 @@ def test_daily_shortlist_prefers_papers_and_diverse_profiles():
     assert sum(1 for r in shortlist if r.item.source_kind == "blog") <= 1
     profiles = [r.item.extra.get("search_profile") for r in shortlist]
     assert max(profiles.count(profile) for profile in set(profiles)) <= 2
+
+
+def test_daily_shortlist_falls_back_when_high_score_pool_has_too_few_papers():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+
+    def ranked(idx: int, *, kind: str, profile: str, score: float) -> RankedItem:
+        return RankedItem(
+            item=SourceItem(
+                item_id=f"{kind}:{idx}",
+                canonical_url=f"https://example.com/{kind}/{idx}",
+                source_kind=kind,
+                source_name="arxiv" if kind == "paper" else "openai",
+                source_tier=1,
+                title=f"{kind} {idx} language model benchmark architecture objective",
+                published_at=now,
+                abstract_or_excerpt="A method with objective, benchmark, ablation, limitation, and deployment impact.",
+                extra={"search_profile": profile},
+            ),
+            topic_scores=TopicScores(llm=0.6, mle=0.2, matched_keywords=["language model", "benchmark"]),
+            daily_score=score,
+            deep_dive_score=score,
+            quality_signals={"technical_depth": 0.7, "practical_impact": 0.4},
+        )
+
+    items = [
+        ranked(1, kind="blog", profile="blog:openai", score=0.7),
+        ranked(2, kind="paper", profile="llm_methods", score=0.48),
+        ranked(3, kind="paper", profile="llm_systems", score=0.47),
+        ranked(4, kind="paper", profile="mle_eval", score=0.46),
+        ranked(5, kind="paper", profile="multimodal_geometry", score=0.45),
+        ranked(6, kind="paper", profile="aec_ai", score=0.44),
+    ]
+    shortlist = daily_shortlist(items, minimum=5, maximum=6, min_papers=4, max_blogs=1)
+    assert len(shortlist) >= 5
+    assert sum(1 for r in shortlist if r.item.source_kind == "paper") >= 4
+    assert sum(1 for r in shortlist if r.item.source_kind == "blog") <= 1
