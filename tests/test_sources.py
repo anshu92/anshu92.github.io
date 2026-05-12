@@ -31,6 +31,22 @@ def test_arxiv_entry_parser():
     assert item.extra["search_profile"] == "llm_methods"
 
 
+def test_arxiv_entry_normalizes_versioned_abs_url():
+    xml = """
+    <entry xmlns="http://www.w3.org/2005/Atom">
+      <id>http://arxiv.org/abs/2605.10187v1</id>
+      <title> Versioned Paper </title>
+      <summary> We propose a benchmark. </summary>
+      <published>2026-05-10T00:00:00Z</published>
+      <updated>2026-05-10T00:00:00Z</updated>
+    </entry>
+    """
+    item = arxiv._entry(ET.fromstring(xml), search_profile="llm_methods")
+    assert item is not None
+    assert item.arxiv_id == "2605.10187"
+    assert item.canonical_url == "https://arxiv.org/abs/2605.10187"
+
+
 def test_arxiv_fetch_fans_out_and_tags_profiles(monkeypatch):
     xml = """
     <feed xmlns="http://www.w3.org/2005/Atom">
@@ -62,6 +78,7 @@ def test_arxiv_fetch_fans_out_and_tags_profiles(monkeypatch):
     monkeypatch.setattr(arxiv.config, "profile_results", lambda: 5)
     items = arxiv.fetch(window_hours=72)
     assert len(calls) == len(arxiv.ARXIV_PROFILES)
+    assert all(url.startswith("https://export.arxiv.org/api/query?") for url in calls)
     assert len(items) == len(arxiv.ARXIV_PROFILES)
     assert {item.extra["search_profile"] for item in items} == {profile.name for profile in arxiv.ARXIV_PROFILES}
 

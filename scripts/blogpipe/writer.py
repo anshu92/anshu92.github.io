@@ -4,6 +4,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
 
@@ -14,6 +15,7 @@ from .models import EvidencePack, RankedItem, WriteResult
 EVIDENCE_REF_RE = re.compile(r"\[E(\d+)\]")
 NUMBER_RE = re.compile(r"(?<![\w-])\d+(?:\.\d+)?%?(?![\w-])")
 HEADING_RE = re.compile(r"^#{2,3}\s+(.+?)\s*$", re.M)
+URL_RE = re.compile(r"https?://[^\s<>\])\"]+")
 NUMERIC_CLAIM_CUES = (
     "%",
     "percent",
@@ -92,8 +94,9 @@ def validate_body(body: str, pack: EvidencePack) -> list[str]:
         errors.append("unknown_evidence_ids:" + ",".join(unknown))
     if not refs:
         errors.append("no_evidence_ids")
+    body_url_keys = _body_url_keys(body)
     for url in pack.urls():
-        if url and url not in body:
+        if url and not (_url_keys(url) & body_url_keys):
             errors.append("missing_source_link:" + url)
     evidence_blob = pack.evidence_blob()
     for number in _meaningful_numbers(body):
@@ -244,6 +247,32 @@ def _strip_fence(text: str) -> str:
 
 def _yaml_escape(text: str) -> str:
     return text.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _body_url_keys(body: str) -> set[str]:
+    return {key for url in URL_RE.findall(body or "") for key in _url_keys(_strip_url_punctuation(url))}
+
+
+def _strip_url_punctuation(url: str) -> str:
+    return (url or "").rstrip(".,;:")
+
+
+def _url_keys(url: str) -> set[str]:
+    raw = (url or "").strip()
+    if not raw:
+        return set()
+    parts = urlsplit(raw)
+    netloc = parts.netloc.lower()
+    if netloc.startswith("www."):
+        netloc = netloc[4:]
+    path = parts.path.rstrip("/") or "/"
+    keys = {f"{netloc}{path}".lower()}
+    if netloc == "arxiv.org" and path.startswith("/abs/"):
+        arxiv_id = path.rsplit("/", 1)[-1].lower()
+        unversioned = re.sub(r"v\d+$", "", arxiv_id)
+        keys.add(f"arxiv:{arxiv_id}")
+        keys.add(f"arxiv:{unversioned}")
+    return keys
 
 
 def _meaningful_numbers(body: str) -> list[str]:

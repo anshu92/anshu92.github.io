@@ -9,7 +9,7 @@ from ..models import SourceItem
 from ._http import client
 
 LOG = logging.getLogger(__name__)
-FEED_URL = "https://aclanthology.org/anthology+abstracts.bib.gz"
+FEED_URL = "https://aclanthology.org/papers/index.xml"
 
 
 def fetch(window_hours: int = 72) -> list[SourceItem]:
@@ -20,7 +20,7 @@ def fetch(window_hours: int = 72) -> list[SourceItem]:
     unavailable or too large for a CI run, it quietly returns no items.
     """
     try:
-        resp = client().get("https://aclanthology.org/rss.xml")
+        resp = client().get(FEED_URL)
         if resp.status_code >= 400:
             return []
         parsed = feedparser.parse(resp.text)

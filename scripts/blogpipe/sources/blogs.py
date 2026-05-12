@@ -12,11 +12,10 @@ LOG = logging.getLogger(__name__)
 
 FEEDS: tuple[tuple[str, str, int], ...] = (
     ("openai_research", "https://openai.com/news/rss.xml", 1),
-    ("anthropic_engineering", "https://www.anthropic.com/rss.xml", 1),
     ("google_research", "https://blog.research.google/feeds/posts/default?alt=rss", 1),
-    ("meta_ai", "https://ai.meta.com/blog/rss/", 1),
     ("huggingface", "https://huggingface.co/blog/feed.xml", 1),
-    ("pytorch", "https://pytorch.org/blog/feed.xml", 1),
+    ("pytorch", "https://pytorch.org/feed.xml", 1),
+    ("nvidia_developer", "https://developer.nvidia.com/blog/feed/", 1),
     ("autodesk_research", "https://www.research.autodesk.com/feed/", 1),
 )
 

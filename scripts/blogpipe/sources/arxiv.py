@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -65,7 +66,7 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
     term_query = " OR ".join(_term_clause(term) for term in profile.terms)
     query = f"({category_query}) AND ({term_query}) AND submittedDate:[{date_filter} TO 999912312359]"
     url = (
-        "http://export.arxiv.org/api/query?"
+        "https://export.arxiv.org/api/query?"
         f"search_query={quote(query)}&sortBy=submittedDate&sortOrder=descending&start=0&max_results={max_results}"
     )
     try:
@@ -97,7 +98,7 @@ def _entry(entry: ET.Element, *, search_profile: str = "arxiv_general") -> Sourc
     url = _text(entry, "id")
     if not title or not url:
         return None
-    arxiv_id = url.rsplit("/abs/", 1)[-1]
+    arxiv_id = re.sub(r"v\d+$", "", url.rsplit("/abs/", 1)[-1])
     categories = [
         node.attrib.get("term", "")
         for node in entry.findall("a:category", ARXIV_NS)

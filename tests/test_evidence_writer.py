@@ -61,6 +61,31 @@ def test_missing_source_link_fails():
     assert any(e.startswith("missing_source_link:") for e in errors)
 
 
+def test_arxiv_source_link_accepts_scheme_and_version_variants():
+    pack = _pack()
+    first = pack.ranked_items[0].item
+    first.canonical_url = "http://arxiv.org/abs/2605.00001v1"
+    pack.ranked_items = [pack.ranked_items[0]]
+    pack.chunks = [chunk for chunk in pack.chunks if chunk.item_id == first.item_id]
+    body = """
+## Technical thesis
+Mechanism, objective, experiment, limitation, and impact are covered [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Paper mechanisms
+The method uses a cache-aware mechanism [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Math or objective details
+The objective is operational rather than formal in this evidence [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Experiments and limits
+The benchmark and limitation are described in the evidence [E1]. Source: https://arxiv.org/abs/2605.00001
+
+## Why it matters
+The impact is practical for inference systems [E1]. Source: https://arxiv.org/abs/2605.00001
+"""
+    assert not any(error.startswith("missing_source_link:") for error in validate_body(body, pack))
+
+
 def test_evidence_chunks_are_typed():
     pack = _pack()
     types = {chunk.evidence_type for chunk in pack.chunks}

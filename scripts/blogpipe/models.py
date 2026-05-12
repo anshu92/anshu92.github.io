@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from typing import Any, Optional
 from urllib.parse import urlsplit, urlunsplit
@@ -129,4 +130,8 @@ def canonicalize_url(url: str) -> str:
     scheme = parts.scheme or "https"
     netloc = parts.netloc.lower()
     path = parts.path.rstrip("/") or "/"
+    if netloc in {"arxiv.org", "www.arxiv.org"} and path.startswith("/abs/"):
+        scheme = "https"
+        netloc = "arxiv.org"
+        path = re.sub(r"v\d+$", "", path)
     return urlunsplit((scheme, netloc, path, "", ""))
