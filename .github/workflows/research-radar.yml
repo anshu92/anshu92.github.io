@@ -55,7 +55,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          if [[ -n "$(git status --porcelain content radar-data static/img/posts data)" ]]; then
+          if [[ -n "$(git status --porcelain content)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             SLUG="$(date -u +%F)-research-radar"

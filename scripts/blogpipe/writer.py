@@ -131,13 +131,7 @@ def _validate_repair_and_publish(
     repair_attempted = False
     if errors:
         repair_attempted = True
-        repair_user = (
-            "Fix this Markdown draft. Keep the same topic and source links. "
-            "Use only evidence IDs from EVIDENCE_PACK. Remove unsupported numbers.\n\n"
-            f"VALIDATOR_ERRORS:\n{json.dumps(errors, indent=2)}\n\n"
-            f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
-            f"DRAFT:\n{body}"
-        )
+        repair_user = _repair_user(pack, body, errors)
         try:
             body = _call_writer(client, _repair_system(), repair_user)
             errors = validate_body(body, pack)
@@ -235,7 +229,35 @@ def _repair_system() -> str:
     return (
         "Repair Markdown for factuality and source grounding. Return only Markdown body. "
         "Keep the required daily technical sections when repairing daily posts. "
+        "Every substantive paragraph must include valid evidence IDs such as [E1] and source URLs from the evidence pack. "
         "Do not add unsupported facts. Remove claims that cannot be tied to evidence."
+    )
+
+
+def _repair_user(pack: EvidencePack, body: str, errors: list[str]) -> str:
+    source_requirements = [
+        {"title": ranked.item.title, "url": ranked.item.canonical_url, "item_id": ranked.item.item_id}
+        for ranked in pack.ranked_items
+    ]
+    section_contract = (
+        "For daily posts, include these exact level-2 headings: Technical thesis, "
+        "Paper mechanisms, Math or objective details, Experiments and limits, Why it matters, "
+        "Supporting engineering context."
+        if pack.kind == "daily"
+        else "Preserve the requested deep-dive technical structure."
+    )
+    return (
+        "Fix this Markdown draft. Return only the repaired Markdown body.\n\n"
+        f"{section_contract}\n"
+        "Hard requirements:\n"
+        "- Use only evidence IDs present in EVIDENCE_PACK, formatted exactly like [E1].\n"
+        "- Include every required source URL listed below at least once.\n"
+        "- Remove unsupported numbers and unsupported claims.\n"
+        "- Do not output JSON, explanations, or a validation report.\n\n"
+        f"VALIDATOR_ERRORS:\n{json.dumps(errors, indent=2)}\n\n"
+        f"REQUIRED_SOURCE_URLS:\n{json.dumps(source_requirements, indent=2, ensure_ascii=False)}\n\n"
+        f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
+        f"DRAFT:\n{body}"
     )
 
 

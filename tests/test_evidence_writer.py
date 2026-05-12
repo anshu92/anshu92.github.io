@@ -121,6 +121,8 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     assert result.ok
     assert result.repair_attempted
     assert "VALIDATOR_ERRORS" in calls[1]
+    assert "REQUIRED_SOURCE_URLS" in calls[1]
+    assert "Technical thesis" in calls[1]
 
 
 def test_blocked_post_is_not_published_after_failed_repair(monkeypatch, tmp_path):

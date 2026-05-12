@@ -25,10 +25,12 @@ def run_all(
     ingest_count = ingest.run(window_hours=window_hours, fixtures=fixtures, db=db)
     ranked = rank.run(db=db, max_age_hours=None if fixtures else window_hours)
     daily = write_daily(ranked=ranked, dry_run=dry_run)
-    if not dry_run and not daily.ok:
-        raise RuntimeError(f"daily writer failed validation: {daily.errors}")
-    deep = write_deep_dives(ranked=ranked, max_new=max_deep_dives, dry_run=dry_run)
-    render_assets(ranked=ranked)
+    if daily.ok:
+        deep = write_deep_dives(ranked=ranked, max_new=max_deep_dives, dry_run=dry_run)
+        render_assets(ranked=ranked)
+    else:
+        LOG.warning("daily writer blocked publication: %s", daily.errors)
+        deep = []
     result = {
         "ingest_count": ingest_count,
         "ranked_count": len(ranked),
