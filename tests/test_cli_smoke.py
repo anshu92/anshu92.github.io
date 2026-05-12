@@ -5,7 +5,7 @@ from pathlib import Path
 
 from blogpipe import memory, store
 from blogpipe.cli import main
-from blogpipe.models import SourceItem
+from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.pipeline import _augment_ranked_with_store_papers, write_daily
 from blogpipe.score import rank_items
 
@@ -128,6 +128,45 @@ def test_daily_rank_fallback_avoids_duplicate_recent_papers(tmp_path):
 
     assert sum(1 for item in ranked if item.item.source_kind == "paper") >= 3
     assert len(item_ids) == len(set(item_ids))
+
+
+def test_write_daily_blocks_instead_of_crashing_when_writer_runtime_expires(monkeypatch, tmp_path):
+    now = datetime.now(timezone.utc)
+    ranked = rank_items([_recent_paper(idx, now=now) for idx in range(3)], now=now, max_age_hours=72)
+
+    class FakeLLM:
+        class Usage:
+            __dict__ = {"calls": 0}
+
+        usage = Usage()
+
+    monkeypatch.setattr(memory, "ROOT", tmp_path)
+    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
+    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
+    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
+    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
+    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
+    monkeypatch.setattr(
+        "blogpipe.pipeline.selector.select_daily_items",
+        lambda ranked, llm: (
+            ranked,
+            SelectionResult(selected_item_ids=[item.item.item_id for item in ranked]),
+        ),
+    )
+    monkeypatch.setattr(
+        "blogpipe.pipeline.outline_mod.generate_daily_outline",
+        lambda pack, selection, llm: DailyOutline(title="Research Radar: Test", angle="budget guard", sections=[]),
+    )
+    monkeypatch.setattr(
+        "blogpipe.pipeline.writer.write_daily",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached")),
+    )
+
+    result = write_daily(ranked=ranked, llm=FakeLLM(), dry_run=True)
+
+    assert not result.ok
+    assert result.errors == ["daily_writer_failed:BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"]
+    assert list((tmp_path / "reports").glob("*.blocked.json"))
 
 
 def _recent_paper(idx: int, *, now: datetime) -> SourceItem:

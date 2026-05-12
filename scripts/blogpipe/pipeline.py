@@ -92,7 +92,12 @@ def write_daily(
         result = _blocked_daily([str(exc)])
         _write_daily_reports(result, client)
         return result
-    result = writer.write_daily(pack, outline=daily_outline, selection=selection, llm=client, dry_run=dry_run)
+    try:
+        result = writer.write_daily(pack, outline=daily_outline, selection=selection, llm=client, dry_run=dry_run)
+    except RuntimeError as exc:
+        result = _blocked_daily([f"daily_writer_failed:{exc}"])
+        _write_daily_reports(result, client)
+        return result
     memory.ensure_dirs()
     (memory.REPORTS / "daily_selection.json").write_text(
         selection.model_dump_json(indent=2),
