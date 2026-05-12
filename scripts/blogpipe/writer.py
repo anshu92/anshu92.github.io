@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
 
-from . import assets, config, jsonish, memory
+from . import config, jsonish, memory
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, RankedItem, SelectionResult, WriteResult
 
@@ -524,7 +524,7 @@ def _validate_repair_and_publish(
     dry_run: bool,
 ) -> WriteResult:
     body = _ensure_visual_blocks(body, pack, slug)
-    quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection) if post_type == "daily" else {}
+    quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
     body, errors = _sanitize_then_validate(body, pack, outline=outline)
     errors.extend(_llm_quality_errors(quality_review))
     repair_attempted = False
@@ -534,7 +534,7 @@ def _validate_repair_and_publish(
         try:
             body = _call_writer(client, _repair_system(), repair_user, task="repair")
             body = _ensure_visual_blocks(body, pack, slug)
-            quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection) if post_type == "daily" else {}
+            quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
             body, errors = _sanitize_then_validate(body, pack, outline=outline)
             errors.extend(_llm_quality_errors(quality_review))
         except Exception as exc:
@@ -793,13 +793,6 @@ def _qualitative_number_replacement(line: str, token: str) -> str:
     if any(cue in lower for cue in ("parameter", "token", "layer", "step", "epoch")):
         return "many"
     return "several"
-
-
-def _prepare_visual_assets(pack: EvidencePack, slug: str) -> None:
-    try:
-        assets.render_post_assets(pack.ranked_items, slug)
-    except Exception as exc:  # noqa: BLE001
-        LOG.warning("asset render failed for slug %s: %s", slug, exc)
 
 
 def _ensure_visual_blocks(body: str, pack: EvidencePack, slug: str) -> str:

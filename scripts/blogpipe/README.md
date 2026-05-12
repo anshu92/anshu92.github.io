@@ -184,17 +184,18 @@ primary papers. It also runs a signal rubric:
 - `primary_depth`: each primary paper has mechanism evidence and a limitation,
   experiment, or objective when available.
 
-Low-signal drafts are blocked, not merely warned. Blocked reports include the
+Low-signal drafts are blocked, not merely warned. The rubric is assigned by an
+LLM quality-review pass so signal, synthesis, and editorial judgment are scored
+in context rather than by brittle keyword heuristics. Blocked reports include
 validator errors, rubric scores, and examples of failing text where available.
 When a draft contains unsupported numeric claims, blogpipe first rewrites them
 into qualitative phrasing before giving up on the run. Frontmatter tags are
 derived from the actual selected/cited content rather than applying every global
 radar tag.
 
-Generated posts also embed:
-- one mermaid flow graph (paper/source map)
-- source/topic mix SVG illustrations at `/img/posts/<slug>/source-mix.svg` and
-  `/img/posts/<slug>/topic-mix.svg`
+Generated posts do not include generic Mermaid maps or auto-injected chart
+decorations. A visual should appear only when the writing model produces a
+source-grounded technical figure that adds real explanatory value.
 
 ## Data Policy
 

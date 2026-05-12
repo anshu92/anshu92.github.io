@@ -11,7 +11,7 @@ from blogpipe.llm import LLMClient
 from blogpipe import memory
 from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
-from blogpipe.writer import validate_body, write_daily, write_deep_dive
+from blogpipe.writer import _llm_quality_errors, validate_body, write_daily, write_deep_dive
 
 
 def _pack():
@@ -158,51 +158,46 @@ Generic roundup text with a source [E1]. Source: https://arxiv.org/abs/2605.0000
     assert "generic_roundup_structure" in errors or any(e.startswith("missing_daily_concept:") for e in errors)
 
 
-def test_generic_corporate_prose_fails_signal_rubric(monkeypatch):
-    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "50")
-    pack = _pack()
-    body = """
-## Document-model reliability starts with measurable failure boundaries
-This thesis is about digital transformation and the rapid evolution of artificial intelligence. The method, objective, benchmark, limitation, risk, impact, production, engineering, Autodesk, AEC, document, drawing, and tradeoff are mentioned only as broad strategy words. It is crucial and paramount, paving the way for a holistic strategy. [E1] Source: https://arxiv.org/abs/2605.00001
-
-## Retrieval memory should be measured as a product boundary
-This is a game-changer for digital transformation and it will revolutionize workflows. The architecture, pipeline, metric, experiment, evaluation, adoption, and production story remains generic. [E3] Source: https://openreview.net/forum
-
-## Cache and retrieval boundaries become architecture
-This section says the future is bright and important. It names benchmark and mechanism but gives no concrete adoption blocker. [E4] Source: https://openreview.net/forum
-
-## Cross-paper tradeoffs change the adoption plan
-Across these items there is a comparison and tradeoff, but the wording still stays at corporate altitude and does not make an engineering decision. [E5] Source: https://arxiv.org/abs/2605.00002
-
-## Release gates for AEC document intelligence
-The Autodesk AEC document path needs production validation, monitoring, and practical evaluation before deployment. [E5] Source: https://arxiv.org/abs/2605.00002
-"""
-    errors = validate_body(body, pack, outline=_outline())
-    assert any(error.startswith("generic_phrase_density:") for error in errors)
-    assert any(error.startswith("low_signal:") for error in errors)
+def test_generic_corporate_prose_fails_llm_quality_review(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    review = {
+        "pass": False,
+        "scores": {
+            "technical_specificity": 0.41,
+            "engineering_judgment": 0.33,
+            "synthesis": 0.29,
+            "noise_control": 0.22,
+            "primary_depth": 0.38,
+        },
+        "errors": ["generic corporate prose", "insufficient engineering judgment"],
+        "examples": ["paving the way for a holistic strategy"],
+        "notes": "Too abstract to publish.",
+    }
+    errors = _llm_quality_errors(review)
+    assert "llm_low_signal:technical_specificity:0.41/0.75" in errors
+    assert "llm_low_signal:engineering_judgment:0.33/0.75" in errors
+    assert "llm_quality:generic corporate prose" in errors
 
 
-def test_paper_by_paper_summary_without_synthesis_fails(monkeypatch):
-    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "50")
-    pack = _pack()
-    body = """
-## Document-model reliability starts with measurable failure boundaries
-Thesis claim: document systems need reliable evidence before release. Cache-Aware Long Context Inference for Language Model Agents proposes a method with cache architecture, retrieval mechanism, benchmark evidence, latency evaluation, and production risk for AEC document inference. [E1] Source: https://arxiv.org/abs/2605.00001
-
-## Retrieval memory should be measured as a product boundary
-Agent Evaluation with Tool Use Failure Modes introduces a benchmark, evaluation pipeline, experiment design, failure category, risk, objective, metric, and production implication for agentic drawing review. [E3] Source: https://openreview.net/forum [E4] Source: https://openreview.net/forum
-
-## Cache and retrieval boundaries become architecture
-Reproducible Evaluation Pipelines for RAG Systems introduces dataset curation, monitoring, benchmark slices, observability metric, deployment mechanism, limitation, and practical engineering impact for document retrieval. [E5] Source: https://arxiv.org/abs/2605.00002
-
-## Cross-paper tradeoffs change the adoption plan
-The sections above list each paper in sequence. The adoption decision is to prototype release gates, rollback monitoring, and latency budget checks for Autodesk AEC document systems. [E5] Source: https://arxiv.org/abs/2605.00002
-
-## Release gates for AEC document intelligence
-Autodesk AEC document and drawing workflows need a practical prototype before deployment, with objective scoring, benchmark slices, evaluation evidence, risk review, and production monitoring. [E1] Source: https://arxiv.org/abs/2605.00001
-"""
-    errors = validate_body(body, pack, outline=_outline())
-    assert "paper_by_paper_summary_without_synthesis" in errors
+def test_paper_by_paper_summary_without_synthesis_fails_llm_quality_review(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    review = {
+        "pass": False,
+        "scores": {
+            "technical_specificity": 0.80,
+            "engineering_judgment": 0.77,
+            "synthesis": 0.44,
+            "noise_control": 0.88,
+            "primary_depth": 0.73,
+        },
+        "errors": ["paper-by-paper abstract summaries without cross-paper insight"],
+        "examples": ["The sections above list each paper in sequence."],
+        "notes": "Needs synthesis rather than serial summaries.",
+    }
+    errors = _llm_quality_errors(review)
+    assert "llm_low_signal:synthesis:0.44/0.75" in errors
+    assert "llm_low_signal:primary_depth:0.73/0.75" in errors
+    assert any("paper-by-paper abstract summaries" in error for error in errors)
 
 
 def test_first_person_autodesk_claim_fails():
@@ -317,14 +312,32 @@ def test_daily_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp
     final_body = Path("tests/fixtures/fake_daily.md").read_text()
     monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "20")
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSES", json.dumps([*section_outputs, final_body]))
+    monkeypatch.setenv(
+        "BLOGPIPE_FAKE_QUALITY_RESPONSE",
+        json.dumps(
+            {
+                "pass": True,
+                "scores": {
+                    "technical_specificity": 0.91,
+                    "engineering_judgment": 0.92,
+                    "synthesis": 0.90,
+                    "noise_control": 0.95,
+                    "primary_depth": 0.93,
+                },
+                "errors": [],
+                "examples": [],
+                "notes": "publishable",
+            }
+        ),
+    )
     llm = LLMClient()
     result = write_daily(pack, outline=outline, selection=selection, llm=llm, dry_run=True)
     assert result.ok, result.errors
     assert llm.usage.calls >= len(outline.sections) + 1
-    assert "```mermaid" in result.body
-    assert "/img/posts/" in result.body
-    assert "source-mix.svg" in result.body
-    assert "topic-mix.svg" in result.body
+    assert "```mermaid" not in result.body
+    assert "/img/posts/" not in result.body
+    assert "source-mix.svg" not in result.body
+    assert "topic-mix.svg" not in result.body
 
 
 def test_deep_dive_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp_path):
@@ -349,10 +362,28 @@ def test_deep_dive_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch,
     )
     monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "20")
     monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSES", json.dumps([*section_outputs, final_body]))
+    monkeypatch.setenv(
+        "BLOGPIPE_FAKE_QUALITY_RESPONSE",
+        json.dumps(
+            {
+                "pass": True,
+                "scores": {
+                    "technical_specificity": 0.91,
+                    "engineering_judgment": 0.92,
+                    "synthesis": 0.90,
+                    "noise_control": 0.95,
+                    "primary_depth": 0.93,
+                },
+                "errors": [],
+                "examples": [],
+                "notes": "publishable",
+            }
+        ),
+    )
     llm = LLMClient()
     result = write_deep_dive(pack, llm=llm, dry_run=True)
     assert result.ok, result.errors
     assert llm.usage.calls >= 7
-    assert "```mermaid" in result.body
-    assert "source-mix.svg" in result.body
-    assert "topic-mix.svg" in result.body
+    assert "```mermaid" not in result.body
+    assert "source-mix.svg" not in result.body
+    assert "topic-mix.svg" not in result.body
