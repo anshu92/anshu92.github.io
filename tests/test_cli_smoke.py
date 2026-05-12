@@ -4,6 +4,7 @@ from pathlib import Path
 
 from blogpipe import memory
 from blogpipe.cli import main
+from blogpipe.pipeline import write_daily
 
 
 def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
@@ -64,3 +65,26 @@ def test_run_with_invalid_daily_writes_blocked_report_without_failing(monkeypatc
     assert code == 0
     assert list((tmp_path / "reports").glob("*.blocked.json"))
     assert not list((tmp_path / "content" / "post").glob("*.md"))
+
+
+def test_write_daily_blocks_before_llm_when_ranked_papers_are_insufficient(monkeypatch, tmp_path):
+    class FailIfCalledLLM:
+        class Usage:
+            __dict__ = {"calls": 0}
+
+        usage = Usage()
+
+        def complete(self, **kwargs):
+            raise AssertionError("LLM should not run when there are not enough ranked papers")
+
+    monkeypatch.setattr(memory, "ROOT", tmp_path)
+    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
+    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
+    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
+    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
+    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
+
+    result = write_daily(ranked=[], llm=FailIfCalledLLM(), dry_run=True)
+    assert not result.ok
+    assert result.errors == ["insufficient_ranked_papers:0/3"]
+    assert list((tmp_path / "reports").glob("*.blocked.json"))

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from . import assets, evidence, ingest, memory, outline as outline_mod, rank, score, selector, store, writer
+from . import assets, config, evidence, ingest, memory, outline as outline_mod, rank, score, selector, store, writer
 from .llm import LLMClient
 from .models import RankedItem, WriteResult
 
@@ -57,8 +57,14 @@ def write_daily(
     dry_run: bool = False,
     llm: LLMClient | None = None,
 ) -> WriteResult:
-    ranked = ranked or load_ranked()
+    ranked = load_ranked() if ranked is None else ranked
     client = llm or LLMClient()
+    paper_count = sum(1 for item in ranked if item.item.source_kind == "paper")
+    required_papers = min(3, config.daily_primary_papers())
+    if paper_count < required_papers:
+        result = _blocked_daily([f"insufficient_ranked_papers:{paper_count}/{required_papers}"])
+        _write_daily_reports(result, client)
+        return result
     try:
         shortlist, selection = selector.select_daily_items(ranked, llm=client)
     except selector.SelectionError as exc:
@@ -124,7 +130,7 @@ def write_deep_dives(
     dry_run: bool = False,
     llm: LLMClient | None = None,
 ) -> list[WriteResult]:
-    ranked = ranked or load_ranked()
+    ranked = load_ranked() if ranked is None else ranked
     client = llm or LLMClient()
     results: list[WriteResult] = []
     for item in score.deep_dive_shortlist(ranked, maximum=max_new):

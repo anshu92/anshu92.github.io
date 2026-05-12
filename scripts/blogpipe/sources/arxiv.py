@@ -60,11 +60,18 @@ def fetch(window_hours: int = 72) -> list[SourceItem]:
     max_results = config.profile_results()
     out: list[SourceItem] = []
     for profile in ARXIV_PROFILES:
-        out.extend(_fetch_profile(profile, date_filter=date_filter, max_results=max_results))
+        items, stop_profiles = _fetch_profile(profile, date_filter=date_filter, max_results=max_results)
+        out.extend(items)
+        if stop_profiles:
+            LOG.warning(
+                "arxiv fetch stopped after repeated rate limits for %s; skipping remaining profiles this run",
+                profile.name,
+            )
+            break
     return out
 
 
-def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int) -> list[SourceItem]:
+def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int) -> tuple[list[SourceItem], bool]:
     category_query = " OR ".join(f"cat:{category}" for category in profile.categories)
     term_query = " OR ".join(_term_clause(term) for term in profile.terms)
     query = f"({category_query}) AND ({term_query}) AND submittedDate:[{date_filter} TO 999912312359]"
@@ -83,7 +90,7 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
         except Exception as exc:
             if attempt >= max_retries or not _is_retryable(exc):
                 LOG.warning("arxiv fetch failed for %s: %s", profile.name, exc)
-                return []
+                return [], _is_rate_limited(exc)
             delay = _retry_delay_seconds(exc, attempt)
             LOG.warning(
                 "arxiv fetch retry %s/%s for %s in %.1fs: %s",
@@ -95,13 +102,13 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
             )
             time.sleep(delay)
     if root is None:
-        return []
+        return [], False
     out: list[SourceItem] = []
     for entry in root.findall("a:entry", ARXIV_NS):
         item = _entry(entry, search_profile=profile.name)
         if item:
             out.append(item)
-    return out
+    return out, False
 
 
 def _is_retryable(exc: Exception) -> bool:
@@ -110,6 +117,10 @@ def _is_retryable(exc: Exception) -> bool:
     if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError)):
         return True
     return False
+
+
+def _is_rate_limited(exc: Exception) -> bool:
+    return isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code == 429
 
 
 def _retry_delay_seconds(exc: Exception, attempt: int) -> float:

@@ -122,6 +122,10 @@ arXiv ingest fans out across named profiles for LLM methods, LLM systems,
 MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
 queries a small best-effort venue list unless overridden. The 72h recency window
 is strict for live sources; undated or stale items are dropped before ranking.
+If arXiv returns persistent `429` responses, blogpipe stops the remaining arXiv
+profiles for that run instead of burning retries across every profile. If fewer
+than three ranked papers remain afterward, daily drafting blocks before any
+selector, outline, or writer LLM calls.
 
 The daily flow asks the selector LLM to choose directly from all available paper
 titles in the current run for Autodesk/AEC foundation-model and 2D-document

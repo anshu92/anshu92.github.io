@@ -151,6 +151,27 @@ def test_arxiv_fetch_does_not_retry_on_4xx_other_than_429(monkeypatch):
     assert not sleep_calls
 
 
+def test_arxiv_fetch_stops_remaining_profiles_after_persistent_429(monkeypatch):
+    class FakeClient:
+        def __init__(self):
+            self.calls = 0
+
+        def get(self, url):
+            self.calls += 1
+            request = httpx.Request("GET", url)
+            response = httpx.Response(429, request=request)
+            raise httpx.HTTPStatusError("rate limited", request=request, response=response)
+
+    fake = FakeClient()
+    monkeypatch.setattr(arxiv, "client", lambda: fake)
+    monkeypatch.setattr(arxiv.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(arxiv.config, "arxiv_max_retries", lambda: 1)
+    monkeypatch.setattr(arxiv.config, "profile_results", lambda: 1)
+    items = arxiv.fetch(window_hours=72)
+    assert items == []
+    assert fake.calls == 2
+
+
 def test_aggregator_dedupes_and_keeps_recent_only():
     now = datetime(2026, 5, 11, tzinfo=timezone.utc)
     fresh = arxiv._entry(
