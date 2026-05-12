@@ -60,6 +60,11 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_LLM_BASE_URL`
 - `BLOGPIPE_LLM_API_KEY`
 - `BLOGPIPE_LLM_MODEL`
+- `OPENROUTER_API_KEY` and optional `OPENROUTER_BASE` for cross-provider
+  fallback when an OpenRouter model such as `openrouter/free` appears in a
+  failover chain.
+- `BLOGPIPE_OPENROUTER_FREE_MODELS`, a comma-separated override for the
+  OpenRouter free-model fallback roster.
 - optional per-step model overrides:
   - `BLOGPIPE_LLM_MODEL_SELECTOR`
   - `BLOGPIPE_LLM_MODEL_OUTLINE`
@@ -97,6 +102,19 @@ If those are unset, the client falls back to `OPENROUTER_BASE`,
 `OPENROUTER_API_KEY`, and `BLOGPIPE_MODEL` for continuity.
 When a chain is provided, blogpipe tries models in order and automatically
 falls back to the next model on retriable/server/model-availability failures.
+If the primary endpoint is Gemini-compatible and a chain includes an OpenRouter
+model name, that model is sent to `OPENROUTER_BASE` with `OPENROUTER_API_KEY`
+instead of being sent to the Gemini endpoint.
+When `OPENROUTER_API_KEY` is present, the default fallback roster appends these
+current zero-priced OpenRouter models after the configured primary models,
+ordered for expected Research Radar performance rather than recency:
+`minimax/minimax-m2.5:free`,
+`nvidia/nemotron-3-super-120b-a12b:free`,
+`arcee-ai/trinity-large-thinking:free`, `openai/gpt-oss-120b:free`,
+`qwen/qwen3-coder:free`, `inclusionai/ring-2.6-1t:free`,
+`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`,
+`google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`,
+`meta-llama/llama-3.3-70b-instruct:free`, and `openrouter/free`.
 
 ## Search and Ranking
 

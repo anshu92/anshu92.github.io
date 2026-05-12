@@ -7,6 +7,7 @@ import re
 from pydantic import ValidationError
 
 from . import config
+from . import jsonish
 from .llm import LLMClient
 from .models import RankedItem, SelectionResult
 
@@ -105,32 +106,22 @@ def _selector_user(candidates: list[RankedItem]) -> str:
 
 def _parse_selection(text: str) -> SelectionResult:
     try:
-        return SelectionResult.model_validate_json(_json_payload(text))
-    except (ValidationError, ValueError, json.JSONDecodeError) as exc:
+        return SelectionResult.model_validate(jsonish.loads_object(text))
+    except (SyntaxError, ValidationError, ValueError, json.JSONDecodeError) as exc:
         raise SelectionError(f"selector_malformed:{exc}") from exc
 
 
 def _json_payload(text: str) -> str:
-    raw = (text or "").strip()
-    if raw.startswith("```"):
-        parts = raw.split("\n", 1)
-        raw = parts[1].strip() if len(parts) == 2 else raw.lstrip("`").strip()
-        if raw.endswith("```"):
-            raw = raw[:-3].strip()
-    fenced = re.match(r"^```(?:json)?\n([\s\S]*?)\n```$", raw, re.I)
-    if fenced:
-        raw = fenced.group(1).strip()
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start >= 0 and end > start:
-        return raw[start : end + 1]
-    return raw
+    return jsonish.extract_object(text)
 
 
 def _salvage_selection(raw: str, candidates: list[RankedItem]) -> SelectionResult | None:
     text = (raw or "").strip()
     if not text:
         return None
+    structured = _salvage_structured_selection(text, candidates)
+    if structured is not None:
+        return structured
     match = re.search(
         r'"selected_item_ids"\s*:\s*\[([\s\S]*?)(?:\]|"items"\s*:|"suggested_tags"\s*:|\}\s*$)',
         text,
@@ -155,6 +146,61 @@ def _salvage_selection(raw: str, candidates: list[RankedItem]) -> SelectionResul
         items=[{"item_id": item_id, "role": "primary"} for item_id in selected_ids],
         suggested_tags=[],
     )
+
+
+def _salvage_structured_selection(raw: str, candidates: list[RankedItem]) -> SelectionResult | None:
+    try:
+        data = jsonish.loads_object(raw)
+    except (SyntaxError, ValueError, json.JSONDecodeError):
+        return None
+    candidate_ids = {r.item.item_id for r in candidates}
+    selected_ids = [
+        item_id
+        for item_id in _as_string_list(data.get("selected_item_ids"))
+        if item_id in candidate_ids
+    ]
+    items = []
+    for raw_item in data.get("items") or []:
+        if not isinstance(raw_item, dict):
+            continue
+        item_id = str(raw_item.get("item_id") or "").strip()
+        if not item_id or item_id not in candidate_ids:
+            continue
+        item = {
+            "item_id": item_id,
+            "role": str(raw_item.get("role") or "primary"),
+            "relevance_label": str(raw_item.get("relevance_label") or ""),
+            "reason": str(raw_item.get("reason") or ""),
+            "suggested_tags": _as_string_list(raw_item.get("suggested_tags")),
+        }
+        scores = raw_item.get("scores")
+        if isinstance(scores, dict):
+            item["scores"] = {
+                str(key): float(value)
+                for key, value in scores.items()
+                if isinstance(value, (int, float))
+            }
+        items.append(item)
+    for item_id in selected_ids:
+        if not any(item["item_id"] == item_id for item in items):
+            items.append({"item_id": item_id, "role": "primary"})
+    if not selected_ids:
+        selected_ids = [item["item_id"] for item in items]
+    if not selected_ids:
+        return None
+    return SelectionResult.model_validate(
+        {
+            "selected_item_ids": selected_ids,
+            "items": items,
+            "suggested_tags": _as_string_list(data.get("suggested_tags")),
+        }
+    )
+
+
+def _as_string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if str(item).strip()]
 
 
 def _apply_selection(candidates: list[RankedItem], selection: SelectionResult) -> list[RankedItem]:

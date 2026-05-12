@@ -52,15 +52,33 @@ def _csv(name: str) -> list[str]:
     return [part.strip() for part in raw.split(",") if part.strip()]
 
 
+DEFAULT_OPENROUTER_FREE_MODELS = [
+    "minimax/minimax-m2.5:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "arcee-ai/trinity-large-thinking:free",
+    "openai/gpt-oss-120b:free",
+    "qwen/qwen3-coder:free",
+    "inclusionai/ring-2.6-1t:free",
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "openrouter/free",
+]
+
+
 @dataclass(frozen=True)
 class LLMConfig:
     base_url: str
     api_key: str
+    openrouter_base_url: str
+    openrouter_api_key: str
     model: str
     model_primary: str
     model_legacy: str
     model_fast: str
     model_smart: str
+    openrouter_free_models: list[str]
     model_by_task: dict[str, str]
     model_chain_default: list[str]
     model_chain_by_task: dict[str, list[str]]
@@ -78,13 +96,16 @@ def user_agent() -> str:
 
 
 def llm_config() -> LLMConfig:
-    base = _get("BLOGPIPE_LLM_BASE_URL", _get("OPENROUTER_BASE", "https://openrouter.ai/api/v1"))
+    openrouter_base = _get("OPENROUTER_BASE", "https://openrouter.ai/api/v1")
+    openrouter_key = _get("OPENROUTER_API_KEY")
+    base = _get("BLOGPIPE_LLM_BASE_URL", openrouter_base)
     key = _get("BLOGPIPE_LLM_API_KEY", _get("OPENROUTER_API_KEY"))
     model_primary = _get("BLOGPIPE_LLM_MODEL")
     model_legacy = _get("BLOGPIPE_MODEL")
     model = model_primary or model_legacy or "openrouter/free"
     model_fast = _get("BLOGPIPE_LLM_MODEL_FAST")
     model_smart = _get("BLOGPIPE_LLM_MODEL_SMART")
+    openrouter_free_models = _csv("BLOGPIPE_OPENROUTER_FREE_MODELS") or list(DEFAULT_OPENROUTER_FREE_MODELS)
     model_by_task = {
         task: override
         for task, env_name in LLM_TASK_ENV_VARS.items()
@@ -99,11 +120,14 @@ def llm_config() -> LLMConfig:
     return LLMConfig(
         base_url=base.rstrip("/"),
         api_key=key,
+        openrouter_base_url=openrouter_base.rstrip("/"),
+        openrouter_api_key=openrouter_key,
         model=model,
         model_primary=model_primary,
         model_legacy=model_legacy,
         model_fast=model_fast,
         model_smart=model_smart,
+        openrouter_free_models=openrouter_free_models,
         model_by_task=model_by_task,
         model_chain_default=model_chain_default,
         model_chain_by_task=model_chain_by_task,

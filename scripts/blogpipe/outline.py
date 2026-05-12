@@ -7,6 +7,7 @@ import re
 from pydantic import ValidationError
 
 from . import config
+from . import jsonish
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, SelectionResult
 
@@ -57,7 +58,7 @@ def generate_daily_outline(
                 max_tokens=max_tokens,
             )
         )
-    except OutlineError as exc:
+    except (OutlineError, RuntimeError) as exc:
         parse_error = str(exc)
     if outline is not None:
         errors = validate_outline(outline, pack)
@@ -88,8 +89,8 @@ def generate_daily_outline(
         if not repaired_errors:
             LOG.warning("outline path: repair")
             return repaired
-    except OutlineError:
-        pass
+    except (OutlineError, RuntimeError) as exc:
+        LOG.warning("outline repair failed; using fallback if valid: %s", exc)
 
     # Deterministic fallback so daily runs still proceed during flaky outline outputs.
     fallback = _fallback_outline(pack, selection)
@@ -288,18 +289,10 @@ def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOu
 
 def _parse_outline(text: str) -> DailyOutline:
     try:
-        return DailyOutline.model_validate_json(_json_payload(text))
-    except (ValidationError, ValueError, json.JSONDecodeError) as exc:
+        return DailyOutline.model_validate(jsonish.loads_object(text))
+    except (SyntaxError, ValidationError, ValueError, json.JSONDecodeError) as exc:
         raise OutlineError(f"outline_malformed:{exc}") from exc
 
 
 def _json_payload(text: str) -> str:
-    raw = (text or "").strip()
-    fenced = re.match(r"^```(?:json)?\n([\s\S]*?)\n```$", raw, re.I)
-    if fenced:
-        raw = fenced.group(1).strip()
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start >= 0 and end > start:
-        return raw[start : end + 1]
-    return raw
+    return jsonish.extract_object(text)

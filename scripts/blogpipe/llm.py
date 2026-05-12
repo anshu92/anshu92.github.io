@@ -61,12 +61,17 @@ class LLMClient:
         self.usage.calls_by_task[task_name] = self.usage.calls_by_task.get(task_name, 0) + 1
         self.usage.model_by_task[task_name] = model
         self.usage.prompt_tokens_est += (len(system) + len(user)) // 4
-        headers = {
-            "Authorization": f"Bearer {self.cfg.api_key}",
-            "Content-Type": "application/json",
-        }
         last_error: Exception | None = None
         for chain_model in model_chain:
+            base_url, api_key = self._endpoint_for_model(chain_model)
+            if not api_key:
+                last_error = RuntimeError(f"missing_api_key:{chain_model}")
+                LOG.warning("llm task=%s model=%s missing api key; trying next model", task_name, chain_model)
+                continue
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            }
             payload = {
                 "model": chain_model,
                 "messages": [
@@ -79,7 +84,7 @@ class LLMClient:
             for attempt in range(3):
                 try:
                     resp = httpx.post(
-                        f"{self.cfg.base_url}/chat/completions",
+                        f"{base_url}/chat/completions",
                         headers=headers,
                         json=payload,
                         timeout=httpx.Timeout(120.0, connect=10.0),
@@ -152,9 +157,25 @@ class LLMClient:
             bias,
             self.cfg.model_primary,
             self.cfg.model_legacy,
-            self.cfg.model,
-            "openrouter/free",
+            self._base_model(),
+            *self._openrouter_fallback_models(),
         ]
+
+    def _base_model(self) -> str:
+        return "" if self.cfg.model == "openrouter/free" and self.cfg.openrouter_api_key else self.cfg.model
+
+    def _openrouter_fallback_models(self) -> list[str]:
+        if self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower():
+            return list(self.cfg.openrouter_free_models)
+        return []
+
+    def _endpoint_for_model(self, model: str) -> tuple[str, str]:
+        if _is_openrouter_model(model):
+            key = self.cfg.openrouter_api_key
+            if not key and "openrouter" in self.cfg.base_url.lower():
+                key = self.cfg.api_key
+            return self.cfg.openrouter_base_url, key
+        return self.cfg.base_url, self.cfg.api_key
 
 
 def write_usage(path: str, client: LLMClient) -> None:
@@ -191,6 +212,11 @@ def _unique_models(models: list[str]) -> list[str]:
         seen.add(model)
         out.append(model)
     return out
+
+
+def _is_openrouter_model(model: str) -> bool:
+    normalized = (model or "").strip().lower()
+    return normalized.startswith("openrouter/") or "/" in normalized
 
 
 def _can_fallback_status(status_code: int) -> bool:

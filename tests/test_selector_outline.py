@@ -23,6 +23,11 @@ class FakeLLM:
         return self.text
 
 
+class RaisingLLM:
+    def complete(self, *, system, user, max_tokens=None):
+        raise RuntimeError("http_status:404")
+
+
 class RecordingLLM(FakeLLM):
     def __init__(self, text: str):
         super().__init__(text)
@@ -131,6 +136,44 @@ def test_selector_salvages_selected_ids_from_truncated_json():
     assert result.items[0].role == "primary"
 
 
+def test_selector_recovers_truncated_object_with_scores():
+    ranked = [
+        _ranked_item("p1", text="Generic serving benchmark"),
+        _ranked_item("p2", text="AEC drawing PDF OCR foundation model"),
+        _ranked_item("p3", text="Document layout benchmark with evaluation"),
+    ]
+    raw = """{
+  "selected_item_ids": ["p2", "p3"],
+  "items": [
+    {
+      "item_id": "p2",
+      "role": "primary",
+      "relevance_label": "direct_aec_2d",
+      "scores": {
+        "aec_document_relevance": 0.95,
+        "transferable_mechanism": 0.8,
+        "experiment_strength": 0.7,
+        "engineering_actionability": 0.9,
+        "novelty": 0.9
+      }
+"""
+    selected, result = select_daily_items(ranked, llm=FakeLLM(raw))
+    assert [item.item.item_id for item in selected[:2]] == ["p2", "p3"]
+    assert result.items[0].role == "primary"
+    assert result.items[0].scores["novelty"] == 0.9
+
+
+def test_selector_accepts_pythonish_dict_output():
+    ranked = [
+        _ranked_item("p1", text="Generic serving benchmark"),
+        _ranked_item("p2", text="AEC drawing PDF OCR foundation model"),
+    ]
+    raw = "{'selected_item_ids': ['p2'], 'items': [{'item_id': 'p2', 'role': 'primary'}], 'suggested_tags': ['aec']}"
+    selected, result = select_daily_items(ranked, llm=FakeLLM(raw))
+    assert selected[0].item.item_id == "p2"
+    assert result.suggested_tags == ["aec"]
+
+
 def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_SELECTOR_CANDIDATES", "2")
     ranked = [
@@ -212,6 +255,30 @@ def test_generate_outline_malformed_json_uses_fallback_outline():
     assert validate_outline(outline, pack) == []
 
 
+def test_generate_outline_accepts_pythonish_dict_output():
+    selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
+    pack = build_daily_pack(_fixture_ranked()[:5])
+    raw = "{'title': 'Pythonish outline', 'angle': 'AEC document systems need measurable evidence.', 'sections': ["
+    raw += "{'heading': 'Thesis boundary', 'intent': 'technical thesis angle framing Autodesk AEC document relevance', 'evidence_ids': ['E1'], 'word_budget': 300},"
+    raw += "{'heading': 'Mechanism boundary', 'intent': 'mechanism method architecture pipeline', 'evidence_ids': ['E1'], 'word_budget': 300},"
+    raw += "{'heading': 'Objective boundary', 'intent': 'math objective metric optimization', 'evidence_ids': ['E1'], 'word_budget': 300},"
+    raw += "{'heading': 'Experiment boundary', 'intent': 'experiments evidence benchmark evaluation ablation', 'evidence_ids': ['E1'], 'word_budget': 300},"
+    raw += "{'heading': 'Cross paper boundary', 'intent': 'cross-paper synthesis compare contrast tradeoff limitations caveat failure risk', 'evidence_ids': ['E1'], 'word_budget': 300},"
+    raw += "{'heading': 'Adoption boundary', 'intent': 'impact engineering production practical Autodesk AEC document', 'evidence_ids': ['E1'], 'word_budget': 300}"
+    raw += "], 'suggested_tags': ['document-ai']}"
+    outline = generate_daily_outline(pack, selection=selection, llm=FakeLLM(raw))
+    assert outline.title == "Pythonish outline"
+    assert validate_outline(outline, pack) == []
+
+
+def test_generate_outline_llm_failure_uses_fallback_outline():
+    selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
+    pack = build_daily_pack(_fixture_ranked()[:5])
+    outline = generate_daily_outline(pack, selection=selection, llm=RaisingLLM())
+    assert isinstance(outline, DailyOutline)
+    assert validate_outline(outline, pack) == []
+
+
 def test_generate_outline_uses_outline_then_repair_tasks():
     ranked = _fixture_ranked()
     pack = build_daily_pack(ranked[:5])
@@ -232,3 +299,21 @@ def test_frontmatter_tags_are_dynamic():
     frontmatter = _frontmatter("Plain ML systems", "daily", pack, outline=outline, selection=None, body="serving latency monitoring")
     assert 'tags: ["research-radar", "llm", "mle"]' in frontmatter
     assert '"aec"' not in frontmatter
+
+
+def test_non_openrouter_endpoint_can_fall_back_to_openrouter(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
+    monkeypatch.delenv("BLOGPIPE_LLM_MODEL", raising=False)
+    monkeypatch.delenv("BLOGPIPE_MODEL", raising=False)
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_OUTLINE", "gemini-2.5-flash,gemini-2.0-flash,openrouter/free")
+    client = LLMClient()
+    chain = client._model_chain("outline")
+    assert chain[:3] == ["gemini-2.5-flash", "gemini-2.0-flash", "openrouter/free"]
+    assert "inclusionai/ring-2.6-1t:free" in chain
+    assert client._endpoint_for_model("gemini-2.5-flash") == (
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+        "gemini-key",
+    )
+    assert client._endpoint_for_model("openrouter/free") == ("https://openrouter.ai/api/v1", "openrouter-key")
