@@ -25,7 +25,7 @@ def harvest_all(*, window_hours: int = 72, fixtures: str = "") -> list[SourceIte
         openreview.fetch(window_hours),
         blogs.fetch(window_hours),
     ]
-    merged = _dedupe([item for batch in batches for item in batch])
+    merged = _dedupe(_filter_recent([item for batch in batches for item in batch], window_hours=window_hours))
     return enrichers.enrich(merged)
 
 
@@ -49,6 +49,28 @@ def _dedupe(items: list[SourceItem]) -> list[SourceItem]:
             continue
         seen.add(key)
         out.append(norm)
+    return out
+
+
+def _filter_recent(
+    items: list[SourceItem],
+    *,
+    window_hours: int,
+    now: datetime | None = None,
+) -> list[SourceItem]:
+    """Keep only dated items inside the configured freshness window."""
+    current = now or datetime.now(timezone.utc)
+    out: list[SourceItem] = []
+    for item in items:
+        published = item.published_at or item.updated_at
+        if not published:
+            continue
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
+        age_hours = (current - published).total_seconds() / 3600.0
+        if 0 <= age_hours <= float(window_hours):
+            out.append(item)
+    LOG.info("recency filter: %d -> %d items within %dh", len(items), len(out), window_hours)
     return out
 
 

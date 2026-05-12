@@ -23,11 +23,44 @@ def test_rank_items_scores_tracks_and_aec_gate():
 def test_aec_requires_domain_keyword():
     item = SourceItem(
         canonical_url="https://example.com/generic",
-        source_kind="blog",
+        source_kind="paper",
         source_name="generic",
-        source_tier=3,
-        title="AI for architecture mood boards",
-        abstract_or_excerpt="A generic post about architecture and generative imagery.",
+        source_tier=1,
+        title="Language model architecture for spatial mood boards",
+        published_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+        abstract_or_excerpt="A generic language model post about architecture and generative imagery.",
     )
     ranked = rank_items([item], now=datetime(2026, 5, 11, tzinfo=timezone.utc))
     assert ranked[0].topic_scores.aec == 0
+
+
+def test_rank_items_drops_stale_and_undated_items():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    stale = SourceItem(
+        canonical_url="https://example.com/stale",
+        source_kind="paper",
+        source_name="example",
+        source_tier=1,
+        title="Stale LLM benchmark",
+        published_at=datetime(2026, 4, 1, tzinfo=timezone.utc),
+        abstract_or_excerpt="A language model benchmark with latency and throughput.",
+    )
+    undated = SourceItem(
+        canonical_url="https://example.com/undated",
+        source_kind="paper",
+        source_name="example",
+        source_tier=1,
+        title="Undated LLM benchmark",
+        abstract_or_excerpt="A language model benchmark with latency and throughput.",
+    )
+    fresh = SourceItem(
+        canonical_url="https://example.com/fresh",
+        source_kind="paper",
+        source_name="example",
+        source_tier=1,
+        title="Fresh LLM benchmark",
+        published_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+        abstract_or_excerpt="A language model benchmark with latency and throughput.",
+    )
+    ranked = rank_items([stale, undated, fresh], now=now, max_age_hours=72)
+    assert [r.item.title for r in ranked] == ["Fresh LLM benchmark"]

@@ -23,7 +23,7 @@ def run_all(
     max_deep_dives: int = 1,
 ) -> dict[str, object]:
     ingest_count = ingest.run(window_hours=window_hours, fixtures=fixtures, db=db)
-    ranked = rank.run(db=db)
+    ranked = rank.run(db=db, max_age_hours=None if fixtures else window_hours)
     daily = write_daily(ranked=ranked, dry_run=dry_run)
     if not dry_run and not daily.ok:
         raise RuntimeError(f"daily writer failed validation: {daily.errors}")

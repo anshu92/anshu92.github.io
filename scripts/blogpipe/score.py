@@ -8,12 +8,17 @@ from .models import RankedItem, SourceItem, TopicScores
 from .topics import TRACKS, keyword_hits
 
 
-def rank_items(items: list[SourceItem], *, now: datetime | None = None, limit: int = 50) -> list[RankedItem]:
+def rank_items(
+    items: list[SourceItem],
+    *,
+    now: datetime | None = None,
+    limit: int = 50,
+    max_age_hours: int | None = 72,
+) -> list[RankedItem]:
     current = now or datetime.now(timezone.utc)
-    scored = [_score_one(item, current) for item in items]
+    recent = _recent_items(items, current, max_age_hours=max_age_hours)
+    scored = [_score_one(item, current) for item in recent]
     gated = [r for r in scored if _passes_gate(r)]
-    if not gated:
-        gated = scored
     gated.sort(key=lambda r: r.daily_score, reverse=True)
     return _diversify(gated[:limit])
 
@@ -113,6 +118,27 @@ def _freshness(item: SourceItem, now: datetime) -> float:
         published = published.replace(tzinfo=timezone.utc)
     age_days = max(0.0, (now - published).total_seconds() / 86400.0)
     return math.exp(-age_days / 5.0)
+
+
+def _recent_items(
+    items: list[SourceItem],
+    now: datetime,
+    *,
+    max_age_hours: int | None,
+) -> list[SourceItem]:
+    if max_age_hours is None:
+        return items
+    out: list[SourceItem] = []
+    for item in items:
+        published = item.published_at or item.updated_at
+        if not published:
+            continue
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
+        age_hours = (now - published).total_seconds() / 3600.0
+        if 0 <= age_hours <= float(max_age_hours):
+            out.append(item)
+    return out
 
 
 def _technical_depth(text: str, item: SourceItem) -> float:

@@ -16,7 +16,7 @@ from blogpipe.writer import validate_body, write_daily
 def _pack():
     data = json.loads(Path("tests/fixtures/source_items.json").read_text())
     items = TypeAdapter(list[SourceItem]).validate_python(data["items"])
-    ranked = daily_shortlist(rank_items(items))
+    ranked = daily_shortlist(rank_items(items, max_age_hours=None))
     return build_daily_pack(ranked)
 
 

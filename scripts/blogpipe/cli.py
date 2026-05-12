@@ -22,6 +22,7 @@ def main(argv: list[str] | None = None) -> int:
     rank_p = sub.add_parser("rank")
     rank_p.add_argument("--db", default="")
     rank_p.add_argument("--limit", type=int, default=50)
+    rank_p.add_argument("--max-age", default="72h")
 
     daily_p = sub.add_parser("write-daily")
     daily_p.add_argument("--dry-run", action="store_true")
@@ -49,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "rank":
             from . import rank
 
-            rank.run(db=args.db, limit=args.limit)
+            rank.run(db=args.db, limit=args.limit, max_age_hours=_window_hours(args.max_age))
         elif args.command == "write-daily":
             from . import pipeline
 

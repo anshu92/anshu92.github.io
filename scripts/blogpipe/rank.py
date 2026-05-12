@@ -8,11 +8,11 @@ from . import memory, score, store
 LOG = logging.getLogger(__name__)
 
 
-def run(*, db: str = "", limit: int = 50) -> list[object]:
+def run(*, db: str = "", limit: int = 50, max_age_hours: int | None = 72) -> list[object]:
     memory.ensure_dirs()
     with store.connect(db or None) as conn:
         items = store.load_items(conn, limit=500)
-        ranked = score.rank_items(items, limit=limit)
+        ranked = score.rank_items(items, limit=limit, max_age_hours=max_age_hours)
         store.update_scores(conn, ranked)
     payload = {
         "count": len(ranked),
