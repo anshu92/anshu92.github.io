@@ -32,6 +32,12 @@ PR. Instead it writes a blocked report under `reports/` and sends a failure
 email with the workflow run link and validator summary so the run does not fail
 silently.
 
+If live source harvesting is temporarily throttled, the daily writer can reuse
+recent paper records already present in the SQLite store to satisfy the minimum
+paper pool before selector/outliner work begins. The fallback stays inside the
+same recency window and still blocks when the store cannot supply enough current
+papers.
+
 If repository settings block GitHub Actions from creating pull requests, the
 workflow still pushes the branch and emails a GitHub PR creation URL. To restore
 fully automatic PR creation, enable "Allow GitHub Actions to create and approve

@@ -25,7 +25,13 @@ def run_all(
     ingest_count = ingest.run(window_hours=window_hours, fixtures=fixtures, db=db)
     ranked = rank.run(db=db, max_age_hours=None if fixtures else window_hours)
     client = LLMClient()
-    daily = write_daily(ranked=ranked, dry_run=dry_run, llm=client)
+    daily = write_daily(
+        ranked=ranked,
+        dry_run=dry_run,
+        llm=client,
+        db=db,
+        fallback_max_age_hours=None if fixtures else window_hours,
+    )
     if daily.ok:
         deep = write_deep_dives(ranked=ranked, max_new=max_deep_dives, dry_run=dry_run, llm=client)
         if "/img/posts/" in daily.body:
@@ -56,11 +62,19 @@ def write_daily(
     ranked: list[RankedItem] | None = None,
     dry_run: bool = False,
     llm: LLMClient | None = None,
+    db: str = "",
+    fallback_max_age_hours: int | None = 72,
 ) -> WriteResult:
     ranked = load_ranked() if ranked is None else ranked
     client = llm or LLMClient()
-    paper_count = sum(1 for item in ranked if item.item.source_kind == "paper")
     required_papers = min(3, config.daily_primary_papers())
+    ranked = _augment_ranked_with_store_papers(
+        ranked,
+        required_papers=required_papers,
+        db=db,
+        max_age_hours=fallback_max_age_hours,
+    )
+    paper_count = sum(1 for item in ranked if item.item.source_kind == "paper")
     if paper_count < required_papers:
         result = _blocked_daily([f"insufficient_ranked_papers:{paper_count}/{required_papers}"])
         _write_daily_reports(result, client)
@@ -94,6 +108,49 @@ def write_daily(
     )
     _write_daily_reports(result, client)
     return result
+
+
+def _augment_ranked_with_store_papers(
+    ranked: list[RankedItem],
+    *,
+    required_papers: int,
+    db: str = "",
+    max_age_hours: int | None = 72,
+) -> list[RankedItem]:
+    paper_count = sum(1 for item in ranked if item.item.source_kind == "paper")
+    if paper_count >= required_papers:
+        return ranked
+
+    existing_ids = {item.item.item_id for item in ranked}
+    with store.connect(db or None) as conn:
+        stored_items = store.load_items(conn, limit=500)
+
+    fallback_papers = [
+        item
+        for item in stored_items
+        if item.source_kind == "paper" and item.normalized().item_id not in existing_ids
+    ]
+    if not fallback_papers:
+        return ranked
+
+    fallback_ranked = score.rank_items(
+        fallback_papers,
+        limit=50,
+        max_age_hours=max_age_hours,
+    )
+    if not fallback_ranked:
+        return ranked
+
+    combined = [*ranked, *fallback_ranked]
+    combined.sort(key=lambda item: item.daily_score, reverse=True)
+    combined = score._diversify(combined)
+    recovered = sum(1 for item in combined if item.item.source_kind == "paper")
+    LOG.warning(
+        "daily writer recovered ranked paper pool from store fallback: %d -> %d papers",
+        paper_count,
+        recovered,
+    )
+    return combined
 
 
 def _write_daily_reports(result: WriteResult, client: LLMClient) -> None:

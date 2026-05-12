@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
-from blogpipe import memory
+from blogpipe import memory, store
 from blogpipe.cli import main
-from blogpipe.pipeline import write_daily
+from blogpipe.models import SourceItem
+from blogpipe.pipeline import _augment_ranked_with_store_papers, write_daily
+from blogpipe.score import rank_items
 
 
 def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
@@ -88,3 +91,57 @@ def test_write_daily_blocks_before_llm_when_ranked_papers_are_insufficient(monke
     assert not result.ok
     assert result.errors == ["insufficient_ranked_papers:0/3"]
     assert list((tmp_path / "reports").glob("*.blocked.json"))
+
+
+def test_daily_rank_fallback_recovers_recent_store_papers(tmp_path):
+    db = tmp_path / "items.sqlite"
+    now = datetime.now(timezone.utc)
+    items = [_recent_paper(idx, now=now) for idx in range(3)]
+    with store.connect(db) as conn:
+        store.upsert_items(conn, items)
+
+    ranked = _augment_ranked_with_store_papers(
+        [],
+        required_papers=3,
+        db=str(db),
+        max_age_hours=72,
+    )
+
+    assert sum(1 for item in ranked if item.item.source_kind == "paper") >= 3
+
+
+def test_daily_rank_fallback_avoids_duplicate_recent_papers(tmp_path):
+    db = tmp_path / "items.sqlite"
+    now = datetime.now(timezone.utc)
+    items = [_recent_paper(idx, now=now) for idx in range(3)]
+    with store.connect(db) as conn:
+        store.upsert_items(conn, items)
+
+    already_ranked = rank_items([items[0]], now=now, max_age_hours=72)
+    ranked = _augment_ranked_with_store_papers(
+        already_ranked,
+        required_papers=3,
+        db=str(db),
+        max_age_hours=72,
+    )
+    item_ids = [item.item.item_id for item in ranked]
+
+    assert sum(1 for item in ranked if item.item.source_kind == "paper") >= 3
+    assert len(item_ids) == len(set(item_ids))
+
+
+def _recent_paper(idx: int, *, now: datetime) -> SourceItem:
+    return SourceItem(
+        canonical_url=f"https://arxiv.org/abs/2605.10{idx:03d}",
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title=f"Benchmarking CAD deployment paper {idx}",
+        published_at=now,
+        abstract_or_excerpt=(
+            "We propose a language model benchmark with objective design, implementation detail, "
+            "failure mode analysis, latency measurements, deployment constraints, and ablation evidence "
+            "for CAD and document intelligence workflows."
+        ),
+        extra={"search_profile": "fallback_test"},
+    )
