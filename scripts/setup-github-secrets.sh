@@ -65,6 +65,7 @@ set_secret TAVILY_API_KEY "Tavily (optional: free-tier web search for BLOGPIPE_M
 set_secret EMAIL_USERNAME "Gmail address used for SMTP (must match the account for the app password below)"
 set_secret EMAIL_PASSWORD "Gmail App Password ONLY: myaccount.google.com → Security → 2-Step Verification → App passwords (16 chars). Do NOT use your regular Gmail password — SMTP will return 534 if wrong."
 set_secret EMAIL_TO "Notification recipient (optional; default is EMAIL_USERNAME)"
+set_secret PR_CREATION_TOKEN "Optional GitHub PAT with pull request write access. Use only if GITHUB_TOKEN is not allowed to create PRs in repo Actions settings."
 
 echo ""
 echo "Done. Verify: gh secret list --repo $REPO"

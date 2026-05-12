@@ -25,6 +25,12 @@ The scheduled `Research radar` workflow does not publish directly. It generates
 Hugo posts with `draft: true`, pushes them to a `radar/draft-*` branch, opens a
 pull request, and emails the PR link for review.
 
+If repository settings block GitHub Actions from creating pull requests, the
+workflow still pushes the branch and emails a GitHub PR creation URL. To restore
+fully automatic PR creation, enable "Allow GitHub Actions to create and approve
+pull requests" in the repository Actions settings or add a `PR_CREATION_TOKEN`
+secret with pull request write access.
+
 Merge the generated PR to approve publication. The
 `Publish approved research radar` workflow then flips changed draft posts to
 `draft: false`, commits that publish change to `main`, builds Hugo, and deploys

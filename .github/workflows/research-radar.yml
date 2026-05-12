@@ -52,10 +52,11 @@ jobs:
       - name: Create draft branch and PR
         id: draft_pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PR_CREATION_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           if [[ -n "$(git status --porcelain content)" ]]; then
+            mkdir -p reports
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             SLUG="$(date -u +%F)-research-radar"
@@ -65,11 +66,19 @@ jobs:
             if [ -d data ]; then git rm -r --ignore-unmatch data; fi
             git commit -m "chore(blog): draft research radar $SLUG"
             git push -u origin "$BR"
-            PR_URL="$(gh pr create \
-              --base main \
-              --head "$BR" \
-              --title "Research radar draft: $SLUG" \
-              --body "Automated research radar draft. Review and merge this PR to publish.")"
+            FALLBACK_PR_URL="https://github.com/${GITHUB_REPOSITORY}/pull/new/${BR}"
+            if PR_URL="$(gh pr create \
+                --base main \
+                --head "$BR" \
+                --title "Research radar draft: $SLUG" \
+                --body "Automated research radar draft. Review and merge this PR to publish." \
+                2>reports/pr_create_error.log)"; then
+              echo "Created PR: $PR_URL"
+            else
+              echo "::warning::GitHub CLI could not create a PR. Emailing fallback PR creation URL."
+              cat reports/pr_create_error.log
+              PR_URL="$FALLBACK_PR_URL"
+            fi
             echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
             echo "$PR_URL" > reports/pr_url.txt
           else
@@ -91,5 +100,5 @@ jobs:
           from: Research Radar <${{ secrets.EMAIL_USERNAME }}>
           html_body: |
             <p>A new research radar draft is ready for review.</p>
-            <p><a href="${{ steps.draft_pr.outputs.pr_url }}">Open the draft PR</a></p>
-            <p>Merge the PR to publish it.</p>
+            <p><a href="${{ steps.draft_pr.outputs.pr_url }}">Open or create the draft PR</a></p>
+            <p>Merge the PR to publish it. If the link opens GitHub's new-PR page, create the PR first.</p>
