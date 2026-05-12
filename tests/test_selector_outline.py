@@ -22,6 +22,16 @@ class FakeLLM:
         return self.text
 
 
+class RecordingLLM(FakeLLM):
+    def __init__(self, text: str):
+        super().__init__(text)
+        self.last_user = ""
+
+    def complete(self, *, system, user, max_tokens=None):
+        self.last_user = user
+        return self.text
+
+
 def _fixture_ranked() -> list[RankedItem]:
     data = json.loads(Path("tests/fixtures/source_items.json").read_text())
     items = TypeAdapter(list[SourceItem]).validate_python(data["items"])
@@ -87,6 +97,26 @@ def test_selector_prefers_aec_2d_document_candidates():
 def test_selector_malformed_json_blocks_publication():
     with pytest.raises(SelectionError):
         select_daily_items(_fixture_ranked(), llm=FakeLLM("not json"))
+
+
+def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_SELECTOR_CANDIDATES", "2")
+    ranked = [
+        _ranked_item("p1", text="Generic serving benchmark"),
+        _ranked_item("p2", text="Another systems benchmark"),
+        _ranked_item("p3", text="AEC drawing PDF OCR foundation model"),
+    ]
+    fake = {
+        "selected_item_ids": ["p3", "p2", "p1"],
+        "items": [{"item_id": "p3", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
+        "suggested_tags": ["aec"],
+    }
+    llm = RecordingLLM(json.dumps(fake))
+    selected, _result = select_daily_items(ranked, llm=llm)
+    assert selected[0].item.item_id == "p3"
+    assert '"item_id": "p3"' in llm.last_user
+    assert "daily_score" not in llm.last_user
+    assert "rank_reason" not in llm.last_user
 
 
 def test_outline_accepts_generated_headings_and_required_intents():

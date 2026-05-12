@@ -6,11 +6,12 @@ from pathlib import Path
 from pydantic import TypeAdapter
 
 from blogpipe.evidence import build_daily_pack
+from blogpipe import evidence
 from blogpipe.llm import LLMClient
 from blogpipe import memory
 from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
-from blogpipe.writer import validate_body, write_daily
+from blogpipe.writer import validate_body, write_daily, write_deep_dive
 
 
 def _pack():
@@ -208,3 +209,58 @@ def test_blocked_post_is_not_published_after_failed_repair(monkeypatch, tmp_path
     assert not result.ok
     assert not list((tmp_path / "content" / "post").glob("*.md"))
     assert list((tmp_path / "reports").glob("*.blocked.json"))
+
+
+def test_daily_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp_path):
+    pack = _pack()
+    outline = _outline()
+    selection = _selection()
+    _patch_root(monkeypatch, tmp_path)
+    section_outputs = []
+    for section in outline.sections:
+        section_outputs.append(
+            f"## {section.heading}\n"
+            "Grounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n"
+        )
+    final_body = Path("tests/fixtures/fake_daily.md").read_text()
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "20")
+    monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSES", json.dumps([*section_outputs, final_body]))
+    llm = LLMClient()
+    result = write_daily(pack, outline=outline, selection=selection, llm=llm, dry_run=True)
+    assert result.ok, result.errors
+    assert llm.usage.calls >= len(outline.sections) + 1
+    assert "```mermaid" in result.body
+    assert "/img/posts/" in result.body
+    assert "source-mix.svg" in result.body
+    assert "topic-mix.svg" in result.body
+
+
+def test_deep_dive_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp_path):
+    ranked = _pack().ranked_items[0]
+    pack = evidence.build_deep_dive_pack(ranked)
+    _patch_root(monkeypatch, tmp_path)
+    section_outputs = [
+        "## Technical thesis and motivation\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001",
+        "## Method walkthrough and mechanism\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001",
+        "## Objective or math interpretation\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001",
+        "## Experiments and evidence\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001",
+        "## Limits and failure modes\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001",
+        "## Engineering implications and next actions\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001",
+    ]
+    final_body = (
+        "## Technical thesis and motivation\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n\n"
+        "## Method walkthrough and mechanism\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n\n"
+        "## Objective or math interpretation\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n\n"
+        "## Experiments and evidence\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n\n"
+        "## Limits and failure modes\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n\n"
+        "## Engineering implications and next actions\nGrounded claim [E1]. Source: https://arxiv.org/abs/2605.00001\n"
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "20")
+    monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSES", json.dumps([*section_outputs, final_body]))
+    llm = LLMClient()
+    result = write_deep_dive(pack, llm=llm, dry_run=True)
+    assert result.ok, result.errors
+    assert llm.usage.calls >= 7
+    assert "```mermaid" in result.body
+    assert "source-mix.svg" in result.body
+    assert "topic-mix.svg" in result.body

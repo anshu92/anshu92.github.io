@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -8,9 +9,11 @@ from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
 
-from . import config, memory
+from . import assets, config, memory
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, RankedItem, SelectionResult, WriteResult
+
+LOG = logging.getLogger(__name__)
 
 EVIDENCE_REF_RE = re.compile(r"\[E(\d+)\]")
 NUMBER_RE = re.compile(r"(?<![\w-])\d+(?:\.\d+)?%?(?![\w-])")
@@ -64,7 +67,15 @@ def write_daily(
     client = llm or LLMClient()
     today = datetime.now(timezone.utc).date().isoformat()
     title = outline.title or f"Research Radar: Autodesk MLE Brief - {today}"
-    body = _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title))
+    slug = f"{today}-research-radar"
+    body = _generate_daily_body(
+        client=client,
+        pack=pack,
+        outline=outline,
+        selection=selection,
+        title=title,
+        slug=slug,
+    )
     return _validate_repair_and_publish(
         client=client,
         pack=pack,
@@ -72,7 +83,7 @@ def write_daily(
         selection=selection,
         title=title,
         body=body,
-        slug=f"{today}-research-radar",
+        slug=slug,
         post_type="daily",
         dry_run=dry_run,
     )
@@ -84,7 +95,7 @@ def write_deep_dive(pack: EvidencePack, *, llm: LLMClient | None = None, dry_run
     today = datetime.now(timezone.utc).date().isoformat()
     title = f"{primary.title} - guided learning deep dive"
     slug = f"{today}-{memory.slugify(primary.title)}-guided-deep-dive"
-    body = _call_writer(client, _deep_system(), _deep_user(pack, title))
+    body = _generate_deep_dive_body(client=client, pack=pack, title=title, slug=slug)
     return _validate_repair_and_publish(
         client=client,
         pack=pack,
@@ -127,6 +138,296 @@ def validate_body(body: str, pack: EvidencePack, *, outline: DailyOutline | None
     return errors
 
 
+def _generate_daily_body(
+    *,
+    client: LLMClient,
+    pack: EvidencePack,
+    outline: DailyOutline,
+    selection: SelectionResult,
+    title: str,
+    slug: str,
+) -> str:
+    def _fallback() -> str:
+        return _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title))
+
+    if not isinstance(client, LLMClient):
+        return _fallback()
+
+    section_specs = [
+        {
+            "heading": section.heading,
+            "intent": section.intent,
+            "evidence_ids": list(section.evidence_ids),
+            "word_budget": int(section.word_budget or 0),
+        }
+        for section in outline.sections
+    ]
+    required_calls = len(section_specs) + 1
+    if not _has_call_budget(client, required_calls):
+        return _fallback()
+    try:
+        drafted = _draft_sections(
+            client=client,
+            pack=pack,
+            title=title,
+            post_type="daily",
+            section_specs=section_specs,
+            outline=outline,
+            selection=selection,
+        )
+        if not drafted:
+            return _fallback()
+        edited = _final_editor_pass(
+            client=client,
+            pack=pack,
+            title=title,
+            post_type="daily",
+            section_drafts=drafted,
+            slug=slug,
+            outline=outline,
+            selection=selection,
+        )
+        return edited or _fallback()
+    except Exception as exc:  # noqa: BLE001
+        LOG.warning("sectionwise daily writer failed; using fallback single pass: %s", exc)
+        return _fallback()
+
+
+def _generate_deep_dive_body(*, client: LLMClient, pack: EvidencePack, title: str, slug: str) -> str:
+    def _fallback() -> str:
+        return _call_writer(client, _deep_system(), _deep_user(pack, title))
+
+    if not isinstance(client, LLMClient):
+        return _fallback()
+
+    section_specs = _deep_dive_section_specs(pack)
+    required_calls = len(section_specs) + 1
+    if not _has_call_budget(client, required_calls):
+        return _fallback()
+    try:
+        drafted = _draft_sections(
+            client=client,
+            pack=pack,
+            title=title,
+            post_type="deep_dive",
+            section_specs=section_specs,
+            outline=None,
+            selection=None,
+        )
+        if not drafted:
+            return _fallback()
+        edited = _final_editor_pass(
+            client=client,
+            pack=pack,
+            title=title,
+            post_type="deep_dive",
+            section_drafts=drafted,
+            slug=slug,
+            outline=None,
+            selection=None,
+        )
+        return edited or _fallback()
+    except Exception as exc:  # noqa: BLE001
+        LOG.warning("sectionwise deep-dive writer failed; using fallback single pass: %s", exc)
+        return _fallback()
+
+
+def _draft_sections(
+    *,
+    client: LLMClient,
+    pack: EvidencePack,
+    title: str,
+    post_type: str,
+    section_specs: list[dict[str, object]],
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+) -> list[str]:
+    drafted: list[str] = []
+    for section in section_specs:
+        heading = str(section.get("heading") or "").strip()
+        if not heading:
+            continue
+        user = _section_user(
+            title=title,
+            post_type=post_type,
+            section=section,
+            pack=pack,
+            outline=outline,
+            selection=selection,
+            drafted_so_far=drafted,
+        )
+        text = _call_writer(client, _section_system(post_type), user)
+        cleaned = _normalize_section_output(heading, text)
+        drafted.append(cleaned)
+    return drafted
+
+
+def _deep_dive_section_specs(pack: EvidencePack) -> list[dict[str, object]]:
+    order = [
+        ("Technical thesis and motivation", "thesis framing and the practical engineering question", ("impact", "mechanism")),
+        ("Method walkthrough and mechanism", "step-by-step mechanism with concrete evidence", ("mechanism", "experiment")),
+        ("Objective or math interpretation", "objective, optimization, or metric interpretation", ("math_or_objective", "experiment")),
+        ("Experiments and evidence", "benchmarks, ablations, and reported outcomes", ("experiment",)),
+        ("Limits and failure modes", "limitations, caveats, and what could break", ("limitation", "impact")),
+        ("Engineering implications and next actions", "how to apply or evaluate in production settings", ("impact", "limitation")),
+    ]
+    out: list[dict[str, object]] = []
+    for heading, intent, evidence_types in order:
+        evidence_ids = _evidence_ids_for_types(pack, evidence_types, limit=5)
+        out.append(
+            {
+                "heading": heading,
+                "intent": intent,
+                "evidence_ids": evidence_ids,
+                "word_budget": 520,
+            }
+        )
+    return out
+
+
+def _evidence_ids_for_types(pack: EvidencePack, evidence_types: tuple[str, ...], *, limit: int = 5) -> list[str]:
+    out: list[str] = []
+    for chunk in pack.chunks:
+        et = (chunk.evidence_type or "").lower()
+        if evidence_types and et not in {x.lower() for x in evidence_types}:
+            continue
+        out.append(chunk.evidence_id)
+        if len(out) >= limit:
+            return out
+    for chunk in pack.chunks:
+        if chunk.evidence_id not in out:
+            out.append(chunk.evidence_id)
+            if len(out) >= limit:
+                break
+    return out
+
+
+def _section_system(post_type: str) -> str:
+    scope = "daily research radar section" if post_type == "daily" else "deep-dive section"
+    return (
+        "Write one Markdown section only. "
+        f"You are drafting a {scope}. "
+        "Output a heading line '## ...' followed by concise technical prose. "
+        "Use only supplied evidence and cite with [E#] plus source URL links for substantive claims. "
+        "Do not invent numbers, tables, or results. No frontmatter, no JSON, no preamble."
+    )
+
+
+def _section_user(
+    *,
+    title: str,
+    post_type: str,
+    section: dict[str, object],
+    pack: EvidencePack,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+    drafted_so_far: list[str],
+) -> str:
+    heading = str(section.get("heading") or "").strip()
+    intent = str(section.get("intent") or "").strip()
+    word_budget = int(section.get("word_budget") or 0)
+    evidence_ids = [str(x) for x in (section.get("evidence_ids") or []) if str(x).strip()]
+    chunks = [chunk.model_dump(mode="json") for chunk in pack.chunks if chunk.evidence_id in set(evidence_ids)]
+    if not chunks:
+        chunks = [chunk.model_dump(mode="json") for chunk in pack.chunks[:8]]
+    return (
+        f"POST_TYPE: {post_type}\n"
+        f"TITLE: {title}\n"
+        f"HEADING: {heading}\n"
+        f"INTENT: {intent}\n"
+        f"TARGET_WORD_BUDGET: {word_budget}\n"
+        f"EVIDENCE_IDS_TO_USE: {json.dumps(evidence_ids)}\n\n"
+        f"DRAFTED_SECTIONS_SO_FAR:\n{json.dumps(drafted_so_far[-2:], ensure_ascii=False)}\n\n"
+        f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
+        f"EVIDENCE_CHUNKS:\n{json.dumps(chunks, indent=2, ensure_ascii=False)}\n"
+    )
+
+
+def _normalize_section_output(expected_heading: str, text: str) -> str:
+    cleaned = _strip_fence(text).strip()
+    lines = cleaned.splitlines()
+    if not lines:
+        return f"## {expected_heading}\n"
+    if not lines[0].startswith("## "):
+        cleaned = f"## {expected_heading}\n\n{cleaned}"
+    return cleaned.strip()
+
+
+def _final_editor_pass(
+    *,
+    client: LLMClient,
+    pack: EvidencePack,
+    title: str,
+    post_type: str,
+    section_drafts: list[str],
+    slug: str,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+) -> str:
+    user = _final_editor_user(
+        pack=pack,
+        title=title,
+        post_type=post_type,
+        section_drafts=section_drafts,
+        slug=slug,
+        outline=outline,
+        selection=selection,
+    )
+    return _call_writer(client, _final_editor_system(post_type), user)
+
+
+def _final_editor_system(post_type: str) -> str:
+    target = "daily research radar post" if post_type == "daily" else "deep-dive technical post"
+    return (
+        f"You are the final editor for a {target}. "
+        "Merge section drafts into one cohesive Markdown body with smooth transitions. "
+        "Preserve evidence markers [E#] and include source URL links for substantive claims. "
+        "Keep section headings specific and non-generic. "
+        "Ensure one mermaid diagram block is present and include the provided SVG image links in the body. "
+        "Do not invent claims, numbers, or references. Output Markdown only."
+    )
+
+
+def _final_editor_user(
+    *,
+    pack: EvidencePack,
+    title: str,
+    post_type: str,
+    section_drafts: list[str],
+    slug: str,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+) -> str:
+    image_paths = [
+        f"/img/posts/{slug}/source-mix.svg",
+        f"/img/posts/{slug}/topic-mix.svg",
+    ]
+    return (
+        f"POST_TYPE: {post_type}\n"
+        f"TITLE: {title}\n"
+        "REQUIRED_VISUALS:\n"
+        f"- mermaid diagram from this source graph if needed:\n```mermaid\n{assets.mermaid_for_ranked(pack.ranked_items)}\n```\n"
+        + "\n".join(f"- embed image link: {path}" for path in image_paths)
+        + "\n\n"
+        f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
+        f"SECTION_DRAFTS:\n{json.dumps(section_drafts, indent=2, ensure_ascii=False)}\n\n"
+        f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n"
+    )
+
+
+def _has_call_budget(client: LLMClient, required_calls: int) -> bool:
+    if required_calls <= 0:
+        return True
+    if not isinstance(client, LLMClient):
+        return True
+    if client.cfg.max_calls <= 0:
+        return False
+    remaining = client.cfg.max_calls - client.usage.calls
+    return remaining >= required_calls
+
+
 def _call_writer(client: LLMClient, system: str, user: str) -> str:
     return _strip_fence(client.complete(system=system, user=user)).strip()
 
@@ -143,6 +444,8 @@ def _validate_repair_and_publish(
     post_type: str,
     dry_run: bool,
 ) -> WriteResult:
+    _prepare_visual_assets(pack, slug)
+    body = _ensure_visual_blocks(body, pack, slug)
     errors = validate_body(body, pack, outline=outline)
     repair_attempted = False
     if errors:
@@ -150,6 +453,7 @@ def _validate_repair_and_publish(
         repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection)
         try:
             body = _call_writer(client, _repair_system(), repair_user)
+            body = _ensure_visual_blocks(body, pack, slug)
             errors = validate_body(body, pack, outline=outline)
         except Exception as exc:
             errors.append(f"repair_failed:{exc}")
@@ -330,6 +634,37 @@ def _repair_safe_draft(body: str, errors: list[str]) -> str:
             token = error.split(":", 1)[1]
             safe = safe.replace(token, "[unsupported number]")
     return safe
+
+
+def _prepare_visual_assets(pack: EvidencePack, slug: str) -> None:
+    try:
+        assets.render_post_assets(pack.ranked_items, slug)
+    except Exception as exc:  # noqa: BLE001
+        LOG.warning("asset render failed for slug %s: %s", slug, exc)
+
+
+def _ensure_visual_blocks(body: str, pack: EvidencePack, slug: str) -> str:
+    text = (body or "").strip()
+    mermaid_src = assets.mermaid_for_ranked(pack.ranked_items)
+    if "```mermaid" not in text:
+        text = (
+            text.rstrip()
+            + "\n\n## Visual map\n```mermaid\n"
+            + mermaid_src
+            + "\n```\n"
+        )
+    source_img = f"/img/posts/{slug}/source-mix.svg"
+    topic_img = f"/img/posts/{slug}/topic-mix.svg"
+    missing_source = source_img not in text
+    missing_topic = topic_img not in text
+    if missing_source or missing_topic:
+        lines = ["", "## Visual diagnostics"]
+        if missing_source:
+            lines.append(f"![Source mix chart]({source_img})")
+        if missing_topic:
+            lines.append(f"![Topic mix chart]({topic_img})")
+        text = text.rstrip() + "\n\n" + "\n".join(lines) + "\n"
+    return text.strip()
 
 
 def _strip_fence(text: str) -> str:

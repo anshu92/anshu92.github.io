@@ -10,6 +10,10 @@ from .models import RankedItem
 
 
 def render_daily_assets(ranked: list[RankedItem], slug: str) -> list[Path]:
+    return render_post_assets(ranked, slug)
+
+
+def render_post_assets(ranked: list[RankedItem], slug: str) -> list[Path]:
     out_dir = memory.post_asset_dir(slug)
     paths = [
         _source_mix_svg(ranked, out_dir / "source-mix.svg"),

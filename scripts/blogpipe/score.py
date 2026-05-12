@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import math
 import re
+import logging
 from datetime import datetime, timezone
 from collections import Counter
 
 from . import config
 from .models import RankedItem, SourceItem, TopicScores
 from .topics import TRACKS, keyword_hits
+
+LOG = logging.getLogger(__name__)
 
 
 def rank_items(
@@ -21,6 +24,16 @@ def rank_items(
     recent = _recent_items(items, current, max_age_hours=max_age_hours)
     scored = [_score_one(item, current) for item in recent]
     gated = [r for r in scored if _passes_gate(r)]
+    if not gated and scored:
+        # Daily feeds can be sparse when upstream sources are rate-limited (e.g., arXiv 429s).
+        # Fall back to a softer gate so selector/outliner can still operate on best available items.
+        gated = [r for r in scored if _passes_relaxed_gate(r)]
+        if gated:
+            LOG.warning(
+                "rank: strict gate filtered all %d candidates; using relaxed fallback (%d)",
+                len(scored),
+                len(gated),
+            )
     gated.sort(key=lambda r: r.daily_score, reverse=True)
     return _diversify(gated[:limit])
 
@@ -131,6 +144,20 @@ def _passes_gate(ranked: RankedItem) -> bool:
         if ranked.quality_signals.get("technical_depth", 0) < 0.28 or ranked.quality_signals.get("practical_impact", 0) < 0.25:
             return False
     return True
+
+
+def _passes_relaxed_gate(ranked: RankedItem) -> bool:
+    """Fallback gate for sparse days when strict topical filtering yields zero candidates."""
+    if ranked.item.source_kind == "blog" and ranked.item.source_tier > 3:
+        return False
+    topic = float(ranked.topic_scores.best)
+    depth = float(ranked.quality_signals.get("technical_depth", 0.0))
+    practical = float(ranked.quality_signals.get("practical_impact", 0.0))
+    if topic >= 0.08:
+        return True
+    if depth >= 0.45:
+        return True
+    return ranked.item.source_kind == "paper" and depth >= 0.30 and practical >= 0.10
 
 
 def _shortlist_pool_is_sufficient(pool: list[RankedItem], *, minimum: int, required_papers: int) -> bool:

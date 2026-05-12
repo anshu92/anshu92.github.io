@@ -66,6 +66,29 @@ def test_rank_items_drops_stale_and_undated_items():
     assert [r.item.title for r in ranked] == ["Fresh LLM benchmark"]
 
 
+def test_rank_items_relaxes_gate_when_strict_gate_filters_everything():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    items = [
+        SourceItem(
+            canonical_url="https://example.com/paper/1",
+            source_kind="paper",
+            source_name="example",
+            source_tier=2,
+            title="Sparse objective ablation for graph optimization",
+            published_at=now,
+            abstract_or_excerpt=(
+                "We study architecture choices, objective design, theorem assumptions, "
+                "complexity bounds, dataset setup, and ablation findings."
+            ),
+            tags=["research"],
+            extra={"search_profile": "fallback_test"},
+        ),
+    ]
+    ranked = rank_items(items, now=now, max_age_hours=72)
+    assert ranked
+    assert ranked[0].topic_scores.best < 0.20
+
+
 def test_daily_shortlist_prefers_papers_and_diverse_profiles():
     now = datetime(2026, 5, 11, tzinfo=timezone.utc)
 

@@ -73,18 +73,23 @@ MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
 queries a small best-effort venue list unless overridden. The 72h recency window
 is strict for live sources; undated or stale items are dropped before ranking.
 
-The daily flow uses deterministic ranking as the candidate generator, then an
-LLM selector chooses the most relevant papers for Autodesk/AEC foundation-model
-and 2D-document work. The selected set is still constrained to be paper-first,
-diverse, recent, and light on source blogs.
+The daily flow asks the selector LLM to choose directly from all available
+paper titles in the current run for Autodesk/AEC foundation-model and
+2D-document work, rather than pre-filtering with score-ranked candidate slices.
 
-An LLM outline stage then creates natural post headings. The writer follows
-that outline rather than fixed public templates. Validation still requires
+An LLM outline stage then creates natural post headings. The writer now drafts
+each section with separate LLM calls and then runs a final editor LLM pass to
+merge, de-duplicate, and polish the full draft. Validation still requires
 method/objective, experiment, limitation, impact, and Autodesk/AEC/document
 relevance coverage, resolved evidence IDs, source links, supported numbers, and
 at least `BLOGPIPE_DAILY_MIN_WORDS` words. Single-source or generic summaries
 are blocked instead of published. Frontmatter tags are derived from the actual
 selected/cited content rather than applying every global radar tag.
+
+Generated posts also embed:
+- one mermaid flow graph (paper/source map)
+- source/topic mix SVG illustrations at `/img/posts/<slug>/source-mix.svg` and
+  `/img/posts/<slug>/topic-mix.svg`
 
 ## Data Policy
 
