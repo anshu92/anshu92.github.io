@@ -108,7 +108,7 @@ jobs:
             echo "blocked_summary=" >> "$GITHUB_OUTPUT"
             echo "$PR_URL" > reports/pr_url.txt
           elif [[ -n "$BLOCKED_REPORT" ]]; then
-            BLOCKED_SUMMARY="$(python -c 'import json,sys; data=json.load(open(sys.argv[1], encoding=\"utf-8\")); print(\"; \".join(data.get(\"errors\", [])[:8]))' "$BLOCKED_REPORT")"
+            BLOCKED_SUMMARY="$(python -c 'import json,sys; data=json.load(open(sys.argv[1], encoding="utf-8")); print("; ".join(data.get("errors", [])[:8]))' "$BLOCKED_REPORT")"
             echo "::warning::Draft generation was blocked by validation."
             echo "$BLOCKED_SUMMARY"
             echo "pr_url=" >> "$GITHUB_OUTPUT"
