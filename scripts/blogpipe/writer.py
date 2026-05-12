@@ -148,7 +148,7 @@ def _generate_daily_body(
     slug: str,
 ) -> str:
     def _fallback() -> str:
-        return _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title))
+        return _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title), task="draft")
 
     if not isinstance(client, LLMClient):
         return _fallback()
@@ -195,7 +195,7 @@ def _generate_daily_body(
 
 def _generate_deep_dive_body(*, client: LLMClient, pack: EvidencePack, title: str, slug: str) -> str:
     def _fallback() -> str:
-        return _call_writer(client, _deep_system(), _deep_user(pack, title))
+        return _call_writer(client, _deep_system(), _deep_user(pack, title), task="draft")
 
     if not isinstance(client, LLMClient):
         return _fallback()
@@ -256,7 +256,7 @@ def _draft_sections(
             selection=selection,
             drafted_so_far=drafted,
         )
-        text = _call_writer(client, _section_system(post_type), user)
+        text = _call_writer(client, _section_system(post_type), user, task="draft_section")
         cleaned = _normalize_section_output(heading, text)
         drafted.append(cleaned)
     return drafted
@@ -374,7 +374,7 @@ def _final_editor_pass(
         outline=outline,
         selection=selection,
     )
-    return _call_writer(client, _final_editor_system(post_type), user)
+    return _call_writer(client, _final_editor_system(post_type), user, task="editor")
 
 
 def _final_editor_system(post_type: str) -> str:
@@ -428,7 +428,9 @@ def _has_call_budget(client: LLMClient, required_calls: int) -> bool:
     return remaining >= required_calls
 
 
-def _call_writer(client: LLMClient, system: str, user: str) -> str:
+def _call_writer(client: LLMClient, system: str, user: str, *, task: str | None = None) -> str:
+    if isinstance(client, LLMClient):
+        return _strip_fence(client.complete(system=system, user=user, task=task)).strip()
     return _strip_fence(client.complete(system=system, user=user)).strip()
 
 
@@ -452,7 +454,7 @@ def _validate_repair_and_publish(
         repair_attempted = True
         repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection)
         try:
-            body = _call_writer(client, _repair_system(), repair_user)
+            body = _call_writer(client, _repair_system(), repair_user, task="repair")
             body = _ensure_visual_blocks(body, pack, slug)
             errors = validate_body(body, pack, outline=outline)
         except Exception as exc:

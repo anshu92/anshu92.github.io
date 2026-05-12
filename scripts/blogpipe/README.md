@@ -54,6 +54,24 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_LLM_BASE_URL`
 - `BLOGPIPE_LLM_API_KEY`
 - `BLOGPIPE_LLM_MODEL`
+- optional per-step model overrides:
+  - `BLOGPIPE_LLM_MODEL_SELECTOR`
+  - `BLOGPIPE_LLM_MODEL_OUTLINE`
+  - `BLOGPIPE_LLM_MODEL_OUTLINE_REPAIR`
+  - `BLOGPIPE_LLM_MODEL_DRAFT`
+  - `BLOGPIPE_LLM_MODEL_DRAFT_SECTION`
+  - `BLOGPIPE_LLM_MODEL_EDITOR`
+  - `BLOGPIPE_LLM_MODEL_REPAIR`
+  - workflow convenience knobs: `BLOGPIPE_LLM_MODEL_FAST` and `BLOGPIPE_LLM_MODEL_SMART`
+- optional failover chains (comma-separated):
+  - `BLOGPIPE_LLM_CHAIN` (global)
+  - `BLOGPIPE_LLM_CHAIN_SELECTOR`
+  - `BLOGPIPE_LLM_CHAIN_OUTLINE`
+  - `BLOGPIPE_LLM_CHAIN_OUTLINE_REPAIR`
+  - `BLOGPIPE_LLM_CHAIN_DRAFT`
+  - `BLOGPIPE_LLM_CHAIN_DRAFT_SECTION`
+  - `BLOGPIPE_LLM_CHAIN_EDITOR`
+  - `BLOGPIPE_LLM_CHAIN_REPAIR`
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
 - `BLOGPIPE_DAILY_MIN_WORDS` (default `1200`)
@@ -65,6 +83,8 @@ The writer uses one OpenAI-compatible endpoint:
 
 If those are unset, the client falls back to `OPENROUTER_BASE`,
 `OPENROUTER_API_KEY`, and `BLOGPIPE_MODEL` for continuity.
+When a chain is provided, blogpipe tries models in order and automatically
+falls back to the next model on retriable/server/model-availability failures.
 
 ## Search and Ranking
 

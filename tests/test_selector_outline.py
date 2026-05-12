@@ -8,8 +8,9 @@ import pytest
 from pydantic import TypeAdapter
 
 from blogpipe.evidence import build_daily_pack
+from blogpipe.llm import LLMClient
 from blogpipe.models import DailyOutline, EvidencePack, RankedItem, SelectionResult, SourceItem, TopicScores
-from blogpipe.outline import OutlineError, generate_daily_outline, validate_outline
+from blogpipe.outline import generate_daily_outline, validate_outline
 from blogpipe.selector import SelectionError, select_daily_items
 from blogpipe.writer import _frontmatter
 
@@ -30,6 +31,18 @@ class RecordingLLM(FakeLLM):
     def complete(self, *, system, user, max_tokens=None):
         self.last_user = user
         return self.text
+
+
+class TaskRecordingLLM(LLMClient):
+    def __init__(self, responses: list[str]):
+        super().__init__()
+        self.responses = list(responses)
+        self.tasks: list[str | None] = []
+
+    def complete(self, *, system, user, max_tokens=None, task=None):
+        self.tasks.append(task)
+        assert self.responses
+        return self.responses.pop(0)
 
 
 def _fixture_ranked() -> list[RankedItem]:
@@ -119,6 +132,21 @@ def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
     assert "rank_reason" not in llm.last_user
 
 
+def test_selector_uses_selector_task_for_llm_client():
+    ranked = [
+        _ranked_item("p1", text="Generic serving benchmark"),
+        _ranked_item("p2", text="AEC drawing PDF OCR foundation model"),
+    ]
+    fake = {
+        "selected_item_ids": ["p2", "p1"],
+        "items": [{"item_id": "p2", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
+        "suggested_tags": ["aec"],
+    }
+    llm = TaskRecordingLLM([json.dumps(fake)])
+    select_daily_items(ranked, llm=llm)
+    assert llm.tasks == ["selector"]
+
+
 def test_outline_accepts_generated_headings_and_required_intents():
     ranked = _fixture_ranked()
     pack = build_daily_pack(ranked[:5])
@@ -138,10 +166,23 @@ def test_outline_missing_required_intent_fails():
     assert any(error.startswith("missing_outline_intent:") for error in errors)
 
 
-def test_generate_outline_malformed_json_blocks_publication():
+def test_generate_outline_malformed_json_uses_fallback_outline():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
-    with pytest.raises(OutlineError):
-        generate_daily_outline(build_daily_pack(_fixture_ranked()[:5]), selection=selection, llm=FakeLLM("[]"))
+    pack = build_daily_pack(_fixture_ranked()[:5])
+    outline = generate_daily_outline(pack, selection=selection, llm=FakeLLM("[]"))
+    assert isinstance(outline, DailyOutline)
+    assert validate_outline(outline, pack) == []
+
+
+def test_generate_outline_uses_outline_then_repair_tasks():
+    ranked = _fixture_ranked()
+    pack = build_daily_pack(ranked[:5])
+    selection = SelectionResult(selected_item_ids=[ranked[0].item.item_id])
+    valid_outline = Path("tests/fixtures/fake_outline.json").read_text()
+    llm = TaskRecordingLLM(["[]", valid_outline])
+    outline = generate_daily_outline(pack, selection=selection, llm=llm)
+    assert isinstance(outline, DailyOutline)
+    assert llm.tasks == ["outline", "outline_repair"]
 
 
 def test_frontmatter_tags_are_dynamic():

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 
 from pydantic import ValidationError
@@ -8,6 +9,8 @@ from pydantic import ValidationError
 from . import config
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, SelectionResult
+
+LOG = logging.getLogger(__name__)
 
 
 class OutlineError(RuntimeError):
@@ -31,11 +34,66 @@ def generate_daily_outline(
     selection: SelectionResult,
     llm: LLMClient,
 ) -> DailyOutline:
-    outline = _parse_outline(llm.complete(system=_outline_system(), user=_outline_user(pack, selection), max_tokens=2200))
-    errors = validate_outline(outline, pack)
-    if errors:
-        raise OutlineError("outline_invalid:" + ",".join(errors))
-    return outline
+    parse_error = ""
+    outline: DailyOutline | None = None
+    try:
+        outline = _parse_outline(
+            _outline_complete(llm, system=_outline_system(), user=_outline_user(pack, selection), task="outline")
+        )
+    except OutlineError as exc:
+        parse_error = str(exc)
+    if outline is not None:
+        errors = validate_outline(outline, pack)
+        if not errors:
+            LOG.info("outline path: primary")
+            return outline
+    else:
+        errors = []
+
+    # One repair pass keeps the LLM-driven structure but enforces required intents/schema.
+    try:
+        repaired = _parse_outline(
+            _outline_complete(
+                llm,
+                system=_outline_repair_system(),
+                user=_outline_repair_user(
+                    pack,
+                    selection,
+                    outline=outline,
+                    errors=errors,
+                    parse_error=parse_error,
+                ),
+                task="outline_repair",
+                max_tokens=2200,
+            )
+        )
+        repaired_errors = validate_outline(repaired, pack)
+        if not repaired_errors:
+            LOG.warning("outline path: repair")
+            return repaired
+    except OutlineError:
+        pass
+
+    # Deterministic fallback so daily runs still proceed during flaky outline outputs.
+    fallback = _fallback_outline(pack, selection)
+    fallback_errors = validate_outline(fallback, pack)
+    if not fallback_errors:
+        LOG.warning("outline path: fallback")
+        return fallback
+    raise OutlineError("outline_invalid:" + ",".join(fallback_errors))
+
+
+def _outline_complete(
+    llm: LLMClient,
+    *,
+    system: str,
+    user: str,
+    task: str,
+    max_tokens: int = 2200,
+) -> str:
+    if isinstance(llm, LLMClient):
+        return llm.complete(system=system, user=user, max_tokens=max_tokens, task=task)
+    return llm.complete(system=system, user=user, max_tokens=max_tokens)
 
 
 def validate_outline(outline: DailyOutline, pack: EvidencePack) -> list[str]:
@@ -86,6 +144,109 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
         "}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
+    )
+
+
+def _outline_repair_system() -> str:
+    return (
+        "You repair an invalid research outline. Return JSON only in the exact DailyOutline schema. "
+        "Keep concrete, non-template headings and ensure intents cover thesis, mechanism, math/objective, "
+        "experiments, limitations, impact, and Autodesk/AEC/document relevance."
+    )
+
+
+def _outline_repair_user(
+    pack: EvidencePack,
+    selection: SelectionResult,
+    *,
+    outline: DailyOutline | None,
+    errors: list[str],
+    parse_error: str,
+) -> str:
+    return (
+        f"MIN_WORDS: {config.daily_min_words()}\n\n"
+        f"PARSE_ERROR: {parse_error or 'none'}\n"
+        f"VALIDATION_ERRORS: {json.dumps(errors)}\n\n"
+        f"PREVIOUS_OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
+        "Fix the outline and return JSON with: title, angle, sections[{heading,intent,evidence_ids,word_budget}], suggested_tags.\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
+        f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
+    )
+
+
+def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOutline:
+    title = "Research Radar: Autodesk AEC document intelligence update"
+    if pack.ranked_items:
+        title = f"Research Radar: {pack.ranked_items[0].item.title[:70]}"
+    selected_ids = set(selection.selected_item_ids)
+    selected_item_ids = [
+        ranked.item.item_id
+        for ranked in pack.ranked_items
+        if ranked.item.item_id in selected_ids
+    ] or [ranked.item.item_id for ranked in pack.ranked_items[:4]]
+    chunks = [chunk for chunk in pack.chunks if chunk.item_id in set(selected_item_ids)] or list(pack.chunks)
+
+    def pick_ids(evidence_types: tuple[str, ...], limit: int = 3) -> list[str]:
+        out: list[str] = []
+        wanted = {x.lower() for x in evidence_types}
+        for chunk in chunks:
+            et = (chunk.evidence_type or "").lower()
+            if et in wanted and chunk.evidence_id not in out:
+                out.append(chunk.evidence_id)
+                if len(out) >= limit:
+                    return out
+        for chunk in chunks:
+            if chunk.evidence_id not in out:
+                out.append(chunk.evidence_id)
+                if len(out) >= limit:
+                    return out
+        return out
+
+    min_words = max(config.daily_min_words(), 900)
+    per_section = max(140, min_words // 6)
+    sections = [
+        {
+            "heading": "Why this batch matters for Autodesk document workflows",
+            "intent": "technical thesis angle framing Autodesk AEC document relevance",
+            "evidence_ids": pick_ids(("impact", "mechanism")),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Mechanisms and architectures worth understanding",
+            "intent": "mechanism method architecture pipeline",
+            "evidence_ids": pick_ids(("mechanism",)),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Objectives, metrics, and operational math",
+            "intent": "math objective loss optimization metric",
+            "evidence_ids": pick_ids(("math_or_objective", "experiment")),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Evidence from experiments and evaluations",
+            "intent": "experiments evidence benchmark evaluation ablation",
+            "evidence_ids": pick_ids(("experiment",)),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Limitations, risks, and open questions",
+            "intent": "limitations caveat failure risk tradeoff",
+            "evidence_ids": pick_ids(("limitation",)),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Engineering impact and adoption implications",
+            "intent": "impact engineering production practical Autodesk AEC document",
+            "evidence_ids": pick_ids(("impact", "limitation")),
+            "word_budget": per_section,
+        },
+    ]
+    return DailyOutline(
+        title=title,
+        angle="Recent work defines practical boundaries for Autodesk-facing AEC and 2D document ML systems.",
+        sections=sections,
+        suggested_tags=list(selection.suggested_tags),
     )
 
 

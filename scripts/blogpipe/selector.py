@@ -31,6 +31,8 @@ def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[lis
 
 
 def _call_selector(llm: LLMClient, candidates: list[RankedItem]) -> str:
+    if isinstance(llm, LLMClient):
+        return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=2200, task="selector")
     return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=2200)
 
 
