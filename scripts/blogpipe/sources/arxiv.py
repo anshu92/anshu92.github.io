@@ -81,6 +81,7 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
     )
     root: ET.Element | None = None
     max_retries = config.arxiv_max_retries()
+    saw_rate_limit = False
     for attempt in range(max_retries + 1):
         try:
             resp = client().get(url)
@@ -88,9 +89,10 @@ def _fetch_profile(profile: SearchProfile, *, date_filter: str, max_results: int
             root = ET.fromstring(resp.text)
             break
         except Exception as exc:
+            saw_rate_limit = saw_rate_limit or _is_rate_limited(exc)
             if attempt >= max_retries or not _is_retryable(exc):
                 LOG.warning("arxiv fetch failed for %s: %s", profile.name, exc)
-                return [], _is_rate_limited(exc)
+                return [], saw_rate_limit
             delay = _retry_delay_seconds(exc, attempt)
             LOG.warning(
                 "arxiv fetch retry %s/%s for %s in %.1fs: %s",
