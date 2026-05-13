@@ -554,15 +554,34 @@ def _validate_repair_and_publish(
     repair_attempted = False
     if errors:
         repair_attempted = True
-        repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection, quality_review=quality_review)
-        try:
-            body = _call_writer(client, _repair_system(), repair_user, task="repair")
-            body = _ensure_visual_blocks(body, pack, slug)
-            quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
-            body, errors = _sanitize_then_validate(body, pack, outline=outline)
-            errors.extend(_llm_quality_errors(quality_review))
-        except Exception as exc:
-            errors.append(f"repair_failed:{exc}")
+        if pack.kind == "daily" and outline is not None and _needs_full_daily_rewrite(errors):
+            rewrite_user = _daily_rewrite_user(
+                pack,
+                body,
+                errors,
+                outline=outline,
+                selection=selection,
+                title=title,
+                quality_review=quality_review,
+            )
+            try:
+                body = _call_writer(client, _daily_rewrite_system(), rewrite_user, task="draft")
+                body = _ensure_visual_blocks(body, pack, slug)
+                quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
+                body, errors = _sanitize_then_validate(body, pack, outline=outline)
+                errors.extend(_llm_quality_errors(quality_review))
+            except Exception as exc:
+                errors.append(f"full_rewrite_failed:{exc}")
+        if errors:
+            repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection, quality_review=quality_review)
+            try:
+                body = _call_writer(client, _repair_system(), repair_user, task="repair")
+                body = _ensure_visual_blocks(body, pack, slug)
+                quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
+                body, errors = _sanitize_then_validate(body, pack, outline=outline)
+                errors.extend(_llm_quality_errors(quality_review))
+            except Exception as exc:
+                errors.append(f"repair_failed:{exc}")
     if errors:
         report = memory.REPORTS / f"{slug}.blocked.json"
         memory.ensure_dirs()
@@ -624,6 +643,7 @@ def _frontmatter(
 def _daily_system() -> str:
     return (
         "You are writing Synaptic Radio, a technical ML research blog. Write polished Markdown, not JSON. "
+        "Start with exactly one Markdown H1 matching the requested title, then include every OUTLINE section as an exact Markdown H2. "
         "Write from the practical point of view of a Principal Machine Learning Engineer at Autodesk evaluating research for "
         "AEC foundation models and 2D document intelligence. Do not claim to be employed by Autodesk. "
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
@@ -642,6 +662,7 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
     return (
         f"TITLE: {title}\n\n"
         "Write a paper-first technical blog post using the OUTLINE headings exactly as provided. "
+        f"The first line must be exactly '# {title}'. Each OUTLINE section heading must appear exactly once as '## <heading>'. "
         "Do not use fixed template headings such as 'Paper mechanisms', 'Math or objective details', or 'Why it matters' unless the outline uses them. "
         "Cover 3-4 primary papers deeply and mention supporting items briefly only when they strengthen a comparison. "
         "Cite at least three distinct primary papers when they exist in the evidence pack. "
@@ -719,6 +740,7 @@ def _repair_user(
         "Fix this Markdown draft. Return only the repaired Markdown body.\n\n"
         f"{section_contract}\n"
         "Hard requirements:\n"
+        "- For daily posts, start with exactly one Markdown H1 and keep every OUTLINE section heading exactly as a Markdown H2.\n"
         "- Use only evidence IDs present in EVIDENCE_PACK, formatted exactly like [E1].\n"
         "- For every evidence ID you cite, include the matching source URL inline in that paragraph.\n"
         "- You do not need to cover every item in EVIDENCE_PACK; omit weak items rather than inventing details.\n"
@@ -741,6 +763,70 @@ def _repair_user(
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
         f"DRAFT:\n{_repair_safe_draft(body, errors)}"
+    )
+
+
+def _needs_full_daily_rewrite(errors: list[str]) -> bool:
+    severe_prefixes = (
+        "missing_final_h1",
+        "multiple_final_h1",
+        "truncated_or_fallback_final_h1",
+        "missing_outline_section:",
+        "insufficient_cited_primary_items:",
+        "insufficient_cited_papers:",
+        "daily_too_short:",
+        "llm_quality:failed",
+    )
+    return any(error.startswith(severe_prefixes) for error in errors)
+
+
+def _daily_rewrite_system() -> str:
+    return (
+        _daily_system()
+        + " The previous draft was rejected as a fragment or structurally invalid. Rewrite the full article from scratch. "
+        "Do not patch the fragment locally. Return only the complete Markdown body."
+    )
+
+
+def _daily_rewrite_user(
+    pack: EvidencePack,
+    body: str,
+    errors: list[str],
+    *,
+    outline: DailyOutline,
+    selection: SelectionResult | None,
+    title: str,
+    quality_review: dict[str, object] | None = None,
+) -> str:
+    headings = [section.heading for section in outline.sections]
+    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
+    refs = {f"E{m.group(1)}" for m in EVIDENCE_REF_RE.finditer(body or "")}
+    cited_source_requirements = [
+        {"evidence_id": evidence_id, "title": chunks_by_id[evidence_id].title, "url": chunks_by_id[evidence_id].url}
+        for evidence_id in sorted(refs)
+        if evidence_id in chunks_by_id
+    ]
+    return (
+        "Rewrite the rejected daily draft from scratch. Return only a complete Markdown article, not notes or JSON.\n\n"
+        "Non-negotiable structure:\n"
+        f"- First line exactly: # {title}\n"
+        "- Include every required outline heading exactly once as a Markdown H2, in this order:\n"
+        + "\n".join(f"  - ## {heading}" for heading in headings)
+        + "\n"
+        f"- Write at least {config.daily_min_words()} words; target 1400-1900 words if evidence supports it.\n"
+        "- Cite at least three distinct primary papers when available in the evidence pack.\n"
+        "- Every substantive paragraph must include evidence IDs such as [E1] and the matching source URL inline.\n"
+        "- Cover mechanism/objective, experiments or benchmarks, limits, cross-paper tradeoffs, and Autodesk/AEC 2D-document adoption tests.\n"
+        "- Treat AEC transfer as direct implication only when the evidence supports it; otherwise label it as plausible transfer or open hypothesis.\n"
+        "- Do not preserve the rejected fragment unless a sentence is fully evidence-grounded and still fits the outline.\n\n"
+        f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
+        f"LLM_QUALITY_REVIEW:\n{json.dumps(quality_review or {}, indent=2, ensure_ascii=False)}\n\n"
+        f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
+        f"OUTLINE:\n{outline.model_dump_json(indent=2)}\n\n"
+        f"RELEVANT_EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
+        f"CITED_SOURCE_URLS:\n{json.dumps(cited_source_requirements, indent=2, ensure_ascii=False)}\n\n"
+        f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
+        f"REJECTED_DRAFT_FOR_DIAGNOSIS_ONLY:\n{_repair_safe_draft(body, errors)}"
     )
 
 
