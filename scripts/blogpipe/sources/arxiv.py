@@ -54,7 +54,7 @@ ARXIV_PROFILES: tuple[SearchProfile, ...] = (
 )
 
 
-def fetch(window_hours: int = 72) -> list[SourceItem]:
+def fetch(window_hours: int = 14 * 24) -> list[SourceItem]:
     since = datetime.now(timezone.utc) - timedelta(hours=window_hours)
     date_filter = since.strftime("%Y%m%d%H%M")
     max_results = config.profile_results()

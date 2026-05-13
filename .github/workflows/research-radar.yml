@@ -75,7 +75,7 @@ jobs:
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
           CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL || vars.CONTACT_EMAIL }}
           AEC_SCHOLAR_RSS: ${{ vars.AEC_SCHOLAR_RSS }}
-        run: python -m blogpipe run --window 72h
+        run: python -m blogpipe run --window 14d
 
       - name: Create draft branch and PR
         id: draft_pr

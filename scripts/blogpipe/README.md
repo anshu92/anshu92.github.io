@@ -13,7 +13,7 @@ supporting mentions only when they clarify a tradeoff or adoption decision.
 ## Commands
 
 ```bash
-python -m blogpipe ingest --window 72h
+python -m blogpipe ingest --window 14d
 python -m blogpipe rank
 python -m blogpipe write-daily
 python -m blogpipe write-deep-dives --max-new 1
@@ -137,7 +137,7 @@ ordered for expected Research Radar performance rather than recency:
 
 arXiv ingest fans out across named profiles for LLM methods, LLM systems,
 MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
-queries a small best-effort venue list unless overridden. The 72h recency window
+queries a small best-effort venue list unless overridden. The 14-day recency window
 is strict for live sources; undated or stale items are dropped before ranking.
 If arXiv returns persistent `429` responses, blogpipe stops the remaining arXiv
 profiles for that run instead of burning retries across every profile. If fewer

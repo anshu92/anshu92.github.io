@@ -20,7 +20,7 @@ FEEDS: tuple[tuple[str, str, int], ...] = (
 )
 
 
-def fetch(window_hours: int = 72) -> list[SourceItem]:
+def fetch(window_hours: int = 14 * 24) -> list[SourceItem]:
     out: list[SourceItem] = []
     for name, url, tier in FEEDS:
         try:

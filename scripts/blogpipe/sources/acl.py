@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 FEED_URL = "https://aclanthology.org/papers/index.xml"
 
 
-def fetch(window_hours: int = 72) -> list[SourceItem]:
+def fetch(window_hours: int = 14 * 24) -> list[SourceItem]:
     """Best-effort ACL adapter.
 
     ACL does not expose the same simple daily Atom endpoint as arXiv. For v1 we

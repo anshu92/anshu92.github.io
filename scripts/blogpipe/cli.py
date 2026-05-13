@@ -15,14 +15,14 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     ingest_p = sub.add_parser("ingest")
-    ingest_p.add_argument("--window", default="72h")
+    ingest_p.add_argument("--window", default="14d")
     ingest_p.add_argument("--fixtures", default="")
     ingest_p.add_argument("--db", default="")
 
     rank_p = sub.add_parser("rank")
     rank_p.add_argument("--db", default="")
     rank_p.add_argument("--limit", type=int, default=50)
-    rank_p.add_argument("--max-age", default="72h")
+    rank_p.add_argument("--max-age", default="14d")
 
     daily_p = sub.add_parser("write-daily")
     daily_p.add_argument("--dry-run", action="store_true")
@@ -35,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     assets_p.set_defaults(render_assets=True)
 
     run_p = sub.add_parser("run")
-    run_p.add_argument("--window", default="72h")
+    run_p.add_argument("--window", default="14d")
     run_p.add_argument("--fixtures", default="")
     run_p.add_argument("--dry-run", action="store_true")
     run_p.add_argument("--db", default="")
@@ -80,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _window_hours(value: str) -> int:
-    raw = (value or "72h").strip().lower()
+    raw = (value or "14d").strip().lower()
     if raw.endswith("h"):
         return max(1, int(raw[:-1]))
     if raw.endswith("d"):

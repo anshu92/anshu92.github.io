@@ -16,7 +16,7 @@ RANKED = TypeAdapter(list[RankedItem])
 
 def run_all(
     *,
-    window_hours: int = 72,
+    window_hours: int = 14 * 24,
     fixtures: str = "",
     dry_run: bool = False,
     db: str = "",
@@ -63,7 +63,7 @@ def write_daily(
     dry_run: bool = False,
     llm: LLMClient | None = None,
     db: str = "",
-    fallback_max_age_hours: int | None = 72,
+    fallback_max_age_hours: int | None = 14 * 24,
 ) -> WriteResult:
     ranked = load_ranked() if ranked is None else ranked
     client = llm or LLMClient()

@@ -66,6 +66,23 @@ def test_rank_items_drops_stale_and_undated_items():
     assert [r.item.title for r in ranked] == ["Fresh LLM benchmark"]
 
 
+def test_rank_items_keeps_recently_updated_papers_with_old_publication_date():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    updated = SourceItem(
+        canonical_url="https://openreview.net/forum?id=recent-update",
+        source_kind="paper",
+        source_name="openreview",
+        source_tier=1,
+        title="Recently updated evaluation benchmark",
+        published_at=datetime(2025, 5, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+        abstract_or_excerpt="A language model evaluation benchmark with dataset monitoring and deployment signals.",
+    )
+    ranked = rank_items([updated], now=now, max_age_hours=72)
+    assert [r.item.title for r in ranked] == ["Recently updated evaluation benchmark"]
+    assert ranked[0].quality_signals["freshness"] > 0.75
+
+
 def test_rank_items_relaxes_gate_when_strict_gate_filters_everything():
     now = datetime(2026, 5, 11, tzinfo=timezone.utc)
     items = [

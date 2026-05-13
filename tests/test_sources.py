@@ -211,8 +211,37 @@ def test_aggregator_dedupes_and_keeps_recent_only():
         ),
         search_profile="llm_methods",
     )
-    stale = fresh.model_copy(update={"canonical_url": "https://arxiv.org/abs/2604.00001", "arxiv_id": "2604.00001", "item_id": "", "published_at": datetime(2026, 4, 1, tzinfo=timezone.utc)})
+    stale = fresh.model_copy(
+        update={
+            "canonical_url": "https://arxiv.org/abs/2604.00001",
+            "arxiv_id": "2604.00001",
+            "item_id": "",
+            "published_at": datetime(2026, 4, 1, tzinfo=timezone.utc),
+            "updated_at": datetime(2026, 4, 1, tzinfo=timezone.utc),
+        }
+    )
     assert fresh is not None
     recent = _filter_recent([fresh, fresh, stale.normalized()], window_hours=72, now=now)
     deduped = _dedupe(recent)
     assert [item.arxiv_id for item in deduped] == ["2605.00001"]
+
+
+def test_aggregator_keeps_recently_updated_paper():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    item = arxiv._entry(
+        ET.fromstring(
+            """
+            <entry xmlns="http://www.w3.org/2005/Atom">
+              <id>https://arxiv.org/abs/2605.00001</id>
+              <title> Recently Updated Paper </title>
+              <summary> We propose a benchmark. </summary>
+              <published>2025-05-10T00:00:00Z</published>
+              <updated>2026-05-10T00:00:00Z</updated>
+            </entry>
+            """
+        ),
+        search_profile="openreview:test",
+    )
+    assert item is not None
+    recent = _filter_recent([item], window_hours=72, now=now)
+    assert [kept.title for kept in recent] == ["Recently Updated Paper"]

@@ -167,12 +167,10 @@ def _shortlist_pool_is_sufficient(pool: list[RankedItem], *, minimum: int, requi
 
 
 def _freshness(item: SourceItem, now: datetime) -> float:
-    published = item.published_at or item.updated_at
-    if not published:
+    reference = _freshest_item_datetime(item)
+    if not reference:
         return 0.45
-    if published.tzinfo is None:
-        published = published.replace(tzinfo=timezone.utc)
-    age_days = max(0.0, (now - published).total_seconds() / 86400.0)
+    age_days = max(0.0, (now - reference).total_seconds() / 86400.0)
     return math.exp(-age_days / 5.0)
 
 
@@ -186,15 +184,35 @@ def _recent_items(
         return items
     out: list[SourceItem] = []
     for item in items:
-        published = item.published_at or item.updated_at
-        if not published:
-            continue
-        if published.tzinfo is None:
-            published = published.replace(tzinfo=timezone.utc)
-        age_hours = (now - published).total_seconds() / 3600.0
-        if 0 <= age_hours <= float(max_age_hours):
+        if _has_recent_item_datetime(item, now=now, max_age_hours=max_age_hours):
             out.append(item)
     return out
+
+
+def _item_datetimes(item: SourceItem) -> list[datetime]:
+    out: list[datetime] = []
+    for value in (item.published_at, item.updated_at):
+        if value is None:
+            continue
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        out.append(value)
+    return out
+
+
+def _freshest_item_datetime(item: SourceItem) -> datetime | None:
+    dates = _item_datetimes(item)
+    return max(dates) if dates else None
+
+
+def _has_recent_item_datetime(item: SourceItem, *, now: datetime, max_age_hours: int | None) -> bool:
+    if max_age_hours is None:
+        return True
+    for value in _item_datetimes(item):
+        age_hours = (now - value).total_seconds() / 3600.0
+        if 0 <= age_hours <= float(max_age_hours):
+            return True
+    return False
 
 
 def _technical_depth(text: str, item: SourceItem) -> float:

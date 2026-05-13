@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 ITEMS = TypeAdapter(list[SourceItem])
 
 
-def harvest_all(*, window_hours: int = 72, fixtures: str = "") -> list[SourceItem]:
+def harvest_all(*, window_hours: int = 14 * 24, fixtures: str = "") -> list[SourceItem]:
     if fixtures:
         return _load_fixtures(fixtures)
     batches = [
@@ -62,16 +62,22 @@ def _filter_recent(
     current = now or datetime.now(timezone.utc)
     out: list[SourceItem] = []
     for item in items:
-        published = item.published_at or item.updated_at
-        if not published:
-            continue
-        if published.tzinfo is None:
-            published = published.replace(tzinfo=timezone.utc)
-        age_hours = (current - published).total_seconds() / 3600.0
-        if 0 <= age_hours <= float(window_hours):
+        if _is_recent(item, now=current, window_hours=window_hours):
             out.append(item)
     LOG.info("recency filter: %d -> %d items within %dh", len(items), len(out), window_hours)
     return out
+
+
+def _is_recent(item: SourceItem, *, now: datetime, window_hours: int) -> bool:
+    for value in (item.published_at, item.updated_at):
+        if value is None:
+            continue
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        age_hours = (now - value).total_seconds() / 3600.0
+        if 0 <= age_hours <= float(window_hours):
+            return True
+    return False
 
 
 def _load_fixtures(path: str) -> list[SourceItem]:

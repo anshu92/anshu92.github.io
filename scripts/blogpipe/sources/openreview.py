@@ -10,7 +10,7 @@ from ._http import client
 LOG = logging.getLogger(__name__)
 
 
-def fetch(window_hours: int = 72) -> list[SourceItem]:
+def fetch(window_hours: int = 14 * 24) -> list[SourceItem]:
     out: list[SourceItem] = []
     for venue in config.openreview_venues():
         out.extend(_fetch_venue(venue))
