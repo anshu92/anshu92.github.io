@@ -282,6 +282,24 @@ def test_engineering_focus_and_title_alignment_fail_llm_quality_review(monkeypat
     assert "llm_quality:claim_strength_exceeds_evidence" in errors
 
 
+def test_empty_quality_failure_is_advisory_without_low_scores(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    review = {
+        "pass": False,
+        "scores": {
+            "technical_specificity": 0.91,
+            "engineering_judgment": 0.88,
+            "synthesis": 0.84,
+            "noise_control": 0.93,
+            "primary_depth": 0.89,
+        },
+        "errors": [],
+        "examples": [],
+        "notes": "No actionable blocker provided.",
+    }
+    assert _llm_quality_errors(review) == []
+
+
 def test_first_person_autodesk_claim_fails():
     pack = _pack()
     body = (

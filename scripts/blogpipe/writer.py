@@ -982,7 +982,8 @@ def _llm_quality_review(
 def _quality_review_system() -> str:
     return (
         "You are a quality review judge for a technical ML research blog. Return JSON only. "
-        "Score and identify blocking issues. Use strict engineering-blog standards."
+        "Score and identify blocking issues. Use strict engineering-blog standards. "
+        "If pass is false, include at least one specific machine-readable error code in errors."
     )
 
 
@@ -1046,8 +1047,6 @@ def _llm_quality_errors(review: dict[str, object]) -> list[str]:
         raw_errors = review.get("errors")
         if isinstance(raw_errors, list) and raw_errors:
             errors.extend(f"llm_quality:{str(error)[:120]}" for error in raw_errors[:8])
-        else:
-            errors.append("llm_quality:failed")
     return errors
 
 
