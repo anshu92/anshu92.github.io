@@ -8,7 +8,7 @@ from collections import Counter
 
 from . import config
 from .models import RankedItem, SourceItem, TopicScores
-from .topics import TRACKS, keyword_hits
+from .topics import TRACKS, keyword_hits, priority_track, track_score
 
 LOG = logging.getLogger(__name__)
 
@@ -74,16 +74,18 @@ def _score_one(item: SourceItem, now: datetime) -> RankedItem:
     novelty = _novelty(blob)
     practical = _practical_signal(blob, item)
     evidence = min(1.0, len(blob) / 1200.0)
-    kind_prior = 0.06 if item.source_kind == "paper" else -0.05
+    kind_prior = 0.06 if item.source_kind == "paper" else -0.02
+    engineering_blog_bonus = _engineering_blog_bonus(item, blob)
     daily = (
-        0.25 * scores.best
-        + 0.20 * source_quality
-        + 0.15 * freshness
-        + 0.15 * depth
-        + 0.10 * novelty
-        + 0.10 * practical
-        + 0.05 * evidence
+        0.30 * scores.best
+        + 0.18 * source_quality
+        + 0.14 * freshness
+        + 0.14 * depth
+        + 0.08 * novelty
+        + 0.08 * practical
+        + 0.04 * evidence
         + kind_prior
+        + engineering_blog_bonus
     )
     deep = (
         0.20 * scores.best
@@ -116,21 +118,21 @@ def _score_one(item: SourceItem, now: datetime) -> RankedItem:
 
 def _topic_scores(text: str) -> TopicScores:
     hits_by_track: dict[str, list[str]] = {}
+    raw_scores: dict[str, float] = {}
     for track in TRACKS:
         hits = keyword_hits(text, track.keywords)
         if track.required_any and not keyword_hits(text, track.required_any):
             hits = []
         hits_by_track[track.name] = hits
+        raw_scores[track.name] = track_score(track.name, hits, text=text)
     all_hits = sorted({kw for hits in hits_by_track.values() for kw in hits})
-
-    def score(name: str) -> float:
-        hits = hits_by_track[name]
-        return min(1.0, len(hits) / 5.0)
-
     return TopicScores(
-        llm=score("llm"),
-        mle=score("mle"),
-        aec=score("aec"),
+        ml_engineering=raw_scores.get("ml_engineering", 0.0),
+        applied_research=raw_scores.get("applied_research", 0.0),
+        ml_theory=raw_scores.get("ml_theory", 0.0),
+        aec=raw_scores.get("aec", 0.0),
+        popular_ml=raw_scores.get("popular_ml", 0.0),
+        priority_track=priority_track(raw_scores),
         matched_keywords=all_hits,
     )
 
@@ -222,8 +224,8 @@ def _technical_depth(text: str, item: SourceItem) -> float:
         "table", "equation", "code", "open source", "github", "algorithm",
         "theorem", "bound", "gradient", "complexity", "training", "inference",
         "evaluation", "experiment", "failure mode", "profiling", "memory layout",
-        "bim", "ifc", "cad", "digital twin", "hvac", "building controls",
-        "graph extraction", "facility operations",
+        "kernel", "cuda", "pytorch", "jax", "huggingface", "quantization",
+        "distributed", "compiler", "scheduling", "fsdp", "tensor parallel",
     )
     cue_hits = sum(1 for cue in cues if cue in text.lower())
     length_score = min(1.0, len(text) / 3500.0)
@@ -239,9 +241,22 @@ def _novelty(text: str) -> float:
 def _practical_signal(text: str, item: SourceItem) -> float:
     cues = (
         "production", "serving", "latency", "cost", "deployment", "code", "github", "api", "pipeline",
-        "facility", "operations", "building controls", "revit", "monitoring",
+        "monitoring", "pytorch", "jax", "huggingface", "kernel", "optimization", "profiling",
     )
     return min(1.0, 0.10 * sum(1 for cue in cues if cue in text.lower()) + (0.05 if item.source_kind == "blog" else 0.0))
+
+
+def _engineering_blog_bonus(item: SourceItem, text: str) -> float:
+    if item.source_kind != "blog":
+        return 0.0
+    engineering_sources = {
+        "pytorch", "huggingface", "nvidia_developer", "google_research", "openai_research",
+    }
+    if item.source_name not in engineering_sources:
+        return 0.0
+    cues = ("implementation", "benchmark", "kernel", "training", "inference", "optimization", "release")
+    hits = sum(1 for cue in cues if cue in text.lower())
+    return min(0.08, 0.02 * hits)
 
 
 def _reproducibility(text: str, item: SourceItem) -> float:
@@ -279,6 +294,7 @@ def _paper_first_shortlist(
             for r in pool
             if r.item.item_id not in selected_ids
             and (not force_paper or r.item.source_kind == "paper")
+            and _blog_cap_ok(r, selected, max_blogs=max_blogs)
             and (relaxed or _can_add_to_shortlist(r, selected, max_blogs=max_blogs))
         ]
         if not options:
@@ -300,9 +316,8 @@ def _paper_first_shortlist(
 
 
 def _can_add_to_shortlist(candidate: RankedItem, selected: list[RankedItem], *, max_blogs: int) -> bool:
-    if candidate.item.source_kind == "blog":
-        if sum(1 for r in selected if r.item.source_kind == "blog") >= max_blogs:
-            return False
+    if not _blog_cap_ok(candidate, selected, max_blogs=max_blogs):
+        return False
     families = Counter(_source_family(r.item) for r in selected)
     profiles = Counter(_search_profile(r.item) for r in selected)
     clusters = Counter(_topic_cluster(r) for r in selected)
@@ -311,6 +326,12 @@ def _can_add_to_shortlist(candidate: RankedItem, selected: list[RankedItem], *, 
         and profiles[_search_profile(candidate.item)] < 2
         and clusters[_topic_cluster(candidate)] < 2
     )
+
+
+def _blog_cap_ok(candidate: RankedItem, selected: list[RankedItem], *, max_blogs: int) -> bool:
+    if candidate.item.source_kind != "blog":
+        return True
+    return sum(1 for r in selected if r.item.source_kind == "blog") < max_blogs
 
 
 def _shortlist_penalty(candidate: RankedItem, selected: list[RankedItem]) -> float:
@@ -364,4 +385,6 @@ def _source_family(item: SourceItem) -> str:
 
 
 def _topic_cluster(ranked: RankedItem) -> str:
+    if ranked.topic_scores.priority_track:
+        return ranked.topic_scores.priority_track
     return ranked.topic_scores.tracks[0] if ranked.topic_scores.tracks else "ML"

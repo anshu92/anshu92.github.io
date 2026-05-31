@@ -58,13 +58,16 @@ def _call_selector(llm: LLMClient, candidates: list[RankedItem]) -> str:
 def _selector_system() -> str:
     return (
         "You are the Research Radar selector. Return JSON only. "
-        "You select papers for a Principal Machine Learning Engineer at Autodesk working on AEC foundation models, "
-        "especially 2D documents: drawings, sheets, plans, PDFs, OCR, layout understanding, construction documents, "
-        "CAD/BIM/IFC conversion, and scan-to-BIM adjacent workflows. "
-        "Prefer one coherent thesis cluster over broad topic diversity. "
-        "Use strong bias toward direct AEC/2D-document relevance, but include adjacent ML systems, evaluation, "
-        "multimodal, and foundation-model papers when direct matches are sparse. "
-        "Classify each pick as primary or supporting. Primary papers get deep treatment; supporting items are brief context."
+        "You select papers for a Principal Machine Learning Engineer who reads research for technical judgment, "
+        "not for domain-only filtering. Prefer one coherent thesis cluster over broad topic diversity. "
+        "Apply this strict priority order when choosing the daily cluster:\n"
+        "1. ML engineering: scaling LLMs, GPU/CUDA kernels, JAX/PyTorch/HuggingFace, training and serving optimizations, "
+        "data pipelines, observability, and substantive technical engineering blogs.\n"
+        "2. ML applied research: strong methods with clear benchmarks, ablations, and deployment or evaluation lessons.\n"
+        "3. ML theory: only when unusually interesting, surprising, or clearly relevant to systems or training practice.\n"
+        "4. AEC topics: BIM/CAD/construction/document workflows when they are the best fit after 1-3.\n"
+        "5. General popular ML stories: only when tier-1, technically substantive, and not a shallow roundup.\n"
+        "Do not default to AEC just because the reader works at Autodesk. Use AEC as one transfer lens, not the primary filter."
     )
 
 
@@ -87,15 +90,17 @@ def _selector_user(candidates: list[RankedItem]) -> str:
     return (
         f"Select {primary} primary papers and up to {supporting} supporting mentions for today's post. "
         "Primary papers must form a coherent technical thesis cluster, not a loose roundup. "
-        "Score each selected item from 0.0 to 1.0 on direct AEC/2D-document relevance, transferable mechanism, "
-        "experiment strength, engineering actionability, and novelty relative to prior radar posts. "
-        "Prioritize items with mechanisms, objectives, evaluation design, deployment tradeoffs, or document/CAD transfer value. "
+        "Follow the priority order: ML engineering > applied research > interesting theory > AEC > popular ML. "
+        "Score each selected item from 0.0 to 1.0 on engineering value, applied-research value, theory interest, "
+        "AEC transfer value, experiment strength, engineering actionability, and novelty relative to prior radar posts. "
+        "Prioritize items with mechanisms, objectives, evaluation design, deployment tradeoffs, or systems lessons. "
         "Return JSON in this exact shape:\n"
         "{\n"
         '  "selected_item_ids": ["item-id"],\n'
         '  "items": [{"item_id": "item-id", "role": "primary|supporting", '
-        '"relevance_label": "direct_aec_2d|aec_adjacent|ml_engineering|supporting_blog", '
-        '"scores": {"aec_document_relevance": 0.0, "transferable_mechanism": 0.0, "experiment_strength": 0.0, '
+        '"relevance_label": "ml_engineering|applied_research|ml_theory|aec|popular_ml|supporting_blog", '
+        '"scores": {"engineering_value": 0.0, "applied_research_value": 0.0, "theory_interest": 0.0, '
+        '"aec_transfer_value": 0.0, "experiment_strength": 0.0, '
         '"engineering_actionability": 0.0, "novelty": 0.0}, '
         '"reason": "short reason", "suggested_tags": ["tag"]}],\n'
         '  "suggested_tags": ["tag"]\n'

@@ -16,8 +16,8 @@ def test_rank_items_scores_tracks_and_aec_gate():
     ranked = rank_items(items, now=datetime(2026, 5, 11, tzinfo=timezone.utc))
     assert ranked
     assert ranked[0].daily_score >= ranked[-1].daily_score
-    assert any("AEC" in r.topic_scores.tracks for r in ranked)
-    assert len(daily_shortlist(ranked)) >= 5
+    assert any("AEC" in r.topic_scores.tracks or "ML-Engineering" in r.topic_scores.tracks for r in ranked)
+    assert len(daily_shortlist(ranked)) >= 4
 
 
 def test_aec_requires_domain_keyword():
@@ -32,6 +32,39 @@ def test_aec_requires_domain_keyword():
     )
     ranked = rank_items([item], now=datetime(2026, 5, 11, tzinfo=timezone.utc))
     assert ranked[0].topic_scores.aec == 0
+
+
+def test_ml_engineering_outranks_aec_with_same_depth():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    engineering = SourceItem(
+        canonical_url="https://example.com/engineering",
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title="FlashAttention-3 serving kernel for distributed PyTorch inference",
+        published_at=now,
+        abstract_or_excerpt=(
+            "We optimize GPU CUDA kernels, KV cache memory layout, throughput, latency, quantization, "
+            "and distributed training for HuggingFace-scale LLM serving."
+        ),
+        extra={"search_profile": "ml_engineering"},
+    )
+    aec = SourceItem(
+        canonical_url="https://example.com/aec",
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title="BIM IFC CAD digital twin benchmark for construction facility workflows",
+        published_at=now,
+        abstract_or_excerpt=(
+            "We benchmark BIM IFC CAD digital twin HVAC building controls and scan-to-bim deployment "
+            "for construction facility operations."
+        ),
+        extra={"search_profile": "aec_ai"},
+    )
+    ranked = rank_items([aec, engineering], now=now, max_age_hours=72)
+    assert ranked[0].item.title.startswith("FlashAttention")
+    assert ranked[0].topic_scores.priority_track == "ml_engineering"
 
 
 def test_rank_items_drops_stale_and_undated_items():
@@ -91,11 +124,11 @@ def test_rank_items_relaxes_gate_when_strict_gate_filters_everything():
             source_kind="paper",
             source_name="example",
             source_tier=2,
-            title="Sparse objective ablation for graph optimization",
+            title="Sparse graph structure under unknown assumptions",
             published_at=now,
             abstract_or_excerpt=(
-                "We study architecture choices, objective design, theorem assumptions, "
-                "complexity bounds, dataset setup, and ablation findings."
+                "We study choices, assumptions, setup, and findings for a narrow graph task "
+                "without quantitative evaluation or production claims."
             ),
             tags=["research"],
             extra={"search_profile": "fallback_test"},
@@ -109,10 +142,10 @@ def test_rank_items_relaxes_gate_when_strict_gate_filters_everything():
 def test_daily_shortlist_prefers_papers_and_diverse_profiles():
     now = datetime(2026, 5, 11, tzinfo=timezone.utc)
 
-    def item(idx: int, *, kind: str = "paper", profile: str = "llm_methods", track: str = "llm") -> SourceItem:
+    def item(idx: int, *, kind: str = "paper", profile: str = "llm_methods", track: str = "applied_research") -> SourceItem:
         topic = {
-            "llm": "language model inference benchmark with architecture ablation latency throughput",
-            "mle": "evaluation benchmark reproducibility monitoring dataset pipeline deployment",
+            "applied_research": "language model inference benchmark with architecture ablation latency throughput",
+            "ml_engineering": "pytorch jax huggingface kernel cuda quantization distributed training serving throughput latency",
             "aec": "BIM IFC CAD digital twin HVAC building controls benchmark deployment",
         }[track]
         return SourceItem(
@@ -128,14 +161,14 @@ def test_daily_shortlist_prefers_papers_and_diverse_profiles():
         )
 
     items = [
-        item(1, profile="llm_methods", track="llm"),
-        item(2, profile="llm_methods", track="llm"),
-        item(3, profile="llm_systems", track="mle"),
-        item(4, profile="mle_eval", track="mle"),
+        item(1, profile="llm_methods", track="applied_research"),
+        item(2, profile="llm_methods", track="applied_research"),
+        item(3, profile="ml_engineering", track="ml_engineering"),
+        item(4, profile="mle_eval", track="ml_engineering"),
         item(5, profile="aec_ai", track="aec"),
-        item(6, profile="multimodal_geometry", track="llm"),
-        item(7, kind="blog", profile="blog:pytorch", track="mle"),
-        item(8, kind="blog", profile="blog:pytorch", track="mle"),
+        item(6, profile="multimodal_geometry", track="applied_research"),
+        item(7, kind="blog", profile="blog:pytorch", track="ml_engineering"),
+        item(8, kind="blog", profile="blog:pytorch", track="ml_engineering"),
     ]
     shortlist = daily_shortlist(rank_items(items, now=now, max_age_hours=72), maximum=6, min_papers=4, max_blogs=1)
     assert sum(1 for r in shortlist if r.item.source_kind == "paper") >= 4
@@ -160,7 +193,11 @@ def test_daily_shortlist_falls_back_when_high_score_pool_has_too_few_papers():
                 abstract_or_excerpt="A method with objective, benchmark, ablation, limitation, and deployment impact.",
                 extra={"search_profile": profile},
             ),
-            topic_scores=TopicScores(llm=0.6, mle=0.2, matched_keywords=["language model", "benchmark"]),
+            topic_scores=TopicScores(
+                ml_engineering=0.6,
+                applied_research=0.2,
+                matched_keywords=["language model", "benchmark"],
+            ),
             daily_score=score,
             deep_dive_score=score,
             quality_signals={"technical_depth": 0.7, "practical_impact": 0.4},

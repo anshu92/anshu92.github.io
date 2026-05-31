@@ -202,10 +202,10 @@ def validate_outline(outline: DailyOutline, pack: EvidencePack) -> list[str]:
 def _outline_system() -> str:
     return (
         "You are the Research Radar outline planner. Return JSON only. "
-        "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE at Autodesk. "
+        "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE. "
         "The outline must be thesis-led, deep, and mechanism-first, not a broad roundup. "
         "It must cover thesis, mechanisms, math/objectives where supported, experiments, limitations, engineering impact, "
-        "cross-paper synthesis, and relevance to AEC foundation models or 2D document workflows. "
+        "and cross-paper synthesis. Include an adoption or production-readiness section only when the selected cluster supports it. "
         "Ban vague corporate headings such as 'Navigating the Future', 'Bridging the Digital Divide', and 'Our Path Forward'. "
         "Normally use one deep primary section per primary paper. Split a primary paper across multiple sections only when each split has a distinct technical purpose and an explicit split_reason."
     )
@@ -215,7 +215,7 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
     return (
         f"Create an outline for a daily post of at least {config.daily_min_words()} words. "
         "Do not use fixed headings such as 'Paper mechanisms' or 'Why it matters'. "
-        "Use 3-4 deep primary-paper sections, one cross-paper comparison section, and one adoption section for Autodesk/AEC document workflows. "
+        "Use 3-4 deep primary-paper sections, one cross-paper comparison section, and one adoption or production-readiness section when warranted. "
         "Headings must name a technical object, mechanism, benchmark, or tradeoff. "
         "Return JSON in this exact shape:\n"
         "{\n"
@@ -235,7 +235,7 @@ def _outline_repair_system() -> str:
     return (
         "You repair an invalid research outline. Return JSON only in the exact DailyOutline schema. "
         "Keep concrete, non-template headings and ensure intents cover thesis, mechanism, math/objective, "
-        "experiments, limitations, impact, cross-paper synthesis, and Autodesk/AEC/document relevance. "
+        "experiments, limitations, impact, cross-paper synthesis, and production or adoption implications when supported. "
         "Avoid corporate-strategy headings and name technical mechanisms or tradeoffs."
     )
 
@@ -264,7 +264,7 @@ def _outline_repair_user(
 
 
 def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOutline:
-    title = "Research Radar: Autodesk AEC document intelligence update"
+    title = "Research Radar: ML systems and methods update"
     if pack.ranked_items:
         title = f"Research Radar: {pack.ranked_items[0].item.title[:70]}"
     selected_ids = set(selection.selected_item_ids)

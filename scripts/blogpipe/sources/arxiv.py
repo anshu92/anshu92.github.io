@@ -27,6 +27,14 @@ class SearchProfile:
 
 ARXIV_PROFILES: tuple[SearchProfile, ...] = (
     SearchProfile(
+        "ml_engineering",
+        ("cs.LG", "cs.DC", "cs.PF", "cs.SE"),
+        (
+            "pytorch", "jax", "huggingface", "triton", "cuda", "kernel", "vllm",
+            "deepspeed", "megatron", "fsdp", "quantization", "flash attention",
+        ),
+    ),
+    SearchProfile(
         "llm_methods",
         ("cs.CL", "cs.AI", "cs.LG"),
         ("language model", "reasoning", "alignment", "post-training", "long context", "agent", "rag"),
@@ -49,7 +57,7 @@ ARXIV_PROFILES: tuple[SearchProfile, ...] = (
     SearchProfile(
         "aec_ai",
         ("cs.CV", "cs.AI", "cs.LG"),
-        ("bim", "ifc", "cad", "digital twin", "hvac", "construction", "facility", "building controls", "scan-to-bim"),
+        ("bim", "ifc", "digital twin", "hvac", "construction", "facility", "building controls", "scan-to-bim"),
     ),
 )
 

@@ -56,7 +56,12 @@ def _fixture_ranked() -> list[RankedItem]:
     return [
         RankedItem(
             item=item.normalized(),
-            topic_scores=TopicScores(llm=0.5, mle=0.5, aec=0.4, matched_keywords=["language model"]),
+            topic_scores=TopicScores(
+                ml_engineering=0.5,
+                applied_research=0.5,
+                aec=0.4,
+                matched_keywords=["language model"],
+            ),
             daily_score=0.8,
             deep_dive_score=0.7,
             quality_signals={"technical_depth": 0.7, "practical_impact": 0.5},
@@ -78,38 +83,43 @@ def _ranked_item(item_id: str, *, text: str, score: float = 0.7) -> RankedItem:
             abstract_or_excerpt=text,
             tags=["paper"],
         ),
-        topic_scores=TopicScores(llm=0.5, mle=0.5, aec=0.5, matched_keywords=["benchmark"]),
+        topic_scores=TopicScores(
+            ml_engineering=0.5,
+            applied_research=0.5,
+            aec=0.5,
+            matched_keywords=["benchmark"],
+        ),
         daily_score=score,
         deep_dive_score=score,
         quality_signals={"technical_depth": 0.7, "practical_impact": 0.5},
     )
 
 
-def test_selector_prefers_aec_2d_document_candidates():
+def test_selector_applies_structured_priority_labels():
     ranked = [
         _ranked_item("generic", text="Generic language model benchmark with serving latency", score=0.9),
-        _ranked_item("aec-doc", text="AEC drawing sheet PDF layout OCR foundation model benchmark", score=0.7),
-        _ranked_item("rag", text="RAG evaluation pipeline benchmark for document retrieval", score=0.69),
+        _ranked_item("engineering", text="PyTorch CUDA kernel optimization for distributed LLM serving", score=0.88),
+        _ranked_item("applied", text="RAG evaluation pipeline benchmark for document retrieval", score=0.69),
         _ranked_item("agent", text="Agent tool use evaluation benchmark and failure modes", score=0.68),
-        _ranked_item("cad", text="CAD BIM IFC construction document multimodal model", score=0.67),
+        _ranked_item("aec-doc", text="AEC drawing sheet PDF layout OCR foundation model benchmark", score=0.67),
         _ranked_item("systems", text="Distributed inference throughput monitoring deployment", score=0.66),
     ]
     fake = {
-        "selected_item_ids": ["aec-doc", "cad", "rag", "agent", "systems"],
+        "selected_item_ids": ["engineering", "systems", "applied", "agent", "aec-doc"],
         "items": [
-            {"item_id": "aec-doc", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "direct", "suggested_tags": ["aec", "document-ai"]},
-            {"item_id": "cad", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "direct", "suggested_tags": ["cad"]},
-            {"item_id": "rag", "role": "primary", "relevance_label": "aec_adjacent", "reason": "adjacent", "suggested_tags": ["mle"]},
-            {"item_id": "agent", "role": "primary", "relevance_label": "ml_engineering", "reason": "adjacent", "suggested_tags": ["llm"]},
-            {"item_id": "systems", "role": "supporting", "relevance_label": "ml_engineering", "reason": "adjacent", "suggested_tags": ["mle"]},
+            {"item_id": "engineering", "role": "primary", "relevance_label": "ml_engineering", "reason": "systems", "suggested_tags": ["mle"]},
+            {"item_id": "systems", "role": "primary", "relevance_label": "ml_engineering", "reason": "serving", "suggested_tags": ["mle"]},
+            {"item_id": "applied", "role": "primary", "relevance_label": "applied_research", "reason": "eval", "suggested_tags": ["llm"]},
+            {"item_id": "agent", "role": "primary", "relevance_label": "applied_research", "reason": "agents", "suggested_tags": ["llm"]},
+            {"item_id": "aec-doc", "role": "supporting", "relevance_label": "aec", "reason": "aec lens", "suggested_tags": ["aec"]},
         ],
-        "suggested_tags": ["aec", "document-ai"],
+        "suggested_tags": ["mle", "llm"],
     }
     selected, result = select_daily_items(ranked, llm=FakeLLM(json.dumps(fake)))
     selected_ids = {r.item.item_id for r in selected}
-    assert "aec-doc" in selected_ids
+    assert "engineering" in selected_ids
     assert "generic" not in selected_ids
-    assert result.items[0].relevance_label == "direct_aec_2d"
+    assert result.items[0].relevance_label == "ml_engineering"
     assert sum(1 for r in selected if r.item.extra.get("selector_role") == "primary") == 4
     assert sum(1 for r in selected if r.item.extra.get("selector_role") == "supporting") <= 2
 
@@ -148,9 +158,9 @@ def test_selector_recovers_truncated_object_with_scores():
     {
       "item_id": "p2",
       "role": "primary",
-      "relevance_label": "direct_aec_2d",
+      "relevance_label": "aec",
       "scores": {
-        "aec_document_relevance": 0.95,
+        "aec_transfer_value": 0.95,
         "transferable_mechanism": 0.8,
         "experiment_strength": 0.7,
         "engineering_actionability": 0.9,
@@ -186,16 +196,16 @@ def test_selector_ignores_misplaced_nonnumeric_score_fields():
                 {
                     "item_id": "p2",
                     "role": "primary",
-                    "relevance_label": "aec_adjacent",
-                    "scores": {"aec_document_relevance": 0.9, "relevance_label": "aec_adjacent"},
+                    "relevance_label": "aec",
+                    "scores": {"aec_transfer_value": 0.9, "relevance_label": "aec"},
                 }
             ],
         }
     )
     selected, result = select_daily_items(ranked, llm=FakeLLM(raw))
     assert selected[0].item.item_id == "p2"
-    assert result.items[0].scores == {"aec_document_relevance": 0.9}
-    assert result.items[0].relevance_label == "aec_adjacent"
+    assert result.items[0].scores == {"aec_transfer_value": 0.9}
+    assert result.items[0].relevance_label == "aec"
 
 
 def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
@@ -207,8 +217,8 @@ def test_selector_uses_all_paper_titles_without_score_fields(monkeypatch):
     ]
     fake = {
         "selected_item_ids": ["p3", "p2", "p1"],
-        "items": [{"item_id": "p3", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
-        "suggested_tags": ["aec"],
+        "items": [{"item_id": "p3", "role": "primary", "relevance_label": "ml_engineering", "reason": "best fit", "suggested_tags": ["mle"]}],
+        "suggested_tags": ["mle"],
     }
     llm = RecordingLLM(json.dumps(fake))
     selected, _result = select_daily_items(ranked, llm=llm)
@@ -225,7 +235,7 @@ def test_selector_uses_selector_task_for_llm_client():
     ]
     fake = {
         "selected_item_ids": ["p2", "p1"],
-        "items": [{"item_id": "p2", "role": "primary", "relevance_label": "direct_aec_2d", "reason": "best fit", "suggested_tags": ["aec"]}],
+        "items": [{"item_id": "p2", "role": "primary", "relevance_label": "ml_engineering", "reason": "best fit", "suggested_tags": ["mle"]}],
         "suggested_tags": ["aec"],
     }
     llm = TaskRecordingLLM([json.dumps(fake)])

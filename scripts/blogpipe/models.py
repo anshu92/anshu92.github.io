@@ -55,25 +55,34 @@ class SourceItem(BaseModel):
 
 
 class TopicScores(BaseModel):
-    llm: float = 0.0
-    mle: float = 0.0
+    ml_engineering: float = 0.0
+    applied_research: float = 0.0
+    ml_theory: float = 0.0
     aec: float = 0.0
+    popular_ml: float = 0.0
+    priority_track: str = ""
     matched_keywords: list[str] = Field(default_factory=list)
+
+    def _scores(self) -> dict[str, float]:
+        return {
+            "ml_engineering": self.ml_engineering,
+            "applied_research": self.applied_research,
+            "ml_theory": self.ml_theory,
+            "aec": self.aec,
+            "popular_ml": self.popular_ml,
+        }
 
     @property
     def best(self) -> float:
-        return max(self.llm, self.mle, self.aec)
+        from .topics import weighted_best
+
+        return weighted_best(self._scores())
 
     @property
     def tracks(self) -> list[str]:
-        out = []
-        if self.llm >= 0.25:
-            out.append("LLM")
-        if self.mle >= 0.25:
-            out.append("MLE")
-        if self.aec >= 0.25:
-            out.append("AEC")
-        return out or ["ML"]
+        from .topics import active_track_labels
+
+        return active_track_labels(self._scores())
 
 
 class RankedItem(BaseModel):
