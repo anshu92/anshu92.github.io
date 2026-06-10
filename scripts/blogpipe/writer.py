@@ -152,7 +152,7 @@ def write_daily(
 ) -> WriteResult:
     client = llm or LLMClient()
     today = datetime.now(timezone.utc).date().isoformat()
-    title = outline.title or f"Research Radar: Autodesk MLE Brief - {today}"
+    title = _safe_daily_title(outline.title or f"Research Radar: ML systems update - {today}")
     slug = f"{today}-research-radar"
     body = _generate_daily_body(
         client=client,
@@ -284,7 +284,8 @@ def _generate_daily_body(
             outline=outline,
             selection=selection,
         )
-        return edited or _fallback()
+        merged = _merge_daily_body(title=title, outline=outline, section_drafts=drafted, edited=edited)
+        return merged or _fallback()
     except Exception as exc:  # noqa: BLE001
         LOG.warning("sectionwise daily writer failed; using fallback single pass: %s", exc)
         return _fallback()
@@ -455,6 +456,51 @@ def _normalize_section_output(expected_heading: str, text: str) -> str:
     return cleaned.strip()
 
 
+def _safe_daily_title(raw: str) -> str:
+    title = re.sub(r"\s+", " ", (raw or "").strip())
+    if not title:
+        return "Research Radar: ML systems and methods update"
+    if _looks_like_truncated_fallback_title(title):
+        return "Research Radar: ML systems and methods update"
+    if title.lower().startswith("research radar:") and len(title) > 68:
+        return "Research Radar: ML systems and methods update"
+    return title
+
+
+def _merge_daily_body(
+    *,
+    title: str,
+    outline: DailyOutline,
+    section_drafts: list[str],
+    edited: str,
+) -> str:
+    safe_title = _safe_daily_title(title)
+    edited = (edited or "").strip()
+    if edited and not _missing_outline_sections(edited, outline):
+        if not _h1_titles(edited):
+            return f"# {safe_title}\n\n{edited}"
+        return edited
+    if section_drafts:
+        LOG.warning("editor dropped outline headings; stitching section drafts")
+        return _stitch_section_drafts(safe_title, section_drafts)
+    return edited
+
+
+def _missing_outline_sections(body: str, outline: DailyOutline) -> list[str]:
+    body_headings = {_normalize_heading(heading) for heading in HEADING_RE.findall(body or "")}
+    missing: list[str] = []
+    for section in outline.sections:
+        expected = _normalize_heading(section.heading)
+        if expected and expected not in body_headings:
+            missing.append(section.heading)
+    return missing
+
+
+def _stitch_section_drafts(title: str, section_drafts: list[str]) -> str:
+    cleaned = [draft.strip() for draft in section_drafts if draft.strip()]
+    return f"# {title}\n\n" + "\n\n".join(cleaned)
+
+
 def _final_editor_pass(
     *,
     client: LLMClient,
@@ -550,7 +596,7 @@ def _validate_repair_and_publish(
     body = _ensure_visual_blocks(body, pack, slug)
     quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
     body, errors = _sanitize_then_validate(body, pack, outline=outline)
-    errors.extend(_llm_quality_errors(quality_review))
+    errors.extend(_llm_quality_errors(quality_review, client=client))
     repair_attempted = False
     if errors:
         repair_attempted = True
@@ -569,7 +615,7 @@ def _validate_repair_and_publish(
                 body = _ensure_visual_blocks(body, pack, slug)
                 quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
-                errors.extend(_llm_quality_errors(quality_review))
+                errors.extend(_llm_quality_errors(quality_review, client=client))
             except Exception as exc:
                 errors.append(f"full_rewrite_failed:{exc}")
         if errors:
@@ -579,17 +625,9 @@ def _validate_repair_and_publish(
                 body = _ensure_visual_blocks(body, pack, slug)
                 quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
-                errors.extend(_llm_quality_errors(quality_review))
+                errors.extend(_llm_quality_errors(quality_review, client=client))
             except Exception as exc:
                 errors.append(f"repair_failed:{exc}")
-        if errors and pack.kind == "daily" and outline is not None and _needs_emergency_daily_fallback(errors):
-            fallback_body = _deterministic_daily_body(pack, outline=outline, title=title)
-            fallback_body = _ensure_visual_blocks(fallback_body, pack, slug)
-            fallback_body, fallback_errors = _sanitize_then_validate(fallback_body, pack, outline=outline)
-            if not fallback_errors:
-                LOG.warning("daily writer using deterministic fallback after failed LLM repair")
-                body = fallback_body
-                errors = []
     if errors:
         report = memory.REPORTS / f"{slug}.blocked.json"
         memory.ensure_dirs()
@@ -652,14 +690,14 @@ def _daily_system() -> str:
     return (
         "You are writing Synaptic Radio, a technical ML research blog. Write polished Markdown, not JSON. "
         "Start with exactly one Markdown H1 matching the requested title, then include every OUTLINE section as an exact Markdown H2. "
-        "Write from the practical point of view of a Principal Machine Learning Engineer at Autodesk evaluating research for "
-        "AEC foundation models and 2D document intelligence. Do not claim to be employed by Autodesk. "
+        "Write from the practical point of view of a principal machine learning engineer evaluating research for production ML systems. "
+        "Do not claim employment at any company and do not use first-person product-roadmap language. "
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
         "Keep the research depth, but make the article engineering-forward: benchmark design, failure modes, integration constraints, "
         "deployment dependencies, latency/cost tradeoffs, validation plans, and adoption tests should drive the practical judgment. "
         "Prefer deep synthesis over breadth: focus on 3-4 primary papers and use supporting items only when they sharpen the thesis. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
-        "Distinguish direct implication, plausible transfer, and open hypothesis when discussing AEC use. "
+        "Distinguish direct implication, plausible transfer, and open hypothesis when discussing production use. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
         "Do not publish a single-source post: cite at least three distinct primary papers when available. "
         f"Do not invent numbers, benchmarks, authors, or claims. The daily post must be at least {config.daily_min_words()} words."
@@ -676,11 +714,11 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
         "Cite at least three distinct primary papers when they exist in the evidence pack. "
         "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
         "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
-        "Include at least one cross-paper comparison or tradeoff and at least one concrete adoption test for Autodesk/AEC 2D document systems. "
+        "Include at least one cross-paper comparison or tradeoff and at least one concrete production or adoption test. "
         "Every major section should connect the paper to at least one operational lens where evidence permits: benchmark design, failure mode, "
         "deployment constraint, latency/cost tradeoff, integration dependency, or prototype/validation test. "
         "The adoption section should read like an engineering decision memo, not a broad relevance section. "
-        "Make the Autodesk/AEC/2D-document implications concrete where supported by the evidence; otherwise label them as plausible transfer or open hypothesis. "
+        "Make production and deployment implications concrete where supported by the evidence; otherwise label them as plausible transfer or open hypothesis. "
         "Do not present a cross-paper stack, architecture, or workflow as proven unless the evidence cards directly support that integration. "
         "Do not use first-person employment claims such as 'As a Principal MLE at Autodesk'; write from that practical viewpoint without claiming identity. "
         "Avoid exact numeric claims unless the number appears verbatim in the evidence text.\n\n"
@@ -738,7 +776,7 @@ def _repair_user(
     ]
     section_contract = (
         "For daily posts, preserve the OUTLINE headings exactly and write from the practical viewpoint "
-        "of a Principal MLE at Autodesk evaluating AEC foundation model and 2D-document relevance. "
+        "of a principal MLE evaluating ML systems, training, serving, and evaluation tradeoffs. "
         f"The daily post must be at least {config.daily_min_words()} words. Cite at least three primary papers "
         "when they exist in the evidence pack. Remove generic corporate prose and add concrete engineering judgment."
         if pack.kind == "daily"
@@ -788,18 +826,6 @@ def _needs_full_daily_rewrite(errors: list[str]) -> bool:
     return any(error.startswith(severe_prefixes) for error in errors)
 
 
-def _needs_emergency_daily_fallback(errors: list[str]) -> bool:
-    severe_prefixes = (
-        "no_evidence_ids",
-        "unknown_evidence_ids:",
-        "missing_outline_section:",
-        "insufficient_cited_primary_items:",
-        "insufficient_cited_papers:",
-        "daily_too_short:",
-    )
-    return any(error.startswith(severe_prefixes) for error in errors)
-
-
 def _daily_rewrite_system() -> str:
     return (
         _daily_system()
@@ -836,8 +862,8 @@ def _daily_rewrite_user(
         f"- Write at least {config.daily_min_words()} words; target 1400-1900 words if evidence supports it.\n"
         "- Cite at least three distinct primary papers when available in the evidence pack.\n"
         "- Every substantive paragraph must include evidence IDs such as [E1] and the matching source URL inline.\n"
-        "- Cover mechanism/objective, experiments or benchmarks, limits, cross-paper tradeoffs, and Autodesk/AEC 2D-document adoption tests.\n"
-        "- Treat AEC transfer as direct implication only when the evidence supports it; otherwise label it as plausible transfer or open hypothesis.\n"
+        "- Cover mechanism/objective, experiments or benchmarks, limits, cross-paper tradeoffs, and production adoption tests.\n"
+        "- Treat production transfer as direct implication only when the evidence supports it; otherwise label it as plausible transfer or open hypothesis.\n"
         "- Do not preserve the rejected fragment unless a sentence is fully evidence-grounded and still fits the outline.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
         f"LLM_QUALITY_REVIEW:\n{json.dumps(quality_review or {}, indent=2, ensure_ascii=False)}\n\n"
@@ -848,135 +874,6 @@ def _daily_rewrite_user(
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
         f"REJECTED_DRAFT_FOR_DIAGNOSIS_ONLY:\n{_repair_safe_draft(body, errors)}"
     )
-
-
-def _deterministic_daily_body(pack: EvidencePack, *, outline: DailyOutline, title: str) -> str:
-    primary_ids = _primary_item_ids(pack)
-    cards_by_item = {card.item_id: card for card in pack.evidence_cards}
-    chunks_by_id = {chunk.evidence_id: chunk for chunk in pack.chunks}
-    chunks_by_item: dict[str, list[object]] = {}
-    for chunk in pack.chunks:
-        chunks_by_item.setdefault(chunk.item_id, []).append(chunk)
-
-    def card_for(item_id: str):
-        return cards_by_item.get(item_id)
-
-    def clean(text: str, fallback: str) -> str:
-        value = re.sub(r"\s+", " ", (text or "").strip())
-        if not value or value == "not found in evidence":
-            return fallback
-        return value.rstrip(".")
-
-    def evidence_for_section(section) -> list[object]:
-        out = [chunks_by_id[evidence_id] for evidence_id in section.evidence_ids if evidence_id in chunks_by_id]
-        seen = {chunk.evidence_id for chunk in out}
-        for item_id in [*section.focus_item_ids, *primary_ids]:
-            for chunk in chunks_by_item.get(item_id, []):
-                if chunk.evidence_id not in seen:
-                    out.append(chunk)
-                    seen.add(chunk.evidence_id)
-                if len(out) >= 4:
-                    return out
-        for chunk in pack.chunks:
-            if chunk.evidence_id not in seen:
-                out.append(chunk)
-                seen.add(chunk.evidence_id)
-            if len(out) >= 4:
-                return out
-        return out
-
-    def source_line(chunks: list[object]) -> str:
-        refs = " ".join(f"[{chunk.evidence_id}]" for chunk in chunks if getattr(chunk, "evidence_id", ""))
-        urls: list[str] = []
-        for chunk in chunks:
-            url = getattr(chunk, "url", "")
-            if url and url not in urls:
-                urls.append(url)
-        label = "Source:" if len(urls) == 1 else "Sources:"
-        return f"{refs} {label} {' '.join(urls)}"
-
-    def paragraph_for_section(section, index: int) -> str:
-        chunks = evidence_for_section(section)
-        if not chunks:
-            return ""
-        focus_ids = list(section.focus_item_ids) or [getattr(chunk, "item_id", "") for chunk in chunks]
-        cards = [card_for(item_id) for item_id in focus_ids if card_for(item_id)]
-        if not cards:
-            cards = [card for card in pack.evidence_cards if card.item_id in {getattr(chunk, "item_id", "") for chunk in chunks}]
-        card = cards[0] if cards else None
-        title_text = card.title if card is not None else getattr(chunks[0], "title", "the selected evidence")
-        mechanism = clean(getattr(card, "mechanism", ""), "the mechanism is only partially specified in the available evidence")
-        objective = clean(getattr(card, "math_or_objective", ""), "the objective is operational rather than fully formalized in the evidence")
-        experiment = clean(getattr(card, "experiment", ""), "the available evidence points to evaluation needs rather than a complete benchmark description")
-        limitation = clean(getattr(card, "limitation", ""), "the main limitation is that transfer to AEC document workflows remains an engineering hypothesis")
-        impact = clean(getattr(card, "impact", ""), "the practical impact is strongest as a validation target for document intelligence systems")
-        claim = clean(getattr(card, "paper_supported_claim", ""), "the paper-supported claim should be treated as bounded by the reported evidence")
-        transfer = clean(getattr(card, "transfer_hypothesis", ""), "For Autodesk and AEC document workflows, this is best read as plausible transfer that needs direct validation")
-        refs = source_line(chunks)
-        intent = (section.intent or section.heading).lower()
-        if "experiment" in intent or "benchmark" in intent or "evaluation" in intent:
-            core = (
-                f"For {title_text}, the evaluation question is the useful engineering object: {experiment}. "
-                f"The claim to carry forward is that {claim}. The adoption test should separate retrieval errors, reasoning errors, latency regressions, "
-                f"and document-specific failures such as OCR noise, title-block ambiguity, sheet references, and missing provenance. "
-                f"The limitation is equally important: {limitation}. {refs}"
-            )
-        elif "objective" in intent or "math" in intent or "metric" in intent:
-            core = (
-                f"The objective view for {title_text} is deliberately conservative: {objective}. "
-                f"That makes the paper useful for defining metrics rather than declaring a finished AEC system. "
-                f"In a drawing, sheet, or BIM-linked workflow, the objective has to be converted into measurable checks for grounding, context reuse, "
-                f"latency, provenance, and failure recovery. {refs}"
-            )
-        elif "synthesis" in intent or "tradeoff" in intent or "compare" in intent:
-            names = ", ".join(card.title for card in cards[:3]) if cards else title_text
-            core = (
-                f"Across {names}, the synthesis is a tradeoff between mechanism quality, evaluation observability, and deployment cost. "
-                f"One paper may make context handling or reasoning more capable, while another makes the failure boundary easier to measure. "
-                f"For AEC document AI, the system should not merge these ideas into a claimed stack until each interface is tested: retrieval into context, "
-                f"grounded answer generation, tool selection, and operator-visible uncertainty. {refs}"
-            )
-        elif "autodesk" in intent or "aec" in intent or "adoption" in intent or "document" in intent:
-            core = (
-                f"The Autodesk-facing implication is an adoption plan, not a product claim. {transfer}. "
-                f"A practical prototype would use these papers to define gates for sheet retrieval, visual or textual grounding, CAD/BIM linkage, latency, "
-                f"and regression monitoring. The evidence supports a focused validation path, while {limitation}. {refs}"
-            )
-        else:
-            core = (
-                f"{section.heading} matters because {title_text} gives a concrete technical object for the radar. "
-                f"The mechanism signal is: {mechanism}. The paper-supported claim is: {claim}. "
-                f"For AEC foundation models and 2D document intelligence, the useful reading is to turn that claim into a benchmarkable system boundary, "
-                f"then test whether it survives drawings, sheets, plans, PDFs, OCR artifacts, layout dependencies, and project-specific terminology. {refs}"
-            )
-        follow_up = (
-            " This section should be read as a conservative engineering brief. It identifies the mechanism, objective, experiment, limitation, and impact "
-            "visible in the evidence, then converts them into validation work a team could run before relying on the method in production. "
-            "The immediate next step is not broad adoption; it is a small benchmark slice with source-linked examples, explicit failure categories, and "
-            "operational measurements for latency, throughput, monitoring, and reviewability. "
-            "That benchmark should include positive and negative document cases, trace every answer to source evidence, and record which subsystem failed "
-            "when the model misses a requirement."
-        )
-        return core + follow_up
-
-    intro_chunks = []
-    for item_id in primary_ids[:3]:
-        intro_chunks.extend(chunks_by_item.get(item_id, [])[:1])
-    if len(intro_chunks) < 3:
-        intro_chunks.extend([chunk for chunk in pack.chunks if chunk not in intro_chunks][: 3 - len(intro_chunks)])
-    intro = (
-        f"# {title}\n\n"
-        "The safest reading of this radar is that the selected papers define engineering boundaries for AEC foundation models and 2D document intelligence. "
-        "The useful questions are concrete: what mechanism is being proposed, what objective or metric makes it measurable, what experiment supports it, "
-        "what limitation remains, and what adoption test would expose failure before a team depends on it. "
-        f"{source_line(intro_chunks)}\n"
-    )
-    sections = []
-    for index, section in enumerate(outline.sections):
-        paragraph = paragraph_for_section(section, index)
-        if paragraph:
-            sections.append(f"## {section.heading}\n\n{paragraph}")
-    return intro + "\n\n".join(sections)
 
 
 def _repair_safe_errors(errors: list[str]) -> list[str]:
@@ -1009,6 +906,7 @@ def _sanitize_then_validate(
     *,
     outline: DailyOutline | None,
 ) -> tuple[str, list[str]]:
+    body = _sanitize_voice(body)
     body = _ensure_paragraph_source_links(body, pack)
     errors = validate_body(body, pack, outline=outline)
     if not any(error.startswith("unsupported_number:") for error in errors):
@@ -1178,9 +1076,25 @@ def _quality_review_user(
     )
 
 
-def _llm_quality_errors(review: dict[str, object]) -> list[str]:
+def _sanitize_voice(body: str) -> str:
+    text = body or ""
+    replacements = (
+        (r"\bAs a Principal (?:Machine Learning Engineer|MLE) at Autodesk\b", "From a principal MLE viewpoint"),
+        (r"\bAt Autodesk,\s+(?:my|our)\b", "In production ML systems,"),
+        (r"\bour (?:vision|strategic direction|roadmap|pipeline|pipelines|product|products)\b", "the engineering plan"),
+        (r"\bwe (?:face|use|need|build|ship|own|have|could|should)\b", "teams"),
+    )
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.I)
+    return text
+
+
+def _llm_quality_errors(review: dict[str, object], *, client: LLMClient | None = None) -> list[str]:
     if not review:
         return []
+    if isinstance(client, LLMClient) and _quality_review_from_untrusted_model(client):
+        if review.get("pass") is not False:
+            return []
     errors: list[str] = []
     scores = review.get("scores")
     threshold = config.min_signal_score()
@@ -1197,6 +1111,20 @@ def _llm_quality_errors(review: dict[str, object]) -> list[str]:
         if isinstance(raw_errors, list) and raw_errors:
             errors.extend(f"llm_quality:{str(error)[:120]}" for error in raw_errors[:8])
     return errors
+
+
+def _quality_review_from_untrusted_model(client: LLMClient) -> bool:
+    model = (client.usage.model_by_task.get("quality_review") or client.usage.model or "").lower()
+    if not model:
+        return False
+    if "gemini" in model or "gpt-4" in model:
+        return False
+    return _is_openrouter_model(model) or "llama" in model or "free" in model
+
+
+def _is_openrouter_model(model: str) -> bool:
+    normalized = (model or "").strip().lower()
+    return normalized.startswith("openrouter/") or "/" in normalized
 
 
 def _strip_fence(text: str) -> str:

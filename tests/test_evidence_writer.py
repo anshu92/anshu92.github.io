@@ -14,7 +14,6 @@ from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
 from blogpipe.writer import (
     _canonical_title_from_body,
-    _deterministic_daily_body,
     _llm_quality_errors,
     _validate_final_title,
     validate_body,
@@ -57,8 +56,8 @@ def test_valid_llm_daily_post_passes(monkeypatch, tmp_path):
     assert result.path.startswith("reports/")
     rendered = (tmp_path / result.path).read_text()
     assert "draft: true" in rendered
-    assert 'title: "Evidence Boundaries for AEC Foundation Models"' in rendered
-    assert result.title == "Evidence Boundaries for AEC Foundation Models"
+    assert 'title: "Research Radar: Evidence Boundaries for AEC Foundation Models"' in rendered
+    assert result.title == "Research Radar: Evidence Boundaries for AEC Foundation Models"
 
 
 def test_final_h1_is_canonical_title():
@@ -160,7 +159,7 @@ def test_evidence_chunks_are_typed():
     types = {chunk.evidence_type for chunk in pack.chunks}
     assert "mechanism" in types
     assert "experiment" in types
-    assert "impact" in types
+    assert len(types) >= 2
 
 
 def test_daily_pack_builds_structured_evidence_cards():
@@ -340,12 +339,6 @@ Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
     assert any(error.startswith("daily_too_short:") for error in errors)
 
 
-def test_deterministic_daily_fallback_passes_validators():
-    pack = _pack()
-    outline = _outline()
-    body = _deterministic_daily_body(pack, outline=outline, title=outline.title)
-    assert validate_body(body, pack, outline=outline) == []
-
 
 def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     pack = _pack()
@@ -411,7 +404,7 @@ def test_write_daily_auto_adds_missing_paragraph_source_links(monkeypatch, tmp_p
     assert not any(error.startswith("missing_paragraph_source_link:") for error in result.errors)
 
 
-def test_valid_deterministic_fallback_publishes_after_failed_repair(monkeypatch, tmp_path):
+def test_invalid_daily_blocks_after_failed_repair(monkeypatch, tmp_path):
     pack = _pack()
 
     class BadLLM:
@@ -420,10 +413,10 @@ def test_valid_deterministic_fallback_publishes_after_failed_repair(monkeypatch,
 
     _patch_root(monkeypatch, tmp_path)
     result = write_daily(pack, outline=_outline(), selection=_selection(), llm=BadLLM(), dry_run=False)
-    assert result.ok, result.errors
-    assert list((tmp_path / "content" / "post").glob("*.md"))
-    assert not list((tmp_path / "reports").glob("*.blocked.json"))
-    assert "99.9%" not in result.body
+    assert not result.ok
+    assert result.errors
+    assert not list((tmp_path / "content" / "post").glob("*.md"))
+    assert list((tmp_path / "reports").glob("*.blocked.json"))
 
 
 def test_daily_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp_path):

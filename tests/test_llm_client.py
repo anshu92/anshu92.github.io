@@ -81,21 +81,12 @@ def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
     llm = LLMClient()
     chain = llm._model_chain("outline")
     assert chain[0] == "gemini-2.5-flash"
-    assert chain[-11:] == [
-        "minimax/minimax-m2.5:free",
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        "arcee-ai/trinity-large-thinking:free",
-        "openai/gpt-oss-120b:free",
-        "qwen/qwen3-coder:free",
-        "inclusionai/ring-2.6-1t:free",
-        "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-        "google/gemma-4-31b-it:free",
-        "google/gemma-4-26b-a4b-it:free",
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "openrouter/free",
-    ]
-    assert "inclusionai/ring-2.6-1t:free" in chain
-    assert "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free" in chain
+    assert chain[-1] == "openrouter/free"
+    assert "qwen/qwen3-next-80b-a3b-instruct:free" in chain
+    assert "nvidia/nemotron-3-ultra-550b-a55b:free" in chain
+    assert "minimax/minimax-m2.5:free" not in chain
+    assert "arcee-ai/trinity-large-thinking:free" not in chain
+    assert "inclusionai/ring-2.6-1t:free" not in chain
 
 
 def test_openrouter_free_roster_can_be_overridden(monkeypatch):
@@ -140,6 +131,19 @@ def test_llm_runtime_budget_blocks_new_calls(monkeypatch):
     monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 60.0)
     with pytest.raises(RuntimeError, match="BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"):
         llm.complete(system="sys", user="usr", task="outline")
+
+
+def test_gemini_endpoint_skips_openrouter_for_smart_tasks(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_FREE_MODELS", "openrouter/free,meta-llama/llama-3.3-70b-instruct:free")
+    llm = LLMClient()
+    assert "openrouter/free" not in llm._model_chain("draft")
+    assert "openrouter/free" in llm._model_chain("outline")
 
 
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):

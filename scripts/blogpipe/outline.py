@@ -265,8 +265,6 @@ def _outline_repair_user(
 
 def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOutline:
     title = "Research Radar: ML systems and methods update"
-    if pack.ranked_items:
-        title = f"Research Radar: {pack.ranked_items[0].item.title[:70]}"
     selected_ids = set(selection.selected_item_ids)
     selected_item_ids = [
         ranked.item.item_id
@@ -295,51 +293,45 @@ def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOu
     per_section = max(140, min_words // 6)
     sections = [
         {
-            "heading": "Document-model reliability starts with measurable failure boundaries",
-            "intent": "technical thesis angle framing Autodesk AEC document relevance",
+            "heading": "The engineering thesis behind this week's cluster",
+            "intent": "technical thesis angle framing mechanism and benchmark boundaries",
             "evidence_ids": pick_ids(("impact", "mechanism")),
             "word_budget": per_section,
         },
         {
-            "heading": "Primary mechanisms worth testing against drawing workflows",
+            "heading": "Mechanisms that matter for training and serving",
             "intent": "mechanism method architecture pipeline",
             "evidence_ids": pick_ids(("mechanism",)),
             "word_budget": per_section,
         },
         {
-            "heading": "Objectives and metrics define the adoption boundary",
+            "heading": "Objectives, metrics, and optimization tradeoffs",
             "intent": "math objective loss optimization metric",
             "evidence_ids": pick_ids(("math_or_objective", "experiment")),
             "word_budget": per_section,
         },
         {
-            "heading": "Evaluation evidence separates prototypes from product bets",
+            "heading": "Benchmarks, ablations, and evaluation evidence",
             "intent": "experiments evidence benchmark evaluation ablation",
             "evidence_ids": pick_ids(("experiment",)),
             "word_budget": per_section,
         },
         {
-            "heading": "Cross-paper tradeoffs that change the engineering plan",
-            "intent": "cross-paper synthesis compare contrast tradeoff limitations caveat failure risk",
-            "evidence_ids": pick_ids(("limitation", "experiment")),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Adoption tests for Autodesk AEC document systems",
-            "intent": "impact engineering production practical Autodesk AEC document drawing sheet CAD BIM",
-            "evidence_ids": pick_ids(("impact", "limitation")),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Risks to validate before implementation",
+            "heading": "Limitations, failure modes, and risks to validate",
             "intent": "limitations caveat failure risk tradeoff",
             "evidence_ids": pick_ids(("limitation",)),
+            "word_budget": per_section,
+        },
+        {
+            "heading": "Cross-paper tradeoffs and production implications",
+            "intent": "cross-paper synthesis compare contrast tradeoff impact engineering production deployment cad bim document sheet practical",
+            "evidence_ids": pick_ids(("limitation", "experiment", "impact")),
             "word_budget": per_section,
         },
     ]
     return DailyOutline(
         title=title,
-        angle="Recent work defines practical boundaries for Autodesk-facing AEC and 2D document ML systems.",
+        angle="Recent work sharpens the engineering boundaries for scaling, evaluating, and deploying ML systems.",
         sections=sections,
         suggested_tags=list(selection.suggested_tags),
     )

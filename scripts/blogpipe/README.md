@@ -125,13 +125,16 @@ instead of being sent to the Gemini endpoint.
 When `OPENROUTER_API_KEY` is present, the default fallback roster appends these
 current zero-priced OpenRouter models after the configured primary models,
 ordered for expected Research Radar performance rather than recency:
-`minimax/minimax-m2.5:free`,
+`qwen/qwen3-next-80b-a3b-instruct:free`,
+`nvidia/nemotron-3-ultra-550b-a55b:free`,
 `nvidia/nemotron-3-super-120b-a12b:free`,
-`arcee-ai/trinity-large-thinking:free`, `openai/gpt-oss-120b:free`,
-`qwen/qwen3-coder:free`, `inclusionai/ring-2.6-1t:free`,
+`nousresearch/hermes-3-llama-3.1-405b:free`, `moonshotai/kimi-k2.6:free`,
+`nex-agi/nex-n2-pro:free`, `qwen/qwen3-coder:free`, `poolside/laguna-m.1:free`,
+`openai/gpt-oss-120b:free`, `google/gemma-4-31b-it:free`,
+`google/gemma-4-26b-a4b-it:free`,
 `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`,
-`google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`,
-`meta-llama/llama-3.3-70b-instruct:free`, and `openrouter/free`.
+`meta-llama/llama-3.3-70b-instruct:free`, `openai/gpt-oss-20b:free`,
+and `openrouter/free`.
 
 ## Search and Ranking
 

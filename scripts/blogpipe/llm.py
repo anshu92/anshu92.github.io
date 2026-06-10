@@ -103,7 +103,10 @@ class LLMClient:
                             timeout=httpx.Timeout(read_timeout, connect=min(10.0, read_timeout)),
                         )
                     if resp.status_code in RETRY_STATUS_CODES and attempt < 2:
-                        time.sleep(2 ** attempt)
+                        delay = 2 ** attempt
+                        if resp.status_code == 429:
+                            delay = min(30.0, 5.0 * (attempt + 1))
+                        time.sleep(delay)
                         continue
                     if resp.status_code in RETRY_STATUS_CODES:
                         last_error = RuntimeError(f"retriable_status:{resp.status_code}")
@@ -127,6 +130,15 @@ class LLMClient:
                         resp.raise_for_status()
                     data = resp.json()
                     text = data["choices"][0]["message"]["content"]
+                    if text is None:
+                        last_error = RuntimeError("empty_completion_content")
+                        LOG.warning(
+                            "llm task=%s model=%s returned empty content; trying next model",
+                            task_name,
+                            chain_model,
+                        )
+                        break
+                    text = str(text)
                     self.usage.model = chain_model
                     self.usage.model_by_task[task_name] = chain_model
                     self.usage.completion_tokens_est += len(text) // 4
@@ -188,16 +200,18 @@ class LLMClient:
             self.cfg.model_primary,
             self.cfg.model_legacy,
             self._base_model(),
-            *self._openrouter_fallback_models(),
+            *self._openrouter_fallback_models(task),
         ]
 
     def _base_model(self) -> str:
         return "" if self.cfg.model == "openrouter/free" and self.cfg.openrouter_api_key else self.cfg.model
 
-    def _openrouter_fallback_models(self) -> list[str]:
-        if self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower():
-            return list(self.cfg.openrouter_free_models)
-        return []
+    def _openrouter_fallback_models(self, task: str) -> list[str]:
+        if not (self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower()):
+            return []
+        if _gemini_native_endpoint(self.cfg.base_url) and task in SMART_TASKS | {"repair"}:
+            return []
+        return list(self.cfg.openrouter_free_models)
 
     def _endpoint_for_model(self, model: str) -> tuple[str, str]:
         if _is_openrouter_model(model):
@@ -244,6 +258,10 @@ def _unique_models(models: list[str]) -> list[str]:
         seen.add(model)
         out.append(model)
     return out
+
+
+def _gemini_native_endpoint(base_url: str) -> bool:
+    return "generativelanguage.googleapis.com" in (base_url or "").lower()
 
 
 def _is_openrouter_model(model: str) -> bool:
