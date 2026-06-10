@@ -419,12 +419,15 @@ def test_non_openrouter_endpoint_can_fall_back_to_openrouter(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
     monkeypatch.delenv("BLOGPIPE_LLM_MODEL", raising=False)
     monkeypatch.delenv("BLOGPIPE_MODEL", raising=False)
-    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_OUTLINE", "gemini-2.5-flash,gemini-2.0-flash,openrouter/free")
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_CHAIN_OUTLINE",
+        "gemini-3.5-flash,gemini-3.1-flash-lite,openrouter/free",
+    )
     client = LLMClient()
     chain = client._model_chain("outline")
-    assert chain[:3] == ["gemini-2.5-flash", "gemini-2.0-flash", "openrouter/free"]
+    assert chain[:3] == ["gemini-3.5-flash", "gemini-3.1-flash-lite", "openrouter/free"]
     assert "inclusionai/ring-2.6-1t:free" in chain
-    assert client._endpoint_for_model("gemini-2.5-flash") == (
+    assert client._endpoint_for_model("gemini-3.5-flash") == (
         "https://generativelanguage.googleapis.com/v1beta/openai",
         "gemini-key",
     )

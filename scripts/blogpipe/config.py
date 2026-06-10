@@ -54,6 +54,21 @@ def _csv(name: str) -> list[str]:
     return [part.strip() for part in raw.split(",") if part.strip()]
 
 
+# Recommended Gemini roster (May/June 2026). See ai.google.dev/gemini-api/docs/deprecations.
+# gemini-2.0-flash* shut down 2026-06-01; gemini-2.5-* remain until 2026-10-16.
+DEFAULT_GEMINI_MODEL_FAST = "gemini-3.5-flash"
+DEFAULT_GEMINI_MODEL_SMART = "gemini-3.1-pro-preview"
+DEFAULT_GEMINI_CHAIN_FAST = [
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-2.5-flash",
+]
+DEFAULT_GEMINI_CHAIN_SMART = [
+    "gemini-3.1-pro-preview",
+    "gemini-3.5-flash",
+    "gemini-2.5-pro",
+]
+
 DEFAULT_OPENROUTER_FREE_MODELS = [
     "qwen/qwen3-next-80b-a3b-instruct:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",

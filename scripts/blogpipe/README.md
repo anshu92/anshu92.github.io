@@ -71,6 +71,15 @@ The writer uses one OpenAI-compatible endpoint:
   failover chain.
 - `BLOGPIPE_OPENROUTER_FREE_MODELS`, a comma-separated override for the
   OpenRouter free-model fallback roster.
+- When the primary endpoint is Gemini (`generativelanguage.googleapis.com`),
+  set `BLOGPIPE_LLM_MODEL_FAST` / `BLOGPIPE_LLM_MODEL_SMART` and per-task
+  chains to current models. As of June 2026 the recommended roster is:
+  fast tasks → `gemini-3.5-flash`, chain
+  `gemini-3.5-flash,gemini-3.1-flash-lite,gemini-2.5-flash`; smart tasks →
+  `gemini-3.1-pro-preview`, chain
+  `gemini-3.1-pro-preview,gemini-3.5-flash,gemini-2.5-pro`. Do not use
+  `gemini-2.0-flash*` (shut down 2026-06-01). `gemini-2.5-*` remain until
+  2026-10-16. Constants live in `config.DEFAULT_GEMINI_*`.
 - optional per-step model overrides:
   - `BLOGPIPE_LLM_MODEL_SELECTOR`
   - `BLOGPIPE_LLM_MODEL_OUTLINE`

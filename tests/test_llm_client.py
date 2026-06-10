@@ -3,6 +3,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
+from blogpipe import config
 from blogpipe.llm import LLMClient
 
 
@@ -68,6 +69,14 @@ def test_task_without_chain_uses_bias_order(monkeypatch):
     llm = LLMClient()
     llm.complete(system="sys", user="usr", task="selector")
     assert attempted[0] == "selector-model"
+
+
+def test_default_gemini_roster_documents_current_models():
+    assert "gemini-3.5-flash" in config.DEFAULT_GEMINI_CHAIN_FAST
+    assert "gemini-3.1-flash-lite" in config.DEFAULT_GEMINI_CHAIN_FAST
+    assert "gemini-2.0-flash" not in config.DEFAULT_GEMINI_CHAIN_FAST
+    assert config.DEFAULT_GEMINI_MODEL_SMART == "gemini-3.1-pro-preview"
+    assert "gemini-2.5-pro" in config.DEFAULT_GEMINI_CHAIN_SMART
 
 
 def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
