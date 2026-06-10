@@ -426,7 +426,7 @@ def test_non_openrouter_endpoint_can_fall_back_to_openrouter(monkeypatch):
     client = LLMClient()
     chain = client._model_chain("outline")
     assert chain[:3] == ["gemini-3.5-flash", "gemini-3.1-flash-lite", "openrouter/free"]
-    assert "inclusionai/ring-2.6-1t:free" in chain
+    assert "qwen/qwen3-next-80b-a3b-instruct:free" in chain
     assert client._endpoint_for_model("gemini-3.5-flash") == (
         "https://generativelanguage.googleapis.com/v1beta/openai",
         "gemini-key",

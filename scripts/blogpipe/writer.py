@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -242,13 +243,28 @@ def _generate_daily_body(
     title: str,
     slug: str,
 ) -> str:
-    def _fallback() -> str:
-        return _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title), task="draft")
+    def _single_pass_draft(*, retry_short: bool = True) -> str:
+        body = _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title), task="draft")
+        min_words = max(500, config.daily_min_words() // 3)
+        if (
+            retry_short
+            and _word_count(body) < min_words
+            and _has_call_budget(client, 1)
+            and getattr(client, "_rate_limit_hits", 0) > 0
+        ):
+            LOG.warning(
+                "single-pass daily draft too short (%s words, need >= %s); retrying after cooldown",
+                _word_count(body),
+                min_words,
+            )
+            _sleep_for_rate_limit(client)
+            body = _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title), task="draft")
+        return body
 
     if not isinstance(client, LLMClient):
-        return _fallback()
+        return _single_pass_draft()
     if not config.sectionwise_drafting_enabled():
-        return _fallback()
+        return _single_pass_draft()
 
     section_specs = [
         {
@@ -261,7 +277,7 @@ def _generate_daily_body(
     ]
     required_calls = len(section_specs) + 1
     if not _has_call_budget(client, required_calls):
-        return _fallback()
+        return _single_pass_draft()
     try:
         drafted = _draft_sections(
             client=client,
@@ -273,7 +289,7 @@ def _generate_daily_body(
             selection=selection,
         )
         if not drafted:
-            return _fallback()
+            return _single_pass_draft()
         edited = _final_editor_pass(
             client=client,
             pack=pack,
@@ -285,10 +301,11 @@ def _generate_daily_body(
             selection=selection,
         )
         merged = _merge_daily_body(title=title, outline=outline, section_drafts=drafted, edited=edited)
-        return merged or _fallback()
+        return merged or _single_pass_draft()
     except Exception as exc:  # noqa: BLE001
         LOG.warning("sectionwise daily writer failed; using fallback single pass: %s", exc)
-        return _fallback()
+        _sleep_for_rate_limit(client)
+        return _single_pass_draft()
 
 
 def _generate_deep_dive_body(*, client: LLMClient, pack: EvidencePack, title: str, slug: str) -> str:
@@ -573,6 +590,24 @@ def _has_call_budget(client: LLMClient, required_calls: int) -> bool:
         return False
     remaining = client.cfg.max_calls - client.usage.calls
     return remaining >= required_calls
+
+
+def _word_count(body: str) -> int:
+    return len(re.findall(r"\b[\w'-]+\b", body or ""))
+
+
+def _sleep_for_rate_limit(client: LLMClient) -> None:
+    if not isinstance(client, LLMClient):
+        return
+    cooldown = config.llm_rate_limit_cooldown_seconds()
+    if cooldown <= 0:
+        return
+    if getattr(client, "_rate_limit_hits", 0) <= 0:
+        cooldown = min(cooldown, 10.0)
+    remaining = client._remaining_runtime_seconds()
+    if remaining <= cooldown + 5.0:
+        return
+    time.sleep(cooldown)
 
 
 def _call_writer(client: LLMClient, system: str, user: str, *, task: str | None = None) -> str:

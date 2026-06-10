@@ -153,6 +153,29 @@ def test_gemini_endpoint_skips_openrouter_for_smart_tasks(monkeypatch):
     llm = LLMClient()
     assert "openrouter/free" not in llm._model_chain("draft")
     assert "openrouter/free" in llm._model_chain("outline")
+    assert "openrouter/free" in llm._model_chain("repair")
+
+
+def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_SMART_FALLBACK", "1")
+    llm = LLMClient()
+    models = llm._emergency_openrouter_models(
+        "draft",
+        tried=["gemini-3.1-pro-preview"],
+        last_error=RuntimeError("retriable_status:429"),
+    )
+    assert models[0] == "qwen/qwen3-next-80b-a3b-instruct:free"
+    assert len(models) == 3
+    assert llm._emergency_openrouter_models(
+        "draft",
+        tried=["gemini-3.1-pro-preview"],
+        last_error=RuntimeError("http_status:400"),
+    ) == []
 
 
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):

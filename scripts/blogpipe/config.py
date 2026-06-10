@@ -236,6 +236,14 @@ def sectionwise_drafting_enabled() -> bool:
     return _get("BLOGPIPE_SECTIONWISE_DRAFTING", "0").lower() in {"1", "true", "yes", "on"}
 
 
+def openrouter_smart_fallback_enabled() -> bool:
+    return _get("BLOGPIPE_OPENROUTER_SMART_FALLBACK", "0").lower() in {"1", "true", "yes", "on"}
+
+
+def llm_rate_limit_cooldown_seconds() -> float:
+    return _float("BLOGPIPE_LLM_RATE_LIMIT_COOLDOWN_SECONDS", 15.0, 0.0, 120.0)
+
+
 def openreview_venues() -> tuple[str, ...]:
     raw = _get("BLOGPIPE_OPENREVIEW_VENUES")
     if raw:

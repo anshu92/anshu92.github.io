@@ -34,6 +34,7 @@ class LLMClient:
     cfg: config.LLMConfig = field(default_factory=config.llm_config)
     usage: LLMUsage = field(default_factory=LLMUsage)
     started_at: float = field(default_factory=time.monotonic)
+    _rate_limit_hits: int = field(default=0, init=False, repr=False)
 
     def configured(self) -> bool:
         return bool(self.cfg.api_key and self.cfg.model and self.cfg.max_calls > 0)
@@ -68,105 +69,154 @@ class LLMClient:
         self.usage.model_by_task[task_name] = model
         self.usage.prompt_tokens_est += (len(system) + len(user)) // 4
         last_error: Exception | None = None
+        tried_models: list[str] = []
         for chain_model in model_chain:
-            base_url, api_key = self._endpoint_for_model(chain_model)
-            if not api_key:
-                last_error = RuntimeError(f"missing_api_key:{chain_model}")
-                LOG.warning("llm task=%s model=%s missing api key; trying next model", task_name, chain_model)
-                continue
-            headers = {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            }
-            payload = {
-                "model": chain_model,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-                "temperature": self.cfg.temperature,
-                "max_tokens": max_tokens or self.cfg.max_tokens,
-            }
-            for attempt in range(3):
-                remaining = self._remaining_runtime_seconds()
-                if remaining <= 1.0:
-                    last_error = RuntimeError("llm_runtime_budget_exhausted")
-                    break
-                try:
-                    task_timeout = self._task_timeout_seconds(task_name)
-                    read_timeout = max(1.0, min(task_timeout, remaining))
-                    with _wall_clock_deadline(read_timeout):
-                        resp = httpx.post(
-                            f"{base_url}/chat/completions",
-                            headers=headers,
-                            json=payload,
-                            timeout=httpx.Timeout(read_timeout, connect=min(10.0, read_timeout)),
-                        )
-                    if resp.status_code in RETRY_STATUS_CODES and attempt < 2:
-                        delay = 2 ** attempt
-                        if resp.status_code == 429:
-                            delay = min(30.0, 5.0 * (attempt + 1))
-                        time.sleep(delay)
-                        continue
-                    if resp.status_code in RETRY_STATUS_CODES:
-                        last_error = RuntimeError(f"retriable_status:{resp.status_code}")
-                        LOG.warning(
-                            "llm task=%s model=%s exhausted retries status=%s; trying next model",
-                            task_name,
-                            chain_model,
-                            resp.status_code,
-                        )
-                        break
-                    if resp.is_error:
-                        last_error = RuntimeError(f"http_status:{resp.status_code}")
-                        if _can_fallback_status(resp.status_code):
-                            LOG.warning(
-                                "llm task=%s model=%s failed status=%s; trying next model",
-                                task_name,
-                                chain_model,
-                                resp.status_code,
-                            )
-                            break
-                        resp.raise_for_status()
-                    data = resp.json()
-                    text = data["choices"][0]["message"]["content"]
-                    if text is None:
-                        last_error = RuntimeError("empty_completion_content")
-                        LOG.warning(
-                            "llm task=%s model=%s returned empty content; trying next model",
-                            task_name,
-                            chain_model,
-                        )
-                        break
-                    text = str(text)
-                    self.usage.model = chain_model
-                    self.usage.model_by_task[task_name] = chain_model
-                    self.usage.completion_tokens_est += len(text) // 4
-                    return text
-                except Exception as exc:
-                    last_error = exc
-                    if isinstance(exc, TimeoutError):
-                        LOG.warning(
-                            "llm task=%s model=%s exceeded wall-clock timeout (%s); trying next model",
-                            task_name,
-                            chain_model,
-                            exc,
-                        )
-                        break
-                    if attempt < 2:
-                        time.sleep(2 ** attempt)
-                        continue
-                    LOG.warning(
-                        "llm task=%s model=%s failed after retries (%s); trying next model",
-                        task_name,
-                        chain_model,
-                        exc,
-                    )
-                    break
+            tried_models.append(chain_model)
+            text, last_error = self._complete_with_model(
+                chain_model=chain_model,
+                task_name=task_name,
+                system=system,
+                user=user,
+                max_tokens=max_tokens,
+            )
+            if text is not None:
+                return text
+            self._pause_after_rate_limit(last_error)
+        emergency_chain = self._emergency_openrouter_models(task_name, tried=tried_models, last_error=last_error)
+        for chain_model in emergency_chain:
+            tried_models.append(chain_model)
+            text, last_error = self._complete_with_model(
+                chain_model=chain_model,
+                task_name=task_name,
+                system=system,
+                user=user,
+                max_tokens=max_tokens,
+            )
+            if text is not None:
+                return text
+            self._pause_after_rate_limit(last_error)
         self.usage.failures += 1
         raise RuntimeError(
             f"LLM completion failed for task={task_name}; chain={model_chain}; last_error={last_error}"
         ) from last_error
+
+    def _complete_with_model(
+        self,
+        *,
+        chain_model: str,
+        task_name: str,
+        system: str,
+        user: str,
+        max_tokens: int | None,
+    ) -> tuple[str | None, Exception | None]:
+        base_url, api_key = self._endpoint_for_model(chain_model)
+        if not api_key:
+            return None, RuntimeError(f"missing_api_key:{chain_model}")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": chain_model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            "temperature": self.cfg.temperature,
+            "max_tokens": max_tokens or self.cfg.max_tokens,
+        }
+        last_error: Exception | None = None
+        for attempt in range(3):
+            remaining = self._remaining_runtime_seconds()
+            if remaining <= 1.0:
+                return None, RuntimeError("llm_runtime_budget_exhausted")
+            try:
+                task_timeout = self._task_timeout_seconds(task_name)
+                read_timeout = max(1.0, min(task_timeout, remaining))
+                with _wall_clock_deadline(read_timeout):
+                    resp = httpx.post(
+                        f"{base_url}/chat/completions",
+                        headers=headers,
+                        json=payload,
+                        timeout=httpx.Timeout(read_timeout, connect=min(10.0, read_timeout)),
+                    )
+                if resp.status_code in RETRY_STATUS_CODES and attempt < 2:
+                    delay = 2 ** attempt
+                    if resp.status_code in {429, 503}:
+                        self._rate_limit_hits += 1
+                        delay = min(45.0, 8.0 * (attempt + 1))
+                    time.sleep(delay)
+                    continue
+                if resp.status_code in RETRY_STATUS_CODES:
+                    last_error = RuntimeError(f"retriable_status:{resp.status_code}")
+                    if resp.status_code in {429, 503}:
+                        self._rate_limit_hits += 1
+                    LOG.warning(
+                        "llm task=%s model=%s exhausted retries status=%s; trying next model",
+                        task_name,
+                        chain_model,
+                        resp.status_code,
+                    )
+                    return None, last_error
+                if resp.is_error:
+                    last_error = RuntimeError(f"http_status:{resp.status_code}")
+                    if _can_fallback_status(resp.status_code):
+                        LOG.warning(
+                            "llm task=%s model=%s failed status=%s; trying next model",
+                            task_name,
+                            chain_model,
+                            resp.status_code,
+                        )
+                        return None, last_error
+                    resp.raise_for_status()
+                data = resp.json()
+                text = data["choices"][0]["message"]["content"]
+                if text is None:
+                    last_error = RuntimeError("empty_completion_content")
+                    LOG.warning(
+                        "llm task=%s model=%s returned empty content; trying next model",
+                        task_name,
+                        chain_model,
+                    )
+                    return None, last_error
+                text = str(text)
+                self.usage.model = chain_model
+                self.usage.model_by_task[task_name] = chain_model
+                self.usage.completion_tokens_est += len(text) // 4
+                return text, None
+            except Exception as exc:
+                last_error = exc
+                if isinstance(exc, TimeoutError):
+                    LOG.warning(
+                        "llm task=%s model=%s exceeded wall-clock timeout (%s); trying next model",
+                        task_name,
+                        chain_model,
+                        exc,
+                    )
+                    return None, last_error
+                if attempt < 2:
+                    time.sleep(2 ** attempt)
+                    continue
+                LOG.warning(
+                    "llm task=%s model=%s failed after retries (%s); trying next model",
+                    task_name,
+                    chain_model,
+                    exc,
+                )
+                return None, last_error
+        return None, last_error
+
+    def _pause_after_rate_limit(self, last_error: Exception | None) -> None:
+        if not _is_rate_limit_error(last_error):
+            return
+        cooldown = config.llm_rate_limit_cooldown_seconds()
+        if cooldown <= 0:
+            return
+        remaining = self._remaining_runtime_seconds()
+        if remaining <= cooldown + 5.0:
+            return
+        LOG.warning("llm pausing %.0fs after rate limit before next model", cooldown)
+        time.sleep(cooldown)
 
     def _remaining_runtime_seconds(self) -> float:
         return max(0.0, self.cfg.max_runtime_seconds - (time.monotonic() - self.started_at))
@@ -209,9 +259,35 @@ class LLMClient:
     def _openrouter_fallback_models(self, task: str) -> list[str]:
         if not (self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower()):
             return []
-        if _gemini_native_endpoint(self.cfg.base_url) and task in SMART_TASKS | {"repair"}:
+        if _gemini_native_endpoint(self.cfg.base_url) and task in SMART_TASKS:
             return []
         return list(self.cfg.openrouter_free_models)
+
+    def _emergency_openrouter_models(
+        self,
+        task: str,
+        *,
+        tried: list[str],
+        last_error: Exception | None,
+    ) -> list[str]:
+        if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
+            return []
+        if task not in SMART_TASKS or not config.openrouter_smart_fallback_enabled():
+            return []
+        if not _is_rate_limit_error(last_error):
+            return []
+        seen = {model for model in tried if model}
+        out: list[str] = []
+        for model in self.cfg.openrouter_free_models[:3]:
+            if model not in seen:
+                out.append(model)
+        if out:
+            LOG.warning(
+                "llm task=%s gemini chain rate-limited; trying emergency openrouter models=%s",
+                task,
+                out,
+            )
+        return out
 
     def _endpoint_for_model(self, model: str) -> tuple[str, str]:
         if _is_openrouter_model(model):
@@ -267,6 +343,13 @@ def _gemini_native_endpoint(base_url: str) -> bool:
 def _is_openrouter_model(model: str) -> bool:
     normalized = (model or "").strip().lower()
     return normalized.startswith("openrouter/") or "/" in normalized
+
+
+def _is_rate_limit_error(error: Exception | None) -> bool:
+    if error is None:
+        return False
+    message = str(error).lower()
+    return any(token in message for token in ("429", "503", "retriable_status:429", "retriable_status:503"))
 
 
 def _can_fallback_status(status_code: int) -> bool:
