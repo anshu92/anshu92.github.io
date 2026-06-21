@@ -115,12 +115,34 @@ def generate_daily_outline(
         if not repaired_errors:
             LOG.warning("outline path: repair")
             return repaired
+        try:
+            repaired_again = _parse_outline(
+                _outline_complete(
+                    llm,
+                    system=_outline_repair_system(),
+                    user=_outline_repair_user(
+                        pack,
+                        selection,
+                        outline=repaired,
+                        errors=repaired_errors,
+                        parse_error="",
+                    ),
+                    task="outline_repair",
+                    max_tokens=max_tokens,
+                )
+            )
+            repaired_errors = validate_outline(repaired_again, pack)
+            if not repaired_errors:
+                LOG.warning("outline path: repair (second pass)")
+                return repaired_again
+            repaired = repaired_again
+        except (OutlineError, RuntimeError) as exc:
+            LOG.warning("outline second repair failed: %s", exc)
+            repair_error = str(exc)
     except (OutlineError, RuntimeError) as exc:
         LOG.warning("outline repair failed: %s", exc)
         repair_error = str(exc)
         repaired_errors = []
-    else:
-        repair_error = ""
 
     combined = [*errors, *repaired_errors]
     if parse_error:

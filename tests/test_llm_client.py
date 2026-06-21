@@ -182,9 +182,9 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert models[0] == "google/gemini-3.1-pro-preview"
-    assert "google/gemini-3.5-flash" in models
-    assert "qwen/qwen3-next-80b-a3b-instruct:free" in models
+    assert models[0] == "qwen/qwen3-next-80b-a3b-instruct:free"
+    assert "nvidia/nemotron-3-ultra-550b-a55b:free" in models
+    assert "google/gemini-3.1-pro-preview" not in models
     assert llm._emergency_openrouter_models(
         "draft",
         tried=["gemini-3.1-pro-preview"],
@@ -195,7 +195,7 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.5-flash"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert outline_models[0] == "google/gemini-3.1-pro-preview"
+    assert outline_models[0] == "qwen/qwen3-next-80b-a3b-instruct:free"
 
 
 def test_openrouter_smart_fallback_defaults_on_when_key_present(monkeypatch):
@@ -210,7 +210,7 @@ def test_openrouter_smart_fallback_can_be_disabled(monkeypatch):
     assert config.openrouter_smart_fallback_enabled() is False
 
 
-def test_rate_limit_on_native_gemini_tries_openrouter_mirror(monkeypatch):
+def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -228,16 +228,16 @@ def test_rate_limit_on_native_gemini_tries_openrouter_mirror(monkeypatch):
         attempted.append(str(json["model"]))
         if json["model"] == "gemini-3.1-pro-preview":
             return _StubResponse(429)
-        if json["model"] == "google/gemini-3.1-pro-preview":
-            return _StubResponse(200, {"choices": [{"message": {"content": "mirror ok"}}]})
+        if json["model"] == "qwen/qwen3-next-80b-a3b-instruct:free":
+            return _StubResponse(200, {"choices": [{"message": {"content": "free ok"}}]})
         return _StubResponse(500)
 
     monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
     llm = LLMClient()
     out = llm.complete(system="sys", user="usr", task="draft")
-    assert out == "mirror ok"
+    assert out == "free ok"
     assert attempted[:3] == ["gemini-3.1-pro-preview"] * 3
-    assert attempted[3] == "google/gemini-3.1-pro-preview"
+    assert attempted[3] == "qwen/qwen3-next-80b-a3b-instruct:free"
 
 
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):

@@ -91,30 +91,30 @@ DEFAULT_OPENROUTER_FREE_MODELS = [
     "openrouter/free",
 ]
 
-# When the native Gemini endpoint rate-limits smart tasks, route through OpenRouter
-# (separate quota) before falling back to free models.
+# Free OpenRouter models to try when the native Gemini endpoint rate-limits.
 DEFAULT_OPENROUTER_SMART_EMERGENCY = [
-    "google/gemini-3.1-pro-preview",
-    "google/gemini-3.5-flash",
-    "google/gemini-2.5-pro",
     "qwen/qwen3-next-80b-a3b-instruct:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
+    "nousresearch/hermes-3-llama-3.1-405b:free",
+    "openrouter/free",
 ]
 
-# Native Gemini API ids mapped to OpenRouter slugs for quota isolation on 429.
-NATIVE_GEMINI_OPENROUTER_MIRROR = {
-    "gemini-3.1-pro-preview": "google/gemini-3.1-pro-preview",
-    "gemini-3.5-flash": "google/gemini-3.5-flash",
-    "gemini-3.1-flash-lite": "google/gemini-3.1-flash-lite",
-    "gemini-2.5-pro": "google/gemini-2.5-pro",
-    "gemini-2.5-flash": "google/gemini-2.5-flash",
-}
 
-
-def openrouter_mirror_for_native_gemini(model: str) -> str:
-    normalized = (model or "").strip().lower()
-    return NATIVE_GEMINI_OPENROUTER_MIRROR.get(normalized, "")
+def openrouter_free_models_after_rate_limit(
+    roster: list[str],
+    *,
+    tried: list[str],
+    limit: int = 2,
+) -> list[str]:
+    seen = {model for model in tried if model}
+    out: list[str] = []
+    for model in roster:
+        if model not in seen:
+            out.append(model)
+            if len(out) >= limit:
+                break
+    return out
 
 
 @dataclass(frozen=True)

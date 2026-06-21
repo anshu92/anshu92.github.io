@@ -148,8 +148,9 @@ primary models, ordered for expected Research Radar performance rather than rece
 and `openrouter/free`.
 - `BLOGPIPE_OPENROUTER_SMART_FALLBACK` (default on when `OPENROUTER_API_KEY`
   is set): when the primary endpoint is Gemini and any task hits rate limits,
-  try OpenRouter-hosted Gemini models (separate quota) before free models. Constants live in
-  `config.DEFAULT_OPENROUTER_SMART_EMERGENCY`.
+  try the first free OpenRouter models immediately, then the emergency roster in
+  `config.DEFAULT_OPENROUTER_SMART_EMERGENCY` after the native chain is exhausted.
+  Paid OpenRouter Gemini mirrors are not used (they require OpenRouter credits).
 
 ## Search and Ranking
 

@@ -95,11 +95,15 @@ class LLMClient:
                 return text
             if isinstance(last_error, _RejectedCompletionError):
                 last_rejected_text = last_error.text
-            mirror = self._openrouter_mirror_after_rate_limit(chain_model, last_error)
-            if mirror and mirror not in tried_models:
+            mirror_models = self._openrouter_free_models_after_rate_limit(
+                chain_model,
+                last_error,
+                tried=tried_models,
+            )
+            for mirror in mirror_models:
                 tried_models.append(mirror)
                 LOG.warning(
-                    "llm task=%s native model=%s rate-limited; trying openrouter mirror=%s",
+                    "llm task=%s native model=%s rate-limited; trying openrouter free model=%s",
                     task_name,
                     chain_model,
                     mirror,
@@ -347,16 +351,27 @@ class LLMClient:
             )
         return out
 
-    def _openrouter_mirror_after_rate_limit(self, model: str, error: Exception | None) -> str:
+    def _openrouter_free_models_after_rate_limit(
+        self,
+        model: str,
+        error: Exception | None,
+        *,
+        tried: list[str],
+        limit: int = 2,
+    ) -> list[str]:
         if not _is_rate_limit_error(error):
-            return ""
+            return []
         if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
-            return ""
+            return []
         if not config.openrouter_smart_fallback_enabled():
-            return ""
+            return []
         if _is_openrouter_model(model):
-            return ""
-        return config.openrouter_mirror_for_native_gemini(model)
+            return []
+        return config.openrouter_free_models_after_rate_limit(
+            self.cfg.openrouter_free_models,
+            tried=tried,
+            limit=limit,
+        )
 
     def _endpoint_for_model(self, model: str) -> tuple[str, str]:
         if _is_openrouter_model(model):
