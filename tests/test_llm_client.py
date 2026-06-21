@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from blogpipe import config
-from blogpipe.llm import LLMClient
+from blogpipe.llm import LLMClient, _RejectedCompletionError
 
 
 class _StubResponse:
@@ -102,7 +102,8 @@ def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
     llm = LLMClient()
     chain = llm._model_chain("outline")
     assert chain[0] == "gemini-2.5-flash"
-    assert chain[-1] == "openrouter/free"
+    assert "openrouter/free" in chain
+    assert chain.index("openrouter/free") < chain.index("nvidia/nemotron-3-ultra-550b-a55b:free")
     assert "qwen/qwen3-next-80b-a3b-instruct:free" in chain
     assert "nvidia/nemotron-3-ultra-550b-a55b:free" in chain
     assert "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" in chain
@@ -192,6 +193,12 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("http_status:400"),
     ) == []
+    emergency_after_reject = llm._emergency_openrouter_models(
+        "draft",
+        tried=["gemini-3.1-pro-preview", "openrouter/free"],
+        last_error=_RejectedCompletionError("outline_invalid", "{}"),
+    )
+    assert emergency_after_reject[0] == "meta-llama/llama-3.3-70b-instruct:free"
     outline_models = llm._emergency_openrouter_models(
         "outline_repair",
         tried=["gemini-3.5-flash"],
@@ -240,6 +247,40 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
     assert out == "free ok"
     assert attempted[:3] == ["gemini-3.1-pro-preview"] * 3
     assert attempted[3] == "openrouter/free"
+
+
+def test_rejected_native_completion_tries_openrouter_free_models(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_OUTLINE", "gemini-3.5-flash")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
+
+    attempted: list[str] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        attempted.append(str(json["model"]))
+        if json["model"] == "gemini-3.5-flash":
+            return _StubResponse(200, {"choices": [{"message": {"content": "bad outline"}}]})
+        if json["model"] == "openrouter/free":
+            return _StubResponse(200, {"choices": [{"message": {"content": "good outline"}}]})
+        return _StubResponse(500)
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    out = llm.complete(
+        system="sys",
+        user="usr",
+        task="outline",
+        reject_completion=lambda text: "invalid" if text == "bad outline" else None,
+    )
+    assert out == "good outline"
+    assert attempted[0] == "gemini-3.5-flash"
+    assert "openrouter/free" in attempted
 
 
 def test_openrouter_models_use_longer_timeout(monkeypatch):

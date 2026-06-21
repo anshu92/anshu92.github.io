@@ -45,14 +45,31 @@ def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[lis
 
 def _call_selector(llm: LLMClient, candidates: list[RankedItem]) -> str:
     max_tokens = config.selector_max_tokens()
+    reject = _selector_completion_rejector(candidates)
     if isinstance(llm, LLMClient):
         return llm.complete(
             system=_selector_system(),
             user=_selector_user(candidates),
             max_tokens=max_tokens,
             task="selector",
+            reject_completion=reject,
         )
     return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=max_tokens)
+
+
+def _selector_completion_rejector(candidates: list[RankedItem]):
+    def _reject(text: str) -> str | None:
+        try:
+            result = _parse_selection(text)
+        except SelectionError:
+            if _salvage_selection(text, candidates) is None:
+                return "selector_unparseable"
+            return None
+        if not result.selected_item_ids:
+            return "selector_empty"
+        return None
+
+    return _reject
 
 
 def _selector_system() -> str:

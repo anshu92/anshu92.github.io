@@ -127,6 +127,22 @@ def openrouter_free_models_after_rate_limit(
     return out
 
 
+def openrouter_chain_models(*, custom: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for model in [*DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK, *custom]:
+        normalized = (model or "").strip()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        out.append(normalized)
+    return out
+
+
+def openrouter_rate_limit_fallback_limit() -> int:
+    return _int("BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT", 4, 1, 12)
+
+
 @dataclass(frozen=True)
 class LLMConfig:
     base_url: str

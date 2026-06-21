@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from . import config
 from . import jsonish
-from .llm import LLMClient
+from .llm import CompletionRejector, LLMClient
 from .models import DailyOutline, EvidencePack, SelectionResult
 from .topics import has_training_system_focus
 
@@ -70,6 +70,7 @@ def generate_daily_outline(
     llm: LLMClient,
 ) -> DailyOutline:
     max_tokens = config.outline_max_tokens()
+    reject = _outline_completion_rejector(pack)
     parse_error = ""
     outline: DailyOutline | None = None
     try:
@@ -80,19 +81,19 @@ def generate_daily_outline(
                 user=_outline_user(pack, selection),
                 task="outline",
                 max_tokens=max_tokens,
+                reject_completion=reject,
             )
         )
+        if not validate_outline(outline, pack):
+            LOG.info("outline path: primary")
+            return outline
     except (OutlineError, RuntimeError) as exc:
         parse_error = str(exc)
     if outline is not None:
         errors = validate_outline(outline, pack)
-        if not errors:
-            LOG.info("outline path: primary")
-            return outline
     else:
         errors = []
 
-    # One repair pass keeps the LLM-driven structure but enforces required intents/schema.
     repair_error = ""
     repaired_errors: list[str] = []
     try:
@@ -109,6 +110,7 @@ def generate_daily_outline(
                 ),
                 task="outline_repair",
                 max_tokens=max_tokens,
+                reject_completion=reject,
             )
         )
         repaired_errors = validate_outline(repaired, pack)
@@ -129,6 +131,7 @@ def generate_daily_outline(
                     ),
                     task="outline_repair",
                     max_tokens=max_tokens,
+                    reject_completion=reject,
                 )
             )
             repaired_errors = validate_outline(repaired_again, pack)
@@ -159,10 +162,31 @@ def _outline_complete(
     user: str,
     task: str,
     max_tokens: int,
+    reject_completion: CompletionRejector | None = None,
 ) -> str:
     if isinstance(llm, LLMClient):
-        return llm.complete(system=system, user=user, max_tokens=max_tokens, task=task)
+        return llm.complete(
+            system=system,
+            user=user,
+            max_tokens=max_tokens,
+            task=task,
+            reject_completion=reject_completion,
+        )
     return llm.complete(system=system, user=user, max_tokens=max_tokens)
+
+
+def _outline_completion_rejector(pack: EvidencePack) -> CompletionRejector:
+    def _reject(text: str) -> str | None:
+        try:
+            outline = _parse_outline(text)
+        except OutlineError as exc:
+            return str(exc)
+        errors = validate_outline(outline, pack)
+        if errors:
+            return "outline_invalid:" + ",".join(errors[:8])
+        return None
+
+    return _reject
 
 
 def validate_outline(outline: DailyOutline, pack: EvidencePack) -> list[str]:

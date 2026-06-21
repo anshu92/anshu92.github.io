@@ -95,7 +95,7 @@ class LLMClient:
                 return text
             if isinstance(last_error, _RejectedCompletionError):
                 last_rejected_text = last_error.text
-            mirror_models = self._openrouter_free_models_after_rate_limit(
+            mirror_models = self._openrouter_free_models_after_native_failure(
                 chain_model,
                 last_error,
                 tried=tried_models,
@@ -103,9 +103,10 @@ class LLMClient:
             for mirror in mirror_models:
                 tried_models.append(mirror)
                 LOG.warning(
-                    "llm task=%s native model=%s rate-limited; trying openrouter free model=%s",
+                    "llm task=%s native model=%s failed (%s); trying openrouter free model=%s",
                     task_name,
                     chain_model,
+                    last_error,
                     mirror,
                 )
                 text, last_error = self._complete_with_model(
@@ -322,6 +323,8 @@ class LLMClient:
     def _openrouter_fallback_models(self, task: str) -> list[str]:
         if not (self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower()):
             return []
+        if _gemini_native_endpoint(self.cfg.base_url) and config.openrouter_smart_fallback_enabled():
+            return config.openrouter_chain_models(custom=self.cfg.openrouter_free_models)
         return list(self.cfg.openrouter_free_models)
 
     def _emergency_openrouter_models(
@@ -335,7 +338,7 @@ class LLMClient:
             return []
         if not config.openrouter_smart_fallback_enabled():
             return []
-        if not _is_rate_limit_error(last_error):
+        if not _openrouter_fallback_eligible_error(last_error):
             return []
         seen = {model for model in tried if model}
         out: list[str] = []
@@ -348,21 +351,21 @@ class LLMClient:
                     out.append(model)
         if out:
             LOG.warning(
-                "llm task=%s gemini chain rate-limited; trying emergency openrouter models=%s",
+                "llm task=%s native chain exhausted (%s); trying emergency openrouter models=%s",
                 task,
+                last_error,
                 out,
             )
         return out
 
-    def _openrouter_free_models_after_rate_limit(
+    def _openrouter_free_models_after_native_failure(
         self,
         model: str,
         error: Exception | None,
         *,
         tried: list[str],
-        limit: int = 2,
     ) -> list[str]:
-        if not _is_rate_limit_error(error):
+        if not _openrouter_fallback_eligible_error(error):
             return []
         if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
             return []
@@ -373,7 +376,7 @@ class LLMClient:
         return config.openrouter_free_models_after_rate_limit(
             config.DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK,
             tried=tried,
-            limit=limit,
+            limit=config.openrouter_rate_limit_fallback_limit(),
         )
 
     def _endpoint_for_model(self, model: str) -> tuple[str, str]:
@@ -437,6 +440,16 @@ def _is_rate_limit_error(error: Exception | None) -> bool:
         return False
     message = str(error).lower()
     return any(token in message for token in ("429", "503", "retriable_status:429", "retriable_status:503"))
+
+
+def _openrouter_fallback_eligible_error(error: Exception | None) -> bool:
+    if error is None:
+        return False
+    if isinstance(error, _RejectedCompletionError):
+        return True
+    if isinstance(error, TimeoutError):
+        return True
+    return _is_rate_limit_error(error)
 
 
 def _can_fallback_status(status_code: int) -> bool:

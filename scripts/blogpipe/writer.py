@@ -362,7 +362,7 @@ def _generate_daily_body(
 
 def _generate_deep_dive_body(*, client: LLMClient, pack: EvidencePack, title: str, slug: str) -> str:
     def _fallback() -> str:
-        return _call_writer(client, _deep_system(), _deep_user(pack, title), task="draft")
+        return _call_writer(client, _deep_system(), _deep_user(pack, title), task="draft", reject_completion=_markdown_rejection)
 
     if not isinstance(client, LLMClient):
         return _fallback()
@@ -425,7 +425,13 @@ def _draft_sections(
             selection=selection,
             drafted_so_far=drafted,
         )
-        text = _call_writer(client, _section_system(post_type), user, task="draft_section")
+        text = _call_writer(
+            client,
+            _section_system(post_type),
+            user,
+            task="draft_section",
+            reject_completion=_markdown_rejection,
+        )
         cleaned = _normalize_section_output(heading, text)
         drafted.append(cleaned)
     return drafted
@@ -590,7 +596,13 @@ def _final_editor_pass(
         outline=outline,
         selection=selection,
     )
-    return _call_writer(client, _final_editor_system(post_type), user, task="editor")
+    return _call_writer(
+        client,
+        _final_editor_system(post_type),
+        user,
+        task="editor",
+        reject_completion=_markdown_rejection,
+    )
 
 
 def _final_editor_system(post_type: str) -> str:
@@ -772,7 +784,13 @@ def _validate_repair_and_publish(
         if errors:
             repair_user = _repair_user(pack, body, errors, outline=outline, selection=selection, quality_review=quality_review)
             try:
-                body = _call_writer(client, _repair_system(), repair_user, task="repair")
+                body = _call_writer(
+                    client,
+                    _repair_system(),
+                    repair_user,
+                    task="repair",
+                    reject_completion=_markdown_rejection,
+                )
                 body = _ensure_visual_blocks(body, pack, slug)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
                 quality_review, errors = _review_if_ready(
@@ -1208,6 +1226,25 @@ def _ensure_visual_blocks(body: str, pack: EvidencePack, slug: str) -> str:
     return (body or "").strip()
 
 
+def _markdown_rejection(text: str) -> str | None:
+    body = _strip_fence(text).strip()
+    if not body:
+        return "empty_markdown"
+    if _word_count(body) < 80:
+        return f"markdown_too_short:{_word_count(body)}"
+    return None
+
+
+def _quality_review_rejection(text: str) -> str | None:
+    try:
+        payload = jsonish.loads_object(text)
+    except Exception:
+        return "quality_review_unparseable"
+    if not isinstance(payload, dict):
+        return "quality_review_not_object"
+    return None
+
+
 def _llm_quality_review(
     client: LLMClient,
     *,
@@ -1224,6 +1261,7 @@ def _llm_quality_review(
             user=_quality_review_user(body=body, pack=pack, outline=outline, selection=selection),
             max_tokens=1600,
             task="quality_review",
+            reject_completion=_quality_review_rejection,
         )
         return jsonish.loads_object(raw)
     except Exception as exc:  # noqa: BLE001

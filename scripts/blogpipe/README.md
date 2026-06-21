@@ -148,13 +148,16 @@ primary models, ordered for expected Research Radar performance rather than rece
 and `openrouter/free`.
 - `BLOGPIPE_OPENROUTER_SMART_FALLBACK` (default on when `OPENROUTER_API_KEY`
   is set): when the primary endpoint is Gemini and any task hits rate limits,
-  try fast free OpenRouter models immediately (`openrouter/free`, Llama 3.3 70B,
-  Gemma, etc.), then the emergency roster in
-  `config.DEFAULT_OPENROUTER_SMART_EMERGENCY` after the native chain is exhausted.
+  validation rejection, or wall-clock timeout on a native model, try fast free
+  OpenRouter models immediately (`openrouter/free`, Llama 3.3 70B, Gemma, etc.),
+  then walk the full merged OpenRouter chain appended to every task, and finally
+  the emergency roster in `config.DEFAULT_OPENROUTER_SMART_EMERGENCY`.
   Paid OpenRouter Gemini mirrors are not used (they require OpenRouter credits).
 - `BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS` (default `120`): wall-clock timeout
   for OpenRouter model calls. Applies on top of fast/smart task timeouts so slow
   free-tier responses are less likely to hit the 45s fast-task ceiling.
+- `BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT` (default `4`): how many fast
+  OpenRouter models to try immediately after each native Gemini failure.
 
 ## Search and Ranking
 
