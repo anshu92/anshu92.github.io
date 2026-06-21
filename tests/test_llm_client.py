@@ -203,6 +203,36 @@ def test_openrouter_smart_fallback_can_be_disabled(monkeypatch):
     assert config.openrouter_smart_fallback_enabled() is False
 
 
+def test_rate_limit_on_native_gemini_tries_openrouter_mirror(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "gemini-3.1-pro-preview")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_DRAFT", "gemini-3.1-pro-preview")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
+
+    attempted: list[str] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        attempted.append(str(json["model"]))
+        if json["model"] == "gemini-3.1-pro-preview":
+            return _StubResponse(429)
+        if json["model"] == "google/gemini-3.1-pro-preview":
+            return _StubResponse(200, {"choices": [{"message": {"content": "mirror ok"}}]})
+        return _StubResponse(500)
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    out = llm.complete(system="sys", user="usr", task="draft")
+    assert out == "mirror ok"
+    assert attempted[:3] == ["gemini-3.1-pro-preview"] * 3
+    assert attempted[3] == "google/gemini-3.1-pro-preview"
+
+
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
     monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")

@@ -95,6 +95,27 @@ class LLMClient:
                 return text
             if isinstance(last_error, _RejectedCompletionError):
                 last_rejected_text = last_error.text
+            mirror = self._openrouter_mirror_after_rate_limit(chain_model, last_error)
+            if mirror and mirror not in tried_models:
+                tried_models.append(mirror)
+                LOG.warning(
+                    "llm task=%s native model=%s rate-limited; trying openrouter mirror=%s",
+                    task_name,
+                    chain_model,
+                    mirror,
+                )
+                text, last_error = self._complete_with_model(
+                    chain_model=mirror,
+                    task_name=task_name,
+                    system=system,
+                    user=user,
+                    max_tokens=max_tokens,
+                    reject_completion=reject_completion,
+                )
+                if text is not None:
+                    return text
+                if isinstance(last_error, _RejectedCompletionError):
+                    last_rejected_text = last_error.text
             self._pause_after_rate_limit(last_error)
         emergency_chain = self._emergency_openrouter_models(task_name, tried=tried_models, last_error=last_error)
         for chain_model in emergency_chain:
@@ -327,6 +348,17 @@ class LLMClient:
                 out,
             )
         return out
+
+    def _openrouter_mirror_after_rate_limit(self, model: str, error: Exception | None) -> str:
+        if not _is_rate_limit_error(error):
+            return ""
+        if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
+            return ""
+        if not config.openrouter_smart_fallback_enabled():
+            return ""
+        if _is_openrouter_model(model):
+            return ""
+        return config.openrouter_mirror_for_native_gemini(model)
 
     def _endpoint_for_model(self, model: str) -> tuple[str, str]:
         if _is_openrouter_model(model):

@@ -99,8 +99,22 @@ DEFAULT_OPENROUTER_SMART_EMERGENCY = [
     "google/gemini-2.5-pro",
     "qwen/qwen3-next-80b-a3b-instruct:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "nvidia/nemotron-3-super-120b-a55b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
 ]
+
+# Native Gemini API ids mapped to OpenRouter slugs for quota isolation on 429.
+NATIVE_GEMINI_OPENROUTER_MIRROR = {
+    "gemini-3.1-pro-preview": "google/gemini-3.1-pro-preview",
+    "gemini-3.5-flash": "google/gemini-3.5-flash",
+    "gemini-3.1-flash-lite": "google/gemini-3.1-flash-lite",
+    "gemini-2.5-pro": "google/gemini-2.5-pro",
+    "gemini-2.5-flash": "google/gemini-2.5-flash",
+}
+
+
+def openrouter_mirror_for_native_gemini(model: str) -> str:
+    normalized = (model or "").strip().lower()
+    return NATIVE_GEMINI_OPENROUTER_MIRROR.get(normalized, "")
 
 
 @dataclass(frozen=True)
