@@ -54,8 +54,9 @@ def _csv(name: str) -> list[str]:
     return [part.strip() for part in raw.split(",") if part.strip()]
 
 
-# Recommended Gemini roster (May/June 2026). See ai.google.dev/gemini-api/docs/deprecations.
+# Recommended Gemini roster (June 2026). See ai.google.dev/gemini-api/docs/deprecations.
 # gemini-2.0-flash* shut down 2026-06-01; gemini-2.5-* remain until 2026-10-16.
+# gemini-3.1-flash-lite-preview shut down 2026-05-25; use gemini-3.1-flash-lite.
 DEFAULT_GEMINI_MODEL_FAST = "gemini-3.5-flash"
 DEFAULT_GEMINI_MODEL_SMART = "gemini-3.1-pro-preview"
 DEFAULT_GEMINI_CHAIN_FAST = [
@@ -69,19 +70,22 @@ DEFAULT_GEMINI_CHAIN_SMART = [
     "gemini-2.5-pro",
 ]
 
+# OpenRouter free roster (June 2026). Verified via GET https://openrouter.ai/api/v1/models.
 DEFAULT_OPENROUTER_FREE_MODELS = [
     "qwen/qwen3-next-80b-a3b-instruct:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
     "nousresearch/hermes-3-llama-3.1-405b:free",
-    "moonshotai/kimi-k2.6:free",
+    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
     "nex-agi/nex-n2-pro:free",
     "qwen/qwen3-coder:free",
     "poolside/laguna-m.1:free",
+    "poolside/laguna-xs.2:free",
     "openai/gpt-oss-120b:free",
     "google/gemma-4-31b-it:free",
     "google/gemma-4-26b-a4b-it:free",
     "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "nvidia/nemotron-3-nano-30b-a3b:free",
     "meta-llama/llama-3.3-70b-instruct:free",
     "openai/gpt-oss-20b:free",
     "openrouter/free",

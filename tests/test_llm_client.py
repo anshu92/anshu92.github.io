@@ -75,8 +75,18 @@ def test_default_gemini_roster_documents_current_models():
     assert "gemini-3.5-flash" in config.DEFAULT_GEMINI_CHAIN_FAST
     assert "gemini-3.1-flash-lite" in config.DEFAULT_GEMINI_CHAIN_FAST
     assert "gemini-2.0-flash" not in config.DEFAULT_GEMINI_CHAIN_FAST
+    assert "gemini-3.1-flash-lite-preview" not in config.DEFAULT_GEMINI_CHAIN_FAST
+    assert config.DEFAULT_GEMINI_MODEL_FAST == "gemini-3.5-flash"
     assert config.DEFAULT_GEMINI_MODEL_SMART == "gemini-3.1-pro-preview"
     assert "gemini-2.5-pro" in config.DEFAULT_GEMINI_CHAIN_SMART
+
+
+def test_default_openrouter_free_roster_documents_current_models():
+    assert config.DEFAULT_OPENROUTER_FREE_MODELS[-1] == "openrouter/free"
+    assert "moonshotai/kimi-k2.6:free" not in config.DEFAULT_OPENROUTER_FREE_MODELS
+    assert "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" in config.DEFAULT_OPENROUTER_FREE_MODELS
+    assert "poolside/laguna-xs.2:free" in config.DEFAULT_OPENROUTER_FREE_MODELS
+    assert "nvidia/nemotron-3-nano-30b-a3b:free" in config.DEFAULT_OPENROUTER_FREE_MODELS
 
 
 def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
@@ -93,6 +103,9 @@ def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
     assert chain[-1] == "openrouter/free"
     assert "qwen/qwen3-next-80b-a3b-instruct:free" in chain
     assert "nvidia/nemotron-3-ultra-550b-a55b:free" in chain
+    assert "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" in chain
+    assert "poolside/laguna-xs.2:free" in chain
+    assert "moonshotai/kimi-k2.6:free" not in chain
     assert "minimax/minimax-m2.5:free" not in chain
     assert "arcee-ai/trinity-large-thinking:free" not in chain
     assert "inclusionai/ring-2.6-1t:free" not in chain

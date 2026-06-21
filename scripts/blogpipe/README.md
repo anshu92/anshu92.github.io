@@ -137,11 +137,13 @@ ordered for expected Research Radar performance rather than recency:
 `qwen/qwen3-next-80b-a3b-instruct:free`,
 `nvidia/nemotron-3-ultra-550b-a55b:free`,
 `nvidia/nemotron-3-super-120b-a12b:free`,
-`nousresearch/hermes-3-llama-3.1-405b:free`, `moonshotai/kimi-k2.6:free`,
+`nousresearch/hermes-3-llama-3.1-405b:free`,
+`cognitivecomputations/dolphin-mistral-24b-venice-edition:free`,
 `nex-agi/nex-n2-pro:free`, `qwen/qwen3-coder:free`, `poolside/laguna-m.1:free`,
-`openai/gpt-oss-120b:free`, `google/gemma-4-31b-it:free`,
-`google/gemma-4-26b-a4b-it:free`,
+`poolside/laguna-xs.2:free`, `openai/gpt-oss-120b:free`,
+`google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`,
 `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`,
+`nvidia/nemotron-3-nano-30b-a3b:free`,
 `meta-llama/llama-3.3-70b-instruct:free`, `openai/gpt-oss-20b:free`,
 and `openrouter/free`.
 
