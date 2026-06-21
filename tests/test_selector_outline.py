@@ -44,7 +44,7 @@ class TaskRecordingLLM(LLMClient):
         self.responses = list(responses)
         self.tasks: list[str | None] = []
 
-    def complete(self, *, system, user, max_tokens=None, task=None):
+    def complete(self, *, system, user, max_tokens=None, task=None, reject_completion=None, rejected_tracker=None):
         self.tasks.append(task)
         assert self.responses
         return self.responses.pop(0)

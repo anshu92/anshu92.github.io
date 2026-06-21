@@ -615,8 +615,8 @@ Source: https://www.research.autodesk.com/blog/bim-digital-twin-controls
 
 def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     pack = _pack()
-    bad = "Unsupported 99.9% claim [E1]. Source: https://arxiv.org/abs/2605.00001"
     good = Path("tests/fixtures/fake_daily.md").read_text()
+    bad = good + "\n\nUnsupported extra claim [E999]. Source: https://arxiv.org/abs/2605.00001\n"
     calls = []
 
     class FakeLLM:

@@ -102,7 +102,9 @@ The writer uses one OpenAI-compatible endpoint:
   - `BLOGPIPE_LLM_CHAIN_REPAIR`
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
-- `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `1200`)
+- `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `1500`; the GitHub
+  Actions job is capped at 30 minutes, leaving budget for setup, PR creation,
+  email, and cleanup)
 - `BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS` (workflow default `45`)
 - `BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS` (workflow default `90`)
 - `BLOGPIPE_SECTIONWISE_DRAFTING` (default `0`; opt in only when a longer,
@@ -163,6 +165,24 @@ and `openrouter/free`.
   validation gaps and proceed to repair instead of walking the rest of the chain.
 - `BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS` (default `180`): skip 550B
   OpenRouter models when less than this much runtime budget remains.
+- `BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS` (workflow default `420`): skip
+  optional deep-dive generation unless this much LLM runtime budget remains
+  after the daily draft.
+
+## Agent Orchestration
+
+The live workflow is capped at 30 minutes, so the pipeline treats the daily
+research radar as the mandatory objective and deep dives as optional follow-up
+work. `pipeline.run_all()` now records an explicit `agent_plan` in
+`reports/run_report.json` before and after the daily draft. The plan captures
+the requested optional deep dives, the allowed deep dives under the remaining
+runtime budget, and the rationale for skipping or executing optional work.
+
+This keeps the agent loop budget-aware: select evidence, build an outline,
+draft, validate, repair/rewrite if needed, then execute optional deep dives only
+when enough runtime remains. Low-signal validator feedback is converted into
+repair guidance so the repair step acts on concrete failures instead of opaque
+error codes.
 
 ## Search and Ranking
 
@@ -234,11 +254,11 @@ Autodesk/AEC/document relevance coverage, resolved evidence IDs, source links,
 supported numbers, at least `BLOGPIPE_DAILY_MIN_WORDS` words, and enough cited
 primary papers. It also runs a signal rubric:
 
-- `technical_specificity`: concrete algorithms, objectives, system components,
-  or evaluation design.
-- `engineering_judgment`: adoption decision, blocker, prototype recommendation,
-  benchmark, release gate, or production risk.
-- `synthesis`: cross-paper comparison or tradeoff.
+- `technical_specificity`: evidence-cited concrete algorithms, objectives,
+  system components, or evaluation design.
+- `engineering_judgment`: evidence-cited adoption decision, blocker, prototype
+  recommendation, benchmark, release gate, or production risk.
+- `synthesis`: evidence-cited cross-paper comparison or tradeoff.
 - `noise_control`: low density of generic strategy/corporate phrases.
 - `primary_depth`: each primary paper has mechanism evidence and a limitation,
   experiment, or objective when available.
@@ -250,12 +270,14 @@ primary papers. It also runs a signal rubric:
   mechanism claims.
 
 Low-signal drafts are blocked, not merely warned. The rubric is assigned by an
-LLM quality-review pass so signal, synthesis, and editorial judgment are scored
-in context rather than by brittle keyword heuristics. Blocked reports include
-validator errors, rubric scores, and examples of failing text where available.
-The review also rejects title/body drift, generic recommendations without an
+evidence-linked deterministic floor plus an LLM quality-review pass. The local
+floor counts technical, judgment, synthesis, and training-how-to cues only in
+paragraphs that include both evidence IDs and source URLs, so headings and
+uncited cue stuffing do not satisfy publish gates. The LLM review adds contextual
+editorial checks for title/body drift, generic recommendations without an
 engineering decision, and synthesis claims that sound stronger than the cited
-evidence supports.
+evidence supports. Blocked reports include validator errors, rubric scores, and
+examples of failing text where available.
 When a draft contains unsupported numeric claims, blogpipe first rewrites them
 into qualitative phrasing before giving up on the run. Paragraphs that already
 cite an evidence ID but omit its same-paragraph source URL are normalized

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass, asdict
 from pathlib import Path
 
 from pydantic import TypeAdapter
@@ -12,6 +13,16 @@ from .models import RankedItem, WriteResult
 
 LOG = logging.getLogger(__name__)
 RANKED = TypeAdapter(list[RankedItem])
+
+
+@dataclass(frozen=True)
+class AgentRunPlan:
+    daily_required: bool
+    requested_deep_dives: int
+    allowed_deep_dives: int
+    remaining_runtime_seconds: float
+    deep_dive_min_budget_seconds: float
+    rationale: str
 
 
 def run_all(
@@ -25,6 +36,7 @@ def run_all(
     ingest_count = ingest.run(window_hours=window_hours, fixtures=fixtures, db=db)
     ranked = rank.run(db=db, max_age_hours=None if fixtures else window_hours)
     client = LLMClient()
+    initial_plan = _plan_agent_run(client, requested_deep_dives=max_deep_dives)
     daily = write_daily(
         ranked=ranked,
         dry_run=dry_run,
@@ -33,17 +45,20 @@ def run_all(
         fallback_max_age_hours=None if fixtures else window_hours,
     )
     if daily.ok:
-        deep = write_deep_dives(ranked=ranked, max_new=max_deep_dives, dry_run=dry_run, llm=client)
+        final_plan = _plan_agent_run(client, requested_deep_dives=max_deep_dives)
+        deep = write_deep_dives(ranked=ranked, max_new=final_plan.allowed_deep_dives, dry_run=dry_run, llm=client)
         if "/img/posts/" in daily.body:
             render_assets()
     else:
         LOG.warning("daily writer blocked publication: %s", daily.errors)
+        final_plan = _plan_agent_run(client, requested_deep_dives=0)
         deep = []
     result = {
         "ingest_count": ingest_count,
         "ranked_count": len(ranked),
         "daily": daily.model_dump(),
         "deep_dives": [d.model_dump() for d in deep],
+        "agent_plan": {"initial": asdict(initial_plan), "final": asdict(final_plan)},
     }
     memory.ensure_dirs()
     (memory.REPORTS / "run_report.json").write_text(
@@ -55,6 +70,29 @@ def run_all(
         encoding="utf-8",
     )
     return result
+
+
+def _plan_agent_run(client: LLMClient, *, requested_deep_dives: int) -> AgentRunPlan:
+    remaining = client._remaining_runtime_seconds() if isinstance(client, LLMClient) else 0.0
+    min_budget = config.agent_deep_dive_min_budget_seconds()
+    requested = max(0, requested_deep_dives)
+    if requested <= 0:
+        allowed = 0
+        rationale = "deep_dives_not_requested"
+    elif remaining < min_budget:
+        allowed = 0
+        rationale = "skip_optional_deep_dives_to_preserve_github_actions_budget"
+    else:
+        allowed = requested
+        rationale = "runtime_budget_allows_optional_deep_dives"
+    return AgentRunPlan(
+        daily_required=True,
+        requested_deep_dives=requested,
+        allowed_deep_dives=allowed,
+        remaining_runtime_seconds=round(remaining, 3),
+        deep_dive_min_budget_seconds=round(min_budget, 3),
+        rationale=rationale,
+    )
 
 
 def write_daily(

@@ -315,6 +315,32 @@ def test_openrouter_models_use_longer_timeout(monkeypatch):
     assert seen == [120.0]
 
 
+def test_slow_openrouter_free_models_are_skipped_when_runtime_budget_is_low(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_CHAIN_OUTLINE",
+        "nvidia/nemotron-3-ultra-550b-a55b:free,openrouter/free",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", "1200")
+    monkeypatch.setenv("BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS", "180")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+
+    attempted: list[str] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        attempted.append(str(json["model"]))
+        return _StubResponse(200, {"choices": [{"message": {"content": "ok"}}]})
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 1100.0)
+
+    assert llm.complete(system="sys", user="usr", task="outline") == "ok"
+    assert attempted == ["openrouter/free"]
+
+
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
     monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")

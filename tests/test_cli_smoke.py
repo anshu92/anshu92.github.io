@@ -6,8 +6,9 @@ from pathlib import Path
 
 from blogpipe import memory, store
 from blogpipe.cli import main
+from blogpipe.llm import LLMClient
 from blogpipe.models import DailyOutline, SelectionResult, SourceItem
-from blogpipe.pipeline import _augment_ranked_with_store_papers, write_daily
+from blogpipe.pipeline import _augment_ranked_with_store_papers, _plan_agent_run, write_daily
 from blogpipe.score import rank_items
 
 
@@ -40,6 +41,9 @@ def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
     assert code == 0
     assert (tmp_path / "reports" / "run_report.json").is_file()
     assert (tmp_path / "radar-data" / "daily").is_dir()
+    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
+    assert report["agent_plan"]["initial"]["daily_required"] is True
+    assert report["agent_plan"]["final"]["allowed_deep_dives"] == 0
 
 
 def test_run_with_invalid_daily_writes_blocked_report_without_failing(monkeypatch, tmp_path):
@@ -275,6 +279,32 @@ def test_write_daily_blocks_instead_of_crashing_when_writer_runtime_expires(monk
     assert not result.ok
     assert result.errors == ["daily_writer_failed:BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"]
     assert list((tmp_path / "reports").glob("*.blocked.json"))
+
+
+def test_agent_run_plan_skips_optional_deep_dives_when_runtime_budget_is_low(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", "1200")
+    monkeypatch.setenv("BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS", "420")
+    llm = LLMClient()
+    monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 1000.0)
+
+    plan = _plan_agent_run(llm, requested_deep_dives=1)
+
+    assert plan.daily_required is True
+    assert plan.requested_deep_dives == 1
+    assert plan.allowed_deep_dives == 0
+    assert plan.rationale == "skip_optional_deep_dives_to_preserve_github_actions_budget"
+
+
+def test_agent_run_plan_allows_deep_dives_when_runtime_budget_remains(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", "1200")
+    monkeypatch.setenv("BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS", "420")
+    llm = LLMClient()
+    monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 100.0)
+
+    plan = _plan_agent_run(llm, requested_deep_dives=2)
+
+    assert plan.allowed_deep_dives == 2
+    assert plan.rationale == "runtime_budget_allows_optional_deep_dives"
 
 
 def _recent_paper(idx: int, *, now: datetime) -> SourceItem:
