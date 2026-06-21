@@ -83,6 +83,8 @@ def test_default_gemini_roster_documents_current_models():
 
 def test_default_openrouter_free_roster_documents_current_models():
     assert config.DEFAULT_OPENROUTER_FREE_MODELS[-1] == "openrouter/free"
+    assert config.DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK[0] == "openrouter/free"
+    assert config.DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK[1] == "meta-llama/llama-3.3-70b-instruct:free"
     assert "moonshotai/kimi-k2.6:free" not in config.DEFAULT_OPENROUTER_FREE_MODELS
     assert "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" in config.DEFAULT_OPENROUTER_FREE_MODELS
     assert "poolside/laguna-xs.2:free" in config.DEFAULT_OPENROUTER_FREE_MODELS
@@ -182,8 +184,8 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert models[0] == "qwen/qwen3-next-80b-a3b-instruct:free"
-    assert "nvidia/nemotron-3-ultra-550b-a55b:free" in models
+    assert models[0] == "openrouter/free"
+    assert "meta-llama/llama-3.3-70b-instruct:free" in models
     assert "google/gemini-3.1-pro-preview" not in models
     assert llm._emergency_openrouter_models(
         "draft",
@@ -195,7 +197,7 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.5-flash"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert outline_models[0] == "qwen/qwen3-next-80b-a3b-instruct:free"
+    assert outline_models[0] == "openrouter/free"
 
 
 def test_openrouter_smart_fallback_defaults_on_when_key_present(monkeypatch):
@@ -228,7 +230,7 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
         attempted.append(str(json["model"]))
         if json["model"] == "gemini-3.1-pro-preview":
             return _StubResponse(429)
-        if json["model"] == "qwen/qwen3-next-80b-a3b-instruct:free":
+        if json["model"] == "openrouter/free":
             return _StubResponse(200, {"choices": [{"message": {"content": "free ok"}}]})
         return _StubResponse(500)
 
@@ -237,7 +239,31 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
     out = llm.complete(system="sys", user="usr", task="draft")
     assert out == "free ok"
     assert attempted[:3] == ["gemini-3.1-pro-preview"] * 3
-    assert attempted[3] == "qwen/qwen3-next-80b-a3b-instruct:free"
+    assert attempted[3] == "openrouter/free"
+
+
+def test_openrouter_models_use_longer_timeout(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_OUTLINE", "openrouter/free")
+    monkeypatch.setenv("BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS", "45")
+    monkeypatch.setenv("BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS", "120")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+
+    seen: list[float] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        seen.append(float(timeout.read))
+        return _StubResponse(200, {"choices": [{"message": {"content": "ok"}}]})
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    assert llm.complete(system="sys", user="usr", task="outline") == "ok"
+    assert seen == [120.0]
 
 
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):

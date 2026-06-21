@@ -91,14 +91,24 @@ DEFAULT_OPENROUTER_FREE_MODELS = [
     "openrouter/free",
 ]
 
-# Free OpenRouter models to try when the native Gemini endpoint rate-limits.
-DEFAULT_OPENROUTER_SMART_EMERGENCY = [
-    "qwen/qwen3-next-80b-a3b-instruct:free",
-    "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "nvidia/nemotron-3-super-120b-a12b:free",
-    "nousresearch/hermes-3-llama-3.1-405b:free",
+# Fast OpenRouter free models to try first on native Gemini 429 (latency over peak quality).
+DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK = [
     "openrouter/free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "google/gemma-4-31b-it:free",
+    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+    "poolside/laguna-xs.2:free",
+    "openai/gpt-oss-20b:free",
+    "qwen/qwen3-coder:free",
+    "qwen/qwen3-next-80b-a3b-instruct:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nousresearch/hermes-3-llama-3.1-405b:free",
 ]
+
+# Emergency roster after the native chain is exhausted under rate limits.
+DEFAULT_OPENROUTER_SMART_EMERGENCY = list(DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK)
 
 
 def openrouter_free_models_after_rate_limit(
@@ -138,6 +148,7 @@ class LLMConfig:
     max_runtime_seconds: float
     fast_timeout_seconds: float
     smart_timeout_seconds: float
+    openrouter_timeout_seconds: float
 
 
 def contact_email() -> str:
@@ -190,6 +201,7 @@ def llm_config() -> LLMConfig:
         max_runtime_seconds=_float("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", 900.0, 60.0, 1800.0),
         fast_timeout_seconds=_float("BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS", 45.0, 10.0, 180.0),
         smart_timeout_seconds=_float("BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS", 90.0, 15.0, 240.0),
+        openrouter_timeout_seconds=_float("BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS", 120.0, 45.0, 300.0),
     )
 
 

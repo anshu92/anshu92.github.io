@@ -180,7 +180,7 @@ class LLMClient:
             if remaining <= 1.0:
                 return None, RuntimeError("llm_runtime_budget_exhausted")
             try:
-                task_timeout = self._task_timeout_seconds(task_name)
+                task_timeout = self._task_timeout_seconds(task_name, chain_model)
                 read_timeout = max(1.0, min(task_timeout, remaining))
                 with _wall_clock_deadline(read_timeout):
                     resp = httpx.post(
@@ -284,8 +284,11 @@ class LLMClient:
     def _runtime_exhausted(self) -> bool:
         return self._remaining_runtime_seconds() <= 1.0
 
-    def _task_timeout_seconds(self, task: str) -> float:
-        return self.cfg.smart_timeout_seconds if task in SMART_TASKS else self.cfg.fast_timeout_seconds
+    def _task_timeout_seconds(self, task: str, model: str = "") -> float:
+        base = self.cfg.smart_timeout_seconds if task in SMART_TASKS else self.cfg.fast_timeout_seconds
+        if _is_openrouter_model(model):
+            return max(base, self.cfg.openrouter_timeout_seconds)
+        return base
 
     def _model_chain(self, task: str) -> list[str]:
         fallback = self._fallback_chain(task)
@@ -368,7 +371,7 @@ class LLMClient:
         if _is_openrouter_model(model):
             return []
         return config.openrouter_free_models_after_rate_limit(
-            self.cfg.openrouter_free_models,
+            config.DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK,
             tried=tried,
             limit=limit,
         )
