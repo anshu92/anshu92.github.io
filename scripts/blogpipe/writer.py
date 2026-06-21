@@ -1065,29 +1065,34 @@ def _daily_rewrite_user(
 def _quality_floor_guidance(errors: list[str]) -> str:
     bullets: list[str] = []
 
-    def has(prefix: str) -> bool:
-        return any(error.startswith(prefix) for error in errors)
+    def has(*prefixes: str) -> bool:
+        return any(error.startswith(prefix) for error in errors for prefix in prefixes)
 
-    if has("signal_low_score:technical_specificity"):
+    if has("signal_low_score:technical_specificity", "llm_low_signal:technical_specificity"):
         bullets.append(
             "Raise technical_specificity inside evidence-cited paragraphs: add supported mechanism, objective, "
             "architecture, benchmark, ablation, metric, limitation, or failure-mode detail. Headings and uncited cue words do not count."
         )
-    if has("signal_low_score:engineering_judgment"):
+    if has("signal_low_score:engineering_judgment", "llm_low_signal:engineering_judgment"):
         bullets.append(
             "Raise engineering_judgment inside evidence-cited paragraphs: state the principal-engineer decision, "
             "validation test, rollout/release gate, production blocker, monitoring need, or operational tradeoff supported by the evidence."
         )
-    if has("signal_low_score:synthesis"):
+    if has("signal_low_score:synthesis", "llm_low_signal:synthesis"):
         bullets.append(
             "Raise synthesis inside evidence-cited paragraphs: compare at least two primary papers, contrast their mechanisms or limits, "
             "and name the shared tradeoff without claiming an integrated stack unless the evidence supports it."
         )
-    if has("signal_low_score:primary_depth"):
+    if has("signal_low_score:primary_depth", "llm_low_signal:primary_depth"):
         bullets.append(
             "Raise primary_depth by citing mechanism evidence and at least one experiment, objective, or limitation for each selected primary paper."
         )
-    if has("signal_low_score:training_howto") or has("missing_training_howto:"):
+    if has(
+        "signal_low_score:training_howto",
+        "llm_low_signal:training_howto",
+        "missing_training_howto:",
+        "llm_quality:TRAINING_HOWTO_INSUFFICIENT",
+    ):
         bullets.append(
             "For scaled LLM training, add evidence-cited/source-linked runbook prose covering all three: training stack "
             "(for example FSDP/ZeRO, DeepSpeed, Megatron, tensor/pipeline/sequence parallelism), scaling bottleneck "

@@ -67,6 +67,7 @@ class LLMClient:
     usage: LLMUsage = field(default_factory=LLMUsage)
     started_at: float = field(default_factory=time.monotonic)
     _rate_limit_hits: int = field(default=0, init=False, repr=False)
+    _openrouter_rate_limit_hits: int = field(default=0, init=False, repr=False)
 
     def configured(self) -> bool:
         return bool(self.cfg.api_key and self.cfg.model and self.cfg.max_calls > 0)
@@ -106,6 +107,8 @@ class LLMClient:
         last_rejected_text = ""
         tried_models: list[str] = []
         for chain_model in model_chain:
+            if self._openrouter_rate_limit_circuit_open(chain_model, task_name):
+                continue
             if self._should_skip_slow_openrouter_model(chain_model, task_name):
                 continue
             tried_models.append(chain_model)
@@ -129,6 +132,8 @@ class LLMClient:
                 tried=tried_models,
             )
             for mirror in mirror_models:
+                if self._openrouter_rate_limit_circuit_open(mirror, task_name):
+                    continue
                 if self._should_skip_slow_openrouter_model(mirror, task_name):
                     continue
                 tried_models.append(mirror)
@@ -156,6 +161,8 @@ class LLMClient:
             self._pause_after_rate_limit(last_error)
         emergency_chain = self._emergency_openrouter_models(task_name, tried=tried_models, last_error=last_error)
         for chain_model in emergency_chain:
+            if self._openrouter_rate_limit_circuit_open(chain_model, task_name):
+                continue
             if self._should_skip_slow_openrouter_model(chain_model, task_name):
                 continue
             tried_models.append(chain_model)
@@ -235,6 +242,8 @@ class LLMClient:
                     delay = 2 ** attempt
                     if resp.status_code in {429, 503}:
                         self._rate_limit_hits += 1
+                        if _is_openrouter_model(chain_model):
+                            self._openrouter_rate_limit_hits += 1
                         delay = min(45.0, 8.0 * (attempt + 1))
                     time.sleep(delay)
                     continue
@@ -242,6 +251,8 @@ class LLMClient:
                     last_error = RuntimeError(f"retriable_status:{resp.status_code}")
                     if resp.status_code in {429, 503}:
                         self._rate_limit_hits += 1
+                        if _is_openrouter_model(chain_model):
+                            self._openrouter_rate_limit_hits += 1
                     LOG.warning(
                         "llm task=%s model=%s exhausted retries status=%s; trying next model",
                         task_name,
@@ -379,6 +390,8 @@ class LLMClient:
             return []
         if not config.openrouter_smart_fallback_enabled():
             return []
+        if self._openrouter_rate_limit_circuit_open("openrouter/free", task):
+            return []
         if not _openrouter_fallback_eligible_error(last_error):
             return []
         seen = {model for model in tried if model}
@@ -412,6 +425,8 @@ class LLMClient:
             return []
         if not config.openrouter_smart_fallback_enabled():
             return []
+        if self._openrouter_rate_limit_circuit_open("openrouter/free", "native_fallback"):
+            return []
         if _is_openrouter_model(model):
             return []
         return config.openrouter_free_models_after_rate_limit(
@@ -434,6 +449,21 @@ class LLMClient:
             model,
             remaining,
             min_budget,
+        )
+        return True
+
+    def _openrouter_rate_limit_circuit_open(self, model: str, task_name: str) -> bool:
+        if not _is_openrouter_model(model):
+            return False
+        limit = config.openrouter_rate_limit_circuit_breaker_hits()
+        if self._openrouter_rate_limit_hits < limit:
+            return False
+        LOG.warning(
+            "llm task=%s skipping openrouter model=%s after %s openrouter rate-limit hits (limit=%s)",
+            task_name,
+            model,
+            self._openrouter_rate_limit_hits,
+            limit,
         )
         return True
 

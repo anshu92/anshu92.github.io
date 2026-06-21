@@ -19,6 +19,7 @@ from blogpipe.writer import (
     _deterministic_quality_errors,
     _daily_rewrite_user,
     _llm_quality_errors,
+    _quality_floor_guidance,
     _quality_review_user,
     _repair_user,
     _review_if_ready,
@@ -413,6 +414,20 @@ def test_engineering_focus_and_title_alignment_fail_llm_quality_review(monkeypat
     assert "llm_quality:weak_engineering_focus" in errors
     assert "llm_quality:title_body_mismatch" in errors
     assert "llm_quality:claim_strength_exceeds_evidence" in errors
+
+
+def test_quality_floor_guidance_handles_llm_low_signal_training_howto():
+    guidance = _quality_floor_guidance(
+        [
+            "llm_low_signal:engineering_judgment:0.62/0.75",
+            "llm_low_signal:training_howto:0.45/0.75",
+            "llm_quality:TRAINING_HOWTO_INSUFFICIENT",
+        ]
+    )
+    assert "QUALITY_FLOOR_GUIDANCE" in guidance
+    assert "Raise engineering_judgment" in guidance
+    assert "FSDP/ZeRO" in guidance
+    assert "checkpoint recovery" in guidance
 
 
 def test_empty_quality_failure_is_advisory_without_low_scores(monkeypatch):

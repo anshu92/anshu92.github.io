@@ -313,6 +313,10 @@ def openrouter_rate_limit_fallback_limit() -> int:
     return _int("BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT", 4, 1, 12)
 
 
+def openrouter_rate_limit_circuit_breaker_hits() -> int:
+    return _int("BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS", 3, 1, 24)
+
+
 @dataclass(frozen=True)
 class LLMConfig:
     base_url: str

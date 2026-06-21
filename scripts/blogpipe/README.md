@@ -170,6 +170,10 @@ and `openrouter/free`.
   free-tier responses are less likely to hit the 45s fast-task ceiling.
 - `BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT` (default `4`): how many fast
   OpenRouter models to try immediately after each native Gemini failure.
+- `BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS` (workflow default `3`):
+  stop trying additional OpenRouter free models after this many OpenRouter
+  429/503 responses in the current run, preserving Actions time for native
+  Gemini retries, repair, and blocked-run reporting.
 - `BLOGPIPE_OUTLINE_REPAIR_ERROR_THRESHOLD` (default `4`): during outline
   generation, accept a primary completion with up to this many non-structural
   validation gaps and proceed to repair instead of walking the rest of the chain.

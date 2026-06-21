@@ -371,6 +371,41 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
     assert attempted[3] == "openrouter/free"
 
 
+def test_openrouter_rate_limit_circuit_breaker_stops_free_roster(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "gemini-a")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_DRAFT", "gemini-a,gemini-b")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT", "4")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS", "2")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
+
+    attempted: list[str] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        model = str(json["model"])
+        attempted.append(model)
+        if model.startswith("gemini-"):
+            return _StubResponse(429)
+        return _StubResponse(429)
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    with pytest.raises(RuntimeError, match="LLM completion failed"):
+        llm.complete(system="sys", user="usr", task="draft")
+
+    openrouter_attempts = [model for model in attempted if model == "openrouter/free" or model.endswith(":free")]
+    assert set(openrouter_attempts) == {"openrouter/free"}
+    assert llm._openrouter_rate_limit_hits == 3
+    assert attempted.count("gemini-a") == 3
+    assert attempted.count("gemini-b") == 3
+
+
 def test_rejected_completion_tracker_prefers_fewer_outline_errors():
     tracker = RejectedCompletionTracker()
     tracker.observe("worse", "outline_invalid:a,b,c,d,e")
