@@ -93,6 +93,8 @@ def generate_daily_outline(
         errors = []
 
     # One repair pass keeps the LLM-driven structure but enforces required intents/schema.
+    repair_error = ""
+    repaired_errors: list[str] = []
     try:
         repaired = _parse_outline(
             _outline_complete(
@@ -114,15 +116,18 @@ def generate_daily_outline(
             LOG.warning("outline path: repair")
             return repaired
     except (OutlineError, RuntimeError) as exc:
-        LOG.warning("outline repair failed; using fallback if valid: %s", exc)
+        LOG.warning("outline repair failed: %s", exc)
+        repair_error = str(exc)
+        repaired_errors = []
+    else:
+        repair_error = ""
 
-    # Deterministic fallback so daily runs still proceed during flaky outline outputs.
-    fallback = _fallback_outline(pack, selection)
-    fallback_errors = validate_outline(fallback, pack)
-    if not fallback_errors:
-        LOG.warning("outline path: fallback")
-        return fallback
-    raise OutlineError("outline_invalid:" + ",".join(fallback_errors))
+    combined = [*errors, *repaired_errors]
+    if parse_error:
+        combined.append(f"outline_parse_failed:{parse_error}")
+    if repair_error:
+        combined.append(f"outline_repair_failed:{repair_error}")
+    raise OutlineError("outline_invalid:" + ",".join(combined or ["outline_unusable"]))
 
 
 def _outline_complete(
@@ -308,80 +313,6 @@ def _outline_repair_user(
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
         f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"
-    )
-
-
-def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOutline:
-    title = "Research Radar: ML systems and methods update"
-    selected_ids = set(selection.selected_item_ids)
-    selected_item_ids = [
-        ranked.item.item_id
-        for ranked in pack.ranked_items
-        if ranked.item.item_id in selected_ids
-    ] or [ranked.item.item_id for ranked in pack.ranked_items[:4]]
-    chunks = [chunk for chunk in pack.chunks if chunk.item_id in set(selected_item_ids)] or list(pack.chunks)
-
-    def pick_ids(evidence_types: tuple[str, ...], limit: int = 3) -> list[str]:
-        out: list[str] = []
-        wanted = {x.lower() for x in evidence_types}
-        for chunk in chunks:
-            et = (chunk.evidence_type or "").lower()
-            if et in wanted and chunk.evidence_id not in out:
-                out.append(chunk.evidence_id)
-                if len(out) >= limit:
-                    return out
-        for chunk in chunks:
-            if chunk.evidence_id not in out:
-                out.append(chunk.evidence_id)
-                if len(out) >= limit:
-                    return out
-        return out
-
-    min_words = max(config.daily_min_words(), 900)
-    per_section = max(140, min_words // 6)
-    sections = [
-        {
-            "heading": "The engineering thesis behind this week's cluster",
-            "intent": "technical thesis angle framing mechanism and benchmark boundaries",
-            "evidence_ids": pick_ids(("impact", "mechanism")),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Training and serving mechanisms worth operationalizing",
-            "intent": "mechanism method architecture pipeline distributed training sharding parallelism throughput profiling",
-            "evidence_ids": pick_ids(("mechanism",)),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Objectives, metrics, and optimization tradeoffs",
-            "intent": "math objective loss optimization metric",
-            "evidence_ids": pick_ids(("math_or_objective", "experiment")),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Benchmarks, ablations, and evaluation evidence",
-            "intent": "experiments evidence benchmark evaluation ablation",
-            "evidence_ids": pick_ids(("experiment",)),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Limitations, failure modes, and risks to validate",
-            "intent": "limitations caveat failure risk tradeoff",
-            "evidence_ids": pick_ids(("limitation",)),
-            "word_budget": per_section,
-        },
-        {
-            "heading": "Cross-paper tradeoffs and production implications",
-            "intent": "cross-paper synthesis compare contrast tradeoff impact engineering production deployment cad bim document sheet practical",
-            "evidence_ids": pick_ids(("limitation", "experiment", "impact")),
-            "word_budget": per_section,
-        },
-    ]
-    return DailyOutline(
-        title=title,
-        angle="Recent work sharpens the engineering boundaries for scaling, evaluating, and deploying ML systems.",
-        sections=sections,
-        suggested_tags=list(selection.suggested_tags),
     )
 
 

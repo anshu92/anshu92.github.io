@@ -10,7 +10,7 @@ from pydantic import TypeAdapter
 from blogpipe.evidence import build_daily_pack
 from blogpipe.llm import LLMClient
 from blogpipe.models import DailyOutline, EvidencePack, RankedItem, SelectionResult, SourceItem, TopicScores
-from blogpipe.outline import generate_daily_outline, validate_outline
+from blogpipe.outline import OutlineError, generate_daily_outline, validate_outline
 from blogpipe.selector import SelectionError, _selector_system, _selector_user, select_daily_items
 from blogpipe.writer import _frontmatter
 
@@ -371,12 +371,11 @@ def test_training_focused_outline_requires_howto_intent():
     assert "missing_outline_training_howto" not in validate_outline(repaired, pack)
 
 
-def test_generate_outline_malformed_json_uses_fallback_outline():
+def test_generate_outline_malformed_json_raises():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
     pack = build_daily_pack(_fixture_ranked()[:5])
-    outline = generate_daily_outline(pack, selection=selection, llm=FakeLLM("[]"))
-    assert isinstance(outline, DailyOutline)
-    assert validate_outline(outline, pack) == []
+    with pytest.raises(OutlineError, match="outline_invalid"):
+        generate_daily_outline(pack, selection=selection, llm=FakeLLM("[]"))
 
 
 def test_generate_outline_accepts_pythonish_dict_output():
@@ -395,12 +394,11 @@ def test_generate_outline_accepts_pythonish_dict_output():
     assert validate_outline(outline, pack) == []
 
 
-def test_generate_outline_llm_failure_uses_fallback_outline():
+def test_generate_outline_llm_failure_raises():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
     pack = build_daily_pack(_fixture_ranked()[:5])
-    outline = generate_daily_outline(pack, selection=selection, llm=RaisingLLM())
-    assert isinstance(outline, DailyOutline)
-    assert validate_outline(outline, pack) == []
+    with pytest.raises(OutlineError, match="outline_invalid"):
+        generate_daily_outline(pack, selection=selection, llm=RaisingLLM())
 
 
 def test_generate_outline_uses_outline_then_repair_tasks():

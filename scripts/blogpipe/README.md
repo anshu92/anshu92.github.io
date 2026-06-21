@@ -131,9 +131,9 @@ deadline is skipped instead of being retried repeatedly.
 If the primary endpoint is Gemini-compatible and a chain includes an OpenRouter
 model name, that model is sent to `OPENROUTER_BASE` with `OPENROUTER_API_KEY`
 instead of being sent to the Gemini endpoint.
-When `OPENROUTER_API_KEY` is present, the default fallback roster appends these
-current zero-priced OpenRouter models after the configured primary models,
-ordered for expected Research Radar performance rather than recency:
+When `OPENROUTER_API_KEY` is present, the default fallback roster appends to **all**
+tasks (including `draft`, `editor`, and `outline_repair`), after the configured
+primary models, ordered for expected Research Radar performance rather than recency:
 `qwen/qwen3-next-80b-a3b-instruct:free`,
 `nvidia/nemotron-3-ultra-550b-a55b:free`,
 `nvidia/nemotron-3-super-120b-a12b:free`,
@@ -147,9 +147,8 @@ ordered for expected Research Radar performance rather than recency:
 `meta-llama/llama-3.3-70b-instruct:free`, `openai/gpt-oss-20b:free`,
 and `openrouter/free`.
 - `BLOGPIPE_OPENROUTER_SMART_FALLBACK` (default on when `OPENROUTER_API_KEY`
-  is set): when the primary endpoint is Gemini and a smart task such as
-  `draft` hits rate limits, try OpenRouter-hosted Gemini models (separate
-  quota) before free models. Constants live in
+  is set): when the primary endpoint is Gemini and any task hits rate limits,
+  try OpenRouter-hosted Gemini models (separate quota) before free models. Constants live in
   `config.DEFAULT_OPENROUTER_SMART_EMERGENCY`.
 
 ## Search and Ranking

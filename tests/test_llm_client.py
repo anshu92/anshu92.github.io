@@ -155,7 +155,7 @@ def test_llm_runtime_budget_blocks_new_calls(monkeypatch):
         llm.complete(system="sys", user="usr", task="outline")
 
 
-def test_gemini_endpoint_skips_openrouter_for_smart_tasks(monkeypatch):
+def test_gemini_endpoint_includes_openrouter_in_all_task_chains(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -164,7 +164,8 @@ def test_gemini_endpoint_skips_openrouter_for_smart_tasks(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
     monkeypatch.setenv("BLOGPIPE_OPENROUTER_FREE_MODELS", "openrouter/free,meta-llama/llama-3.3-70b-instruct:free")
     llm = LLMClient()
-    assert "openrouter/free" not in llm._model_chain("draft")
+    assert "openrouter/free" in llm._model_chain("draft")
+    assert "openrouter/free" in llm._model_chain("editor")
     assert "openrouter/free" in llm._model_chain("outline")
     assert "openrouter/free" in llm._model_chain("repair")
 
@@ -189,6 +190,12 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("http_status:400"),
     ) == []
+    outline_models = llm._emergency_openrouter_models(
+        "outline_repair",
+        tried=["gemini-3.5-flash"],
+        last_error=RuntimeError("retriable_status:429"),
+    )
+    assert outline_models[0] == "google/gemini-3.1-pro-preview"
 
 
 def test_openrouter_smart_fallback_defaults_on_when_key_present(monkeypatch):

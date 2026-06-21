@@ -315,8 +315,6 @@ class LLMClient:
     def _openrouter_fallback_models(self, task: str) -> list[str]:
         if not (self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower()):
             return []
-        if _gemini_native_endpoint(self.cfg.base_url) and task in SMART_TASKS:
-            return []
         return list(self.cfg.openrouter_free_models)
 
     def _emergency_openrouter_models(
@@ -328,7 +326,7 @@ class LLMClient:
     ) -> list[str]:
         if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
             return []
-        if task not in SMART_TASKS or not config.openrouter_smart_fallback_enabled():
+        if not config.openrouter_smart_fallback_enabled():
             return []
         if not _is_rate_limit_error(last_error):
             return []
