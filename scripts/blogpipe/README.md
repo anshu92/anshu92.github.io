@@ -70,7 +70,17 @@ The writer uses one OpenAI-compatible endpoint:
   fallback when an OpenRouter model such as `openrouter/free` appears in a
   failover chain.
 - `BLOGPIPE_OPENROUTER_FREE_MODELS`, a comma-separated override for the
-  OpenRouter free-model fallback roster.
+  OpenRouter free-model fallback roster. When unset in the scheduled workflow,
+  blogpipe dynamically retrieves `GET /api/v1/models` from OpenRouter, filters
+  free text-output models, ranks them by available benchmark/performance
+  metadata, context length, structured-output/tool support, and recency, then
+  falls back to the static roster if discovery fails.
+- `BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS` (workflow default `1`; local default
+  `0`): enable dynamic OpenRouter free-model discovery.
+- `BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODEL_LIMIT` (workflow default `16`): maximum
+  dynamically ranked free models to keep before the `openrouter/free` router.
+- `BLOGPIPE_OPENROUTER_MODELS_TIMEOUT_SECONDS` (workflow default `5`): timeout
+  for the OpenRouter model-list request.
 - When the primary endpoint is Gemini (`generativelanguage.googleapis.com`),
   set `BLOGPIPE_LLM_MODEL_FAST` / `BLOGPIPE_LLM_MODEL_SMART` and per-task
   chains to current models. As of June 2026 the recommended roster is:

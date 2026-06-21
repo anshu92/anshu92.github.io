@@ -127,6 +127,128 @@ def test_openrouter_free_roster_can_be_overridden(monkeypatch):
     assert "inclusionai/ring-2.6-1t:free" not in chain
 
 
+def test_dynamic_openrouter_free_roster_ranks_free_text_models(monkeypatch):
+    monkeypatch.setattr(config, "_OPENROUTER_DYNAMIC_FREE_MODELS_CACHE", None)
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS", "1")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODEL_LIMIT", "3")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_MODELS_TIMEOUT_SECONDS", "2")
+
+    payload = {
+        "data": [
+            {
+                "id": "nvidia/nemotron-3.5-content-safety:free",
+                "name": "NVIDIA Content Safety (free)",
+                "description": "guardrail model",
+                "created": 1780581864,
+                "context_length": 128000,
+                "architecture": {"input_modalities": ["text"], "output_modalities": ["text"], "modality": "text->text"},
+                "pricing": {"prompt": "0", "completion": "0"},
+                "benchmarks": {"artificial_analysis": {"agentic_index": 90, "coding_index": 90, "intelligence_index": 90}},
+                "supported_parameters": ["max_tokens"],
+            },
+            {
+                "id": "cohere/north-mini-code:free",
+                "name": "Cohere North Mini Code (free)",
+                "description": "agentic coding model",
+                "created": 1781723748,
+                "context_length": 256000,
+                "architecture": {"input_modalities": ["text"], "output_modalities": ["text"], "modality": "text->text"},
+                "pricing": {"prompt": "0", "completion": "0"},
+                "benchmarks": {"artificial_analysis": {"agentic_index": 45, "coding_index": 70, "intelligence_index": 55}},
+                "supported_parameters": ["max_tokens", "structured_outputs", "tools"],
+            },
+            {
+                "id": "older/good-free:free",
+                "name": "Older Good Free",
+                "description": "general model",
+                "created": 1770000000,
+                "context_length": 64000,
+                "architecture": {"input_modalities": ["text"], "output_modalities": ["text"], "modality": "text->text"},
+                "pricing": {"prompt": "0", "completion": "0"},
+                "benchmarks": {"artificial_analysis": {"agentic_index": 30, "coding_index": 50, "intelligence_index": 40}},
+                "supported_parameters": ["max_tokens"],
+            },
+            {
+                "id": "paid/high-performer",
+                "name": "Paid High Performer",
+                "created": 1781723748,
+                "context_length": 1000000,
+                "architecture": {"input_modalities": ["text"], "output_modalities": ["text"], "modality": "text->text"},
+                "pricing": {"prompt": "0.1", "completion": "0.1"},
+                "benchmarks": {"artificial_analysis": {"agentic_index": 100, "coding_index": 100, "intelligence_index": 100}},
+                "supported_parameters": ["max_tokens"],
+            },
+        ]
+    }
+
+    class Response:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return payload
+
+    monkeypatch.setattr("blogpipe.config.httpx.get", lambda *args, **kwargs: Response())
+
+    models = config.discover_openrouter_free_models(base_url="https://openrouter.ai/api/v1", api_key="key")
+
+    assert models[:2] == ["cohere/north-mini-code:free", "older/good-free:free"]
+    assert "openrouter/free" in models
+    assert "paid/high-performer" not in models
+    assert "nvidia/nemotron-3.5-content-safety:free" not in models
+
+
+def test_dynamic_openrouter_discovery_falls_back_to_static_roster(monkeypatch):
+    monkeypatch.setattr(config, "_OPENROUTER_DYNAMIC_FREE_MODELS_CACHE", None)
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS", "1")
+
+    def _raise(*args, **kwargs):
+        raise RuntimeError("network unavailable")
+
+    monkeypatch.setattr("blogpipe.config.httpx.get", _raise)
+
+    models = config.discover_openrouter_free_models(base_url="https://openrouter.ai/api/v1", api_key="")
+    llm_cfg = config.llm_config()
+
+    assert models == []
+    assert llm_cfg.openrouter_free_models == config.DEFAULT_OPENROUTER_FREE_MODELS
+
+
+def test_dynamic_openrouter_discovery_can_feed_llm_config(monkeypatch):
+    monkeypatch.setattr(config, "_OPENROUTER_DYNAMIC_FREE_MODELS_CACHE", None)
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS", "1")
+    monkeypatch.delenv("BLOGPIPE_OPENROUTER_FREE_MODELS", raising=False)
+
+    payload = {
+        "data": [
+            {
+                "id": "cohere/north-mini-code:free",
+                "name": "Cohere North Mini Code (free)",
+                "created": 1781723748,
+                "context_length": 256000,
+                "architecture": {"input_modalities": ["text"], "output_modalities": ["text"], "modality": "text->text"},
+                "pricing": {"prompt": "0", "completion": "0"},
+                "benchmarks": {"artificial_analysis": {"agentic_index": 45, "coding_index": 70, "intelligence_index": 55}},
+                "supported_parameters": ["max_tokens", "structured_outputs", "tools"],
+            }
+        ]
+    }
+
+    class Response:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return payload
+
+    monkeypatch.setattr("blogpipe.config.httpx.get", lambda *args, **kwargs: Response())
+
+    llm_cfg = config.llm_config()
+
+    assert llm_cfg.openrouter_free_models[0] == "cohere/north-mini-code:free"
+    assert "openrouter/free" in llm_cfg.openrouter_free_models
+
+
 def test_llm_uses_task_specific_timeout(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
     monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")

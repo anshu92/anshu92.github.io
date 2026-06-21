@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta, timezone
+
+import httpx
+
+LOG = logging.getLogger(__name__)
 
 LLM_TASK_ENV_VARS: dict[str, str] = {
     "selector": "BLOGPIPE_LLM_MODEL_SELECTOR",
@@ -117,6 +123,7 @@ DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK = [
 
 # Emergency roster after the native chain is exhausted under rate limits.
 DEFAULT_OPENROUTER_SMART_EMERGENCY = list(DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK)
+_OPENROUTER_DYNAMIC_FREE_MODELS_CACHE: list[str] | None = None
 
 
 def openrouter_free_models_after_rate_limit(
@@ -145,6 +152,161 @@ def openrouter_chain_models(*, custom: list[str]) -> list[str]:
         seen.add(normalized)
         out.append(normalized)
     return out
+
+
+def openrouter_dynamic_free_models_enabled() -> bool:
+    raw = os.environ.get("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS", "").strip().lower()
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    return False
+
+
+def openrouter_models_timeout_seconds() -> float:
+    return _float("BLOGPIPE_OPENROUTER_MODELS_TIMEOUT_SECONDS", 5.0, 1.0, 30.0)
+
+
+def openrouter_dynamic_free_model_limit() -> int:
+    return _int("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODEL_LIMIT", 16, 4, 40)
+
+
+def discover_openrouter_free_models(*, base_url: str, api_key: str = "") -> list[str]:
+    global _OPENROUTER_DYNAMIC_FREE_MODELS_CACHE
+    if _OPENROUTER_DYNAMIC_FREE_MODELS_CACHE is not None:
+        return list(_OPENROUTER_DYNAMIC_FREE_MODELS_CACHE)
+    if not openrouter_dynamic_free_models_enabled():
+        return []
+    timeout = openrouter_models_timeout_seconds()
+    try:
+        headers = {"User-Agent": user_agent()}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        response = httpx.get(
+            f"{base_url.rstrip('/')}/models",
+            headers=headers,
+            timeout=httpx.Timeout(timeout, connect=min(5.0, timeout)),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        models = _rank_openrouter_free_models(payload.get("data", []), limit=openrouter_dynamic_free_model_limit())
+    except Exception as exc:  # noqa: BLE001
+        LOG.warning("openrouter dynamic free-model discovery failed; using static fallback: %s", exc)
+        _OPENROUTER_DYNAMIC_FREE_MODELS_CACHE = []
+        return []
+    if models:
+        _OPENROUTER_DYNAMIC_FREE_MODELS_CACHE = list(models)
+    return models
+
+
+def _rank_openrouter_free_models(data: object, *, limit: int) -> list[str]:
+    if not isinstance(data, list):
+        return []
+    candidates: list[tuple[float, str]] = []
+    for raw in data:
+        if not isinstance(raw, dict):
+            continue
+        model_id = str(raw.get("id") or "").strip()
+        if not model_id or not _is_free_openrouter_model(raw):
+            continue
+        if not _is_text_output_model(raw) or _is_specialized_non_writer_model(raw):
+            continue
+        if _expires_soon(raw.get("expiration_date")):
+            continue
+        candidates.append((_openrouter_model_score(raw), model_id))
+    candidates.sort(key=lambda item: (-item[0], item[1]))
+    out: list[str] = []
+    seen: set[str] = set()
+    for _score, model_id in candidates:
+        if model_id in seen:
+            continue
+        seen.add(model_id)
+        out.append(model_id)
+        if len(out) >= limit:
+            break
+    if "openrouter/free" not in seen:
+        out.append("openrouter/free")
+    return out
+
+
+def _is_free_openrouter_model(model: dict[str, object]) -> bool:
+    model_id = str(model.get("id") or "")
+    pricing = model.get("pricing")
+    if model_id.endswith(":free"):
+        return True
+    if not isinstance(pricing, dict):
+        return False
+    return str(pricing.get("prompt")) == "0" and str(pricing.get("completion")) == "0"
+
+
+def _is_text_output_model(model: dict[str, object]) -> bool:
+    architecture = model.get("architecture")
+    if not isinstance(architecture, dict):
+        return False
+    outputs = architecture.get("output_modalities")
+    inputs = architecture.get("input_modalities")
+    return isinstance(outputs, list) and "text" in outputs and isinstance(inputs, list) and "text" in inputs
+
+
+def _is_specialized_non_writer_model(model: dict[str, object]) -> bool:
+    blob = " ".join(str(model.get(key) or "").lower() for key in ("id", "name", "description"))
+    blocked = ("content safety", "guardrail", "moderation", "image generation", "tts", "embedding")
+    if any(term in blob for term in blocked):
+        return True
+    architecture = model.get("architecture")
+    modality = str(architecture.get("modality") if isinstance(architecture, dict) else "").lower()
+    return "->text" not in modality
+
+
+def _expires_soon(value: object) -> bool:
+    if not value:
+        return False
+    try:
+        expires = date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return False
+    today = datetime.now(timezone.utc).date()
+    return expires <= today + timedelta(days=2)
+
+
+def _openrouter_model_score(model: dict[str, object]) -> float:
+    benchmarks = model.get("benchmarks")
+    artificial = benchmarks.get("artificial_analysis") if isinstance(benchmarks, dict) else {}
+    if not isinstance(artificial, dict):
+        artificial = {}
+    agentic = _floatish(artificial.get("agentic_index"))
+    coding = _floatish(artificial.get("coding_index"))
+    intelligence = _floatish(artificial.get("intelligence_index"))
+    arena = _design_arena_score(benchmarks.get("design_arena") if isinstance(benchmarks, dict) else None)
+    context = _floatish(model.get("context_length"))
+    created = _floatish(model.get("created"))
+    supported = model.get("supported_parameters")
+    structured_bonus = 4.0 if isinstance(supported, list) and "structured_outputs" in supported else 0.0
+    tool_bonus = 2.0 if isinstance(supported, list) and "tools" in supported else 0.0
+    return (
+        1.8 * agentic
+        + 1.2 * coding
+        + intelligence
+        + 0.04 * arena
+        + min(context / 8192.0, 64.0)
+        + min(max(created - 1_700_000_000.0, 0.0) / 10_000_000.0, 10.0)
+        + structured_bonus
+        + tool_bonus
+    )
+
+
+def _design_arena_score(value: object) -> float:
+    if not isinstance(value, list):
+        return 0.0
+    scores = [_floatish(item.get("elo")) for item in value if isinstance(item, dict)]
+    return max(scores) if scores else 0.0
+
+
+def _floatish(value: object) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def openrouter_rate_limit_fallback_limit() -> int:
@@ -193,7 +355,11 @@ def llm_config() -> LLMConfig:
     model = model_primary or model_legacy or "openrouter/free"
     model_fast = _get("BLOGPIPE_LLM_MODEL_FAST")
     model_smart = _get("BLOGPIPE_LLM_MODEL_SMART")
-    openrouter_free_models = _csv("BLOGPIPE_OPENROUTER_FREE_MODELS") or list(DEFAULT_OPENROUTER_FREE_MODELS)
+    openrouter_free_models = _csv("BLOGPIPE_OPENROUTER_FREE_MODELS")
+    if not openrouter_free_models and openrouter_dynamic_free_models_enabled():
+        openrouter_free_models = discover_openrouter_free_models(base_url=openrouter_base, api_key=openrouter_key)
+    if not openrouter_free_models:
+        openrouter_free_models = list(DEFAULT_OPENROUTER_FREE_MODELS)
     model_by_task = {
         task: override
         for task, env_name in LLM_TASK_ENV_VARS.items()
