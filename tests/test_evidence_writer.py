@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pydantic import TypeAdapter
@@ -14,8 +15,16 @@ from blogpipe.models import DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
 from blogpipe.writer import (
     _canonical_title_from_body,
+    _daily_draft_rejection_reason,
+    _deterministic_quality_errors,
+    _daily_rewrite_user,
     _llm_quality_errors,
+    _quality_review_user,
+    _repair_user,
+    _review_if_ready,
+    _signal_rubric,
     _validate_final_title,
+    _validate_training_howto_concepts,
     validate_body,
     write_daily,
     write_deep_dive,
@@ -35,6 +44,41 @@ def _selection() -> SelectionResult:
 
 def _outline() -> DailyOutline:
     return DailyOutline.model_validate_json(Path("tests/fixtures/fake_outline.json").read_text())
+
+
+def _training_pack():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    item = SourceItem(
+        canonical_url="https://example.com/fsdp-runbook",
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title="FSDP tensor parallel training runbook for scaled LLMs",
+        published_at=now,
+        abstract_or_excerpt=(
+            "The problem is scaled LLM training throughput under memory and communication pressure. "
+            "We propose a distributed training method using FSDP sharding, tensor parallelism, activation checkpointing, "
+            "NCCL all-reduce communication, microbatch scheduling, and data pipeline throughput controls. "
+            "The evaluation reports benchmark ablations for GPU utilization, checkpoint recovery, profiling, and scaling efficiency. "
+            "The limitation is that workload balance, checkpoint cadence, and data loader stalls create production risks."
+        ),
+        tags=["distributed training", "fsdp", "tensor parallel"],
+    )
+    return build_daily_pack(rank_items([item], now=now, max_age_hours=72))
+
+
+def _training_outline() -> DailyOutline:
+    return DailyOutline(
+        title="Research Radar: Scaled LLM training runbooks",
+        angle="Principal engineers need training-stack decisions, not generic production prose.",
+        sections=[
+            {"heading": "Training thesis", "intent": "technical thesis angle framing", "evidence_ids": ["E1"], "word_budget": 80},
+            {"heading": "FSDP sharding and parallelism runbook", "intent": "mechanism method architecture distributed training sharding parallelism", "evidence_ids": ["E1"], "word_budget": 80},
+            {"heading": "Objective and profiling metrics", "intent": "math objective metric optimization throughput profiling", "evidence_ids": ["E1"], "word_budget": 80},
+            {"heading": "Benchmarks and failure modes", "intent": "experiments evidence benchmark evaluation limitation failure risk", "evidence_ids": ["E1"], "word_budget": 80},
+            {"heading": "Principal rollout decision", "intent": "impact engineering production practical Autodesk AEC document validation release gate", "evidence_ids": ["E1"], "word_budget": 80},
+        ],
+    )
 
 
 def _patch_root(monkeypatch, tmp_path):
@@ -74,6 +118,95 @@ def test_missing_or_multiple_final_h1_fails():
 def test_truncated_fallback_style_h1_fails():
     body = "# Research Radar: BenchCAD: A Comprehensive, Industry-Standard Benchmark for Programmati"
     assert _validate_final_title(body) == ["truncated_or_fallback_final_h1"]
+
+
+def test_daily_draft_rejects_obvious_fragments():
+    outline = _outline()
+    assert _daily_draft_rejection_reason("Short fragment [E1].", outline) == "daily_fragment:3/500"
+    assert _daily_draft_rejection_reason(Path("tests/fixtures/fake_daily.md").read_text(), outline) is None
+
+
+def test_training_howto_concepts_require_stack_bottleneck_and_action():
+    thin = "This training post says production matters but never names the technical runbook."
+    errors = _validate_training_howto_concepts(thin)
+    assert "missing_training_howto:training_stack" in errors
+    assert "missing_training_howto:scaling_bottleneck" in errors
+    assert "missing_training_howto:principal_action" in errors
+
+    rich = (
+        "FSDP sharding and tensor parallelism define the training stack. "
+        "Memory pressure, NCCL all-reduce communication, checkpoint recovery, and data pipeline throughput "
+        "are the scaling bottlenecks. A principal engineer would profile GPU utilization, benchmark microbatch choices, "
+        "validate failure modes, and set a rollout release gate [E1]. Source: https://example.com/fsdp-runbook"
+    )
+    assert _validate_training_howto_concepts(rich) == []
+
+
+def test_training_howto_concepts_ignore_uncited_decorative_terms():
+    decorative = """
+# FSDP tensor parallel checkpoint recovery release gate
+
+FSDP sharding, tensor parallelism, memory pressure, NCCL all-reduce, checkpoint recovery, profiling, and release gates sound concrete here, but this paragraph is not evidence-cited.
+
+The cited paragraph says only that training systems need practical engineering judgment [E1]. Source: https://example.com/fsdp-runbook
+"""
+    errors = _validate_training_howto_concepts(decorative)
+    assert "missing_training_howto:training_stack" in errors
+    assert "missing_training_howto:scaling_bottleneck" in errors
+    assert "missing_training_howto:principal_action" in errors
+
+
+def test_training_focused_daily_body_requires_howto_details(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "300")
+    pack = _training_pack()
+    outline = _training_outline()
+    source = "https://example.com/fsdp-runbook"
+    body = f"""
+# Research Radar: Scaled LLM training runbooks
+
+## Training thesis
+The thesis is that training research should be read as an engineering decision record, not a broad production story. The evidence describes a scaled training problem with a mechanism, objective, benchmark, limitation, impact, and practical production relevance, but this draft intentionally keeps the guidance generic. A principal engineer would need more than a statement that the method is useful; the article must explain what operational choice changes and why the claim is evidence-grounded [E1]. Source: {source}
+
+## FSDP sharding and parallelism runbook
+This section says the mechanism improves a training pipeline, but it avoids naming the actual stack decision. It does not identify the layout, the execution mode, or the state that moves between devices. That makes the section too thin for a training how-to because a reader cannot convert the paper into an implementation review, an approval plan, or a risk register [E1]. Source: {source}
+
+## Objective and profiling metrics
+The objective is framed as better practical efficiency, with metrics that should support optimization and evaluation. The draft mentions measurement and score design, but it still hides the technical levers that would let a team reproduce the result. Without explicit stack choices and resource bottlenecks, the section reads like a generic benchmark note rather than a decision guide [E1]. Source: {source}
+
+## Benchmarks and failure modes
+The experiment and benchmark evidence should tell the team what to test, where the limitation sits, and what failure mode could break a launch. This paragraph deliberately stays abstract: it says there are risks, caveats, and tradeoffs, but it does not teach a concrete scaling diagnosis. The article therefore lacks the principal-level specificity needed for adoption [E1]. Source: {source}
+
+## Principal rollout decision
+For Autodesk or AEC document workflows, the impact would be indirect: training infrastructure quality changes whether a model iteration can be produced, evaluated, and deployed on schedule. That relevance is practical, but this draft still does not give the training runbook details a principal MLE would expect before approving the approach [E1]. Source: {source}
+"""
+    errors = validate_body(body, pack, outline=outline)
+    assert "missing_training_howto:training_stack" in errors
+
+
+def test_training_focused_daily_body_passes_with_runbook_details(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "300")
+    pack = _training_pack()
+    outline = _training_outline()
+    source = "https://example.com/fsdp-runbook"
+    body = f"""
+# Research Radar: Scaled LLM training runbooks
+
+## Training thesis
+The thesis is that scaled LLM training papers should be read as runbooks for resource allocation, not as generic model-quality updates. The evidence frames the problem as training throughput under memory and communication pressure, so the practical question is what stack decision a principal engineer would change before the next training run. The mechanism, objective, benchmark, limitation, impact, and Autodesk/AEC transfer lens all point to the same claim: training reliability depends on making the parallelism and recovery plan explicit [E1]. Source: {source}
+
+## FSDP sharding and parallelism runbook
+The concrete training stack starts with FSDP sharding for optimizer and parameter state, then uses tensor parallelism where a single layer no longer fits cleanly on one device. Activation checkpointing trades recomputation for memory headroom, while microbatch scheduling controls how much work each device sees before synchronization. That is the how-to decision path: choose the sharding boundary, decide whether tensor parallelism is needed, then check whether activation memory or communication is the current blocker [E1]. Source: {source}
+
+## Objective and profiling metrics
+The objective should be treated as an operational optimization problem rather than a single model score. A principal MLE would measure throughput, GPU utilization, data pipeline stalls, NCCL all-reduce time, checkpoint cadence, and recovery time after interruption. Those metrics decide whether to tune microbatch size, revise token packing, move data loading work, or change checkpoint frequency. The evidence supports this profiling view because it names benchmark ablations around utilization, recovery, and scaling efficiency [E1]. Source: {source}
+
+## Benchmarks and failure modes
+The benchmark section should become a validation matrix. Test one run where memory pressure is dominant, one where all-reduce communication dominates, one where the data pipeline starves accelerators, and one restart path that exercises checkpoint recovery. The limitation is that workload balance and checkpoint cadence can turn a nominally efficient setup into a fragile production run. The failure mode to watch is not just lower throughput; it is a training job that cannot resume cleanly or wastes expensive GPU time while waiting on input data [E1]. Source: {source}
+
+## Principal rollout decision
+The rollout decision is to treat this stack as a staged adoption, not a default architecture. First profile a representative training slice, then benchmark FSDP-only against FSDP plus tensor parallelism, then validate checkpoint recovery and data loader pressure before scaling. For Autodesk or AEC document-model work, the transfer is an open hypothesis: better training infrastructure can shorten iteration loops for document models, but only if the same release gate tracks utilization, cost, restart behavior, and quality regression risk [E1]. Source: {source}
+"""
+    assert validate_body(body, pack, outline=outline) == []
 
 
 def test_unsupported_number_fails():
@@ -298,6 +431,146 @@ def test_empty_quality_failure_is_advisory_without_low_scores(monkeypatch):
         "notes": "No actionable blocker provided.",
     }
     assert _llm_quality_errors(review) == []
+
+
+def test_quality_review_prompt_exposes_training_howto_focus():
+    prompt = _quality_review_user(
+        body="Thin training draft.",
+        pack=_training_pack(),
+        outline=_training_outline(),
+        selection=SelectionResult(),
+    )
+    assert "TRAINING_SYSTEM_FOCUS: true" in prompt
+    assert '"training_howto": 0.0' in prompt
+    assert "scaled-training how-to detail" in prompt
+
+
+def test_signal_rubric_scores_training_howto_from_cited_prose():
+    body = (
+        "FSDP sharding and tensor parallelism define the training stack. "
+        "Memory pressure, NCCL all-reduce communication, checkpoint recovery, and data pipeline throughput "
+        "are the scaling bottlenecks. A principal engineer would profile GPU utilization, benchmark microbatch choices, "
+        "validate failure modes, and set a rollout release gate [E1]. Source: https://example.com/fsdp-runbook"
+    )
+    scores = _signal_rubric(body, _training_pack())["scores"]
+    assert scores["training_howto"] == 1.0
+
+
+def test_signal_rubric_ignores_uncited_decorative_quality_cues():
+    body = """
+# Benchmark architecture objective ablation release gate compare tradeoff across together
+
+This uncited paragraph says algorithm, architecture, objective, benchmark, ablation, throughput, latency, cache, retrieval, quantization, failure mode, release gate, production, tradeoff, monitoring, compare, across, together, and contrast.
+
+The cited paragraph says only that the item matters for engineering readers [E1]. Source: https://arxiv.org/abs/2605.00001
+"""
+    scores = _signal_rubric(body, _pack())["scores"]
+    assert scores["technical_specificity"] == 0.0
+    assert scores["engineering_judgment"] == 0.0
+    assert scores["synthesis"] == 0.0
+
+
+def test_missing_quality_review_falls_back_to_deterministic_signal_errors(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    body = (
+        "This draft is coherent but generic. It says training systems matter and that teams should be careful. "
+        "It does not explain mechanisms, concrete choices, operating limits, or a practical runbook [E1]. "
+        "Source: https://example.com/fsdp-runbook"
+    )
+    quality_review, errors = _review_if_ready(
+        object(),  # type: ignore[arg-type]
+        body=body,
+        pack=_training_pack(),
+        outline=_training_outline(),
+        selection=SelectionResult(),
+        errors=[],
+    )
+    assert quality_review == {}
+    assert _deterministic_quality_errors(body, _training_pack())
+    assert "signal_low_score:technical_specificity:0.00/0.75" in errors
+    assert "signal_low_score:training_howto:0.00/0.75" in errors
+
+
+def test_permissive_quality_review_cannot_override_signal_floor(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_MIN_SIGNAL_SCORE", "0.75")
+    monkeypatch.setenv(
+        "BLOGPIPE_FAKE_QUALITY_RESPONSE",
+        json.dumps(
+            {
+                "pass": True,
+                "scores": {
+                    "technical_specificity": 0.95,
+                    "engineering_judgment": 0.94,
+                    "synthesis": 0.93,
+                    "noise_control": 0.96,
+                    "primary_depth": 0.92,
+                    "training_howto": 0.91,
+                },
+                "errors": [],
+                "examples": [],
+                "notes": "Looks publishable.",
+            }
+        ),
+    )
+    body = (
+        "This draft is coherent but generic. It says training systems matter and that teams should be careful. "
+        "It does not explain mechanisms, concrete choices, operating limits, or a practical runbook [E1]. "
+        "Source: https://example.com/fsdp-runbook"
+    )
+    quality_review, errors = _review_if_ready(
+        LLMClient(),
+        body=body,
+        pack=_training_pack(),
+        outline=_training_outline(),
+        selection=SelectionResult(),
+        errors=[],
+    )
+    assert quality_review["pass"] is True
+    assert not any(error.startswith("llm_low_signal:") for error in errors)
+    assert "signal_low_score:technical_specificity:0.00/0.75" in errors
+    assert "signal_low_score:training_howto:0.00/0.75" in errors
+
+
+def test_repair_prompt_explains_quality_floor_errors():
+    errors = [
+        "signal_low_score:technical_specificity:0.00/0.75",
+        "signal_low_score:synthesis:0.25/0.75",
+        "signal_low_score:training_howto:0.33/0.75",
+        "missing_training_howto:training_stack",
+    ]
+    prompt = _repair_user(
+        _training_pack(),
+        "Thin training draft [E1]. Source: https://example.com/fsdp-runbook",
+        errors,
+        outline=_training_outline(),
+        selection=SelectionResult(),
+    )
+    assert "QUALITY_FLOOR_GUIDANCE" in prompt
+    assert "Headings and uncited cue words do not count" in prompt
+    assert "compare at least two primary papers" in prompt
+    assert "FSDP/ZeRO" in prompt
+    assert "NCCL/all-reduce" in prompt
+    assert "profile, benchmark, validate failure modes" in prompt
+
+
+def test_full_rewrite_prompt_explains_quality_floor_errors():
+    errors = [
+        "missing_final_h1",
+        "signal_low_score:engineering_judgment:0.20/0.75",
+        "signal_low_score:training_howto:0.00/0.75",
+    ]
+    prompt = _daily_rewrite_user(
+        _training_pack(),
+        "Fragment.",
+        errors,
+        outline=_training_outline(),
+        selection=SelectionResult(),
+        title="Research Radar: Scaled LLM training runbooks",
+    )
+    assert "QUALITY_FLOOR_GUIDANCE" in prompt
+    assert "principal-engineer decision" in prompt
+    assert "evidence-cited/source-linked runbook prose" in prompt
+    assert "checkpoint recovery" in prompt
 
 
 def test_first_person_autodesk_claim_fails():

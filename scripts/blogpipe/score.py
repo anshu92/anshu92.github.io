@@ -8,7 +8,15 @@ from collections import Counter
 
 from . import config
 from .models import RankedItem, SourceItem, TopicScores
-from .topics import TRACKS, keyword_hits, priority_track, track_score
+from .topics import (
+    TRACKS,
+    TRAINING_OPERATIONAL_CUES,
+    TRAINING_SYSTEM_CUES,
+    keyword_hits,
+    priority_track,
+    track_score,
+    training_system_score,
+)
 
 LOG = logging.getLogger(__name__)
 
@@ -73,6 +81,7 @@ def _score_one(item: SourceItem, now: datetime) -> RankedItem:
     depth = _technical_depth(blob, item)
     novelty = _novelty(blob)
     practical = _practical_signal(blob, item)
+    training_howto = _training_howto_signal(blob, item)
     evidence = min(1.0, len(blob) / 1200.0)
     kind_prior = 0.06 if item.source_kind == "paper" else -0.02
     engineering_blog_bonus = _engineering_blog_bonus(item, blob)
@@ -84,6 +93,7 @@ def _score_one(item: SourceItem, now: datetime) -> RankedItem:
         + 0.08 * novelty
         + 0.08 * practical
         + 0.04 * evidence
+        + 0.06 * training_howto
         + kind_prior
         + engineering_blog_bonus
     )
@@ -94,12 +104,14 @@ def _score_one(item: SourceItem, now: datetime) -> RankedItem:
         + 0.30 * depth
         + 0.20 * novelty
         + 0.10 * max(practical, _reproducibility(blob, item))
+        + 0.04 * training_howto
     )
     quality = {
         "freshness": round(freshness, 3),
         "technical_depth": round(depth, 3),
         "novelty": round(novelty, 3),
         "practical_impact": round(practical, 3),
+        "training_howto": round(training_howto, 3),
         "evidence_quality": round(evidence, 3),
         "source_quality": round(source_quality, 3),
     }
@@ -226,6 +238,9 @@ def _technical_depth(text: str, item: SourceItem) -> float:
         "evaluation", "experiment", "failure mode", "profiling", "memory layout",
         "kernel", "cuda", "pytorch", "jax", "huggingface", "quantization",
         "distributed", "compiler", "scheduling", "fsdp", "tensor parallel",
+        "pipeline parallel", "sequence parallel", "activation checkpoint",
+        "gradient accumulation", "optimizer state", "all-reduce", "nccl",
+        "checkpointing", "microbatch", "mixed precision",
     )
     cue_hits = sum(1 for cue in cues if cue in text.lower())
     length_score = min(1.0, len(text) / 3500.0)
@@ -242,8 +257,21 @@ def _practical_signal(text: str, item: SourceItem) -> float:
     cues = (
         "production", "serving", "latency", "cost", "deployment", "code", "github", "api", "pipeline",
         "monitoring", "pytorch", "jax", "huggingface", "kernel", "optimization", "profiling",
+        "fsdp", "deepspeed", "megatron", "activation checkpoint", "checkpointing",
+        "all-reduce", "nccl", "gpu utilization", "throughput", "data pipeline",
     )
     return min(1.0, 0.10 * sum(1 for cue in cues if cue in text.lower()) + (0.05 if item.source_kind == "blog" else 0.0))
+
+
+def _training_howto_signal(text: str, item: SourceItem) -> float:
+    lower = text.lower()
+    base = training_system_score(lower)
+    if base <= 0:
+        return 0.0
+    training_hits = len(keyword_hits(lower, TRAINING_SYSTEM_CUES))
+    operational_hits = len(keyword_hits(lower, TRAINING_OPERATIONAL_CUES))
+    source_bonus = 0.08 if item.source_name in {"pytorch", "huggingface", "nvidia_developer"} else 0.0
+    return min(1.0, base + 0.04 * min(training_hits, 4) + 0.03 * min(operational_hits, 4) + source_bonus)
 
 
 def _engineering_blog_bonus(item: SourceItem, text: str) -> float:
@@ -254,7 +282,10 @@ def _engineering_blog_bonus(item: SourceItem, text: str) -> float:
     }
     if item.source_name not in engineering_sources:
         return 0.0
-    cues = ("implementation", "benchmark", "kernel", "training", "inference", "optimization", "release")
+    cues = (
+        "implementation", "benchmark", "kernel", "training", "inference", "optimization", "release",
+        "fsdp", "deepspeed", "megatron", "activation checkpoint", "nccl", "checkpointing",
+    )
     hits = sum(1 for cue in cues if cue in text.lower())
     return min(0.08, 0.02 * hits)
 

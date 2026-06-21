@@ -41,6 +41,107 @@ THEORY_INTEREST_CUES: tuple[str, ...] = (
     "lower bound", "upper bound", "first ", "state-of-the-art", "sota",
 )
 
+TRAINING_SYSTEM_CUES: tuple[str, ...] = (
+    "distributed training",
+    "large-scale training",
+    "scaled training",
+    "pretraining",
+    "post-training",
+    "post training",
+    "fine-tuning",
+    "sft",
+    "rlhf",
+    "dpo",
+    "ppo",
+    "fsdp",
+    "deepspeed",
+    "megatron",
+    "zero optimizer",
+    "zero redundancy",
+    "zero stage",
+    "zero-1",
+    "zero-2",
+    "zero-3",
+    "data parallel",
+    "tensor parallel",
+    "pipeline parallel",
+    "sequence parallel",
+    "expert parallel",
+    "moe",
+    "activation checkpoint",
+    "activation recomputation",
+    "rematerialization",
+    "gradient checkpoint",
+    "gradient accumulation",
+    "optimizer state",
+    "sharded optimizer",
+    "all-reduce",
+    "reduce-scatter",
+    "all-gather",
+    "nccl",
+    "microbatch",
+    "global batch",
+    "checkpointing",
+    "fault tolerance",
+    "data loader",
+    "data pipeline",
+    "token packing",
+    "mixed precision",
+    "bf16",
+    "fp16",
+    "fp8",
+)
+
+TRAINING_OPERATIONAL_CUES: tuple[str, ...] = (
+    "throughput",
+    "tokens/sec",
+    "tokens per second",
+    "gpu utilization",
+    "memory bandwidth",
+    "communication",
+    "interconnect",
+    "pipeline bubble",
+    "straggler",
+    "checkpoint",
+    "restart",
+    "failure recovery",
+    "profiling",
+    "benchmark",
+    "ablation",
+    "scaling efficiency",
+    "cost",
+)
+
+TRAINING_FOCUS_CUES: tuple[str, ...] = (
+    "fsdp",
+    "deepspeed",
+    "megatron",
+    "data parallel",
+    "tensor parallel",
+    "pipeline parallel",
+    "sequence parallel",
+    "expert parallel",
+    "activation checkpoint",
+    "activation recomputation",
+    "rematerialization",
+    "gradient checkpoint",
+    "gradient accumulation",
+    "optimizer state",
+    "sharded optimizer",
+    "all-reduce",
+    "reduce-scatter",
+    "all-gather",
+    "nccl",
+    "microbatch",
+    "checkpointing",
+    "data loader",
+    "token packing",
+    "mixed precision",
+    "bf16",
+    "fp16",
+    "fp8",
+)
+
 TRACKS: tuple[Track, ...] = (
     Track(
         "ml_engineering",
@@ -52,7 +153,8 @@ TRACKS: tuple[Track, ...] = (
             "quantization", "memory bandwidth", "data pipeline", "training efficiency",
             "compiler", "scheduling", "profiling", "observability", "monitoring",
             "feature store", "vector database", "retrieval system", "deployment",
-            "infrastructure", "reproducibility",
+            "infrastructure", "reproducibility", *TRAINING_SYSTEM_CUES,
+            *TRAINING_OPERATIONAL_CUES,
         ),
         label="ML-Engineering",
     ),
@@ -107,6 +209,20 @@ TRACKS: tuple[Track, ...] = (
 def keyword_hits(text: str, keywords: tuple[str, ...]) -> list[str]:
     blob = (text or "").lower()
     return [kw for kw in keywords if kw in blob]
+
+
+def training_system_score(text: str) -> float:
+    blob = (text or "").lower()
+    tech_hits = len(keyword_hits(blob, TRAINING_SYSTEM_CUES))
+    operational_hits = len(keyword_hits(blob, TRAINING_OPERATIONAL_CUES))
+    if tech_hits == 0:
+        return 0.0
+    return min(1.0, 0.18 * tech_hits + 0.08 * operational_hits)
+
+
+def has_training_system_focus(text: str) -> bool:
+    blob = (text or "").lower()
+    return len(keyword_hits(blob, TRAINING_FOCUS_CUES)) >= 2
 
 
 def track_score(name: str, hits: list[str], *, text: str = "") -> float:

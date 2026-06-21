@@ -67,6 +67,36 @@ def test_ml_engineering_outranks_aec_with_same_depth():
     assert ranked[0].topic_scores.priority_track == "ml_engineering"
 
 
+def test_scaled_training_howto_signal_boosts_ranked_items():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    training = SourceItem(
+        canonical_url="https://example.com/training",
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title="FSDP tensor parallel training runbook for trillion-token LLMs",
+        published_at=now,
+        abstract_or_excerpt=(
+            "We study distributed training with FSDP sharding, tensor parallelism, activation checkpointing, "
+            "NCCL all-reduce communication, microbatch scheduling, data pipeline throughput, GPU utilization, "
+            "checkpoint recovery, profiling, and benchmark ablations."
+        ),
+    )
+    generic = SourceItem(
+        canonical_url="https://example.com/generic-serving",
+        source_kind="paper",
+        source_name="arxiv",
+        source_tier=1,
+        title="Generic language model serving benchmark",
+        published_at=now,
+        abstract_or_excerpt="A language model benchmark with architecture, latency, throughput, and deployment notes.",
+    )
+    ranked = rank_items([generic, training], now=now, max_age_hours=72)
+    assert ranked[0].item.item_id == training.stable_id()
+    assert ranked[0].quality_signals["training_howto"] >= 0.7
+    assert ranked[0].topic_scores.priority_track == "ml_engineering"
+
+
 def test_rank_items_drops_stale_and_undated_items():
     now = datetime(2026, 5, 11, tzinfo=timezone.utc)
     stale = SourceItem(

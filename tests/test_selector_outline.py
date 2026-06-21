@@ -11,7 +11,7 @@ from blogpipe.evidence import build_daily_pack
 from blogpipe.llm import LLMClient
 from blogpipe.models import DailyOutline, EvidencePack, RankedItem, SelectionResult, SourceItem, TopicScores
 from blogpipe.outline import generate_daily_outline, validate_outline
-from blogpipe.selector import SelectionError, select_daily_items
+from blogpipe.selector import SelectionError, _selector_system, _selector_user, select_daily_items
 from blogpipe.writer import _frontmatter
 
 
@@ -122,6 +122,25 @@ def test_selector_applies_structured_priority_labels():
     assert result.items[0].relevance_label == "ml_engineering"
     assert sum(1 for r in selected if r.item.extra.get("selector_role") == "primary") == 4
     assert sum(1 for r in selected if r.item.extra.get("selector_role") == "supporting") <= 2
+
+
+def test_selector_prompt_prioritizes_scaled_training_howto():
+    ranked = [
+        _ranked_item(
+            "train",
+            text=(
+                "FSDP tensor parallel activation checkpointing all-reduce NCCL "
+                "data pipeline throughput benchmark for distributed LLM training"
+            ),
+        )
+    ]
+    system = _selector_system()
+    user = _selector_user(ranked)
+    assert "scaled LLM training how-to first" in system
+    assert "FSDP/ZeRO" in system
+    assert "NCCL/all-reduce" in system
+    assert "training_howto_value" in user
+    assert "sharding/parallelism" in user
 
 
 def test_selector_malformed_json_blocks_publication():
@@ -319,6 +338,39 @@ def test_outline_rejects_primary_section_with_nonprimary_focus():
     assert "primary_section_uses_nonprimary_focus" in validate_outline(outline, pack)
 
 
+def test_training_focused_outline_requires_howto_intent():
+    ranked = [
+        _ranked_item(
+            "training",
+            text=(
+                "FSDP tensor parallel distributed training with activation checkpointing, "
+                "NCCL all-reduce communication, microbatch throughput, checkpointing, "
+                "data pipeline pressure, GPU utilization, profiling, and benchmark ablations."
+            ),
+        )
+    ]
+    pack = build_daily_pack(ranked)
+    sections = [
+        {"heading": "Thesis", "intent": "technical thesis angle framing Autodesk AEC document relevance", "evidence_ids": ["E1"], "word_budget": 220},
+        {"heading": "Mechanism", "intent": "mechanism method architecture pipeline", "evidence_ids": ["E1"], "word_budget": 220},
+        {"heading": "Objective", "intent": "math objective metric optimization", "evidence_ids": ["E1"], "word_budget": 220},
+        {"heading": "Experiment", "intent": "experiments evidence benchmark evaluation ablation", "evidence_ids": ["E1"], "word_budget": 220},
+        {"heading": "Limits", "intent": "limitations caveat failure risk tradeoff", "evidence_ids": ["E1"], "word_budget": 220},
+        {"heading": "Impact", "intent": "cross-paper synthesis compare contrast impact engineering production practical", "evidence_ids": ["E1"], "word_budget": 220},
+    ]
+    outline = DailyOutline(title="Training systems", angle="Training stack decisions matter.", sections=sections)
+    assert "missing_outline_training_howto" in validate_outline(outline, pack)
+
+    sections[1] = {
+        "heading": "FSDP sharding and NCCL profiling as the training runbook",
+        "intent": "mechanism method architecture pipeline distributed training sharding communication nccl profiling throughput",
+        "evidence_ids": ["E1"],
+        "word_budget": 220,
+    }
+    repaired = DailyOutline(title="Training systems", angle="Training stack decisions matter.", sections=sections)
+    assert "missing_outline_training_howto" not in validate_outline(repaired, pack)
+
+
 def test_generate_outline_malformed_json_uses_fallback_outline():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
     pack = build_daily_pack(_fixture_ranked()[:5])
@@ -378,6 +430,27 @@ def test_frontmatter_tags_are_dynamic():
     )
     assert 'tags: ["research-radar", "llm", "mle"]' in frontmatter
     assert '"aec"' not in frontmatter
+
+
+def test_frontmatter_tags_llm_training_when_body_supports_it():
+    ranked = [
+        _ranked_item(
+            "train",
+            text="FSDP tensor parallel activation checkpointing benchmark for distributed training",
+            score=0.8,
+        )
+    ]
+    pack = EvidencePack(kind="daily", ranked_items=ranked, chunks=[])
+    frontmatter = _frontmatter(
+        "Training systems",
+        "daily",
+        pack,
+        outline=None,
+        selection=None,
+        body="FSDP tensor parallel distributed training uses activation checkpointing and profiling.",
+    )
+    assert '"llm-training"' in frontmatter
+    assert '"mle"' in frontmatter
 
 
 def test_frontmatter_tags_ignore_metadata_without_body_support():

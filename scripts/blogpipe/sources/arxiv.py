@@ -32,6 +32,9 @@ ARXIV_PROFILES: tuple[SearchProfile, ...] = (
         (
             "pytorch", "jax", "huggingface", "triton", "cuda", "kernel", "vllm",
             "deepspeed", "megatron", "fsdp", "quantization", "flash attention",
+            "tensor parallel", "pipeline parallel", "sequence parallel",
+            "activation checkpoint", "gradient accumulation", "all-reduce",
+            "nccl", "mixed precision",
         ),
     ),
     SearchProfile(
@@ -42,7 +45,11 @@ ARXIV_PROFILES: tuple[SearchProfile, ...] = (
     SearchProfile(
         "llm_systems",
         ("cs.LG", "cs.DC", "cs.PF"),
-        ("inference", "serving", "kv cache", "throughput", "latency", "distributed training", "gpu"),
+        (
+            "inference", "serving", "kv cache", "throughput", "latency",
+            "distributed training", "gpu", "checkpointing", "data pipeline",
+            "optimizer state", "gpu utilization",
+        ),
     ),
     SearchProfile(
         "mle_eval",

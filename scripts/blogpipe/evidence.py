@@ -4,6 +4,7 @@ from pathlib import Path
 
 from . import extract, memory
 from .models import EvidenceCard, EvidenceChunk, EvidencePack, RankedItem
+from .topics import has_training_system_focus
 
 
 def build_daily_pack(ranked: list[RankedItem], *, prior_limit: int = 5) -> EvidencePack:
@@ -104,6 +105,11 @@ def _best_sentence(chunks: list[EvidenceChunk], cues: tuple[str, ...]) -> str:
 
 def _transfer_hypothesis(item) -> str:
     blob = f"{item.title} {item.abstract_or_excerpt} {' '.join(item.tags)}".lower()
+    if has_training_system_focus(blob):
+        return (
+            "Transferable as a scaled LLM training systems pattern; validate sharding, memory, communication, "
+            "checkpointing, data pipeline, and profiling assumptions before adoption."
+        )
     if any(cue in blob for cue in ("drawing", "sheet", "pdf", "ocr", "layout", "document")):
         return "Directly relevant to 2D document intelligence workflows."
     if any(cue in blob for cue in ("cad", "bim", "ifc", "revit", "construction", "building")):
@@ -197,6 +203,8 @@ _CUES_BY_TYPE: dict[str, tuple[str, ...]] = {
     "mechanism": (
         "algorithm", "architecture", "method", "pipeline", "framework", "training",
         "inference", "retrieval", "cache", "graph", "model", "we propose", "we introduce",
+        "fsdp", "deepspeed", "megatron", "parallel", "sharding", "checkpoint",
+        "microbatch", "all-reduce", "nccl",
     ),
     "math_or_objective": (
         "objective", "loss", "equation", "theorem", "bound", "gradient", "complexity",
@@ -205,6 +213,7 @@ _CUES_BY_TYPE: dict[str, tuple[str, ...]] = {
     "experiment": (
         "benchmark", "ablation", "result", "accuracy", "dataset", "evaluation",
         "experiment", "tasks", "throughput", "latency", "%", "table", "compare",
+        "gpu utilization", "tokens/sec", "scaling efficiency",
     ),
     "limitation": (
         "limitation", "caveat", "failure", "error", "tradeoff", "robustness",
@@ -213,6 +222,7 @@ _CUES_BY_TYPE: dict[str, tuple[str, ...]] = {
     "impact": (
         "deployment", "production", "cost", "practical", "facility", "building",
         "operations", "reproducibility", "monitoring", "serving", "open source", "code",
+        "checkpointing", "fault tolerance", "profiling", "data pipeline",
     ),
 }
 

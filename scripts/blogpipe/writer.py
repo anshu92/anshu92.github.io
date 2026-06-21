@@ -6,6 +6,7 @@ import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 from urllib.parse import urlsplit
 
 from markdown_it import MarkdownIt
@@ -13,6 +14,7 @@ from markdown_it import MarkdownIt
 from . import config, jsonish, memory
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, RankedItem, SelectionResult, WriteResult
+from .topics import has_training_system_focus
 
 LOG = logging.getLogger(__name__)
 
@@ -125,6 +127,50 @@ ENGINEERING_LENS_CUES = (
     "adoption test",
     "monitoring",
 )
+TRAINING_HOWTO_CONCEPTS: dict[str, tuple[str, ...]] = {
+    "training_stack": (
+        "distributed training",
+        "training stack",
+        "fsdp",
+        "deepspeed",
+        "megatron",
+        "data parallel",
+        "tensor parallel",
+        "pipeline parallel",
+        "sequence parallel",
+        "sharding",
+        "zero optimizer",
+        "zero redundancy",
+        "zero-1",
+        "zero-2",
+        "zero-3",
+    ),
+    "scaling_bottleneck": (
+        "memory",
+        "activation",
+        "checkpoint",
+        "communication",
+        "all-reduce",
+        "nccl",
+        "throughput",
+        "gpu utilization",
+        "microbatch",
+        "pipeline bubble",
+        "data pipeline",
+    ),
+    "principal_action": (
+        "profile",
+        "benchmark",
+        "ablation",
+        "validate",
+        "measure",
+        "tradeoff",
+        "rollout",
+        "release gate",
+        "failure mode",
+        "recovery",
+    ),
+}
 FIRST_PERSON_AUTODESK_RE = re.compile(
     r"\b(as a principal (?:machine learning engineer|mle).*?(?:at|for) autodesk|"
     r"at autodesk,\s+(?:my|our)|our (?:vision|strategic direction|roadmap|pipeline|pipelines|product|products)|"
@@ -244,7 +290,12 @@ def _generate_daily_body(
     slug: str,
 ) -> str:
     def _single_pass_draft(*, retry_short: bool = True) -> str:
-        body = _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title), task="draft")
+        body = _call_daily_draft(
+            client,
+            _daily_system(),
+            _daily_user(pack, outline, selection, title),
+            outline=outline,
+        )
         min_words = max(500, config.daily_min_words() // 3)
         if (
             retry_short
@@ -258,7 +309,12 @@ def _generate_daily_body(
                 min_words,
             )
             _sleep_for_rate_limit(client)
-            body = _call_writer(client, _daily_system(), _daily_user(pack, outline, selection, title), task="draft")
+            body = _call_daily_draft(
+                client,
+                _daily_system(),
+                _daily_user(pack, outline, selection, title),
+                outline=outline,
+            )
         return body
 
     if not isinstance(client, LLMClient):
@@ -610,10 +666,62 @@ def _sleep_for_rate_limit(client: LLMClient) -> None:
     time.sleep(cooldown)
 
 
-def _call_writer(client: LLMClient, system: str, user: str, *, task: str | None = None) -> str:
+def _call_writer(
+    client: LLMClient,
+    system: str,
+    user: str,
+    *,
+    task: str | None = None,
+    reject_completion: Callable[[str], str | None] | None = None,
+) -> str:
     if isinstance(client, LLMClient):
-        return _strip_fence(client.complete(system=system, user=user, task=task)).strip()
+        return _strip_fence(
+            client.complete(system=system, user=user, task=task, reject_completion=reject_completion)
+        ).strip()
     return _strip_fence(client.complete(system=system, user=user)).strip()
+
+
+def _call_daily_draft(client: LLMClient, system: str, user: str, *, outline: DailyOutline) -> str:
+    return _call_writer(
+        client,
+        system,
+        user,
+        task="draft",
+        reject_completion=lambda text: _daily_draft_rejection_reason(text, outline),
+    )
+
+
+def _daily_draft_rejection_reason(text: str, outline: DailyOutline) -> str | None:
+    body = _strip_fence(text).strip()
+    word_count = _word_count(body)
+    min_fragment_words = max(500, config.daily_min_words() // 3)
+    if word_count < min_fragment_words:
+        return f"daily_fragment:{word_count}/{min_fragment_words}"
+    missing_sections = _missing_outline_sections(body, outline)
+    if missing_sections and len(missing_sections) == len(outline.sections):
+        return "missing_all_outline_sections"
+    if missing_sections and not _h1_titles(body):
+        return "missing_h1_and_outline_sections"
+    return None
+
+
+def _review_if_ready(
+    client: LLMClient,
+    *,
+    body: str,
+    pack: EvidencePack,
+    outline: DailyOutline | None,
+    selection: SelectionResult | None,
+    errors: list[str],
+) -> tuple[dict[str, object], list[str]]:
+    if pack.kind == "daily" and _needs_full_daily_rewrite(errors):
+        return {}, errors
+    quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
+    reviewed_errors = list(errors)
+    reviewed_errors.extend(_llm_quality_errors(quality_review, client=client))
+    if pack.kind == "daily":
+        reviewed_errors.extend(_deterministic_quality_errors(body, pack))
+    return quality_review, reviewed_errors
 
 
 def _validate_repair_and_publish(
@@ -629,9 +737,15 @@ def _validate_repair_and_publish(
     dry_run: bool,
 ) -> WriteResult:
     body = _ensure_visual_blocks(body, pack, slug)
-    quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
     body, errors = _sanitize_then_validate(body, pack, outline=outline)
-    errors.extend(_llm_quality_errors(quality_review, client=client))
+    quality_review, errors = _review_if_ready(
+        client,
+        body=body,
+        pack=pack,
+        outline=outline,
+        selection=selection,
+        errors=errors,
+    )
     repair_attempted = False
     if errors:
         repair_attempted = True
@@ -646,11 +760,17 @@ def _validate_repair_and_publish(
                 quality_review=quality_review,
             )
             try:
-                body = _call_writer(client, _daily_rewrite_system(), rewrite_user, task="draft")
+                body = _call_daily_draft(client, _daily_rewrite_system(), rewrite_user, outline=outline)
                 body = _ensure_visual_blocks(body, pack, slug)
-                quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
-                errors.extend(_llm_quality_errors(quality_review, client=client))
+                quality_review, errors = _review_if_ready(
+                    client,
+                    body=body,
+                    pack=pack,
+                    outline=outline,
+                    selection=selection,
+                    errors=errors,
+                )
             except Exception as exc:
                 errors.append(f"full_rewrite_failed:{exc}")
         if errors:
@@ -658,9 +778,15 @@ def _validate_repair_and_publish(
             try:
                 body = _call_writer(client, _repair_system(), repair_user, task="repair")
                 body = _ensure_visual_blocks(body, pack, slug)
-                quality_review = _llm_quality_review(client, body=body, pack=pack, outline=outline, selection=selection)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
-                errors.extend(_llm_quality_errors(quality_review, client=client))
+                quality_review, errors = _review_if_ready(
+                    client,
+                    body=body,
+                    pack=pack,
+                    outline=outline,
+                    selection=selection,
+                    errors=errors,
+                )
             except Exception as exc:
                 errors.append(f"repair_failed:{exc}")
     if errors:
@@ -730,6 +856,8 @@ def _daily_system() -> str:
         "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
         "Keep the research depth, but make the article engineering-forward: benchmark design, failure modes, integration constraints, "
         "deployment dependencies, latency/cost tradeoffs, validation plans, and adoption tests should drive the practical judgment. "
+        "When the evidence concerns scaled LLM training, teach the operational how-to: sharding/parallelism choices, memory and communication bottlenecks, "
+        "checkpoint/restart behavior, data-pipeline pressure, profiling signals, and what a principal engineer would test before rollout. "
         "Prefer deep synthesis over breadth: focus on 3-4 primary papers and use supporting items only when they sharpen the thesis. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
         "Distinguish direct implication, plausible transfer, and open hypothesis when discussing production use. "
@@ -752,6 +880,9 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
         "Include at least one cross-paper comparison or tradeoff and at least one concrete production or adoption test. "
         "Every major section should connect the paper to at least one operational lens where evidence permits: benchmark design, failure mode, "
         "deployment constraint, latency/cost tradeoff, integration dependency, or prototype/validation test. "
+        "If the selected cluster is about large-scale LLM training, include a how-to explanation of at least one concrete training decision: "
+        "FSDP/ZeRO, tensor/pipeline/sequence parallelism, activation checkpointing, microbatching, optimizer state, checkpoint recovery, "
+        "NCCL/all-reduce communication, data loading, or GPU-utilization profiling when supported by evidence. "
         "The adoption section should read like an engineering decision memo, not a broad relevance section. "
         "Make production and deployment implications concrete where supported by the evidence; otherwise label them as plausible transfer or open hypothesis. "
         "Do not present a cross-paper stack, architecture, or workflow as proven unless the evidence cards directly support that integration. "
@@ -813,7 +944,9 @@ def _repair_user(
         "For daily posts, preserve the OUTLINE headings exactly and write from the practical viewpoint "
         "of a principal MLE evaluating ML systems, training, serving, and evaluation tradeoffs. "
         f"The daily post must be at least {config.daily_min_words()} words. Cite at least three primary papers "
-        "when they exist in the evidence pack. Remove generic corporate prose and add concrete engineering judgment."
+        "when they exist in the evidence pack. Remove generic corporate prose and add concrete engineering judgment. "
+        "For scaled LLM training evidence, include sharding/parallelism, memory/communication bottlenecks, checkpointing, profiling, "
+        "data-pipeline throughput, and rollout validation where supported."
         if pack.kind == "daily"
         else "Preserve the requested deep-dive technical structure."
     )
@@ -832,11 +965,13 @@ def _repair_user(
         "- Mark supporting-paper mentions as supporting instead of presenting them as additional primaries.\n"
         "- Add experiment/evaluation detail where the evidence cards provide it.\n"
         "- Strengthen operational judgment with concrete benchmarks, failure modes, deployment constraints, integration dependencies, latency/cost tradeoffs, or validation tests when the evidence supports them.\n"
+        "- For scaled LLM training evidence, teach the training-system decision path: parallelism or sharding choice, memory/communication bottleneck, checkpoint/restart behavior, data pipeline, profiling signal, and rollout gate where supported.\n"
         "- If the body focus no longer matches the current headline, revise the H1 so the final title matches the actual article.\n"
         "- Downgrade phrases such as 'defines the reliability envelope', 'beyond prototype stage', and 'non-negotiable' unless the evidence clearly warrants them.\n"
         "- Remove late paper insertions that are not justified by the selected primary/supporting scope.\n"
         "- Do not output JSON, explanations, or a validation report.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
+        f"{_quality_floor_guidance(errors)}"
         f"LLM_QUALITY_REVIEW:\n{json.dumps(quality_review or {}, indent=2, ensure_ascii=False)}\n\n"
         f"RELEVANT_EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"CITED_SOURCE_URLS:\n{json.dumps(cited_source_requirements, indent=2, ensure_ascii=False)}\n\n"
@@ -898,9 +1033,11 @@ def _daily_rewrite_user(
         "- Cite at least three distinct primary papers when available in the evidence pack.\n"
         "- Every substantive paragraph must include evidence IDs such as [E1] and the matching source URL inline.\n"
         "- Cover mechanism/objective, experiments or benchmarks, limits, cross-paper tradeoffs, and production adoption tests.\n"
+        "- For scaled LLM training evidence, include training-how-to details: sharding/parallelism, activation checkpointing or optimizer state, communication bottlenecks, data pipeline throughput, checkpoint recovery, profiling, and rollout validation where supported.\n"
         "- Treat production transfer as direct implication only when the evidence supports it; otherwise label it as plausible transfer or open hypothesis.\n"
         "- Do not preserve the rejected fragment unless a sentence is fully evidence-grounded and still fits the outline.\n\n"
         f"VALIDATOR_ERRORS:\n{json.dumps(_repair_safe_errors(errors), indent=2)}\n\n"
+        f"{_quality_floor_guidance(errors)}"
         f"LLM_QUALITY_REVIEW:\n{json.dumps(quality_review or {}, indent=2, ensure_ascii=False)}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2)}\n\n"
@@ -909,6 +1046,43 @@ def _daily_rewrite_user(
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
         f"REJECTED_DRAFT_FOR_DIAGNOSIS_ONLY:\n{_repair_safe_draft(body, errors)}"
     )
+
+
+def _quality_floor_guidance(errors: list[str]) -> str:
+    bullets: list[str] = []
+
+    def has(prefix: str) -> bool:
+        return any(error.startswith(prefix) for error in errors)
+
+    if has("signal_low_score:technical_specificity"):
+        bullets.append(
+            "Raise technical_specificity inside evidence-cited paragraphs: add supported mechanism, objective, "
+            "architecture, benchmark, ablation, metric, limitation, or failure-mode detail. Headings and uncited cue words do not count."
+        )
+    if has("signal_low_score:engineering_judgment"):
+        bullets.append(
+            "Raise engineering_judgment inside evidence-cited paragraphs: state the principal-engineer decision, "
+            "validation test, rollout/release gate, production blocker, monitoring need, or operational tradeoff supported by the evidence."
+        )
+    if has("signal_low_score:synthesis"):
+        bullets.append(
+            "Raise synthesis inside evidence-cited paragraphs: compare at least two primary papers, contrast their mechanisms or limits, "
+            "and name the shared tradeoff without claiming an integrated stack unless the evidence supports it."
+        )
+    if has("signal_low_score:primary_depth"):
+        bullets.append(
+            "Raise primary_depth by citing mechanism evidence and at least one experiment, objective, or limitation for each selected primary paper."
+        )
+    if has("signal_low_score:training_howto") or has("missing_training_howto:"):
+        bullets.append(
+            "For scaled LLM training, add evidence-cited/source-linked runbook prose covering all three: training stack "
+            "(for example FSDP/ZeRO, DeepSpeed, Megatron, tensor/pipeline/sequence parallelism), scaling bottleneck "
+            "(memory, activation checkpointing, NCCL/all-reduce, data pipeline, checkpoint recovery, GPU utilization), and principal action "
+            "(profile, benchmark, validate failure modes, choose rollout gate, or recovery test)."
+        )
+    if not bullets:
+        return ""
+    return "QUALITY_FLOOR_GUIDANCE:\n" + "\n".join(f"- {bullet}" for bullet in bullets) + "\n\n"
 
 
 def _repair_safe_errors(errors: list[str]) -> list[str]:
@@ -1081,7 +1255,8 @@ def _quality_review_user(
         "{\n"
         '  "pass": true,\n'
         '  "scores": {"technical_specificity": 0.0, "engineering_judgment": 0.0, "synthesis": 0.0, "noise_control": 0.0, '
-        '"primary_depth": 0.0, "evidence_discipline": 0.0, "section_nonredundancy": 0.0, "experiment_detail": 0.0},\n'
+        '"primary_depth": 0.0, "evidence_discipline": 0.0, "section_nonredundancy": 0.0, "experiment_detail": 0.0, '
+        '"training_howto": 0.0},\n'
         '  "errors": ["machine_readable_error_code"],\n'
         '  "examples": ["quoted short failing text"],\n'
         '  "notes": "short explanation",\n'
@@ -1100,10 +1275,12 @@ def _quality_review_user(
         "- repeated sections that cover the same mechanism or limitation with little new technical value\n"
         "- supporting paper introduced late or treated like a primary paper\n"
         "- experiment detail much weaker than the mechanism claims when experiments exist in the evidence cards\n"
+        "- when TRAINING_SYSTEM_FOCUS is true, missing scaled-training how-to detail: no concrete sharding/parallelism choice, memory or communication bottleneck, checkpoint/restart behavior, data-pipeline pressure, profiling signal, or rollout validation gate\n"
         "- speculative Autodesk/AEC adoption prose that outruns paper-supported claims or transfer hypotheses\n"
         "- claims that fuse multiple papers into a proven stack/system without direct support in the evidence cards\n"
         "- synthesis claims whose strength exceeds the evidence, including phrases such as 'defines the reliability envelope', 'beyond prototype stage', or 'non-negotiable'\n"
         "- title/body mismatch: the H1 centers one paper or axis, but the body mainly argues a different throughline\n\n"
+        f"TRAINING_SYSTEM_FOCUS: {json.dumps(_pack_has_training_system_focus(pack))}\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}\n\n"
@@ -1148,6 +1325,23 @@ def _llm_quality_errors(review: dict[str, object], *, client: LLMClient | None =
     return errors
 
 
+def _deterministic_quality_errors(body: str, pack: EvidencePack) -> list[str]:
+    rubric = _signal_rubric(body, pack)
+    scores = rubric.get("scores")
+    if not isinstance(scores, dict):
+        return []
+    errors: list[str] = []
+    threshold = config.min_signal_score()
+    for name, value in scores.items():
+        try:
+            score = float(value)
+        except (TypeError, ValueError):
+            continue
+        if score < threshold:
+            errors.append(f"signal_low_score:{name}:{score:.2f}/{threshold:.2f}")
+    return errors
+
+
 def _quality_review_from_untrusted_model(client: LLMClient) -> bool:
     model = (client.usage.model_by_task.get("quality_review") or client.usage.model or "").lower()
     if not model:
@@ -1185,11 +1379,26 @@ def _frontmatter_tags(
         ("aec", ("aec", "construction", "building workflow", "facility workflow")),
         ("document-ai", ("document intelligence", "drawing sheet", "sheet-level", "pdf translation", "ocr", "layout preservation")),
         ("foundation-models", ("foundation model", "foundation-model")),
+        (
+            "llm-training",
+            (
+                "distributed training", "fsdp", "deepspeed", "megatron",
+                "tensor parallel", "pipeline parallel", "activation checkpoint",
+                "gradient accumulation",
+            ),
+        ),
         ("multimodal", ("multimodal", "vision-language", "visual grounding")),
         ("cad", ("cad", "cadquery", "programmatic cad", "scan-to-bim")),
         ("bim", ("bim", "ifc", "revit")),
         ("llm", ("llm", "language model", "agent", "rag", "transformer")),
-        ("mle", ("serving", "evaluation", "monitoring", "pipeline", "latency", "throughput", "deployment")),
+        (
+            "mle",
+            (
+                "serving", "evaluation", "monitoring", "pipeline", "latency", "throughput", "deployment",
+                "distributed training", "fsdp", "deepspeed", "megatron", "tensor parallel",
+                "pipeline parallel", "activation checkpoint", "gpu utilization",
+            ),
+        ),
     )
     for tag, cues in rules:
         if any(cue in blob for cue in cues):
@@ -1331,7 +1540,42 @@ def _validate_daily_technical_focus(body: str, pack: EvidencePack, *, outline: D
         errors.append("generic_roundup_structure")
     lower = (body or "").lower()
     errors.extend(_validate_daily_concepts(lower))
+    if _pack_has_training_system_focus(pack):
+        errors.extend(_validate_training_howto_concepts(body))
     return errors
+
+
+def _pack_has_training_system_focus(pack: EvidencePack) -> bool:
+    parts = [
+        f"{ranked.item.title} {ranked.item.abstract_or_excerpt} {' '.join(ranked.item.tags)}"
+        for ranked in pack.ranked_items
+    ]
+    parts.extend(f"{card.title} {card.mechanism} {card.experiment} {card.impact}" for card in pack.evidence_cards)
+    return has_training_system_focus(" ".join(parts))
+
+
+def _validate_training_howto_concepts(body: str) -> list[str]:
+    lower_body = _training_howto_evidence_text(body)
+    errors: list[str] = []
+    for concept, cues in TRAINING_HOWTO_CONCEPTS.items():
+        if not any(cue in lower_body for cue in cues):
+            errors.append(f"missing_training_howto:{concept}")
+    return errors
+
+
+def _training_howto_evidence_text(body: str) -> str:
+    return _evidence_linked_prose_text(body)
+
+
+def _evidence_linked_prose_text(body: str) -> str:
+    cited_paragraphs: list[str] = []
+    for paragraph in re.split(r"\n\s*\n", body or ""):
+        if not EVIDENCE_REF_RE.search(paragraph) or not URL_RE.search(paragraph):
+            continue
+        paragraph = re.sub(r"https?://\S+", " ", paragraph)
+        paragraph = re.sub(r"^#+\s+.*$", "", paragraph, flags=re.M)
+        cited_paragraphs.append(paragraph.lower())
+    return "\n\n".join(cited_paragraphs)
 
 
 def _validate_outline_headings(body: str, outline: DailyOutline) -> list[str]:
@@ -1393,22 +1637,26 @@ def _validate_signal_quality(body: str, pack: EvidencePack) -> list[str]:
 
 def _signal_rubric(body: str, pack: EvidencePack) -> dict[str, object]:
     lower = (body or "").lower()
+    evidence_text = _evidence_linked_prose_text(body)
     words = max(1, len(re.findall(r"\b[\w'-]+\b", lower)))
-    technical = _cue_score(lower, TECHNICAL_SPECIFICITY_CUES, target=8)
-    judgment = _cue_score(lower, ENGINEERING_JUDGMENT_CUES, target=5)
-    synthesis = _cue_score(lower, SYNTHESIS_CUES, target=4)
+    technical = _cue_score(evidence_text, TECHNICAL_SPECIFICITY_CUES, target=8)
+    judgment = _cue_score(evidence_text, ENGINEERING_JUDGMENT_CUES, target=5)
+    synthesis = _cue_score(evidence_text, SYNTHESIS_CUES, target=4)
     primary_depth = _primary_depth_score(body, pack)
     generic_hits = sum(lower.count(phrase) for phrase in GENERIC_PHRASES)
     generic_density = generic_hits / words
     noise_control = 1.0 if generic_density <= config.generic_phrase_max_density() else 0.0
+    scores: dict[str, float] = {
+        "technical_specificity": technical,
+        "engineering_judgment": judgment,
+        "synthesis": synthesis,
+        "noise_control": noise_control,
+        "primary_depth": primary_depth,
+    }
+    if _pack_has_training_system_focus(pack):
+        scores["training_howto"] = _training_howto_score(body)
     return {
-        "scores": {
-            "technical_specificity": technical,
-            "engineering_judgment": judgment,
-            "synthesis": synthesis,
-            "noise_control": noise_control,
-            "primary_depth": primary_depth,
-        },
+        "scores": scores,
         "generic_density": generic_density,
         "examples": _signal_failure_examples(body or ""),
     }
@@ -1451,6 +1699,14 @@ def _primary_depth_score(body: str, pack: EvidencePack) -> float:
         if "mechanism" in cited_types and (not required_secondary or cited_types & required_secondary):
             passed += 1
     return passed / len(primary_ids)
+
+
+def _training_howto_score(body: str) -> float:
+    lower_body = _training_howto_evidence_text(body)
+    if not lower_body:
+        return 0.0
+    hits = sum(1 for cues in TRAINING_HOWTO_CONCEPTS.values() if any(cue in lower_body for cue in cues))
+    return hits / max(1, len(TRAINING_HOWTO_CONCEPTS))
 
 
 def _primary_item_ids(pack: EvidencePack) -> list[str]:

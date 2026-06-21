@@ -7,6 +7,7 @@ import threading
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from typing import Callable
 
 import httpx
 
@@ -16,6 +17,14 @@ LOG = logging.getLogger(__name__)
 RETRY_STATUS_CODES = {429, 500, 502, 503, 504}
 FAST_TASKS = {"selector", "outline", "outline_repair", "quality_review", "repair"}
 SMART_TASKS = {"draft", "draft_section", "editor"}
+CompletionRejector = Callable[[str], str | None]
+
+
+class _RejectedCompletionError(RuntimeError):
+    def __init__(self, reason: str, text: str) -> None:
+        self.reason = reason
+        self.text = text
+        super().__init__(f"rejected_completion:{reason}")
 
 
 @dataclass
@@ -46,6 +55,7 @@ class LLMClient:
         user: str,
         max_tokens: int | None = None,
         task: str | None = None,
+        reject_completion: CompletionRejector | None = None,
     ) -> str:
         fake = _fake_response(system, self.usage.calls)
         task_name = (task or "default").strip().lower() or "default"
@@ -69,6 +79,7 @@ class LLMClient:
         self.usage.model_by_task[task_name] = model
         self.usage.prompt_tokens_est += (len(system) + len(user)) // 4
         last_error: Exception | None = None
+        last_rejected_text = ""
         tried_models: list[str] = []
         for chain_model in model_chain:
             tried_models.append(chain_model)
@@ -78,9 +89,12 @@ class LLMClient:
                 system=system,
                 user=user,
                 max_tokens=max_tokens,
+                reject_completion=reject_completion,
             )
             if text is not None:
                 return text
+            if isinstance(last_error, _RejectedCompletionError):
+                last_rejected_text = last_error.text
             self._pause_after_rate_limit(last_error)
         emergency_chain = self._emergency_openrouter_models(task_name, tried=tried_models, last_error=last_error)
         for chain_model in emergency_chain:
@@ -91,10 +105,19 @@ class LLMClient:
                 system=system,
                 user=user,
                 max_tokens=max_tokens,
+                reject_completion=reject_completion,
             )
             if text is not None:
                 return text
+            if isinstance(last_error, _RejectedCompletionError):
+                last_rejected_text = last_error.text
             self._pause_after_rate_limit(last_error)
+        if last_rejected_text:
+            LOG.warning(
+                "llm task=%s all models returned rejected completions; returning last completion for validation",
+                task_name,
+            )
+            return last_rejected_text
         self.usage.failures += 1
         raise RuntimeError(
             f"LLM completion failed for task={task_name}; chain={model_chain}; last_error={last_error}"
@@ -108,6 +131,7 @@ class LLMClient:
         system: str,
         user: str,
         max_tokens: int | None,
+        reject_completion: CompletionRejector | None,
     ) -> tuple[str | None, Exception | None]:
         base_url, api_key = self._endpoint_for_model(chain_model)
         if not api_key:
@@ -183,6 +207,17 @@ class LLMClient:
                 self.usage.model = chain_model
                 self.usage.model_by_task[task_name] = chain_model
                 self.usage.completion_tokens_est += len(text) // 4
+                if reject_completion is not None:
+                    rejection_reason = reject_completion(text)
+                    if rejection_reason:
+                        last_error = _RejectedCompletionError(rejection_reason, text)
+                        LOG.warning(
+                            "llm task=%s model=%s returned rejected completion (%s); trying next model",
+                            task_name,
+                            chain_model,
+                            rejection_reason,
+                        )
+                        return None, last_error
                 return text, None
             except Exception as exc:
                 last_error = exc

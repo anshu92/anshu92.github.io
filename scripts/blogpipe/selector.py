@@ -61,8 +61,9 @@ def _selector_system() -> str:
         "You select papers for a Principal Machine Learning Engineer who reads research for technical judgment, "
         "not for domain-only filtering. Prefer one coherent thesis cluster over broad topic diversity. "
         "Apply this strict priority order when choosing the daily cluster:\n"
-        "1. ML engineering: scaling LLMs, GPU/CUDA kernels, JAX/PyTorch/HuggingFace, training and serving optimizations, "
-        "data pipelines, observability, and substantive technical engineering blogs.\n"
+        "1. ML engineering, with scaled LLM training how-to first: FSDP/ZeRO, DeepSpeed, Megatron, tensor/pipeline/sequence parallelism, "
+        "activation checkpointing, optimizer state, NCCL/all-reduce communication, data pipelines, checkpointing, profiling, GPU utilization, "
+        "serving optimizations, GPU/CUDA kernels, JAX/PyTorch/HuggingFace, observability, and substantive technical engineering blogs.\n"
         "2. ML applied research: strong methods with clear benchmarks, ablations, and deployment or evaluation lessons.\n"
         "3. ML theory: only when unusually interesting, surprising, or clearly relevant to systems or training practice.\n"
         "4. AEC topics: BIM/CAD/construction/document workflows when they are the best fit after 1-3.\n"
@@ -93,7 +94,9 @@ def _selector_user(candidates: list[RankedItem]) -> str:
         "Follow the priority order: ML engineering > applied research > interesting theory > AEC > popular ML. "
         "Score each selected item from 0.0 to 1.0 on engineering value, applied-research value, theory interest, "
         "AEC transfer value, experiment strength, engineering actionability, and novelty relative to prior radar posts. "
-        "Prioritize items with mechanisms, objectives, evaluation design, deployment tradeoffs, or systems lessons. "
+        "Also score training_howto_value: whether the item can teach a principal engineer a concrete scaled-training decision, "
+        "such as sharding/parallelism, activation checkpointing, communication, optimizer state, data loading, profiling, or checkpoint recovery. "
+        "Prioritize items with mechanisms, objectives, evaluation design, deployment tradeoffs, training runbook lessons, or systems lessons. "
         "Return JSON in this exact shape:\n"
         "{\n"
         '  "selected_item_ids": ["item-id"],\n'
@@ -101,7 +104,7 @@ def _selector_user(candidates: list[RankedItem]) -> str:
         '"relevance_label": "ml_engineering|applied_research|ml_theory|aec|popular_ml|supporting_blog", '
         '"scores": {"engineering_value": 0.0, "applied_research_value": 0.0, "theory_interest": 0.0, '
         '"aec_transfer_value": 0.0, "experiment_strength": 0.0, '
-        '"engineering_actionability": 0.0, "novelty": 0.0}, '
+        '"engineering_actionability": 0.0, "training_howto_value": 0.0, "novelty": 0.0}, '
         '"reason": "short reason", "suggested_tags": ["tag"]}],\n'
         '  "suggested_tags": ["tag"]\n'
         "}\n\n"

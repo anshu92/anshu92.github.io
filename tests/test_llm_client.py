@@ -198,3 +198,31 @@ def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):
     llm = LLMClient()
     assert llm.complete(system="sys", user="usr", task="selector") == "ok"
     assert attempted == ["slow-model", "backup-model"]
+
+
+def test_rejected_completion_tries_next_model(monkeypatch):
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://example.test")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "test-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "base-model")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_DRAFT", "short-model,usable-model")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
+
+    attempted: list[str] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        attempted.append(str(json["model"]))
+        if json["model"] == "short-model":
+            return _StubResponse(200, {"choices": [{"message": {"content": "tiny"}}]})
+        return _StubResponse(200, {"choices": [{"message": {"content": "usable draft"}}]})
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    out = llm.complete(
+        system="sys",
+        user="usr",
+        task="draft",
+        reject_completion=lambda text: "too_short" if text == "tiny" else None,
+    )
+    assert out == "usable draft"
+    assert attempted == ["short-model", "usable-model"]

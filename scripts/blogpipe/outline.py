@@ -10,6 +10,7 @@ from . import config
 from . import jsonish
 from .llm import LLMClient
 from .models import DailyOutline, EvidencePack, SelectionResult
+from .topics import has_training_system_focus
 
 LOG = logging.getLogger(__name__)
 
@@ -28,6 +29,29 @@ REQUIRED_INTENTS: dict[str, tuple[str, ...]] = {
     "autodesk_relevance": ("autodesk", "aec", "document", "drawing", "sheet", "cad", "bim"),
     "cross_paper_synthesis": ("compare", "contrast", "cross-paper", "synthesis", "tradeoff"),
 }
+
+TRAINING_HOWTO_INTENT_CUES: tuple[str, ...] = (
+    "distributed training",
+    "training stack",
+    "fsdp",
+    "deepspeed",
+    "megatron",
+    "sharding",
+    "parallelism",
+    "tensor parallel",
+    "pipeline parallel",
+    "sequence parallel",
+    "activation checkpoint",
+    "checkpointing",
+    "microbatch",
+    "communication",
+    "all-reduce",
+    "nccl",
+    "profiling",
+    "throughput",
+    "gpu utilization",
+    "data pipeline",
+)
 
 GENERIC_HEADING_PATTERNS = (
     "navigating the future",
@@ -193,10 +217,26 @@ def validate_outline(outline: DailyOutline, pack: EvidencePack) -> list[str]:
     for role, aliases in REQUIRED_INTENTS.items():
         if not any(alias in intents for alias in aliases):
             errors.append(f"missing_outline_intent:{role}")
+    if _pack_has_training_system_focus(pack):
+        training_outline_blob = " ".join(
+            f"{section.heading} {section.intent}".lower()
+            for section in outline.sections
+        )
+        if not any(cue in training_outline_blob for cue in TRAINING_HOWTO_INTENT_CUES):
+            errors.append("missing_outline_training_howto")
     total_budget = sum(max(0, section.word_budget) for section in outline.sections)
     if total_budget and total_budget < config.daily_min_words():
         errors.append(f"outline_word_budget_too_short:{total_budget}/{config.daily_min_words()}")
     return errors
+
+
+def _pack_has_training_system_focus(pack: EvidencePack) -> bool:
+    parts = [
+        f"{ranked.item.title} {ranked.item.abstract_or_excerpt} {' '.join(ranked.item.tags)}"
+        for ranked in pack.ranked_items
+    ]
+    parts.extend(f"{card.title} {card.mechanism} {card.experiment} {card.impact}" for card in pack.evidence_cards)
+    return has_training_system_focus(" ".join(parts))
 
 
 def _outline_system() -> str:
@@ -204,6 +244,8 @@ def _outline_system() -> str:
         "You are the Research Radar outline planner. Return JSON only. "
         "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE. "
         "The outline must be thesis-led, deep, and mechanism-first, not a broad roundup. "
+        "When the cluster is about scaled LLM training, include a concrete how-to section on training architecture, "
+        "parallelism/sharding, memory and communication bottlenecks, checkpointing, profiling, or data-pipeline tradeoffs. "
         "It must cover thesis, mechanisms, math/objectives where supported, experiments, limitations, engineering impact, "
         "and cross-paper synthesis. Include an adoption or production-readiness section only when the selected cluster supports it. "
         "Ban vague corporate headings such as 'Navigating the Future', 'Bridging the Digital Divide', and 'Our Path Forward'. "
@@ -217,6 +259,8 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
         "Do not use fixed headings such as 'Paper mechanisms' or 'Why it matters'. "
         "Use 3-4 deep primary-paper sections, one cross-paper comparison section, and one adoption or production-readiness section when warranted. "
         "Headings must name a technical object, mechanism, benchmark, or tradeoff. "
+        "For scaled LLM training clusters, one heading should read like a training systems runbook: name the sharding/parallelism, "
+        "memory, communication, checkpointing, profiling, data-pipeline, or throughput decision being taught. "
         "Return JSON in this exact shape:\n"
         "{\n"
         '  "title": "short post title",\n'
@@ -236,6 +280,8 @@ def _outline_repair_system() -> str:
         "You repair an invalid research outline. Return JSON only in the exact DailyOutline schema. "
         "Keep concrete, non-template headings and ensure intents cover thesis, mechanism, math/objective, "
         "experiments, limitations, impact, cross-paper synthesis, and production or adoption implications when supported. "
+        "For scaled LLM training clusters, include training-how-to intent such as sharding/parallelism, activation checkpointing, "
+        "communication bottlenecks, data-pipeline throughput, checkpoint recovery, profiling, or GPU utilization. "
         "Avoid corporate-strategy headings and name technical mechanisms or tradeoffs."
     )
 
@@ -255,6 +301,8 @@ def _outline_repair_user(
         f"PREVIOUS_OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         "Fix the outline and return JSON with: title, angle, sections[{heading,intent,evidence_ids,word_budget,focus_item_ids,section_role,split_reason}], suggested_tags. "
         "Include 3-4 deep primary-paper sections, one cross-paper comparison section, and one Autodesk/AEC adoption section. "
+        "If VALIDATION_ERRORS contains missing_outline_training_howto, add a concrete training systems how-to section naming the sharding, "
+        "parallelism, memory, communication, checkpointing, profiling, or data-pipeline decision supported by the evidence. "
         "Normally keep one primary paper to one deep section; if a primary paper is split, explain the technical split_reason. "
         "Supporting papers must stay in explicitly supporting sections or inside synthesis/adoption sections.\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
@@ -299,8 +347,8 @@ def _fallback_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOu
             "word_budget": per_section,
         },
         {
-            "heading": "Mechanisms that matter for training and serving",
-            "intent": "mechanism method architecture pipeline",
+            "heading": "Training and serving mechanisms worth operationalizing",
+            "intent": "mechanism method architecture pipeline distributed training sharding parallelism throughput profiling",
             "evidence_ids": pick_ids(("mechanism",)),
             "word_budget": per_section,
         },
