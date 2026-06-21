@@ -102,7 +102,7 @@ The writer uses one OpenAI-compatible endpoint:
   - `BLOGPIPE_LLM_CHAIN_REPAIR`
 - `BLOGPIPE_LLM_MAX_CALLS`
 - `BLOGPIPE_LLM_MAX_TOKENS`
-- `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `900`)
+- `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `1200`)
 - `BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS` (workflow default `45`)
 - `BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS` (workflow default `90`)
 - `BLOGPIPE_SECTIONWISE_DRAFTING` (default `0`; opt in only when a longer,
@@ -158,6 +158,11 @@ and `openrouter/free`.
   free-tier responses are less likely to hit the 45s fast-task ceiling.
 - `BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT` (default `4`): how many fast
   OpenRouter models to try immediately after each native Gemini failure.
+- `BLOGPIPE_OUTLINE_REPAIR_ERROR_THRESHOLD` (default `4`): during outline
+  generation, accept a primary completion with up to this many non-structural
+  validation gaps and proceed to repair instead of walking the rest of the chain.
+- `BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS` (default `180`): skip 550B
+  OpenRouter models when less than this much runtime budget remains.
 
 ## Search and Ranking
 

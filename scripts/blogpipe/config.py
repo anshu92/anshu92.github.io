@@ -91,6 +91,14 @@ DEFAULT_OPENROUTER_FREE_MODELS = [
     "openrouter/free",
 ]
 
+# OpenRouter free models that routinely exceed fast-task budgets under load.
+SLOW_OPENROUTER_MODELS = frozenset(
+    {
+        "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "nousresearch/hermes-3-llama-3.1-405b:free",
+    }
+)
+
 # Fast OpenRouter free models to try first on native Gemini 429 (latency over peak quality).
 DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK = [
     "openrouter/free",
@@ -214,7 +222,7 @@ def llm_config() -> LLMConfig:
         max_calls=_int("BLOGPIPE_LLM_MAX_CALLS", 6, 0, 20),
         max_tokens=_int("BLOGPIPE_LLM_MAX_TOKENS", 4096, 512, 12000),
         temperature=_float("BLOGPIPE_LLM_TEMPERATURE", 0.25, 0.0, 1.2),
-        max_runtime_seconds=_float("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", 900.0, 60.0, 1800.0),
+        max_runtime_seconds=_float("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", 1200.0, 60.0, 1800.0),
         fast_timeout_seconds=_float("BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS", 45.0, 10.0, 180.0),
         smart_timeout_seconds=_float("BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS", 90.0, 15.0, 240.0),
         openrouter_timeout_seconds=_float("BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS", 120.0, 45.0, 300.0),
@@ -304,6 +312,14 @@ def openrouter_smart_fallback_enabled() -> bool:
 
 def llm_rate_limit_cooldown_seconds() -> float:
     return _float("BLOGPIPE_LLM_RATE_LIMIT_COOLDOWN_SECONDS", 15.0, 0.0, 120.0)
+
+
+def llm_slow_openrouter_min_budget_seconds() -> float:
+    return _float("BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS", 180.0, 60.0, 600.0)
+
+
+def outline_repair_error_threshold() -> int:
+    return _int("BLOGPIPE_OUTLINE_REPAIR_ERROR_THRESHOLD", 4, 1, 12)
 
 
 def openreview_venues() -> tuple[str, ...]:

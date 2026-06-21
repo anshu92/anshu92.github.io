@@ -21,5 +21,5 @@ def test_research_radar_pr_requires_content_post_change():
 def test_research_radar_workflow_caps_runtime():
     workflow = Path(".github/workflows/research-radar.yml").read_text()
     assert "timeout-minutes: 20" in workflow
-    assert "BLOGPIPE_LLM_MAX_RUNTIME_SECONDS: ${{ vars.BLOGPIPE_LLM_MAX_RUNTIME_SECONDS || '900' }}" in workflow
+    assert "BLOGPIPE_LLM_MAX_RUNTIME_SECONDS: ${{ vars.BLOGPIPE_LLM_MAX_RUNTIME_SECONDS || '1200' }}" in workflow
     assert "BLOGPIPE_SECTIONWISE_DRAFTING: ${{ vars.BLOGPIPE_SECTIONWISE_DRAFTING || '0' }}" in workflow

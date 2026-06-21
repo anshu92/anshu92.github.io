@@ -28,6 +28,29 @@ class _RejectedCompletionError(RuntimeError):
 
 
 @dataclass
+class RejectedCompletionTracker:
+    best_text: str = ""
+    best_score: int = 1_000_000
+
+    def observe(self, text: str, reason: str) -> None:
+        score = _rejection_error_count(reason)
+        if score < self.best_score:
+            self.best_score = score
+            self.best_text = text
+
+    def prefer(self, fallback_text: str, fallback_reason: str) -> str:
+        fallback_score = _rejection_error_count(fallback_reason)
+        if self.best_text and self.best_score < fallback_score:
+            LOG.warning(
+                "llm using best rejected completion (score=%s vs %s)",
+                self.best_score,
+                fallback_score,
+            )
+            return self.best_text
+        return fallback_text
+
+
+@dataclass
 class LLMUsage:
     calls: int = 0
     failures: int = 0
@@ -56,6 +79,7 @@ class LLMClient:
         max_tokens: int | None = None,
         task: str | None = None,
         reject_completion: CompletionRejector | None = None,
+        rejected_tracker: RejectedCompletionTracker | None = None,
     ) -> str:
         fake = _fake_response(system, self.usage.calls)
         task_name = (task or "default").strip().lower() or "default"
@@ -82,6 +106,8 @@ class LLMClient:
         last_rejected_text = ""
         tried_models: list[str] = []
         for chain_model in model_chain:
+            if self._should_skip_slow_openrouter_model(chain_model, task_name):
+                continue
             tried_models.append(chain_model)
             text, last_error = self._complete_with_model(
                 chain_model=chain_model,
@@ -95,12 +121,16 @@ class LLMClient:
                 return text
             if isinstance(last_error, _RejectedCompletionError):
                 last_rejected_text = last_error.text
+                if rejected_tracker is not None:
+                    rejected_tracker.observe(last_error.text, last_error.reason)
             mirror_models = self._openrouter_free_models_after_native_failure(
                 chain_model,
                 last_error,
                 tried=tried_models,
             )
             for mirror in mirror_models:
+                if self._should_skip_slow_openrouter_model(mirror, task_name):
+                    continue
                 tried_models.append(mirror)
                 LOG.warning(
                     "llm task=%s native model=%s failed (%s); trying openrouter free model=%s",
@@ -121,9 +151,13 @@ class LLMClient:
                     return text
                 if isinstance(last_error, _RejectedCompletionError):
                     last_rejected_text = last_error.text
+                    if rejected_tracker is not None:
+                        rejected_tracker.observe(last_error.text, last_error.reason)
             self._pause_after_rate_limit(last_error)
         emergency_chain = self._emergency_openrouter_models(task_name, tried=tried_models, last_error=last_error)
         for chain_model in emergency_chain:
+            if self._should_skip_slow_openrouter_model(chain_model, task_name):
+                continue
             tried_models.append(chain_model)
             text, last_error = self._complete_with_model(
                 chain_model=chain_model,
@@ -137,8 +171,13 @@ class LLMClient:
                 return text
             if isinstance(last_error, _RejectedCompletionError):
                 last_rejected_text = last_error.text
+                if rejected_tracker is not None:
+                    rejected_tracker.observe(last_error.text, last_error.reason)
             self._pause_after_rate_limit(last_error)
         if last_rejected_text:
+            fallback_reason = last_error.reason if isinstance(last_error, _RejectedCompletionError) else ""
+            if rejected_tracker is not None:
+                last_rejected_text = rejected_tracker.prefer(last_rejected_text, fallback_reason)
             LOG.warning(
                 "llm task=%s all models returned rejected completions; returning last completion for validation",
                 task_name,
@@ -159,6 +198,8 @@ class LLMClient:
         max_tokens: int | None,
         reject_completion: CompletionRejector | None,
     ) -> tuple[str | None, Exception | None]:
+        if self._should_skip_slow_openrouter_model(chain_model, task_name):
+            return None, RuntimeError("llm_runtime_budget_low_for_slow_model")
         base_url, api_key = self._endpoint_for_model(chain_model)
         if not api_key:
             return None, RuntimeError(f"missing_api_key:{chain_model}")
@@ -379,6 +420,23 @@ class LLMClient:
             limit=config.openrouter_rate_limit_fallback_limit(),
         )
 
+    def _should_skip_slow_openrouter_model(self, model: str, task_name: str) -> bool:
+        normalized = (model or "").strip().lower()
+        if normalized not in config.SLOW_OPENROUTER_MODELS:
+            return False
+        remaining = self._remaining_runtime_seconds()
+        min_budget = config.llm_slow_openrouter_min_budget_seconds()
+        if remaining >= min_budget:
+            return False
+        LOG.warning(
+            "llm task=%s skipping slow openrouter model=%s; %.0fs runtime remaining (<%.0fs)",
+            task_name,
+            model,
+            remaining,
+            min_budget,
+        )
+        return True
+
     def _endpoint_for_model(self, model: str) -> tuple[str, str]:
         if _is_openrouter_model(model):
             key = self.cfg.openrouter_api_key
@@ -450,6 +508,13 @@ def _openrouter_fallback_eligible_error(error: Exception | None) -> bool:
     if isinstance(error, TimeoutError):
         return True
     return _is_rate_limit_error(error)
+
+
+def _rejection_error_count(reason: str) -> int:
+    if reason.startswith("outline_invalid:"):
+        payload = reason.split("outline_invalid:", 1)[1]
+        return len([part for part in payload.split(",") if part.strip()])
+    return 1_000_000
 
 
 def _can_fallback_status(status_code: int) -> bool:

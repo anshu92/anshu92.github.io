@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from blogpipe import config
-from blogpipe.llm import LLMClient, _RejectedCompletionError
+from blogpipe.llm import LLMClient, RejectedCompletionTracker, _RejectedCompletionError
 
 
 class _StubResponse:
@@ -247,6 +247,14 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
     assert out == "free ok"
     assert attempted[:3] == ["gemini-3.1-pro-preview"] * 3
     assert attempted[3] == "openrouter/free"
+
+
+def test_rejected_completion_tracker_prefers_fewer_outline_errors():
+    tracker = RejectedCompletionTracker()
+    tracker.observe("worse", "outline_invalid:a,b,c,d,e")
+    tracker.observe("better", "outline_invalid:a,b,c,d")
+    chosen = tracker.prefer("worse", "outline_invalid:a,b,c,d,e")
+    assert chosen == "better"
 
 
 def test_rejected_native_completion_tries_openrouter_free_models(monkeypatch):

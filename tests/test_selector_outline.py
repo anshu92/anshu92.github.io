@@ -10,7 +10,7 @@ from pydantic import TypeAdapter
 from blogpipe.evidence import build_daily_pack
 from blogpipe.llm import LLMClient
 from blogpipe.models import DailyOutline, EvidencePack, RankedItem, SelectionResult, SourceItem, TopicScores
-from blogpipe.outline import OutlineError, generate_daily_outline, validate_outline
+from blogpipe.outline import OutlineError, _outline_close_enough_for_repair, generate_daily_outline, validate_outline
 from blogpipe.selector import SelectionError, _selector_system, _selector_user, select_daily_items
 from blogpipe.writer import _frontmatter
 
@@ -369,6 +369,24 @@ def test_training_focused_outline_requires_howto_intent():
     }
     repaired = DailyOutline(title="Training systems", angle="Training stack decisions matter.", sections=sections)
     assert "missing_outline_training_howto" not in validate_outline(repaired, pack)
+
+
+def test_outline_close_enough_for_repair_allows_small_intent_gaps():
+    errors = [
+        "missing_outline_intent:technical_thesis",
+        "missing_outline_intent:limitations",
+        "missing_outline_intent:autodesk_relevance",
+        "missing_outline_intent:cross_paper_synthesis",
+    ]
+    assert _outline_close_enough_for_repair(errors)
+
+
+def test_outline_close_enough_for_repair_rejects_structural_failures():
+    errors = [
+        "missing_outline_intent:technical_thesis",
+        "too_few_outline_sections",
+    ]
+    assert not _outline_close_enough_for_repair(errors)
 
 
 def test_generate_outline_malformed_json_raises():

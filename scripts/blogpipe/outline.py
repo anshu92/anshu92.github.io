@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from . import config
 from . import jsonish
-from .llm import CompletionRejector, LLMClient
+from .llm import CompletionRejector, LLMClient, RejectedCompletionTracker
 from .models import DailyOutline, EvidencePack, SelectionResult
 from .topics import has_training_system_focus
 
@@ -62,6 +62,22 @@ GENERIC_HEADING_PATTERNS = (
     "what mattered today",
 )
 
+STRUCTURAL_OUTLINE_ERROR_PREFIXES = (
+    "missing_outline_title",
+    "missing_outline_angle",
+    "too_few_outline_sections",
+    "duplicate_outline_headings",
+    "generic_outline_heading:",
+    "blank_outline_heading",
+    "unknown_outline_evidence:",
+    "unknown_outline_focus:",
+    "late_outline_item:",
+    "supporting_section_uses_primary_focus",
+    "primary_section_uses_nonprimary_focus",
+    "missing_outline_training_howto",
+    "outline_word_budget_too_short:",
+)
+
 
 def generate_daily_outline(
     pack: EvidencePack,
@@ -70,7 +86,9 @@ def generate_daily_outline(
     llm: LLMClient,
 ) -> DailyOutline:
     max_tokens = config.outline_max_tokens()
-    reject = _outline_completion_rejector(pack)
+    primary_tracker = RejectedCompletionTracker()
+    primary_reject = _outline_completion_rejector(pack, allow_close=True)
+    strict_reject = _outline_completion_rejector(pack, allow_close=False)
     parse_error = ""
     outline: DailyOutline | None = None
     try:
@@ -81,17 +99,23 @@ def generate_daily_outline(
                 user=_outline_user(pack, selection),
                 task="outline",
                 max_tokens=max_tokens,
-                reject_completion=reject,
+                reject_completion=primary_reject,
+                rejected_tracker=primary_tracker,
             )
         )
-        if not validate_outline(outline, pack):
+        errors = validate_outline(outline, pack)
+        if not errors:
             LOG.info("outline path: primary")
             return outline
+        if _outline_close_enough_for_repair(errors):
+            LOG.info("outline path: primary close enough for repair (%d gaps)", len(errors))
+        else:
+            LOG.warning("outline path: primary returned %d validation gaps after chain", len(errors))
     except (OutlineError, RuntimeError) as exc:
         parse_error = str(exc)
-    if outline is not None:
-        errors = validate_outline(outline, pack)
-    else:
+        outline = None
+        errors = []
+    if outline is None:
         errors = []
 
     repair_error = ""
@@ -110,7 +134,7 @@ def generate_daily_outline(
                 ),
                 task="outline_repair",
                 max_tokens=max_tokens,
-                reject_completion=reject,
+                reject_completion=strict_reject,
             )
         )
         repaired_errors = validate_outline(repaired, pack)
@@ -131,7 +155,7 @@ def generate_daily_outline(
                     ),
                     task="outline_repair",
                     max_tokens=max_tokens,
-                    reject_completion=reject,
+                    reject_completion=strict_reject,
                 )
             )
             repaired_errors = validate_outline(repaired_again, pack)
@@ -163,6 +187,7 @@ def _outline_complete(
     task: str,
     max_tokens: int,
     reject_completion: CompletionRejector | None = None,
+    rejected_tracker: RejectedCompletionTracker | None = None,
 ) -> str:
     if isinstance(llm, LLMClient):
         return llm.complete(
@@ -171,20 +196,35 @@ def _outline_complete(
             max_tokens=max_tokens,
             task=task,
             reject_completion=reject_completion,
+            rejected_tracker=rejected_tracker,
         )
     return llm.complete(system=system, user=user, max_tokens=max_tokens)
 
 
-def _outline_completion_rejector(pack: EvidencePack) -> CompletionRejector:
+def _outline_close_enough_for_repair(errors: list[str]) -> bool:
+    if not errors:
+        return True
+    if len(errors) > config.outline_repair_error_threshold():
+        return False
+    return not any(_is_structural_outline_error(error) for error in errors)
+
+
+def _is_structural_outline_error(error: str) -> bool:
+    return any(error == prefix or error.startswith(prefix) for prefix in STRUCTURAL_OUTLINE_ERROR_PREFIXES)
+
+
+def _outline_completion_rejector(pack: EvidencePack, *, allow_close: bool) -> CompletionRejector:
     def _reject(text: str) -> str | None:
         try:
             outline = _parse_outline(text)
         except OutlineError as exc:
             return str(exc)
         errors = validate_outline(outline, pack)
-        if errors:
-            return "outline_invalid:" + ",".join(errors[:8])
-        return None
+        if not errors:
+            return None
+        if allow_close and _outline_close_enough_for_repair(errors):
+            return None
+        return "outline_invalid:" + ",".join(errors[:8])
 
     return _reject
 
