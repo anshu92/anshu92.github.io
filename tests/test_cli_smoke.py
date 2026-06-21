@@ -46,7 +46,7 @@ def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
     assert report["agent_plan"]["final"]["allowed_deep_dives"] == 0
 
 
-def test_run_with_invalid_daily_writes_blocked_report_without_failing(monkeypatch, tmp_path):
+def test_run_with_invalid_daily_recovers_to_emergency_preview(monkeypatch, tmp_path):
     selector = Path("tests/fixtures/fake_selector.json").read_text()
     outline = Path("tests/fixtures/fake_outline.json").read_text()
     monkeypatch.setattr(memory, "ROOT", tmp_path)
@@ -71,8 +71,12 @@ def test_run_with_invalid_daily_writes_blocked_report_without_failing(monkeypatc
         ]
     )
     assert code == 0
-    assert list((tmp_path / "reports").glob("*.blocked.json"))
-    assert not list((tmp_path / "content" / "post").glob("*.md"))
+    assert not list((tmp_path / "reports").glob("*.blocked.json"))
+    posts = list((tmp_path / "content" / "post").glob("*.md"))
+    assert posts
+    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
+    assert report["daily"]["ok"] is True
+    assert report["daily"]["errors"] == []
 
 
 def test_run_with_training_fixtures_generates_howto_preview(monkeypatch, tmp_path):

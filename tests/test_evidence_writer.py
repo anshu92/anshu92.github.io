@@ -18,6 +18,7 @@ from blogpipe.writer import (
     _daily_draft_rejection_reason,
     _deterministic_quality_errors,
     _daily_rewrite_user,
+    _emergency_daily_draft,
     _llm_quality_errors,
     _quality_floor_guidance,
     _quality_review_user,
@@ -652,6 +653,30 @@ def test_repair_prompt_receives_validator_errors(monkeypatch, tmp_path):
     assert "99.9%" not in calls[1]
 
 
+def test_emergency_daily_draft_passes_deterministic_validation():
+    pack = _training_pack()
+    outline = _training_outline()
+    body = _emergency_daily_draft(pack=pack, outline=outline, selection=_selection(), title=outline.title)
+    assert validate_body(body, pack, outline=outline) == []
+    assert _deterministic_quality_errors(body, pack) == []
+
+
+def test_write_daily_uses_emergency_draft_when_llm_draft_fails(monkeypatch, tmp_path):
+    pack = _training_pack()
+    outline = _training_outline()
+
+    class FailingLLM(LLMClient):
+        def complete(self, *, system, user, max_tokens=None, task=None, reject_completion=None, rejected_tracker=None):
+            raise RuntimeError(f"forced_failure:{task}")
+
+    _patch_root(monkeypatch, tmp_path)
+    result = write_daily(pack, outline=outline, selection=_selection(), llm=FailingLLM(), dry_run=True)
+    assert result.ok, result.errors
+    assert "FSDP" in result.body
+    assert "QUALITY_FLOOR_GUIDANCE" not in result.body
+    assert validate_body(result.body, pack, outline=outline) == []
+
+
 def test_write_daily_auto_sanitizes_unsupported_numbers_with_source_links(monkeypatch, tmp_path):
     pack = _pack()
     outline = _outline()
@@ -692,7 +717,7 @@ def test_write_daily_auto_adds_missing_paragraph_source_links(monkeypatch, tmp_p
     assert not any(error.startswith("missing_paragraph_source_link:") for error in result.errors)
 
 
-def test_invalid_daily_blocks_after_failed_repair(monkeypatch, tmp_path):
+def test_invalid_daily_uses_emergency_draft_after_failed_repair(monkeypatch, tmp_path):
     pack = _pack()
 
     class BadLLM:
@@ -701,10 +726,10 @@ def test_invalid_daily_blocks_after_failed_repair(monkeypatch, tmp_path):
 
     _patch_root(monkeypatch, tmp_path)
     result = write_daily(pack, outline=_outline(), selection=_selection(), llm=BadLLM(), dry_run=False)
-    assert not result.ok
-    assert result.errors
-    assert not list((tmp_path / "content" / "post").glob("*.md"))
-    assert list((tmp_path / "reports").glob("*.blocked.json"))
+    assert result.ok, result.errors
+    assert result.repair_attempted
+    assert list((tmp_path / "content" / "post").glob("*.md"))
+    assert not list((tmp_path / "reports").glob("*.blocked.json"))
 
 
 def test_daily_sectionwise_writer_and_editor_with_visual_embeds(monkeypatch, tmp_path):

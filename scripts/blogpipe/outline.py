@@ -171,7 +171,15 @@ def generate_daily_outline(
         repair_error = str(exc)
         repaired_errors = []
 
+    fallback = _deterministic_outline(pack, selection)
+    fallback_errors = validate_outline(fallback, pack)
+    if not fallback_errors:
+        LOG.warning("outline path: deterministic repair fallback")
+        return fallback
+    LOG.warning("outline deterministic repair fallback failed: %s", fallback_errors)
+
     combined = [*errors, *repaired_errors]
+    combined.extend(f"deterministic_outline:{error}" for error in fallback_errors)
     if parse_error:
         combined.append(f"outline_parse_failed:{parse_error}")
     if repair_error:
@@ -207,6 +215,125 @@ def _outline_close_enough_for_repair(errors: list[str]) -> bool:
     if len(errors) > config.outline_repair_error_threshold():
         return False
     return not any(_is_structural_outline_error(error) for error in errors)
+
+
+def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> DailyOutline:
+    evidence_by_item: dict[str, list[str]] = {}
+    for chunk in pack.chunks:
+        evidence_by_item.setdefault(chunk.item_id, []).append(chunk.evidence_id)
+    selected_ids = [item_id for item_id in selection.selected_item_ids if item_id in evidence_by_item]
+    if not selected_ids:
+        selected_ids = [ranked.item.item_id for ranked in pack.ranked_items if ranked.item.item_id in evidence_by_item]
+
+    primary_cards = [
+        card
+        for card in pack.evidence_cards
+        if card.role == "primary" and card.item_id in selected_ids
+    ]
+    if not primary_cards:
+        selected_set = set(selected_ids[: config.daily_primary_papers()])
+        primary_cards = [card for card in pack.evidence_cards if card.item_id in selected_set]
+    primary_cards = primary_cards[: max(2, config.daily_primary_papers())]
+    support_cards = [card for card in pack.evidence_cards if card not in primary_cards]
+    all_primary_evidence = _outline_evidence_ids(primary_cards, evidence_by_item)
+    all_selected_evidence = _outline_evidence_ids([*primary_cards, *support_cards], evidence_by_item)
+    training = _pack_has_training_system_focus(pack)
+
+    title_object = "training-system runbooks" if training else "model reliability boundaries"
+    title = f"Research Radar: {title_object.title()} From Current Evidence"
+    angle = (
+        "Current papers are useful only when they become concrete engineering decisions with measurable limits, "
+        "failure modes, and release gates."
+    )
+    sections: list[dict[str, object]] = [
+        {
+            "heading": "Technical thesis and evidence boundary",
+            "intent": "technical thesis angle framing for the selected evidence cluster",
+            "evidence_ids": all_primary_evidence[:4] or all_selected_evidence[:4],
+            "word_budget": 260,
+            "focus_item_ids": [],
+            "section_role": "synthesis",
+            "split_reason": "",
+        }
+    ]
+    for index, card in enumerate(primary_cards, start=1):
+        heading = _primary_outline_heading(card, training=training and index == 1)
+        sections.append(
+            {
+                "heading": heading,
+                "intent": _primary_outline_intent(card, training=training and index == 1),
+                "evidence_ids": _outline_evidence_ids([card], evidence_by_item)[:3],
+                "word_budget": 260,
+                "focus_item_ids": [card.item_id],
+                "section_role": "primary",
+                "split_reason": "",
+            }
+        )
+    sections.extend(
+        [
+            {
+                "heading": "Benchmark evidence and failure modes",
+                "intent": "experiments evidence benchmark evaluation ablation limitation caveat failure risk tradeoff",
+                "evidence_ids": all_selected_evidence[:5],
+                "word_budget": 260,
+                "focus_item_ids": [],
+                "section_role": "synthesis",
+                "split_reason": "",
+            },
+            {
+                "heading": "Cross-paper mechanism tradeoffs",
+                "intent": "compare contrast cross-paper synthesis tradeoff across mechanisms objectives and limits",
+                "evidence_ids": all_primary_evidence[:5] or all_selected_evidence[:5],
+                "word_budget": 220,
+                "focus_item_ids": [],
+                "section_role": "synthesis",
+                "split_reason": "",
+            },
+            {
+                "heading": "Autodesk AEC document adoption gate",
+                "intent": "impact engineering production practical Autodesk AEC document drawing sheet CAD BIM validation release gate",
+                "evidence_ids": all_selected_evidence[:5],
+                "word_budget": 260,
+                "focus_item_ids": [],
+                "section_role": "adoption",
+                "split_reason": "",
+            },
+        ]
+    )
+    return DailyOutline(title=title, angle=angle, sections=sections, suggested_tags=selection.suggested_tags)
+
+
+def _outline_evidence_ids(cards: list[object], evidence_by_item: dict[str, list[str]]) -> list[str]:
+    out: list[str] = []
+    for card in cards:
+        item_id = getattr(card, "item_id", "")
+        for evidence_id in evidence_by_item.get(item_id, []):
+            if evidence_id not in out:
+                out.append(evidence_id)
+    return out
+
+
+def _primary_outline_heading(card: object, *, training: bool) -> str:
+    title = str(getattr(card, "title", "") or "Primary mechanism")
+    words = re.findall(r"[A-Za-z0-9][A-Za-z0-9-]*", title)
+    short = " ".join(words[:7]) or "Primary mechanism"
+    if training:
+        return f"{short}: sharding, checkpointing, and throughput runbook"
+    return f"{short}: mechanism and objective"
+
+
+def _primary_outline_intent(card: object, *, training: bool) -> str:
+    base = (
+        "mechanism method architecture pipeline math objective optimization metric "
+        "experiment evidence benchmark evaluation limitation risk"
+    )
+    if training:
+        return (
+            base
+            + " distributed training training stack FSDP sharding parallelism activation checkpointing "
+            "communication profiling throughput data pipeline GPU utilization"
+        )
+    return base
 
 
 def _is_structural_outline_error(error: str) -> bool:

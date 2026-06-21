@@ -115,6 +115,8 @@ The writer uses one OpenAI-compatible endpoint:
 - `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `1500`; the GitHub
   Actions job is capped at 30 minutes, leaving budget for setup, PR creation,
   email, and cleanup)
+- `BLOGPIPE_LLM_RETRY_ATTEMPTS` (workflow default `2`): per-model HTTP attempts
+  before moving to the next model. Keep this low for free-tier budgets.
 - `BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS` (workflow default `45`)
 - `BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS` (workflow default `90`)
 - `BLOGPIPE_SECTIONWISE_DRAFTING` (default `0`; opt in only when a longer,
@@ -165,7 +167,7 @@ and `openrouter/free`.
   then walk the full merged OpenRouter chain appended to every task, and finally
   the emergency roster in `config.DEFAULT_OPENROUTER_SMART_EMERGENCY`.
   Paid OpenRouter Gemini mirrors are not used (they require OpenRouter credits).
-- `BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS` (default `120`): wall-clock timeout
+- `BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS` (workflow default `60`): wall-clock timeout
   for OpenRouter model calls. Applies on top of fast/smart task timeouts so slow
   free-tier responses are less likely to hit the 45s fast-task ceiling.
 - `BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT` (default `4`): how many fast

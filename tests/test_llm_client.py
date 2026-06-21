@@ -43,7 +43,7 @@ def test_task_chain_fallback_tries_next_model(monkeypatch):
     llm = LLMClient()
     out = llm.complete(system="sys", user="usr", task="draft")
     assert out == "ok"
-    assert attempted[:3] == ["chain-a", "chain-a", "chain-a"]
+    assert attempted[:2] == ["chain-a", "chain-a"]
     assert attempted[-1] == "chain-b"
     assert llm.usage.calls == 1
     assert llm.usage.model_by_task["draft"] == "chain-b"
@@ -112,6 +112,21 @@ def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
     assert "minimax/minimax-m2.5:free" not in chain
     assert "arcee-ai/trinity-large-thinking:free" not in chain
     assert "inclusionai/ring-2.6-1t:free" not in chain
+
+
+def test_gemini_api_key_defaults_to_gemini_primary_with_openrouter_fallback(monkeypatch):
+    monkeypatch.delenv("BLOGPIPE_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("BLOGPIPE_LLM_API_KEY", raising=False)
+    monkeypatch.delenv("BLOGPIPE_LLM_MODEL", raising=False)
+    monkeypatch.delenv("BLOGPIPE_MODEL", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
+
+    llm_cfg = config.llm_config()
+    assert "generativelanguage.googleapis.com" in llm_cfg.base_url
+    assert llm_cfg.api_key == "gemini-key"
+    assert llm_cfg.model == config.DEFAULT_GEMINI_MODEL_FAST
+    assert llm_cfg.openrouter_api_key == "openrouter-key"
 
 
 def test_openrouter_free_roster_can_be_overridden(monkeypatch):
@@ -367,8 +382,8 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
     llm = LLMClient()
     out = llm.complete(system="sys", user="usr", task="draft")
     assert out == "free ok"
-    assert attempted[:3] == ["gemini-3.1-pro-preview"] * 3
-    assert attempted[3] == "openrouter/free"
+    assert attempted[:2] == ["gemini-3.1-pro-preview"] * 2
+    assert attempted[2] == "openrouter/free"
 
 
 def test_openrouter_rate_limit_circuit_breaker_stops_free_roster(monkeypatch):
@@ -401,9 +416,47 @@ def test_openrouter_rate_limit_circuit_breaker_stops_free_roster(monkeypatch):
 
     openrouter_attempts = [model for model in attempted if model == "openrouter/free" or model.endswith(":free")]
     assert set(openrouter_attempts) == {"openrouter/free"}
-    assert llm._openrouter_rate_limit_hits == 3
-    assert attempted.count("gemini-a") == 3
-    assert attempted.count("gemini-b") == 3
+    assert llm._openrouter_rate_limit_hits == 2
+    assert attempted.count("gemini-a") == 2
+    assert attempted.count("gemini-b") == 2
+
+
+def test_openrouter_rate_limit_circuit_breaker_is_task_scoped(monkeypatch):
+    monkeypatch.setenv(
+        "BLOGPIPE_LLM_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "gemini-a")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_OUTLINE_REPAIR", "gemini-a")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_DRAFT", "gemini-a")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS", "2")
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
+
+    attempted: list[tuple[str, str]] = []
+
+    def _post(url, headers, json, timeout):  # noqa: ANN001
+        model = str(json["model"])
+        task = "outline_repair" if len(attempted) < 4 else "draft"
+        attempted.append((task, model))
+        if model.startswith("gemini-"):
+            return _StubResponse(429)
+        if task == "outline_repair":
+            return _StubResponse(429)
+        return _StubResponse(200, {"choices": [{"message": {"content": "draft ok"}}]})
+
+    monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
+    llm = LLMClient()
+    with pytest.raises(RuntimeError, match="LLM completion failed"):
+        llm.complete(system="sys", user="usr", task="outline_repair")
+
+    out = llm.complete(system="sys", user="usr", task="draft")
+    assert out == "draft ok"
+    assert llm._openrouter_rate_limit_hits_by_task["outline_repair"] >= 2
+    assert llm._openrouter_rate_limit_hits_by_task.get("draft", 0) == 0
+    assert ("draft", "openrouter/free") in attempted
 
 
 def test_rejected_completion_tracker_prefers_fewer_outline_errors():

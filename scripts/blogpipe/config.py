@@ -352,11 +352,14 @@ def user_agent() -> str:
 def llm_config() -> LLMConfig:
     openrouter_base = _get("OPENROUTER_BASE", "https://openrouter.ai/api/v1")
     openrouter_key = _get("OPENROUTER_API_KEY")
-    base = _get("BLOGPIPE_LLM_BASE_URL", openrouter_base)
-    key = _get("BLOGPIPE_LLM_API_KEY", _get("OPENROUTER_API_KEY"))
+    gemini_key = _get("GEMINI_API_KEY")
+    default_base = "https://generativelanguage.googleapis.com/v1beta/openai" if gemini_key else openrouter_base
+    base = _get("BLOGPIPE_LLM_BASE_URL", default_base)
+    key = _get("BLOGPIPE_LLM_API_KEY", gemini_key or openrouter_key)
     model_primary = _get("BLOGPIPE_LLM_MODEL")
     model_legacy = _get("BLOGPIPE_MODEL")
-    model = model_primary or model_legacy or "openrouter/free"
+    default_model = DEFAULT_GEMINI_MODEL_FAST if gemini_key else "openrouter/free"
+    model = model_primary or model_legacy or default_model
     model_fast = _get("BLOGPIPE_LLM_MODEL_FAST")
     model_smart = _get("BLOGPIPE_LLM_MODEL_SMART")
     openrouter_free_models = _csv("BLOGPIPE_OPENROUTER_FREE_MODELS")
@@ -395,7 +398,7 @@ def llm_config() -> LLMConfig:
         max_runtime_seconds=_float("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", 1500.0, 60.0, 1800.0),
         fast_timeout_seconds=_float("BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS", 45.0, 10.0, 180.0),
         smart_timeout_seconds=_float("BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS", 90.0, 15.0, 240.0),
-        openrouter_timeout_seconds=_float("BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS", 120.0, 45.0, 300.0),
+        openrouter_timeout_seconds=_float("BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS", 60.0, 30.0, 300.0),
     )
 
 
@@ -481,7 +484,11 @@ def openrouter_smart_fallback_enabled() -> bool:
 
 
 def llm_rate_limit_cooldown_seconds() -> float:
-    return _float("BLOGPIPE_LLM_RATE_LIMIT_COOLDOWN_SECONDS", 15.0, 0.0, 120.0)
+    return _float("BLOGPIPE_LLM_RATE_LIMIT_COOLDOWN_SECONDS", 5.0, 0.0, 120.0)
+
+
+def llm_retry_attempts() -> int:
+    return _int("BLOGPIPE_LLM_RETRY_ATTEMPTS", 2, 1, 3)
 
 
 def llm_slow_openrouter_min_budget_seconds() -> float:

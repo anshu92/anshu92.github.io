@@ -389,11 +389,12 @@ def test_outline_close_enough_for_repair_rejects_structural_failures():
     assert not _outline_close_enough_for_repair(errors)
 
 
-def test_generate_outline_malformed_json_raises():
+def test_generate_outline_malformed_json_uses_deterministic_fallback():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
     pack = build_daily_pack(_fixture_ranked()[:5])
-    with pytest.raises(OutlineError, match="outline_invalid"):
-        generate_daily_outline(pack, selection=selection, llm=FakeLLM("[]"))
+    outline = generate_daily_outline(pack, selection=selection, llm=FakeLLM("[]"))
+    assert validate_outline(outline, pack) == []
+    assert any(section.section_role == "adoption" for section in outline.sections)
 
 
 def test_generate_outline_accepts_pythonish_dict_output():
@@ -412,11 +413,12 @@ def test_generate_outline_accepts_pythonish_dict_output():
     assert validate_outline(outline, pack) == []
 
 
-def test_generate_outline_llm_failure_raises():
+def test_generate_outline_llm_failure_uses_deterministic_fallback():
     selection = SelectionResult(selected_item_ids=["arxiv:2605.00001"])
     pack = build_daily_pack(_fixture_ranked()[:5])
-    with pytest.raises(OutlineError, match="outline_invalid"):
-        generate_daily_outline(pack, selection=selection, llm=RaisingLLM())
+    outline = generate_daily_outline(pack, selection=selection, llm=RaisingLLM())
+    assert validate_outline(outline, pack) == []
+    assert outline.sections[0].section_role == "synthesis"
 
 
 def test_generate_outline_uses_outline_then_repair_tasks():
