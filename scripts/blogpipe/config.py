@@ -91,6 +91,17 @@ DEFAULT_OPENROUTER_FREE_MODELS = [
     "openrouter/free",
 ]
 
+# When the native Gemini endpoint rate-limits smart tasks, route through OpenRouter
+# (separate quota) before falling back to free models.
+DEFAULT_OPENROUTER_SMART_EMERGENCY = [
+    "google/gemini-3.1-pro-preview",
+    "google/gemini-3.5-flash",
+    "google/gemini-2.5-pro",
+    "qwen/qwen3-next-80b-a3b-instruct:free",
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nvidia/nemotron-3-super-120b-a55b:free",
+]
+
 
 @dataclass(frozen=True)
 class LLMConfig:
@@ -241,7 +252,12 @@ def sectionwise_drafting_enabled() -> bool:
 
 
 def openrouter_smart_fallback_enabled() -> bool:
-    return _get("BLOGPIPE_OPENROUTER_SMART_FALLBACK", "0").lower() in {"1", "true", "yes", "on"}
+    raw = os.environ.get("BLOGPIPE_OPENROUTER_SMART_FALLBACK", "").strip().lower()
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    return bool(_get("OPENROUTER_API_KEY"))
 
 
 def llm_rate_limit_cooldown_seconds() -> float:

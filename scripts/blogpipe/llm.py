@@ -313,9 +313,13 @@ class LLMClient:
             return []
         seen = {model for model in tried if model}
         out: list[str] = []
-        for model in self.cfg.openrouter_free_models[:3]:
+        for model in config.DEFAULT_OPENROUTER_SMART_EMERGENCY:
             if model not in seen:
                 out.append(model)
+        if not out:
+            for model in self.cfg.openrouter_free_models[:3]:
+                if model not in seen:
+                    out.append(model)
         if out:
             LOG.warning(
                 "llm task=%s gemini chain rate-limited; trying emergency openrouter models=%s",

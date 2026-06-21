@@ -297,18 +297,14 @@ def _generate_daily_body(
             outline=outline,
         )
         min_words = max(500, config.daily_min_words() // 3)
-        if (
-            retry_short
-            and _word_count(body) < min_words
-            and _has_call_budget(client, 1)
-            and getattr(client, "_rate_limit_hits", 0) > 0
-        ):
+        if retry_short and _word_count(body) < min_words and _has_call_budget(client, 1):
             LOG.warning(
-                "single-pass daily draft too short (%s words, need >= %s); retrying after cooldown",
+                "single-pass daily draft too short (%s words, need >= %s); retrying draft",
                 _word_count(body),
                 min_words,
             )
-            _sleep_for_rate_limit(client)
+            if getattr(client, "_rate_limit_hits", 0) > 0:
+                _sleep_for_rate_limit(client)
             body = _call_daily_draft(
                 client,
                 _daily_system(),

@@ -175,20 +175,32 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         "https://generativelanguage.googleapis.com/v1beta/openai",
     )
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
-    monkeypatch.setenv("BLOGPIPE_OPENROUTER_SMART_FALLBACK", "1")
     llm = LLMClient()
     models = llm._emergency_openrouter_models(
         "draft",
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert models[0] == "qwen/qwen3-next-80b-a3b-instruct:free"
-    assert len(models) == 3
+    assert models[0] == "google/gemini-3.1-pro-preview"
+    assert "google/gemini-3.5-flash" in models
+    assert "qwen/qwen3-next-80b-a3b-instruct:free" in models
     assert llm._emergency_openrouter_models(
         "draft",
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("http_status:400"),
     ) == []
+
+
+def test_openrouter_smart_fallback_defaults_on_when_key_present(monkeypatch):
+    monkeypatch.delenv("BLOGPIPE_OPENROUTER_SMART_FALLBACK", raising=False)
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    assert config.openrouter_smart_fallback_enabled() is True
+
+
+def test_openrouter_smart_fallback_can_be_disabled(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    monkeypatch.setenv("BLOGPIPE_OPENROUTER_SMART_FALLBACK", "0")
+    assert config.openrouter_smart_fallback_enabled() is False
 
 
 def test_llm_wall_clock_timeout_skips_to_next_model(monkeypatch):

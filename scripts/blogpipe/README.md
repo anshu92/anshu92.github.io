@@ -146,6 +146,11 @@ ordered for expected Research Radar performance rather than recency:
 `nvidia/nemotron-3-nano-30b-a3b:free`,
 `meta-llama/llama-3.3-70b-instruct:free`, `openai/gpt-oss-20b:free`,
 and `openrouter/free`.
+- `BLOGPIPE_OPENROUTER_SMART_FALLBACK` (default on when `OPENROUTER_API_KEY`
+  is set): when the primary endpoint is Gemini and a smart task such as
+  `draft` hits rate limits, try OpenRouter-hosted Gemini models (separate
+  quota) before free models. Constants live in
+  `config.DEFAULT_OPENROUTER_SMART_EMERGENCY`.
 
 ## Search and Ranking
 
