@@ -16,6 +16,7 @@ from blogpipe.score import daily_shortlist, rank_items
 from blogpipe.writer import (
     _canonical_title_from_body,
     _daily_draft_rejection_reason,
+    _daily_user,
     _deterministic_quality_errors,
     _daily_rewrite_user,
     _emergency_daily_draft,
@@ -26,6 +27,8 @@ from blogpipe.writer import (
     _review_if_ready,
     _signal_rubric,
     _validate_final_title,
+    _validate_training_runbook_actions,
+    _validate_training_technology_details,
     _validate_training_howto_concepts,
     validate_body,
     write_daily,
@@ -156,6 +159,42 @@ The cited paragraph says only that training systems need practical engineering j
     assert "missing_training_howto:training_stack" in errors
     assert "missing_training_howto:scaling_bottleneck" in errors
     assert "missing_training_howto:principal_action" in errors
+
+
+def test_training_technology_details_require_named_runbook_layers():
+    thin = (
+        "The cited paragraph mentions FSDP and profiling, but the rest of the runbook is generic about sync, "
+        "input reliability, and approval detail [E1]. Source: https://example.com/fsdp-runbook"
+    )
+    errors = _validate_training_technology_details(thin)
+    assert "missing_training_technology_detail:memory_and_state" in errors
+    assert "missing_training_technology_detail:communication" in errors
+    assert "missing_training_technology_detail:data_and_recovery" in errors
+
+    rich = (
+        "Use FSDP sharding with tensor parallelism for the stack, activation checkpointing and optimizer state partitioning "
+        "for memory pressure, NCCL all-reduce communication for synchronization, data pipeline throughput and checkpoint recovery "
+        "for restart behavior, then profile GPU utilization with a benchmark release gate [E1]. Source: https://example.com/fsdp-runbook"
+    )
+    assert _validate_training_technology_details(rich) == []
+
+
+def test_training_runbook_actions_require_operational_decision_path():
+    label_only = (
+        "FSDP sharding, tensor parallelism, activation checkpointing, optimizer state, NCCL all-reduce, "
+        "data pipeline throughput, checkpoint recovery, GPU utilization, and release gates are relevant [E1]. "
+        "Source: https://example.com/fsdp-runbook"
+    )
+    errors = _validate_training_runbook_actions(label_only)
+    assert "missing_training_runbook_action:stack_decision" in errors
+    assert "missing_training_runbook_action:bottleneck_diagnosis" in errors
+
+    runbook = (
+        "Choose the FSDP sharding boundary, profile GPU utilization and NCCL all-reduce traces, isolate whether "
+        "memory pressure or data loader stalls are the root cause bottleneck, then validate checkpoint recovery as "
+        "the release gate before scaling [E1]. Source: https://example.com/fsdp-runbook"
+    )
+    assert _validate_training_runbook_actions(runbook) == []
 
 
 def test_training_focused_daily_body_requires_howto_details(monkeypatch):
@@ -420,15 +459,19 @@ def test_engineering_focus_and_title_alignment_fail_llm_quality_review(monkeypat
 def test_quality_floor_guidance_handles_llm_low_signal_training_howto():
     guidance = _quality_floor_guidance(
         [
+            "llm_low_signal:problem_solving:0.51/0.75",
             "llm_low_signal:engineering_judgment:0.62/0.75",
             "llm_low_signal:training_howto:0.45/0.75",
+            "missing_training_runbook_action:bottleneck_diagnosis",
             "llm_quality:TRAINING_HOWTO_INSUFFICIENT",
         ]
     )
     assert "QUALITY_FLOOR_GUIDANCE" in guidance
+    assert "root-cause hypothesis" in guidance
     assert "Raise engineering_judgment" in guidance
     assert "FSDP/ZeRO" in guidance
     assert "checkpoint recovery" in guidance
+    assert "choose the stack" in guidance
 
 
 def test_empty_quality_failure_is_advisory_without_low_scores(monkeypatch):
@@ -457,8 +500,19 @@ def test_quality_review_prompt_exposes_training_howto_focus():
         selection=SelectionResult(),
     )
     assert "TRAINING_SYSTEM_FOCUS: true" in prompt
+    assert '"problem_solving": 0.0' in prompt
     assert '"training_howto": 0.0' in prompt
+    assert '"training_runbook_actionability": 0.0' in prompt
     assert "scaled-training how-to detail" in prompt
+
+
+def test_daily_prompt_is_problem_first_for_aec_foundation_models():
+    prompt = _daily_user(_training_pack(), _training_outline(), _selection(), "Research Radar: Scaled training")
+    assert "problem-first technical blog post" in prompt
+    assert "AEC foundation-model team" in prompt
+    assert "scaling a training run" in prompt
+    assert "data bottleneck" in prompt
+    assert "what an engineer should test next" in prompt
 
 
 def test_signal_rubric_scores_training_howto_from_cited_prose():
@@ -478,12 +532,14 @@ def test_signal_rubric_ignores_uncited_decorative_quality_cues():
 
 This uncited paragraph says algorithm, architecture, objective, benchmark, ablation, throughput, latency, cache, retrieval, quantization, failure mode, release gate, production, tradeoff, monitoring, compare, across, together, and contrast.
 
-The cited paragraph says only that the item matters for engineering readers [E1]. Source: https://arxiv.org/abs/2605.00001
+The cited paragraph says only that the item matters for engineering readers [E1]. Source: https://example.com/fsdp-runbook
 """
-    scores = _signal_rubric(body, _pack())["scores"]
+    scores = _signal_rubric(body, _training_pack())["scores"]
     assert scores["technical_specificity"] == 0.0
     assert scores["engineering_judgment"] == 0.0
     assert scores["synthesis"] == 0.0
+    assert scores["problem_solving"] == 0.0
+    assert scores["training_runbook_actionability"] == 0.0
 
 
 def test_missing_quality_review_falls_back_to_deterministic_signal_errors(monkeypatch):
@@ -504,6 +560,7 @@ def test_missing_quality_review_falls_back_to_deterministic_signal_errors(monkey
     assert quality_review == {}
     assert _deterministic_quality_errors(body, _training_pack())
     assert "signal_low_score:technical_specificity:0.00/0.75" in errors
+    assert "signal_low_score:problem_solving:0.00/0.75" in errors
     assert "signal_low_score:training_howto:0.00/0.75" in errors
 
 
@@ -564,9 +621,11 @@ def test_repair_prompt_explains_quality_floor_errors():
     assert "QUALITY_FLOOR_GUIDANCE" in prompt
     assert "Headings and uncited cue words do not count" in prompt
     assert "compare at least two primary papers" in prompt
+    assert "AEC foundation-model blocker" in prompt
     assert "FSDP/ZeRO" in prompt
     assert "NCCL/all-reduce" in prompt
-    assert "profile, benchmark, validate failure modes" in prompt
+    assert "profile and measure the bottleneck" in prompt
+    assert "benchmark alternatives" in prompt
 
 
 def test_full_rewrite_prompt_explains_quality_floor_errors():

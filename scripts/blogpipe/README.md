@@ -4,11 +4,13 @@ Blogpipe is now a metadata-first research radar for Synaptic Radio. It ingests
 papers and first-party engineering blogs, stores normalized records in SQLite +
 FTS5, ranks them deterministically, builds compact evidence packs, and asks a
 single OpenAI-compatible LLM pipeline to produce evidence-grounded Hugo posts.
-Generated posts are paper-first technical synthesis blogs planned for a
-Principal Machine Learning Engineer at Autodesk evaluating AEC foundation models
-and 2D document intelligence. Daily posts now prioritize depth over breadth:
-they should build one sharp thesis around 3-4 primary papers, with optional
-supporting mentions only when they clarify a tradeoff or adoption decision.
+Generated posts are evidence-grounded engineering memos for a Principal Machine
+Learning Engineer in AEC at Autodesk building foundation models for drawings,
+documents, BIM/CAD context, and construction workflows. Daily posts prioritize a
+specific problem to solve over recency or paper coverage: scaling a training
+pipeline, diagnosing a data/evaluation bottleneck, improving grounding, or
+deciding whether a method is ready for prototype. Papers and engineering posts
+are supporting evidence, not necessarily the subject of the article.
 
 ## Commands
 

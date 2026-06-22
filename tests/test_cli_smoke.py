@@ -205,8 +205,76 @@ def test_write_daily_blocks_before_llm_when_ranked_papers_are_insufficient(monke
 
     result = write_daily(ranked=[], llm=FailIfCalledLLM(), dry_run=True)
     assert not result.ok
-    assert result.errors == ["insufficient_ranked_papers:0/3"]
+    assert result.errors == ["insufficient_ranked_items:0/3"]
     assert list((tmp_path / "reports").glob("*.blocked.json"))
+
+
+def test_write_daily_accepts_nonpaper_engineering_evidence(monkeypatch, tmp_path):
+    now = datetime.now(timezone.utc)
+    items = [
+        SourceItem(
+            item_id=f"eng-blog-{idx}",
+            canonical_url=f"https://example.com/eng-blog-{idx}",
+            source_kind="blog",
+            source_name="engineering",
+            source_tier=1,
+            title=f"AEC foundation model training bottleneck memo {idx}",
+            published_at=now,
+            abstract_or_excerpt=(
+                "This engineering memo describes a concrete AEC foundation model problem: distributed training "
+                "throughput, FSDP sharding, activation checkpointing, NCCL communication, GPU utilization, "
+                "data pipeline stalls, checkpoint recovery, benchmark design, root cause diagnosis, and release gates."
+            ),
+            tags=["aec", "foundation-models", "distributed training"],
+        )
+        for idx in range(3)
+    ]
+    selector = {
+        "selected_item_ids": [item.item_id for item in items],
+        "items": [{"item_id": item.item_id, "role": "primary", "suggested_tags": ["aec", "llm-training"]} for item in items],
+        "suggested_tags": ["aec", "llm-training"],
+    }
+    outline = {
+        "title": "Research Radar: AEC foundation-model training bottlenecks",
+        "angle": "The problem is scaling training and data loops before model quality work can be trusted.",
+        "sections": [
+            {"heading": "The AEC foundation-model problem to solve", "intent": "technical thesis angle framing Autodesk AEC document relevance", "evidence_ids": ["E1"], "word_budget": 260},
+            {"heading": "FSDP sharding and checkpointing decision", "intent": "mechanism method architecture distributed training sharding activation checkpointing", "evidence_ids": ["E1"], "word_budget": 260},
+            {"heading": "NCCL and data-pipeline bottleneck diagnosis", "intent": "math objective metric optimization throughput profiling data pipeline communication nccl", "evidence_ids": ["E2"], "word_budget": 260},
+            {"heading": "Benchmarks and failure modes", "intent": "experiments evidence benchmark evaluation ablation limitation caveat failure risk", "evidence_ids": ["E2"], "word_budget": 260},
+            {"heading": "Autodesk AEC adoption gate", "intent": "cross-paper synthesis compare contrast tradeoff impact engineering production practical Autodesk AEC document release gate", "evidence_ids": ["E3"], "word_budget": 260},
+        ],
+        "suggested_tags": ["aec", "llm-training"],
+    }
+
+    class FakeLLM:
+        class Usage:
+            __dict__ = {"calls": 0}
+
+        usage = Usage()
+
+        def __init__(self):
+            self.calls = 0
+
+        def complete(self, **kwargs):
+            self.calls += 1
+            if self.calls == 1:
+                return json.dumps(selector)
+            if self.calls == 2:
+                return json.dumps(outline)
+            return "No citations or source links."
+
+    monkeypatch.setattr(memory, "ROOT", tmp_path)
+    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
+    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
+    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
+    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
+    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
+
+    result = write_daily(ranked=rank_items(items, now=now, max_age_hours=72), llm=FakeLLM(), dry_run=True)
+    assert result.ok, result.errors
+    assert "insufficient_ranked_papers" not in ",".join(result.errors)
+    assert "AEC foundation-model problem" in result.body
 
 
 def test_daily_rank_fallback_recovers_recent_store_papers(tmp_path):
@@ -384,13 +452,13 @@ def _training_fake_daily_body() -> str:
 The thesis is that scaled LLM training papers should be read as runbooks for resource allocation, not as generic model-quality updates. Across the three papers, the common pattern is a compare-and-tradeoff loop: sharding, communication, and data-pipeline choices must be evaluated together before the next training run. The evidence frames the problem as training throughput under memory and communication pressure, so the practical question is what stack decision a principal engineer would change. The mechanism, objective, benchmark, limitation, impact, and Autodesk/AEC transfer lens all point to the same claim: training reliability depends on making the parallelism and recovery plan explicit [E1] [E2] [E3]. Sources: https://example.com/train-fsdp https://example.com/train-nccl https://example.com/train-data
 
 ## FSDP sharding and parallelism runbook
-The concrete training stack starts with FSDP sharding for optimizer and parameter state, then uses tensor parallelism where a single layer no longer fits cleanly on one device. Activation checkpointing trades recomputation for memory headroom, while microbatch scheduling controls how much work each device sees before synchronization. That is the how-to decision path: choose the sharding boundary, decide whether tensor parallelism is needed, then check whether activation memory or communication is the current blocker [E1]. Source: https://example.com/train-fsdp
+The concrete training stack starts with FSDP sharding for optimizer state and parameter state, then uses tensor parallelism where a single layer no longer fits cleanly on one device. Activation checkpointing trades recomputation for memory headroom, while microbatch scheduling controls how much work each device sees before synchronization. That is the how-to decision path: choose the sharding boundary, decide whether tensor parallelism is needed, then check whether activation memory or communication is the current bottleneck [E1]. Source: https://example.com/train-fsdp
 
 ## Objective and profiling metrics
 The objective should be treated as an operational optimization problem rather than a single model score. A principal MLE would measure throughput, GPU utilization, data pipeline stalls, NCCL all-reduce time, checkpoint cadence, and recovery time after interruption. Those metrics decide whether to tune microbatch size, revise token packing, move data loading work, or change checkpoint frequency. The evidence supports this profiling view because it names benchmark ablations around utilization, recovery, and scaling efficiency [E1] [E2]. Sources: https://example.com/train-fsdp https://example.com/train-nccl
 
 ## Benchmarks and failure modes
-The benchmark section should become a validation matrix. Test one run where memory pressure is dominant, one where all-reduce communication dominates, one where the data pipeline starves accelerators, and one restart path that exercises checkpoint recovery. The limitation is that workload balance and checkpoint cadence can turn a nominally efficient setup into a fragile production run. The failure mode to watch is not just lower throughput; it is a training job that cannot resume cleanly or wastes expensive GPU time while waiting on input data [E2] [E3]. Sources: https://example.com/train-nccl https://example.com/train-data
+The benchmark section should become a validation matrix. Test one run where memory pressure is dominant, one where all-reduce communication dominates, one where the data pipeline starves accelerators, and one restart path that exercises checkpoint recovery. The root cause to isolate is whether workload balance, checkpoint cadence, or input starvation is turning a nominally efficient setup into a fragile production run. The failure mode to watch is not just lower throughput; it is a training job that cannot resume cleanly or wastes expensive GPU time while waiting on input data [E2] [E3]. Sources: https://example.com/train-nccl https://example.com/train-data
 
 ## Principal rollout decision
 The rollout decision is to treat this stack as a staged adoption, not a default architecture. First profile a representative training slice, then benchmark FSDP-only against FSDP plus tensor parallelism, then validate checkpoint recovery and data loader pressure before scaling. For Autodesk or AEC document-model work, the transfer is an open hypothesis: better training infrastructure can shorten iteration loops for document models, but only if the same release gate tracks utilization, cost, restart behavior, and quality regression risk [E1] [E2] [E3]. Sources: https://example.com/train-fsdp https://example.com/train-nccl https://example.com/train-data

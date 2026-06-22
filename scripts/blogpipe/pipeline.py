@@ -105,16 +105,15 @@ def write_daily(
 ) -> WriteResult:
     ranked = load_ranked() if ranked is None else ranked
     client = llm or LLMClient()
-    required_papers = min(3, config.daily_primary_papers())
+    required_items = min(3, config.daily_primary_papers())
     ranked = _augment_ranked_with_store_papers(
         ranked,
-        required_papers=required_papers,
+        required_papers=min(3, config.daily_primary_papers()),
         db=db,
         max_age_hours=fallback_max_age_hours,
     )
-    paper_count = sum(1 for item in ranked if item.item.source_kind == "paper")
-    if paper_count < required_papers:
-        result = _blocked_daily([f"insufficient_ranked_papers:{paper_count}/{required_papers}"])
+    if len(ranked) < required_items:
+        result = _blocked_daily([f"insufficient_ranked_items:{len(ranked)}/{required_items}"])
         _write_daily_reports(result, client)
         return result
     try:

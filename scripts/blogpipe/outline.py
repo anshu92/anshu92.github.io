@@ -239,15 +239,15 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
     all_selected_evidence = _outline_evidence_ids([*primary_cards, *support_cards], evidence_by_item)
     training = _pack_has_training_system_focus(pack)
 
-    title_object = "training-system runbooks" if training else "model reliability boundaries"
-    title = f"Research Radar: {title_object.title()} From Current Evidence"
+    title_object = "scaling AEC foundation-model training" if training else "solving AEC foundation-model reliability"
+    title = f"Research Radar: {title_object.title()}"
     angle = (
-        "Current papers are useful only when they become concrete engineering decisions with measurable limits, "
+        "The evidence is useful only when it becomes a concrete AEC foundation-model decision with measurable limits, "
         "failure modes, and release gates."
     )
     sections: list[dict[str, object]] = [
         {
-            "heading": "Technical thesis and evidence boundary",
+            "heading": "The AEC foundation-model problem to solve",
             "intent": "technical thesis angle framing for the selected evidence cluster",
             "evidence_ids": all_primary_evidence[:4] or all_selected_evidence[:4],
             "word_budget": 260,
@@ -272,7 +272,7 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
     sections.extend(
         [
             {
-                "heading": "Benchmark evidence and failure modes",
+                "heading": "Benchmarks, failure modes, and debug signals",
                 "intent": "experiments evidence benchmark evaluation ablation limitation caveat failure risk tradeoff",
                 "evidence_ids": all_selected_evidence[:5],
                 "word_budget": 260,
@@ -281,7 +281,7 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
                 "split_reason": "",
             },
             {
-                "heading": "Cross-paper mechanism tradeoffs",
+                "heading": "Mechanism tradeoffs across the evidence",
                 "intent": "compare contrast cross-paper synthesis tradeoff across mechanisms objectives and limits",
                 "evidence_ids": all_primary_evidence[:5] or all_selected_evidence[:5],
                 "word_budget": 220,
@@ -290,7 +290,7 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
                 "split_reason": "",
             },
             {
-                "heading": "Autodesk AEC document adoption gate",
+                "heading": "Autodesk AEC adoption gate and next experiment",
                 "intent": "impact engineering production practical Autodesk AEC document drawing sheet CAD BIM validation release gate",
                 "evidence_ids": all_selected_evidence[:5],
                 "word_budget": 260,
@@ -318,8 +318,8 @@ def _primary_outline_heading(card: object, *, training: bool) -> str:
     words = re.findall(r"[A-Za-z0-9][A-Za-z0-9-]*", title)
     short = " ".join(words[:7]) or "Primary mechanism"
     if training:
-        return f"{short}: sharding, checkpointing, and throughput runbook"
-    return f"{short}: mechanism and objective"
+        return f"Training pipeline decision from {short}"
+    return f"Engineering decision from {short}"
 
 
 def _primary_outline_intent(card: object, *, training: bool) -> str:
@@ -460,14 +460,16 @@ def _pack_has_training_system_focus(pack: EvidencePack) -> bool:
 def _outline_system() -> str:
     return (
         "You are the Research Radar outline planner. Return JSON only. "
-        "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE. "
-        "The outline must be thesis-led, deep, and mechanism-first, not a broad roundup. "
+        "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE in AEC at Autodesk. "
+        "The outline must be problem-led, deep, and mechanism-first, not a broad roundup or literature survey. "
+        "Frame the post around building AEC foundation models: scaling training pipelines, data/evaluation loops, drawing/document/BIM grounding, "
+        "failure diagnosis, and concrete engineering decisions. "
         "When the cluster is about scaled LLM training, include a concrete how-to section on training architecture, "
         "parallelism/sharding, memory and communication bottlenecks, checkpointing, profiling, or data-pipeline tradeoffs. "
         "It must cover thesis, mechanisms, math/objectives where supported, experiments, limitations, engineering impact, "
         "and cross-paper synthesis. Include an adoption or production-readiness section only when the selected cluster supports it. "
         "Ban vague corporate headings such as 'Navigating the Future', 'Bridging the Digital Divide', and 'Our Path Forward'. "
-        "Normally use one deep primary section per primary paper. Split a primary paper across multiple sections only when each split has a distinct technical purpose and an explicit split_reason."
+        "Normally use one deep primary section per primary evidence item. Split one item across multiple sections only when each split has a distinct technical purpose and an explicit split_reason."
     )
 
 
@@ -475,8 +477,10 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
     return (
         f"Create an outline for a daily post of at least {config.daily_min_words()} words. "
         "Do not use fixed headings such as 'Paper mechanisms' or 'Why it matters'. "
-        "Use 3-4 deep primary-paper sections, one cross-paper comparison section, and one adoption or production-readiness section when warranted. "
-        "Headings must name a technical object, mechanism, benchmark, or tradeoff. "
+        "Use the evidence to write a problem-solving memo, not a paper roundup. "
+        "Use 3-4 deep primary evidence sections, one comparison section, and one adoption or production-readiness section when warranted. "
+        "Headings must name a concrete problem, technical object, mechanism, benchmark, bottleneck, or tradeoff. "
+        "Prefer titles such as 'Diagnosing data-loader stalls before scaling FSDP' over titles that merely name papers. "
         "For scaled LLM training clusters, one heading should read like a training systems runbook: name the sharding/parallelism, "
         "memory, communication, checkpointing, profiling, data-pipeline, or throughput decision being taught. "
         "Return JSON in this exact shape:\n"
@@ -518,11 +522,11 @@ def _outline_repair_user(
         f"VALIDATION_ERRORS: {json.dumps(errors)}\n\n"
         f"PREVIOUS_OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         "Fix the outline and return JSON with: title, angle, sections[{heading,intent,evidence_ids,word_budget,focus_item_ids,section_role,split_reason}], suggested_tags. "
-        "Include 3-4 deep primary-paper sections, one cross-paper comparison section, and one Autodesk/AEC adoption section. "
+        "Include 3-4 deep primary evidence sections, one cross-evidence comparison section, and one Autodesk/AEC adoption section. "
         "If VALIDATION_ERRORS contains missing_outline_training_howto, add a concrete training systems how-to section naming the sharding, "
         "parallelism, memory, communication, checkpointing, profiling, or data-pipeline decision supported by the evidence. "
-        "Normally keep one primary paper to one deep section; if a primary paper is split, explain the technical split_reason. "
-        "Supporting papers must stay in explicitly supporting sections or inside synthesis/adoption sections.\n\n"
+        "Normally keep one primary evidence item to one deep section; if one item is split, explain the technical split_reason. "
+        "Supporting items must stay in explicitly supporting sections or inside synthesis/adoption sections.\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
         f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"

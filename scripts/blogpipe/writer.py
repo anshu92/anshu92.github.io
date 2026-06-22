@@ -112,6 +112,23 @@ SYNTHESIS_CUES = (
     "complements",
     "the common pattern",
 )
+PROBLEM_SOLVING_CUES = (
+    "problem",
+    "blocker",
+    "bottleneck",
+    "root cause",
+    "hypothesis",
+    "diagnose",
+    "debug",
+    "experiment",
+    "prototype",
+    "decision gate",
+    "release gate",
+    "validation test",
+    "next action",
+    "measure",
+    "profile",
+)
 ENGINEERING_LENS_CUES = (
     "benchmark",
     "failure mode",
@@ -169,6 +186,100 @@ TRAINING_HOWTO_CONCEPTS: dict[str, tuple[str, ...]] = {
         "release gate",
         "failure mode",
         "recovery",
+    ),
+}
+TRAINING_TECH_DETAIL_CONCEPTS: dict[str, tuple[str, ...]] = {
+    "parallelism_or_sharding": (
+        "fsdp",
+        "zero",
+        "deepspeed",
+        "megatron",
+        "data parallel",
+        "tensor parallel",
+        "pipeline parallel",
+        "sequence parallel",
+        "sharding",
+    ),
+    "memory_and_state": (
+        "activation checkpoint",
+        "gradient checkpoint",
+        "optimizer state",
+        "parameter state",
+        "mixed precision",
+        "microbatch",
+        "memory headroom",
+        "memory pressure",
+    ),
+    "communication": (
+        "nccl",
+        "all-reduce",
+        "reduce-scatter",
+        "all-gather",
+        "communication",
+        "pipeline bubble",
+        "network",
+    ),
+    "data_and_recovery": (
+        "data pipeline",
+        "data loader",
+        "token packing",
+        "checkpoint recovery",
+        "checkpoint cadence",
+        "restart",
+        "resume",
+    ),
+    "observability_and_gate": (
+        "profile",
+        "profiling",
+        "gpu utilization",
+        "throughput",
+        "benchmark",
+        "ablation",
+        "release gate",
+        "rollout gate",
+    ),
+}
+TRAINING_RUNBOOK_ACTION_CONCEPTS: dict[str, tuple[str, ...]] = {
+    "stack_decision": (
+        "choose",
+        "select",
+        "decide",
+        "adopt",
+        "use fsdp",
+        "use zero",
+        "sharding boundary",
+        "parallelism is needed",
+    ),
+    "measurement_plan": (
+        "profile",
+        "profiling",
+        "measure",
+        "monitor",
+        "trace",
+        "benchmark",
+        "gpu utilization",
+        "throughput",
+    ),
+    "bottleneck_diagnosis": (
+        "bottleneck",
+        "root cause",
+        "diagnose",
+        "isolate",
+        "debug",
+        "memory pressure",
+        "communication dominates",
+        "data pipeline starves",
+        "data loader stalls",
+    ),
+    "scaling_gate": (
+        "validate",
+        "release gate",
+        "rollout gate",
+        "recovery test",
+        "checkpoint recovery",
+        "failure mode",
+        "before scaling",
+        "before rollout",
     ),
 }
 FIRST_PERSON_AUTODESK_RE = re.compile(
@@ -394,7 +505,9 @@ def _emergency_daily_draft(
         focus_cards = _cards_for_section(section, all_cards, pack.evidence_cards)
         if not focus_cards:
             focus_cards = all_cards
-        lines.extend(_emergency_section_paragraphs(section, focus_cards, chunks_by_item, chunks_by_id, training=training, index=index))
+        for paragraph in _emergency_section_paragraphs(section, focus_cards, chunks_by_item, chunks_by_id, training=training, index=index):
+            lines.append(paragraph)
+            lines.append("")
         lines.append("")
     lines.append("## Primary evidence depth check")
     lines.append("")
@@ -455,21 +568,22 @@ def _emergency_section_paragraphs(
         )
     return [
         (
-            f"The technical thesis in this section is that {title} should be read as an engineering mechanism, "
-            f"not as a generic capability claim. The supported mechanism is {mechanism}, while the objective or metric lens is {objective}. "
-            f"That gives a principal MLE a concrete validation test: reproduce the benchmark slice, inspect the failure mode, "
-            f"and decide whether the architecture, pipeline, model, optimization, or metric can survive production constraints. {cite}"
+            f"The AEC foundation-model problem in this section is the decision a principal MLE would need to make before scaling the next training, data, or evaluation loop. "
+            f"{title} is useful because it exposes an engineering mechanism rather than a generic capability claim. The supported mechanism is {mechanism}, "
+            f"while the objective or metric lens is {objective}. That gives the team a concrete validation test: reproduce the benchmark slice, inspect the failure mode, "
+            f"and decide whether the architecture, pipeline, model, optimization, or metric can survive document, drawing, BIM/CAD, and construction workflow constraints. {cite}"
             f"{training_sentence}"
         ),
         (
             f"The experiment evidence is {experiment}, and the limitation is {limitation}. Those details make the adoption decision "
-            f"more practical: the team should monitor latency, throughput, memory behavior, retrieval quality, observability, release gates, "
-            f"and rollback or checkpoint behavior instead of treating the result as a broad endorsement. {cite}"
+            f"more practical: the team should monitor latency, throughput, memory behavior, data quality, retrieval quality, observability, release gates, "
+            f"and rollback or checkpoint behavior instead of treating the result as a broad endorsement. The operating question is what bottleneck this solves, "
+            f"what new bottleneck it creates, and whether the next prototype should target training scale, grounding quality, or evaluation reliability. {cite}"
         ),
         (
-            f"The cross-paper synthesis is a tradeoff between {title} and {next_title}: one paper may clarify mechanism or objective, "
+            f"The cross-evidence synthesis is a tradeoff between {title} and {next_title}: one item may clarify mechanism or objective, "
             f"while the other exposes benchmark, evaluation, ablation, limitation, or failure evidence. The safe production claim is therefore "
-            f"a transfer hypothesis, not a proven integrated stack. Compare and contrast the papers together across their mechanisms: "
+            f"a transfer hypothesis, not a proven integrated stack. Compare and contrast the evidence together across the mechanisms: "
             f"one complements the other, whereas the combined adoption path still separates validated evidence from open risk. "
             f"For Autodesk AEC document, drawing, sheet, CAD, and BIM workflows, "
             f"the practical impact is {impact}; the release gate should test source-grounded retrieval, traceable citations, and domain-specific "
@@ -513,7 +627,7 @@ def _emergency_primary_depth_paragraph(
         f"For primary-depth coverage, {title} gets separate mechanism and evaluation treatment. The mechanism evidence is {mechanism} "
         f"[{mechanism_id}] {mechanism_url}. The experiment, objective, or limitation evidence is {experiment}; the operational risk is "
         f"{limitation} [{secondary_id}] {secondary_url}. This compare and contrast pass keeps the production tradeoff grounded across "
-        f"the selected papers, complements the synthesis sections, and separates benchmark evidence from adoption hypotheses.{training_clause}"
+        f"the selected evidence, complements the synthesis sections, and separates benchmark evidence from adoption hypotheses.{training_clause}"
     )
 
 
@@ -525,7 +639,14 @@ def _citation_url(evidence_id: str, chunks_by_id: dict[str, object]) -> str:
 def _safe_card_field(card: object, field: str) -> str:
     value = str(getattr(card, field, "") or "").strip()
     if not value or value == "not found in evidence":
-        return f"the {field.replace('_', ' ')} described in the evidence card"
+        fallbacks = {
+            "mechanism": "the cited mechanism or system behavior, which should be treated as the implementation hypothesis to inspect",
+            "math_or_objective": "the operational objective implied by the cited benchmark or evaluation evidence rather than an exposed formal loss",
+            "experiment": "the available benchmark or evaluation signal; if the source is thin, that absence becomes a validation gap to close before adoption",
+            "limitation": "the missing or incomplete limitation evidence itself, which means the team should add explicit failure-mode tests before scaling",
+            "impact": "the plausible transfer to AEC foundation-model training, grounding, evaluation, or deployment, which remains a hypothesis until validated",
+        }
+        return fallbacks.get(field, f"the {field.replace('_', ' ')} that must be confirmed from the cited evidence")
     return re.sub(r"\s+", " ", value)[:220]
 
 
@@ -784,6 +905,8 @@ def _final_editor_system(post_type: str) -> str:
         "Do not include Mermaid diagrams, generic visual maps, or visual diagnostics unless the source evidence directly supports a useful technical figure. "
         "Remove corporate strategy language, repeated hype adjectives, duplicated-token artifacts such as 'multiple,multiple', "
         "unsupported first-person Autodesk claims, first-person 'we/our/my' product-roadmap claims, and paper-by-paper abstract summaries that do not add engineering judgment. "
+        "Make the final article read like a Principal MLE problem-solving memo for AEC foundation models: name the blocker, the root-cause hypothesis, "
+        "the training/data/evaluation/deployment experiment, and the decision gate. "
         "If supporting papers are discussed, label them as supporting rather than counting them as primary papers. "
         "Separate paper-supported claims from plausible transfers and open hypotheses; do not edit hypotheses into established findings. "
         "If two papers suggest a possible architecture together, present that as a proposed transfer hypothesis unless the evidence directly proves integration. "
@@ -1060,14 +1183,16 @@ def _daily_system() -> str:
     return (
         "You are writing Synaptic Radio, a technical ML research blog. Write polished Markdown, not JSON. "
         "Start with exactly one Markdown H1 matching the requested title, then include every OUTLINE section as an exact Markdown H2. "
-        "Write from the practical point of view of a principal machine learning engineer evaluating research for production ML systems. "
+        "Write from the practical point of view of a Principal Machine Learning Engineer in AEC at Autodesk, focused on building foundation models "
+        "for drawings, documents, BIM/CAD context, and construction workflows. "
         "Do not claim employment at any company and do not use first-person product-roadmap language. "
-        "The post is paper-centered: explain mechanisms, math/objectives when evidence supports them, experiments, limits, and impact. "
-        "Keep the research depth, but make the article engineering-forward: benchmark design, failure modes, integration constraints, "
-        "deployment dependencies, latency/cost tradeoffs, validation plans, and adoption tests should drive the practical judgment. "
+        "The post is problem-centered: identify a specific AEC foundation-model problem, explain why it blocks scale or quality, "
+        "then use the evidence to reason through mechanisms, math/objectives when supported, experiments, limits, and next engineering actions. "
+        "Keep the research depth, but make the article read like a principal-engineer decision memo: benchmark design, failure modes, "
+        "integration constraints, deployment dependencies, latency/cost tradeoffs, validation plans, and adoption tests should drive the practical judgment. "
         "When the evidence concerns scaled LLM training, teach the operational how-to: sharding/parallelism choices, memory and communication bottlenecks, "
         "checkpoint/restart behavior, data-pipeline pressure, profiling signals, and what a principal engineer would test before rollout. "
-        "Prefer deep synthesis over breadth: focus on 3-4 primary papers and use supporting items only when they sharpen the thesis. "
+        "Prefer deep synthesis over breadth: focus on one problem and use 3-4 primary evidence items plus supporting items only when they sharpen the decision. "
         "Use the evidence pack only. The prose must be original and evidence-grounded. "
         "Distinguish direct implication, plausible transfer, and open hypothesis when discussing production use. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
@@ -1079,14 +1204,17 @@ def _daily_system() -> str:
 def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionResult, title: str) -> str:
     return (
         f"TITLE: {title}\n\n"
-        "Write a paper-first technical blog post using the OUTLINE headings exactly as provided. "
+        "Write a problem-first technical blog post using the OUTLINE headings exactly as provided. "
         f"The first line must be exactly '# {title}'. Each OUTLINE section heading must appear exactly once as '## <heading>'. "
         "Do not use fixed template headings such as 'Paper mechanisms', 'Math or objective details', or 'Why it matters' unless the outline uses them. "
-        "Cover 3-4 primary papers deeply and mention supporting items briefly only when they strengthen a comparison. "
-        "Cite at least three distinct primary papers when they exist in the evidence pack. "
-        "For each item you discuss, answer what problem it attacks, what mechanism or objective it uses, what evidence supports it, "
-        "what limitation or caveat is visible, and why it matters. Include source URLs inline for every cited evidence ID. "
-        "Include at least one cross-paper comparison or tradeoff and at least one concrete production or adoption test. "
+        "Do not organize the article as one section per paper unless the outline explicitly requires it. "
+        "Start from a specific problem an AEC foundation-model team needs to solve: scaling a training run, removing a data bottleneck, "
+        "debugging drawing/document grounding, validating retrieval, controlling serving cost, or deciding whether a method is ready to prototype. "
+        "Cover 3-4 primary evidence items deeply and mention supporting items briefly only when they strengthen a comparison. "
+        "Cite at least three distinct primary papers when they exist in the evidence pack, but make the argument about the engineering problem rather than the papers. "
+        "For each evidence item you discuss, answer what problem it helps diagnose, what mechanism or objective it uses, what evidence supports it, "
+        "what limitation or caveat is visible, and what an engineer should test next. Include source URLs inline for every cited evidence ID. "
+        "Include at least one cross-evidence comparison or tradeoff and at least one concrete production, training, data, or adoption test. "
         "Every major section should connect the paper to at least one operational lens where evidence permits: benchmark design, failure mode, "
         "deployment constraint, latency/cost tradeoff, integration dependency, or prototype/validation test. "
         "If the selected cluster is about large-scale LLM training, include a how-to explanation of at least one concrete training decision: "
@@ -1151,9 +1279,10 @@ def _repair_user(
     ]
     section_contract = (
         "For daily posts, preserve the OUTLINE headings exactly and write from the practical viewpoint "
-        "of a principal MLE evaluating ML systems, training, serving, and evaluation tradeoffs. "
+        "of a Principal MLE in AEC at Autodesk building foundation models for drawings, documents, BIM/CAD context, and construction workflows. "
         f"The daily post must be at least {config.daily_min_words()} words. Cite at least three primary papers "
-        "when they exist in the evidence pack. Remove generic corporate prose and add concrete engineering judgment. "
+        "when they exist in the evidence pack, but center the article on a concrete AEC foundation-model problem to solve. "
+        "Remove generic corporate prose and add concrete engineering judgment. "
         "For scaled LLM training evidence, include sharding/parallelism, memory/communication bottlenecks, checkpointing, profiling, "
         "data-pipeline throughput, and rollout validation where supported."
         if pack.kind == "daily"
@@ -1173,6 +1302,7 @@ def _repair_user(
         "- Merge redundant same-paper sections unless the OUTLINE split is technically justified.\n"
         "- Mark supporting-paper mentions as supporting instead of presenting them as additional primaries.\n"
         "- Add experiment/evaluation detail where the evidence cards provide it.\n"
+        "- Reframe paper-centered prose into a principal-MLE problem memo: name the AEC foundation-model blocker, likely root cause, experiment to run, and decision gate.\n"
         "- Strengthen operational judgment with concrete benchmarks, failure modes, deployment constraints, integration dependencies, latency/cost tradeoffs, or validation tests when the evidence supports them.\n"
         "- For scaled LLM training evidence, teach the training-system decision path: parallelism or sharding choice, memory/communication bottleneck, checkpoint/restart behavior, data pipeline, profiling signal, and rollout gate where supported.\n"
         "- If the body focus no longer matches the current headline, revise the H1 so the final title matches the actual article.\n"
@@ -1208,7 +1338,7 @@ def _needs_full_daily_rewrite(errors: list[str]) -> bool:
 def _daily_rewrite_system() -> str:
     return (
         _daily_system()
-        + " The previous draft was rejected as a fragment or structurally invalid. Rewrite the full article from scratch. "
+        + " The previous draft was rejected as a fragment or structurally invalid. Rewrite the full article from scratch as a problem-focused AEC foundation-model engineering memo. "
         "Do not patch the fragment locally. Return only the complete Markdown body."
     )
 
@@ -1241,7 +1371,8 @@ def _daily_rewrite_user(
         f"- Write at least {config.daily_min_words()} words; target 1400-1900 words if evidence supports it.\n"
         "- Cite at least three distinct primary papers when available in the evidence pack.\n"
         "- Every substantive paragraph must include evidence IDs such as [E1] and the matching source URL inline.\n"
-        "- Cover mechanism/objective, experiments or benchmarks, limits, cross-paper tradeoffs, and production adoption tests.\n"
+        "- Cover the concrete AEC foundation-model problem, mechanism/objective, experiments or benchmarks, limits, cross-evidence tradeoffs, and production adoption tests.\n"
+        "- Sound like a Principal MLE diagnosing and solving a scaling, data, evaluation, grounding, or deployment problem, not like an abstract paper recap.\n"
         "- For scaled LLM training evidence, include training-how-to details: sharding/parallelism, activation checkpointing or optimizer state, communication bottlenecks, data pipeline throughput, checkpoint recovery, profiling, and rollout validation where supported.\n"
         "- Treat production transfer as direct implication only when the evidence supports it; otherwise label it as plausible transfer or open hypothesis.\n"
         "- Do not preserve the rejected fragment unless a sentence is fully evidence-grounded and still fits the outline.\n\n"
@@ -1278,6 +1409,11 @@ def _quality_floor_guidance(errors: list[str]) -> str:
             "Raise synthesis inside evidence-cited paragraphs: compare at least two primary papers, contrast their mechanisms or limits, "
             "and name the shared tradeoff without claiming an integrated stack unless the evidence supports it."
         )
+    if has("signal_low_score:problem_solving", "llm_low_signal:problem_solving"):
+        bullets.append(
+            "Raise problem_solving inside evidence-cited paragraphs: name the AEC foundation-model blocker, root-cause hypothesis, "
+            "diagnostic experiment, prototype or benchmark to run, and the decision or release gate that would change engineering action."
+        )
     if has("signal_low_score:primary_depth", "llm_low_signal:primary_depth"):
         bullets.append(
             "Raise primary_depth by citing mechanism evidence and at least one experiment, objective, or limitation for each selected primary paper."
@@ -1285,14 +1421,22 @@ def _quality_floor_guidance(errors: list[str]) -> str:
     if has(
         "signal_low_score:training_howto",
         "llm_low_signal:training_howto",
+        "signal_low_score:training_technology_depth",
+        "llm_low_signal:training_technology_depth",
+        "signal_low_score:training_runbook_actionability",
+        "llm_low_signal:training_runbook_actionability",
         "missing_training_howto:",
+        "missing_training_technology_detail:",
+        "missing_training_runbook_action:",
         "llm_quality:TRAINING_HOWTO_INSUFFICIENT",
     ):
         bullets.append(
-            "For scaled LLM training, add evidence-cited/source-linked runbook prose covering all three: training stack "
+            "For scaled LLM training, add evidence-cited/source-linked runbook prose covering training stack "
             "(for example FSDP/ZeRO, DeepSpeed, Megatron, tensor/pipeline/sequence parallelism), scaling bottleneck "
-            "(memory, activation checkpointing, NCCL/all-reduce, data pipeline, checkpoint recovery, GPU utilization), and principal action "
-            "(profile, benchmark, validate failure modes, choose rollout gate, or recovery test)."
+            "(memory, activation checkpointing, optimizer state, NCCL/all-reduce, data pipeline, checkpoint recovery, GPU utilization), principal action "
+            "(choose the stack, profile and measure the bottleneck, benchmark alternatives, validate failure modes, choose rollout gate, or recovery test), "
+            "and the specific technology detail missing from the validator (parallelism/sharding, memory/state, communication, data/recovery, "
+            "observability/gates, or runbook actionability)."
         )
     if not bullets:
         return ""
@@ -1489,8 +1633,8 @@ def _quality_review_user(
         "{\n"
         '  "pass": true,\n'
         '  "scores": {"technical_specificity": 0.0, "engineering_judgment": 0.0, "synthesis": 0.0, "noise_control": 0.0, '
-        '"primary_depth": 0.0, "evidence_discipline": 0.0, "section_nonredundancy": 0.0, "experiment_detail": 0.0, '
-        '"training_howto": 0.0},\n'
+        '"problem_solving": 0.0, "primary_depth": 0.0, "evidence_discipline": 0.0, "section_nonredundancy": 0.0, "experiment_detail": 0.0, '
+        '"training_howto": 0.0, "training_technology_depth": 0.0, "training_runbook_actionability": 0.0},\n'
         '  "errors": ["machine_readable_error_code"],\n'
         '  "examples": ["quoted short failing text"],\n'
         '  "notes": "short explanation",\n'
@@ -1498,6 +1642,8 @@ def _quality_review_user(
         "}\n\n"
         "Blocking criteria:\n"
         "- generic corporate prose, hype, or paper-by-paper abstract summaries without insight\n"
+        "- no concrete AEC foundation-model problem to solve, such as a training bottleneck, data quality issue, drawing/document grounding failure, evaluation gap, retrieval defect, serving cost problem, or deployment blocker\n"
+        "- weak Principal MLE voice: does not identify root-cause hypotheses, tradeoffs, experiments to run, or decision gates\n"
         "- first-person employment or product ownership claims involving Autodesk, including 'we', 'our', 'my', 'our roadmap', or 'our pipelines'\n"
         "- duplicated-token artifacts such as 'multiple,multiple'\n"
         "- missing source URL in the same paragraph as each cited evidence marker\n"
@@ -1510,6 +1656,8 @@ def _quality_review_user(
         "- supporting paper introduced late or treated like a primary paper\n"
         "- experiment detail much weaker than the mechanism claims when experiments exist in the evidence cards\n"
         "- when TRAINING_SYSTEM_FOCUS is true, missing scaled-training how-to detail: no concrete sharding/parallelism choice, memory or communication bottleneck, checkpoint/restart behavior, data-pipeline pressure, profiling signal, or rollout validation gate\n"
+        "- when TRAINING_SYSTEM_FOCUS is true, shallow training-technology depth: missing named parallelism/sharding, memory/state management, communication, data/recovery, observability, or release-gate details\n"
+        "- when TRAINING_SYSTEM_FOCUS is true, shallow runbook actionability: names technologies but does not say what to choose, measure, compare, diagnose, validate, or gate before scaling\n"
         "- speculative Autodesk/AEC adoption prose that outruns paper-supported claims or transfer hypotheses\n"
         "- claims that fuse multiple papers into a proven stack/system without direct support in the evidence cards\n"
         "- synthesis claims whose strength exceeds the evidence, including phrases such as 'defines the reliability envelope', 'beyond prototype stage', or 'non-negotiable'\n"
@@ -1768,14 +1916,14 @@ def _validate_daily_technical_focus(body: str, pack: EvidencePack, *, outline: D
         errors.extend(_validate_outline_headings(body, outline))
     errors.extend(_validate_daily_coverage(body, pack))
     errors.extend(_validate_signal_quality(body, pack))
-    if not any(r.item.source_kind == "paper" for r in pack.ranked_items):
-        errors.append("daily_no_papers")
     if _looks_like_generic_roundup(headings):
         errors.append("generic_roundup_structure")
     lower = (body or "").lower()
     errors.extend(_validate_daily_concepts(lower))
     if _pack_has_training_system_focus(pack):
         errors.extend(_validate_training_howto_concepts(body))
+        errors.extend(_validate_training_technology_details(body))
+        errors.extend(_validate_training_runbook_actions(body))
     return errors
 
 
@@ -1794,6 +1942,24 @@ def _validate_training_howto_concepts(body: str) -> list[str]:
     for concept, cues in TRAINING_HOWTO_CONCEPTS.items():
         if not any(cue in lower_body for cue in cues):
             errors.append(f"missing_training_howto:{concept}")
+    return errors
+
+
+def _validate_training_technology_details(body: str) -> list[str]:
+    lower_body = _training_howto_evidence_text(body)
+    errors: list[str] = []
+    for concept, cues in TRAINING_TECH_DETAIL_CONCEPTS.items():
+        if not any(cue in lower_body for cue in cues):
+            errors.append(f"missing_training_technology_detail:{concept}")
+    return errors
+
+
+def _validate_training_runbook_actions(body: str) -> list[str]:
+    lower_body = _training_howto_evidence_text(body)
+    errors: list[str] = []
+    for concept, cues in TRAINING_RUNBOOK_ACTION_CONCEPTS.items():
+        if not any(cue in lower_body for cue in cues):
+            errors.append(f"missing_training_runbook_action:{concept}")
     return errors
 
 
@@ -1876,6 +2042,7 @@ def _signal_rubric(body: str, pack: EvidencePack) -> dict[str, object]:
     technical = _cue_score(evidence_text, TECHNICAL_SPECIFICITY_CUES, target=8)
     judgment = _cue_score(evidence_text, ENGINEERING_JUDGMENT_CUES, target=5)
     synthesis = _cue_score(evidence_text, SYNTHESIS_CUES, target=4)
+    problem_solving = _cue_score(evidence_text, PROBLEM_SOLVING_CUES, target=6)
     primary_depth = _primary_depth_score(body, pack)
     generic_hits = sum(lower.count(phrase) for phrase in GENERIC_PHRASES)
     generic_density = generic_hits / words
@@ -1884,11 +2051,14 @@ def _signal_rubric(body: str, pack: EvidencePack) -> dict[str, object]:
         "technical_specificity": technical,
         "engineering_judgment": judgment,
         "synthesis": synthesis,
+        "problem_solving": problem_solving,
         "noise_control": noise_control,
         "primary_depth": primary_depth,
     }
     if _pack_has_training_system_focus(pack):
         scores["training_howto"] = _training_howto_score(body)
+        scores["training_technology_depth"] = _training_technology_depth_score(body)
+        scores["training_runbook_actionability"] = _training_runbook_actionability_score(body)
     return {
         "scores": scores,
         "generic_density": generic_density,
@@ -1941,6 +2111,22 @@ def _training_howto_score(body: str) -> float:
         return 0.0
     hits = sum(1 for cues in TRAINING_HOWTO_CONCEPTS.values() if any(cue in lower_body for cue in cues))
     return hits / max(1, len(TRAINING_HOWTO_CONCEPTS))
+
+
+def _training_technology_depth_score(body: str) -> float:
+    lower_body = _training_howto_evidence_text(body)
+    if not lower_body:
+        return 0.0
+    hits = sum(1 for cues in TRAINING_TECH_DETAIL_CONCEPTS.values() if any(cue in lower_body for cue in cues))
+    return hits / max(1, len(TRAINING_TECH_DETAIL_CONCEPTS))
+
+
+def _training_runbook_actionability_score(body: str) -> float:
+    lower_body = _training_howto_evidence_text(body)
+    if not lower_body:
+        return 0.0
+    hits = sum(1 for cues in TRAINING_RUNBOOK_ACTION_CONCEPTS.values() if any(cue in lower_body for cue in cues))
+    return hits / max(1, len(TRAINING_RUNBOOK_ACTION_CONCEPTS))
 
 
 def _primary_item_ids(pack: EvidencePack) -> list[str]:

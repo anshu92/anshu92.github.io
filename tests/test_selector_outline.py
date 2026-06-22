@@ -136,11 +136,13 @@ def test_selector_prompt_prioritizes_scaled_training_howto():
     ]
     system = _selector_system()
     user = _selector_user(ranked)
-    assert "scaled LLM training how-to first" in system
+    assert "AEC foundation-model engineering problems" in system
+    assert "problem-solving memo" in system
     assert "FSDP/ZeRO" in system
     assert "NCCL/all-reduce" in system
     assert "training_howto_value" in user
     assert "sharding/parallelism" in user
+    assert "AEC foundation-model decision" in user
 
 
 def test_selector_malformed_json_blocks_publication():

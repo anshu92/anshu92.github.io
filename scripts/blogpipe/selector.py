@@ -75,17 +75,20 @@ def _selector_completion_rejector(candidates: list[RankedItem]):
 def _selector_system() -> str:
     return (
         "You are the Research Radar selector. Return JSON only. "
-        "You select papers for a Principal Machine Learning Engineer who reads research for technical judgment, "
-        "not for domain-only filtering. Prefer one coherent thesis cluster over broad topic diversity. "
+        "You select evidence for a Principal Machine Learning Engineer in AEC at Autodesk who is building foundation models "
+        "for drawings, documents, BIM/CAD context, and construction workflows. Prefer one concrete engineering problem over broad topic diversity. "
+        "The post does not need to be about recent papers; papers and engineering posts are evidence for an important problem to solve. "
+        "Favor clusters that explain how to scale training pipelines, diagnose bottlenecks, improve data/evaluation loops, or unblock model quality. "
         "Apply this strict priority order when choosing the daily cluster:\n"
-        "1. ML engineering, with scaled LLM training how-to first: FSDP/ZeRO, DeepSpeed, Megatron, tensor/pipeline/sequence parallelism, "
+        "1. AEC foundation-model engineering problems: scaled LLM/VLM training, document intelligence, drawing/sheet understanding, BIM/CAD grounding, "
+        "data pipelines, evaluation, retrieval, and deployment blockers.\n"
+        "2. ML engineering, with scaled LLM training how-to first: FSDP/ZeRO, DeepSpeed, Megatron, tensor/pipeline/sequence parallelism, "
         "activation checkpointing, optimizer state, NCCL/all-reduce communication, data pipelines, checkpointing, profiling, GPU utilization, "
         "serving optimizations, GPU/CUDA kernels, JAX/PyTorch/HuggingFace, observability, and substantive technical engineering blogs.\n"
-        "2. ML applied research: strong methods with clear benchmarks, ablations, and deployment or evaluation lessons.\n"
-        "3. ML theory: only when unusually interesting, surprising, or clearly relevant to systems or training practice.\n"
-        "4. AEC topics: BIM/CAD/construction/document workflows when they are the best fit after 1-3.\n"
+        "3. ML applied research: strong methods with clear benchmarks, ablations, and deployment or evaluation lessons.\n"
+        "4. ML theory: only when unusually interesting, surprising, or clearly relevant to systems or training practice.\n"
         "5. General popular ML stories: only when tier-1, technically substantive, and not a shallow roundup.\n"
-        "Do not default to AEC just because the reader works at Autodesk. Use AEC as one transfer lens, not the primary filter."
+        "Do not write a literature survey. Select evidence that supports a problem-solving memo."
     )
 
 
@@ -106,14 +109,15 @@ def _selector_user(candidates: list[RankedItem]) -> str:
     primary = config.daily_primary_papers()
     supporting = config.daily_supporting_items()
     return (
-        f"Select {primary} primary papers and up to {supporting} supporting mentions for today's post. "
-        "Primary papers must form a coherent technical thesis cluster, not a loose roundup. "
-        "Follow the priority order: ML engineering > applied research > interesting theory > AEC > popular ML. "
+        f"Select {primary} primary evidence items and up to {supporting} supporting mentions for today's post. "
+        "Primary items must support one specific problem to solve, not a loose roundup. "
+        "Follow the priority order: AEC foundation-model engineering problem > ML engineering > applied research > interesting theory > popular ML. "
         "Score each selected item from 0.0 to 1.0 on engineering value, applied-research value, theory interest, "
         "AEC transfer value, experiment strength, engineering actionability, and novelty relative to prior radar posts. "
         "Also score training_howto_value: whether the item can teach a principal engineer a concrete scaled-training decision, "
         "such as sharding/parallelism, activation checkpointing, communication, optimizer state, data loading, profiling, or checkpoint recovery. "
-        "Prioritize items with mechanisms, objectives, evaluation design, deployment tradeoffs, training runbook lessons, or systems lessons. "
+        "Prioritize items with mechanisms, objectives, evaluation design, deployment tradeoffs, training runbook lessons, systems lessons, "
+        "and a clear path to an AEC foundation-model decision. "
         "Return JSON in this exact shape:\n"
         "{\n"
         '  "selected_item_ids": ["item-id"],\n'
