@@ -609,9 +609,14 @@ def _emergency_primary_depth_paragraph(
     *,
     training: bool,
 ) -> str:
-    mechanism_id = _best_citation(card, chunks_by_item, preferred=("mechanism",))
-    secondary_id = _best_citation(card, chunks_by_item, preferred=("experiment", "limitation", "math_or_objective"))
-    mechanism_url = _citation_url(mechanism_id, chunks_by_id)
+    primary_id = _best_citation(card, chunks_by_item, preferred=("mechanism", "experiment", "math_or_objective", "limitation", "impact", "context"))
+    secondary_id = _best_distinct_citation(
+        card,
+        chunks_by_item,
+        exclude={primary_id},
+        preferred=("experiment", "limitation", "math_or_objective", "impact", "context", "mechanism"),
+    )
+    primary_url = _citation_url(primary_id, chunks_by_id)
     secondary_url = _citation_url(secondary_id, chunks_by_id)
     title = getattr(card, "title", "the primary paper")
     mechanism = _safe_card_field(card, "mechanism")
@@ -624,11 +629,32 @@ def _emergency_primary_depth_paragraph(
         else ""
     )
     return (
-        f"For primary-depth coverage, {title} gets separate mechanism and evaluation treatment. The mechanism evidence is {mechanism} "
-        f"[{mechanism_id}] {mechanism_url}. The experiment, objective, or limitation evidence is {experiment}; the operational risk is "
+        f"For primary-depth coverage, {title} gets separate mechanism and evaluation treatment. The primary mechanism or benchmark evidence is {mechanism} "
+        f"[{primary_id}] {primary_url}. The experiment, objective, or limitation evidence is {experiment}; the operational risk is "
         f"{limitation} [{secondary_id}] {secondary_url}. This compare and contrast pass keeps the production tradeoff grounded across "
         f"the selected evidence, complements the synthesis sections, and separates benchmark evidence from adoption hypotheses.{training_clause}"
     )
+
+
+def _best_distinct_citation(
+    card: object,
+    chunks_by_item: dict[str, list[object]],
+    *,
+    exclude: set[str],
+    preferred: tuple[str, ...],
+) -> str:
+    item_id = getattr(card, "item_id", "")
+    chunks = chunks_by_item.get(item_id, [])
+    for evidence_type in preferred:
+        for chunk in chunks:
+            evidence_id = getattr(chunk, "evidence_id", "")
+            if evidence_id not in exclude and getattr(chunk, "evidence_type", "") == evidence_type:
+                return evidence_id
+    for chunk in chunks:
+        evidence_id = getattr(chunk, "evidence_id", "")
+        if evidence_id not in exclude:
+            return evidence_id
+    return next(iter(exclude), "E1")
 
 
 def _citation_url(evidence_id: str, chunks_by_id: dict[str, object]) -> str:
@@ -2099,10 +2125,20 @@ def _primary_depth_score(body: str, pack: EvidencePack) -> float:
             for evidence_id in refs
             if evidence_id in chunks_by_id and chunks_by_id[evidence_id].item_id == item_id
         }
-        required_secondary = available_types & {"limitation", "experiment", "math_or_objective"}
-        if "mechanism" in cited_types and (not required_secondary or cited_types & required_secondary):
+        anchor = _primary_depth_anchor_type(available_types)
+        if not anchor:
+            continue
+        required_secondary = (available_types - {anchor}) & {"limitation", "experiment", "math_or_objective", "impact", "context"}
+        if anchor in cited_types and (not required_secondary or cited_types & required_secondary):
             passed += 1
     return passed / len(primary_ids)
+
+
+def _primary_depth_anchor_type(available_types: set[str]) -> str:
+    for evidence_type in ("mechanism", "experiment", "math_or_objective", "limitation", "impact", "context"):
+        if evidence_type in available_types:
+            return evidence_type
+    return ""
 
 
 def _training_howto_score(body: str) -> float:

@@ -720,6 +720,47 @@ def test_emergency_daily_draft_passes_deterministic_validation():
     assert _deterministic_quality_errors(body, pack) == []
 
 
+def test_emergency_daily_draft_passes_primary_depth_without_mechanism_chunks():
+    now = datetime(2026, 6, 22, tzinfo=timezone.utc)
+    text = (
+        "The benchmark reports dataset ablation results and latency tradeoff limitations for noisy drawing quality. "
+        "The limitation is failure under noisy drawings and future work should test robustness."
+    )
+    items = [
+        SourceItem(
+            item_id=item_id,
+            canonical_url=f"https://example.com/{item_id}",
+            source_kind="paper",
+            source_name="arxiv",
+            source_tier=1,
+            title=title,
+            published_at=now,
+            abstract_or_excerpt=text,
+        )
+        for item_id, title in (
+            ("drawing-benchmark-one", "Drawing benchmark study one"),
+            ("drawing-benchmark-two", "Drawing benchmark study two"),
+            ("drawing-benchmark-three", "Drawing benchmark study three"),
+        )
+    ]
+    pack = build_daily_pack(rank_items(items, now=now, max_age_hours=72))
+    outline = DailyOutline(
+        title="Research Radar: Drawing benchmark reliability",
+        angle="Benchmark-only evidence should still support a bounded engineering memo.",
+        sections=[
+            {"heading": "Problem framing", "intent": "technical thesis angle framing", "evidence_ids": ["E1", "E3", "E5"], "word_budget": 120},
+            {"heading": "Benchmark evidence", "intent": "experiments evidence benchmark evaluation limitation failure risk", "evidence_ids": ["E1", "E3", "E5"], "word_budget": 120},
+            {"heading": "AEC adoption gate", "intent": "impact engineering production practical Autodesk AEC document validation release gate", "evidence_ids": ["E2", "E4", "E6"], "word_budget": 120},
+        ],
+    )
+    assert "mechanism" not in {chunk.evidence_type for chunk in pack.chunks}
+
+    body = _emergency_daily_draft(pack=pack, outline=outline, selection=SelectionResult(), title=outline.title)
+
+    assert validate_body(body, pack, outline=outline) == []
+    assert _deterministic_quality_errors(body, pack) == []
+
+
 def test_write_daily_uses_emergency_draft_when_llm_draft_fails(monkeypatch, tmp_path):
     pack = _training_pack()
     outline = _training_outline()
