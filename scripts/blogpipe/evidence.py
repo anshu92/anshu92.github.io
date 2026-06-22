@@ -42,7 +42,21 @@ def _evidence_cards(ranked: list[RankedItem], chunks: list[EvidenceChunk]) -> li
         by_type: dict[str, list[EvidenceChunk]] = {}
         for chunk in item_chunks:
             by_type.setdefault(chunk.evidence_type or "context", []).append(chunk)
-        problem = _best_sentence(item_chunks, ("problem", "challenge", "gap", "lack", "bottleneck")) or item.abstract_or_excerpt[:500]
+        problem = _best_sentence(
+            item_chunks,
+            (
+                "challenge",
+                "gap",
+                "lack",
+                "bottleneck",
+                "breaks",
+                "blind",
+                "dominant bottleneck",
+                "impractical",
+                "limitation",
+                "problem",
+            ),
+        ) or item.abstract_or_excerpt[:500]
         mechanism = _chunk_text(by_type, "mechanism")
         math_or_objective = _chunk_text(by_type, "math_or_objective")
         experiment = _chunk_text(by_type, "experiment")

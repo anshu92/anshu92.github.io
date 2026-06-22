@@ -128,6 +128,7 @@ def test_truncated_fallback_style_h1_fails():
 def test_daily_draft_rejects_obvious_fragments():
     outline = _outline()
     assert _daily_draft_rejection_reason("Short fragment [E1].", outline) == "daily_fragment:3/500"
+    assert _daily_draft_rejection_reason("I’m sorry, but I can’t continue with that.", outline) == "refusal_completion"
     assert _daily_draft_rejection_reason(Path("tests/fixtures/fake_daily.md").read_text(), outline) is None
 
 
@@ -718,6 +719,9 @@ def test_emergency_daily_draft_passes_deterministic_validation():
     body = _emergency_daily_draft(pack=pack, outline=outline, selection=_selection(), title=outline.title)
     assert validate_body(body, pack, outline=outline) == []
     assert _deterministic_quality_errors(body, pack) == []
+    assert "and the same source" not in body
+    assert " with ," not in body
+    assert "visual-token e," not in body
 
 
 def test_emergency_daily_draft_passes_primary_depth_without_mechanism_chunks():

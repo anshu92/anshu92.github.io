@@ -505,7 +505,15 @@ def _emergency_daily_draft(
         focus_cards = _cards_for_section(section, all_cards, pack.evidence_cards)
         if not focus_cards:
             focus_cards = all_cards
-        for paragraph in _emergency_section_paragraphs(section, focus_cards, chunks_by_item, chunks_by_id, training=training, index=index):
+        for paragraph in _emergency_section_paragraphs(
+            section,
+            focus_cards,
+            chunks_by_item,
+            chunks_by_id,
+            all_cards=all_cards,
+            training=training,
+            index=index,
+        ):
             lines.append(paragraph)
             lines.append("")
         lines.append("")
@@ -540,20 +548,22 @@ def _emergency_section_paragraphs(
     chunks_by_item: dict[str, list[object]],
     chunks_by_id: dict[str, object],
     *,
+    all_cards: list[object],
     training: bool,
     index: int,
 ) -> list[str]:
     card = cards[index % len(cards)]
-    next_card = cards[(index + 1) % len(cards)]
+    next_card = _comparison_card(card, all_cards, cards, index=index)
     citation = _best_citation(card, chunks_by_item, preferred=("mechanism", "math_or_objective", "experiment", "limitation"))
     second = _best_citation(next_card, chunks_by_item, preferred=("experiment", "limitation", "mechanism", "math_or_objective"))
     title = getattr(card, "title", "the primary paper")
     next_title = getattr(next_card, "title", "the comparison paper")
-    mechanism = _safe_card_field(card, "mechanism")
-    objective = _safe_card_field(card, "math_or_objective")
-    experiment = _safe_card_field(card, "experiment")
-    limitation = _safe_card_field(card, "limitation")
-    impact = _safe_card_field(card, "impact")
+    problem = _clean_clause(_safe_card_field(card, "problem"))
+    mechanism = _clean_clause(_safe_distinct_card_field(card, ("mechanism", "impact", "math_or_objective"), avoid=(problem,)))
+    objective = _clean_clause(_safe_distinct_card_field(card, ("math_or_objective", "experiment", "impact"), avoid=(problem, mechanism)))
+    experiment = _clean_clause(_safe_card_field(card, "experiment"))
+    limitation = _clean_clause(_safe_card_field(card, "limitation"))
+    impact = _clean_clause(_safe_card_field(card, "impact"))
     url = _citation_url(citation, chunks_by_id)
     second_url = _citation_url(second, chunks_by_id)
     cite = f"[{citation}] {url}".strip()
@@ -561,35 +571,81 @@ def _emergency_section_paragraphs(
     training_sentence = ""
     if training:
         training_sentence = (
-            " For a scaled LLM training stack, the runbook implication is to choose FSDP or ZeRO sharding, "
-            "validate tensor, pipeline, or sequence parallelism against memory pressure, track activation checkpointing, "
-            "NCCL all-reduce communication, data pipeline throughput, checkpoint recovery, profiling traces, GPU utilization, "
-            "and a rollout gate before increasing cluster scale."
+            " For the training runbook, the decision is not to copy the paper blindly; choose the sharding or batching boundary, "
+            "profile GPU utilization and communication traces, isolate whether memory pressure, data loading, NCCL all-reduce, "
+            "or checkpoint recovery is the bottleneck, then set a rollout gate before increasing cluster scale."
         )
+    comparison = (
+        f"Compare it with {next_title}"
+        if getattr(next_card, "item_id", "") != getattr(card, "item_id", "")
+        else "Compare the mechanism and evaluation evidence inside the same source"
+    )
+    lead = _emergency_section_lead(section, index)
     return [
         (
-            f"The AEC foundation-model problem in this section is the decision a principal MLE would need to make before scaling the next training, data, or evaluation loop. "
-            f"{title} is useful because it exposes an engineering mechanism rather than a generic capability claim. The supported mechanism is {mechanism}, "
-            f"while the objective or metric lens is {objective}. That gives the team a concrete validation test: reproduce the benchmark slice, inspect the failure mode, "
-            f"and decide whether the architecture, pipeline, model, optimization, or metric can survive document, drawing, BIM/CAD, and construction workflow constraints. {cite}"
+            f"{lead} {problem}. {title} matters because it turns that pressure point into an engineering choice, "
+            f"not a generic model-quality claim: {mechanism}. The objective lens is {objective}. A principal MLE would convert this into a validation slice: "
+            f"reproduce the smallest benchmark that exercises the claimed mechanism, inspect the failure mode, and decide whether the architecture, data pipeline, "
+            f"optimizer path, or evaluation metric can survive document, drawing, BIM/CAD, and construction workflow constraints. {cite}"
             f"{training_sentence}"
         ),
         (
-            f"The experiment evidence is {experiment}, and the limitation is {limitation}. Those details make the adoption decision "
-            f"more practical: the team should monitor latency, throughput, memory behavior, data quality, retrieval quality, observability, release gates, "
-            f"and rollback or checkpoint behavior instead of treating the result as a broad endorsement. The operating question is what bottleneck this solves, "
-            f"what new bottleneck it creates, and whether the next prototype should target training scale, grounding quality, or evaluation reliability. {cite}"
-        ),
-        (
-            f"The cross-evidence synthesis is a tradeoff between {title} and {next_title}: one item may clarify mechanism or objective, "
-            f"while the other exposes benchmark, evaluation, ablation, limitation, or failure evidence. The safe production claim is therefore "
-            f"a transfer hypothesis, not a proven integrated stack. Compare and contrast the evidence together across the mechanisms: "
-            f"one complements the other, whereas the combined adoption path still separates validated evidence from open risk. "
-            f"For Autodesk AEC document, drawing, sheet, CAD, and BIM workflows, "
-            f"the practical impact is {impact}; the release gate should test source-grounded retrieval, traceable citations, and domain-specific "
-            f"failure cases before deployment. {second_cite}"
+            f"The evidence to trust is the experiment and limit pair: {experiment}; the visible risk is {limitation}. {comparison} before treating the idea as production-ready: "
+            f"one side should clarify the mechanism or objective, while the other should expose benchmark, ablation, limitation, or rollout evidence. The safe claim is a transfer hypothesis, "
+            f"not a proven integrated stack. For Autodesk AEC document, drawing, sheet, CAD, and BIM workflows, the practical impact is {impact}; the release gate should test source-grounded retrieval, "
+            f"traceable citations, throughput or cost under real document distributions, and domain-specific failure cases before deployment. {second_cite}"
         ),
     ]
+
+
+def _emergency_section_lead(section: object, index: int) -> str:
+    role = str(getattr(section, "section_role", "") or "").lower()
+    heading = str(getattr(section, "heading", "") or "").strip()
+    if role == "synthesis" or index == 0:
+        return "The throughline for this section is the AEC foundation-model bottleneck exposed by the evidence:"
+    if role == "adoption":
+        return "The adoption question is whether this evidence changes an Autodesk AEC release gate:"
+    if "benchmark" in heading.lower() or "failure" in heading.lower():
+        return "The debugging question is what benchmark signal would separate a real systems gain from noise:"
+    if "tradeoff" in heading.lower() or "architecture" in heading.lower():
+        return "The architecture question is which bottleneck moves when this technique is introduced:"
+    primary_leads = (
+        "The operating question for a principal MLE is:",
+        "The runbook decision in this section starts from a concrete scaling pressure:",
+        "The useful reading of this evidence is the failure mode it lets the team isolate:",
+        "The implementation question is where the training system stops being predictable:",
+    )
+    return primary_leads[index % len(primary_leads)]
+
+
+def _safe_distinct_card_field(card: object, fields: tuple[str, ...], *, avoid: tuple[str, ...]) -> str:
+    normalized_avoid = {_normalize_clause(value) for value in avoid if value}
+    fallback = ""
+    for field in fields:
+        value = _safe_card_field(card, field)
+        if not fallback:
+            fallback = value
+        if _normalize_clause(value) not in normalized_avoid:
+            return value
+    return fallback or _safe_card_field(card, fields[0])
+
+
+def _clean_clause(value: str) -> str:
+    compact = re.sub(r"\s+", " ", value or "").strip()
+    compact = compact.rstrip(" .;:")
+    return compact or value
+
+
+def _normalize_clause(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+
+
+def _comparison_card(card: object, all_cards: list[object], local_cards: list[object], *, index: int) -> object:
+    card_id = getattr(card, "item_id", "")
+    for candidate in [*all_cards[index + 1 :], *all_cards[: index + 1], *local_cards]:
+        if getattr(candidate, "item_id", "") != card_id:
+            return candidate
+    return card
 
 
 def _best_citation(card: object, chunks_by_item: dict[str, list[object]], *, preferred: tuple[str, ...]) -> str:
@@ -632,7 +688,8 @@ def _emergency_primary_depth_paragraph(
         f"For primary-depth coverage, {title} gets separate mechanism and evaluation treatment. The primary mechanism or benchmark evidence is {mechanism} "
         f"[{primary_id}] {primary_url}. The experiment, objective, or limitation evidence is {experiment}; the operational risk is "
         f"{limitation} [{secondary_id}] {secondary_url}. This compare and contrast pass keeps the production tradeoff grounded across "
-        f"the selected evidence, complements the synthesis sections, and separates benchmark evidence from adoption hypotheses.{training_clause}"
+        f"the selected evidence, complements the synthesis sections, and separates benchmark evidence from adoption hypotheses. "
+        f"The next engineering action is to reproduce the cited signal on a representative AEC slice before changing the training, retrieval, or evaluation stack.{training_clause}"
     )
 
 
@@ -666,6 +723,7 @@ def _safe_card_field(card: object, field: str) -> str:
     value = str(getattr(card, field, "") or "").strip()
     if not value or value == "not found in evidence":
         fallbacks = {
+            "problem": "the blocker exposed by the cited evidence, which should be stated as a testable engineering problem before adoption",
             "mechanism": "the cited mechanism or system behavior, which should be treated as the implementation hypothesis to inspect",
             "math_or_objective": "the operational objective implied by the cited benchmark or evaluation evidence rather than an exposed formal loss",
             "experiment": "the available benchmark or evaluation signal; if the source is thin, that absence becomes a validation gap to close before adoption",
@@ -673,7 +731,20 @@ def _safe_card_field(card: object, field: str) -> str:
             "impact": "the plausible transfer to AEC foundation-model training, grounding, evaluation, or deployment, which remains a hypothesis until validated",
         }
         return fallbacks.get(field, f"the {field.replace('_', ' ')} that must be confirmed from the cited evidence")
-    return re.sub(r"\s+", " ", value)[:220]
+    return _truncate_clean(value, 260)
+
+
+def _truncate_clean(value: str, limit: int) -> str:
+    compact = re.sub(r"\s+", " ", value).strip()
+    if len(compact) <= limit:
+        return compact
+    window = compact[:limit]
+    for marker in (". ", "; ", ", and ", ", (", ", with "):
+        cut = window.rfind(marker)
+        if cut >= max(80, limit // 2):
+            return window[:cut].rstrip(" ,;:.")
+    clipped = window.rsplit(" ", 1)[0].rstrip(" ,;:.")
+    return clipped or window.rstrip(" ,;:.")
 
 
 def _generate_deep_dive_body(*, client: LLMClient, pack: EvidencePack, title: str, slug: str) -> str:
@@ -1019,6 +1090,9 @@ def _call_daily_draft(client: LLMClient, system: str, user: str, *, outline: Dai
 
 def _daily_draft_rejection_reason(text: str, outline: DailyOutline) -> str | None:
     body = _strip_fence(text).strip()
+    refusal = _refusal_rejection_reason(body)
+    if refusal:
+        return refusal
     word_count = _word_count(body)
     min_fragment_words = max(500, config.daily_min_words() // 3)
     if word_count < min_fragment_words:
@@ -1028,6 +1102,26 @@ def _daily_draft_rejection_reason(text: str, outline: DailyOutline) -> str | Non
         return "missing_all_outline_sections"
     if missing_sections and not _h1_titles(body):
         return "missing_h1_and_outline_sections"
+    return None
+
+
+def _refusal_rejection_reason(body: str) -> str | None:
+    lower = re.sub(r"\s+", " ", (body or "").lower()).strip()
+    refusal_prefixes = (
+        "i'm sorry",
+        "i am sorry",
+        "sorry, but i can't",
+        "sorry, but i cannot",
+        "i can't continue",
+        "i cannot continue",
+        "i can't comply",
+        "i cannot comply",
+        "i’m sorry",
+    )
+    if any(lower.startswith(prefix) for prefix in refusal_prefixes):
+        return "refusal_completion"
+    if "can't continue with that" in lower or "cannot continue with that" in lower:
+        return "refusal_completion"
     return None
 
 
