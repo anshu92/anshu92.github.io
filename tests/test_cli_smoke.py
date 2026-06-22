@@ -8,7 +8,8 @@ from blogpipe import memory, store
 from blogpipe.cli import main
 from blogpipe.llm import LLMClient
 from blogpipe.models import DailyOutline, SelectionResult, SourceItem
-from blogpipe.pipeline import _augment_ranked_with_store_papers, _plan_agent_run, write_daily
+from blogpipe.models import WriteResult
+from blogpipe.pipeline import _augment_ranked_with_store_papers, _plan_agent_run, run_all, write_daily
 from blogpipe.score import rank_items
 
 
@@ -351,6 +352,38 @@ def test_write_daily_blocks_instead_of_crashing_when_writer_runtime_expires(monk
     assert not result.ok
     assert result.errors == ["daily_writer_failed:BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"]
     assert list((tmp_path / "reports").glob("*.blocked.json"))
+
+
+def test_run_all_keeps_daily_when_optional_deep_dive_exhausts_models(monkeypatch, tmp_path):
+    now = datetime.now(timezone.utc)
+    ranked = rank_items([_recent_paper(idx, now=now) for idx in range(3)], now=now, max_age_hours=72)
+    ranked[0].deep_dive_score = 0.99
+
+    monkeypatch.setattr(memory, "ROOT", tmp_path)
+    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
+    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
+    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
+    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
+    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
+    monkeypatch.setattr("blogpipe.pipeline.ingest.run", lambda **kwargs: len(ranked))
+    monkeypatch.setattr("blogpipe.pipeline.rank.run", lambda **kwargs: ranked)
+    monkeypatch.setattr(
+        "blogpipe.pipeline.write_daily",
+        lambda **kwargs: WriteResult(ok=True, title="Daily OK", body="# Daily OK\n\nNo generated image."),
+    )
+    monkeypatch.setattr(
+        "blogpipe.pipeline.writer.write_deep_dive",
+        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("LLM completion failed for task=draft; last_error=retriable_status:429")),
+    )
+
+    result = run_all(dry_run=True, max_deep_dives=1)
+
+    assert result["daily"]["ok"] is True
+    assert result["deep_dives"][0]["ok"] is False
+    assert "optional_deep_dive_failed:RuntimeError" in result["deep_dives"][0]["errors"][0]
+    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
+    assert report["daily"]["ok"] is True
+    assert report["deep_dives"][0]["ok"] is False
 
 
 def test_agent_run_plan_skips_optional_deep_dives_when_runtime_budget_is_low(monkeypatch):

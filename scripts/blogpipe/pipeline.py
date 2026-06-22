@@ -48,7 +48,10 @@ def run_all(
         final_plan = _plan_agent_run(client, requested_deep_dives=max_deep_dives)
         deep = write_deep_dives(ranked=ranked, max_new=final_plan.allowed_deep_dives, dry_run=dry_run, llm=client)
         if "/img/posts/" in daily.body:
-            render_assets()
+            try:
+                render_assets()
+            except Exception as exc:  # noqa: BLE001
+                LOG.warning("optional asset rendering failed after daily draft succeeded: %s", exc)
     else:
         LOG.warning("daily writer blocked publication: %s", daily.errors)
         final_plan = _plan_agent_run(client, requested_deep_dives=0)
@@ -234,7 +237,24 @@ def write_deep_dives(
     results: list[WriteResult] = []
     for item in score.deep_dive_shortlist(ranked, maximum=max_new):
         pack = evidence.build_deep_dive_pack(item)
-        results.append(writer.write_deep_dive(pack, llm=client, dry_run=dry_run))
+        try:
+            results.append(writer.write_deep_dive(pack, llm=client, dry_run=dry_run))
+        except Exception as exc:  # noqa: BLE001
+            LOG.warning(
+                "optional deep dive failed for item_id=%s title=%r: %s",
+                item.item.item_id,
+                item.item.title,
+                exc,
+            )
+            results.append(
+                WriteResult(
+                    ok=False,
+                    title=item.item.title,
+                    errors=[f"optional_deep_dive_failed:{type(exc).__name__}:{exc}"],
+                )
+            )
+            continue
+    memory.ensure_dirs()
     (memory.REPORTS / "deep_dive_write_result.json").write_text(
         json.dumps([r.model_dump() for r in results], indent=2, ensure_ascii=False),
         encoding="utf-8",
