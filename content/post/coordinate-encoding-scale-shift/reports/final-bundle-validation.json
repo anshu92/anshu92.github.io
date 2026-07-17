@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "checks": {
+    "yaml_frontmatter": true,
+    "latex_backslashes_preserved": true,
+    "control_characters": true,
+    "balanced_dollar_delimiters": true,
+    "relative_links_exist": true,
+    "svg_title_desc": true,
+    "exactly_one_publishable_markdown": true
+  },
+  "pytest": "5 passed",
+  "experiment_runs": 80,
+  "seeds": 5,
+  "scenarios": 4,
+  "encodings": 4
+}

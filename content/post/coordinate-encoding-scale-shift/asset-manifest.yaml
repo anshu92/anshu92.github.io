@@ -1,0 +1,31 @@
+assets:
+- path: cover.svg
+  asset_type: cover
+  purpose: Show one relation across two canvas frames
+  alt_text: Two points preserve their relation as canvas scale and crop change
+  source: original SVG
+  provenance: generated locally
+  article_section: opening
+- path: figures/figure-01-probe.svg
+  asset_type: diagram
+  purpose: Define the four encoding branches and interventions
+  alt_text: Point pair passes through four coordinate encoders into one MLP
+  source: original SVG
+  provenance: generated locally
+  article_section: probe
+- path: figures/figure-02-results.svg
+  asset_type: chart
+  purpose: Compare intervention results across encodings
+  alt_text: Accuracy by encoding and evaluation scenario
+  source: code/generate_visuals.py
+  source_data: data/results.csv
+  provenance: generated locally
+  article_section: results
+  units: accuracy proportion
+- path: figures/figure-03-translation.svg
+  asset_type: diagram
+  purpose: Explain the translated-crop intervention
+  alt_text: Same local relation moved to upper-right crop
+  source: original SVG
+  provenance: generated locally
+  article_section: translation intervention
