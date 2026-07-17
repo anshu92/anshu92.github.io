@@ -2702,3 +2702,24 @@ a:hover {
     background: rgba(238, 243, 246, 0.24);
     border-radius: 999px;
 }
+
+/* Sidebar wordmark logo */
+.left-sidebar .site-avatar {
+    height: auto;
+    max-width: 260px;
+    width: 100%;
+}
+
+.left-sidebar .site-avatar .site-logo {
+    aspect-ratio: 960 / 220;
+    border-radius: 0;
+    box-shadow: none;
+    display: block;
+    height: auto;
+    object-fit: contain;
+    width: 100%;
+}
+
+.left-sidebar .site-name {
+    display: none;
+}

@@ -11,7 +11,7 @@ copyright = 'Anshuman Sahoo'
 mainSections = ['post']
 featuredImageField = 'image'
 rssFullContent = true
-favicon = '/img/brain-logo.png'
+favicon = '/img/synaptic-radio-favicon.svg'
 
 # Author configuration
 [params.author]
@@ -24,10 +24,10 @@ email = 'anshuman264@gmail.com'
 subtitle = "Principal ML engineer focused on foundation models, agentic systems and scientific AI. I write about the math, systems and engineering judgement behind reliable ML workflows."
 compact = false
 
-# [params.sidebar.avatar]
-# enabled = true
-# local = true
-# src = "img/brain-logo-small.png"
+[params.sidebar.avatar]
+enabled = true
+local = false
+src = "/img/synaptic-radio-logo.svg"
 
 # Article configuration
 [params.article]

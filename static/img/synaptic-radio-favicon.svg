@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Synaptic Radio favicon</title>
+  <desc id="desc">Circuit braces and waveform icon.</desc>
+  <rect width="128" height="128" rx="24" fill="#fbf6ec"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M36 28c24 0 24 25 10 36c14 11 14 36 -10 36" stroke="#2f5960" stroke-width="7"/>
+    <path d="M92 28c-24 0 -24 25 -10 36c-14 11 -14 36 10 36" stroke="#2f5960" stroke-width="7"/>
+    <path d="M46 64h12l6 -18l10 39l8 -29l6 17h14" stroke="#b45f37" stroke-width="7"/>
+    <path d="M64 24v22M64 82v22" stroke="#c46b45" stroke-width="6" stroke-dasharray="12 10"/>
+  </g>
+  <circle cx="24" cy="28" r="8" fill="#274f56"/>
+  <circle cx="18" cy="64" r="8" fill="#2d6670"/>
+  <circle cx="24" cy="100" r="8" fill="#315b61"/>
+  <circle cx="104" cy="28" r="8" fill="#274f56"/>
+  <circle cx="110" cy="64" r="8" fill="#78999a"/>
+  <circle cx="104" cy="100" r="8" fill="#315b61"/>
+  <circle cx="64" cy="14" r="8" fill="#b45f37"/>
+  <circle cx="64" cy="114" r="8" fill="#c46b45"/>
+</svg>

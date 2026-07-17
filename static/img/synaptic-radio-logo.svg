@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 220" role="img" aria-labelledby="title desc">
+  <title id="title">Synaptic Radio</title>
+  <desc id="desc">Synaptic Radio wordmark with circuit braces and a waveform mark.</desc>
+  <rect width="960" height="220" fill="#fbf6ec"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M96 56c36 0 36 38 16 52c20 14 20 52 -16 52" stroke="#2f5960" stroke-width="8"/>
+    <path d="M208 56c-36 0 -36 38 -16 52c-20 14 -20 52 16 52" stroke="#2f5960" stroke-width="8"/>
+    <path d="M126 110h22l10 -28l16 58l13 -42l9 25h22" stroke="#b45f37" stroke-width="8"/>
+    <path d="M162 50v36M162 134v36" stroke="#c46b45" stroke-width="7" stroke-dasharray="18 14"/>
+  </g>
+  <g>
+    <circle cx="74" cy="56" r="12" fill="#274f56"/>
+    <circle cx="62" cy="110" r="12" fill="#2d6670"/>
+    <circle cx="74" cy="164" r="12" fill="#315b61"/>
+    <circle cx="232" cy="56" r="12" fill="#274f56"/>
+    <circle cx="244" cy="110" r="12" fill="#78999a"/>
+    <circle cx="232" cy="164" r="12" fill="#315b61"/>
+    <circle cx="162" cy="30" r="12" fill="#b45f37"/>
+    <circle cx="162" cy="190" r="12" fill="#c46b45"/>
+  </g>
+  <text x="300" y="139" font-family="Georgia, 'Times New Roman', serif" font-size="88" fill="#132735" letter-spacing="-1">Synaptic Radio</text>
+</svg>
