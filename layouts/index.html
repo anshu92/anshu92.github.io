@@ -45,7 +45,7 @@
             {{ range $categoryIndex, $category := $folderNames }}
                 {{ $categoryPosts := index $folders $category }}
                 {{ if gt (len $categoryPosts) 0 }}
-                    <details class="blog-toc__folder" {{ if eq $categoryIndex 0 }}open{{ end }} data-blog-toc-folder>
+                    <details class="blog-toc__folder" open data-blog-toc-folder>
                         <summary>
                             <span class="blog-toc__folder-marker" aria-hidden="true"></span>
                             <span class="blog-toc__folder-icon" aria-hidden="true"></span>
