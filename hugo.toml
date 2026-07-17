@@ -21,7 +21,6 @@ email = 'anshuman264@gmail.com'
 
 # Sidebar configuration
 [params.sidebar]
-emoji = '🎧'
 subtitle = "I'm Anshu, a machine learning engineer with nine years of experience turning first-principles ideas into prototypes and production systems. Here, I share ideas, practical insights and best practices to help fellow engineers accelerate their ML projects."
 compact = false
 
