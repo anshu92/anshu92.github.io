@@ -120,6 +120,16 @@ The quickest way to see the design is to run all seven scenarios for one seed:
 python code/checkpoint_equivalence.py matrix --seed 11
 ```
 
+The seven scenarios are:
+
+1. `full_boundary`: save at a clean optimizer-step boundary with model, optimizer, scheduler, RNG state, data-stream state, and counters.
+2. `model_optimizer_only`: save only model weights and optimizer state; drop scheduler, RNG, stream, and clock/counter state.
+3. `omit_rng`: keep the boundary checkpoint otherwise complete, but remove Python, NumPy, and PyTorch RNG state.
+4. `omit_stream`: keep the boundary checkpoint otherwise complete, but remove the shuffled data-stream cursor/state.
+5. `omit_scheduler`: keep the boundary checkpoint otherwise complete, but remove the learning-rate scheduler state.
+6. `full_mid_accumulation`: save one microbatch into a three-microbatch accumulation window, including pending gradients.
+7. `mid_without_gradients`: save at that same mid-accumulation point, but discard the already-computed gradients.
+
 ![Actual terminal transcript for all seven checkpoint interventions on seed 11.](figures/terminal-02-seed-11-matrix.svg)
 
 *The exact source transcript is [`data/terminal-02-seed-11-matrix.txt`](data/terminal-02-seed-11-matrix.txt). `first` is the first optimizer step whose model parameters differ from the uninterrupted control.*
