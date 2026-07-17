@@ -2585,13 +2585,14 @@ a:hover {
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
+    padding: 0;
 }
 
 .article-content .highlight .chroma {
     background: transparent;
     color: #eef3f6;
     font-size: 1.38rem;
-    line-height: 1.65;
+    line-height: 1.6;
     min-width: max-content;
 }
 
@@ -2601,10 +2602,12 @@ a:hover {
     border: 0;
     border-radius: 0;
     color: inherit;
+    line-height: inherit;
     margin: 0;
     overflow: visible;
-    padding: 14px 16px;
+    padding: 0;
     white-space: pre;
+    word-break: normal;
 }
 
 .article-content .highlight .lntable {
@@ -2635,17 +2638,60 @@ a:hover {
     min-width: 0;
 }
 
+.article-content .highlight .lntd:last-child pre {
+    padding: 16px 22px;
+}
+
 .article-content .highlight .lnt {
     color: inherit;
+    line-height: inherit;
     margin: 0;
-    padding: 14px 10px;
+    padding: 16px 12px 16px 14px;
     text-align: right;
 }
 
 .article-content .highlight code {
     background: transparent;
     color: inherit;
+    font-size: inherit;
+    line-height: inherit;
     padding: 0;
+}
+
+.article-content .highlight .line,
+.article-content .highlight .cl {
+    line-height: inherit;
+}
+
+.article-content .highlight .n,
+.article-content .highlight .ni,
+.article-content .highlight .nl,
+.article-content .highlight .nn,
+.article-content .highlight .py,
+.article-content .highlight .nv,
+.article-content .highlight .vc,
+.article-content .highlight .vg,
+.article-content .highlight .vi,
+.article-content .highlight .vm,
+.article-content .highlight .fm,
+.article-content .highlight .p,
+.article-content .highlight .o {
+    color: #dbe4ea;
+}
+
+.article-content .highlight .k,
+.article-content .highlight .kd {
+    color: #4cc9f0;
+}
+
+.article-content .highlight .nc,
+.article-content .highlight .nf {
+    color: #a6e22e;
+}
+
+.article-content .highlight .nb,
+.article-content .highlight .bp {
+    color: #ffd166;
 }
 
 .article-content .highlight::-webkit-scrollbar {
