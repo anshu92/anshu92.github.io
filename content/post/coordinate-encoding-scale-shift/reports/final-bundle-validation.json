@@ -9,9 +9,10 @@
     "svg_title_desc": true,
     "exactly_one_publishable_markdown": true
   },
-  "pytest": "5 passed",
-  "experiment_runs": 80,
+  "pytest": "6 passed",
+  "experiment_runs": 160,
   "seeds": 5,
+  "models": 2,
   "scenarios": 4,
   "encodings": 4
 }

@@ -1,7 +1,7 @@
 ---
 title: "Pixels Are Not Positions: Testing 2D Coordinate Encodings Under Scale and Translation"
-description: "A five-seed synthetic probe shows why in-domain accuracy is a weak test of coordinate encodings for spatial reasoning."
-summary: "A small coordinate-encoding probe shows why in-domain accuracy can miss absolute-position shortcuts under scale and translation shifts."
+description: "A five-seed synthetic probe with an MLP and a tiny transformer shows why in-domain accuracy is a weak test of coordinate encodings for spatial reasoning."
+summary: "A small coordinate-encoding probe shows why in-domain accuracy can miss absolute-position shortcuts under scale and translation shifts, even with a transformer block."
 date: 2026-07-17
 lastmod: 2026-07-17
 draft: false
@@ -29,7 +29,7 @@ params:
 
 A model can score well on a spatial task for the wrong reason. The narrow hypothesis in this article is that **raw pixel coordinates may let a small network fit the training canvas while quietly tying its decision boundary to the coordinate range**. That dependence can remain invisible until the same geometry appears on a larger page or inside a shifted crop.
 
-I tested that hypothesis with a deliberately small system. Two points define one of five relations: left, right, above, below, or near. The relation depends only on their displacement after dividing by canvas size. I trained the same MLP with four ways of writing the coordinates, then changed the canvas without changing the rule.
+I tested that hypothesis with a deliberately small system. Two points define one of five relations: left, right, above, below, or near. The relation depends only on their displacement after dividing by canvas size. I trained the same MLP with four ways of writing the coordinates, then changed the canvas without changing the rule. I then repeated the intervention with a tiny transformer classifier built from PyTorch's `TransformerEncoderLayer`.
 
 ![Two points preserve the same relation while canvas scale and origin change.](/images/coordinate-encoding-scale-shift/cover.svg)
 
@@ -65,7 +65,7 @@ The four inputs are:
 
 Discrete coordinate tokens are a real design choice in multimodal systems. Pix2Seq, for example, serializes bounding boxes as discrete tokens, while document models such as LayoutLMv3 combine text, image, and layout information. Fourier features offer another route: they map low-dimensional coordinates into periodic features that can help MLPs fit high-frequency functions [1–3]. None of those papers implies that one choice is universally best here; they establish that coordinate representation is part of the model, not harmless formatting.
 
-The complete command is:
+The complete command trains both the MLP and the tiny transformer:
 
 ```bash
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
@@ -76,10 +76,14 @@ The retained summary from five seeds is:
 
 <!-- BEGIN AUTO-GENERATED TERMINAL OUTPUT: run-main -->
 ```text
-fourier: in_domain=0.799±0.012, scale_2x=0.789±0.014, scale_4x=0.800±0.010, translated_crop=0.596±0.017
-normalized: in_domain=0.883±0.025, scale_2x=0.882±0.027, scale_4x=0.887±0.016, translated_crop=0.817±0.073
-quantized_32: in_domain=0.887±0.023, scale_2x=0.887±0.028, scale_4x=0.892±0.015, translated_crop=0.798±0.071
-raw_pixels: in_domain=0.908±0.009, scale_2x=0.902±0.014, scale_4x=0.908±0.012, translated_crop=0.535±0.071
+mlp/fourier: in_domain=0.799±0.012, scale_2x=0.789±0.014, scale_4x=0.800±0.010, translated_crop=0.596±0.017
+mlp/normalized: in_domain=0.883±0.025, scale_2x=0.882±0.027, scale_4x=0.887±0.016, translated_crop=0.817±0.073
+mlp/quantized_32: in_domain=0.887±0.023, scale_2x=0.887±0.028, scale_4x=0.892±0.015, translated_crop=0.798±0.071
+mlp/raw_pixels: in_domain=0.908±0.009, scale_2x=0.902±0.014, scale_4x=0.908±0.012, translated_crop=0.535±0.071
+transformer/fourier: in_domain=0.923±0.007, scale_2x=0.918±0.009, scale_4x=0.919±0.011, translated_crop=0.650±0.043
+transformer/normalized: in_domain=0.956±0.011, scale_2x=0.955±0.007, scale_4x=0.951±0.012, translated_crop=0.674±0.037
+transformer/quantized_32: in_domain=0.952±0.006, scale_2x=0.950±0.011, scale_4x=0.950±0.007, translated_crop=0.679±0.024
+transformer/raw_pixels: in_domain=0.348±0.018, scale_2x=0.345±0.020, scale_4x=0.342±0.012, translated_crop=0.246±0.015
 ```
 <!-- END AUTO-GENERATED TERMINAL OUTPUT: run-main -->
 
@@ -109,6 +113,16 @@ The normalized model also drops by roughly seven points. That matters. Normaliza
 
 Fourier features did not help here. Their translated score was 0.596, and their in-domain score was lower than the simpler normalized input. This is not a contradiction of the Fourier-feature literature. The target function in this experiment is mostly made of broad directional regions plus a circular near boundary; the chosen frequencies, optimizer, model size, and training budget may be poorly matched. More features also make optimization harder in a small fixed-budget probe.
 
+## A tiny transformer changes the model, not the contract
+
+The transformer variant turns the two points into two sequence tokens. Each token carries its point coordinates under the selected encoding. A learned CLS token passes through one PyTorch `TransformerEncoderLayer` with four attention heads, then a linear head predicts the relation. This is still intentionally small, but it tests whether the conclusion was merely an MLP artifact.
+
+It was not. With normalized and 32-bin coordinates, the transformer reached roughly **0.95** in-domain accuracy, higher than the MLP. Under the translated crop, those same encodings fell to **0.674** and **0.679**. The model got stronger, but absolute normalized point positions were still visible to the classifier, and the origin shift still changed behavior.
+
+Raw pixels were worse: the transformer reached only **0.348** in-domain accuracy and **0.246** on the translated crop. I do not read that as a clean generalization failure. It is an interface failure. Feeding unscaled pixel magnitudes directly into a tiny attention block made optimization poor before the OOD test even mattered.
+
+![A tiny transformer learns normalized coordinates in-domain, but translation still cuts accuracy.](/images/coordinate-encoding-scale-shift/figure-04-transformer.svg)
+
 ## What each encoding preserves—and what it throws away
 
 The experiment becomes more useful when read as a set of trade-offs rather than a leaderboard.
@@ -135,7 +149,7 @@ For document and floor-plan models, random train/test splits mostly answer wheth
 5. **Quantization boundary:** place examples just above and below token-bin edges.
 6. **Mixed units:** separate page-relative position from physical distance rather than silently combining them.
 
-The test oracle must be explicit. For this article, the label function is public and exact, and the tests verify that uniform scaling leaves labels unchanged. The bundle includes five direct tests, including a counterexample that confirms raw pixels do *not* preserve the encoded values under scale even though the trained classifier happened to preserve accuracy.
+The test oracle must be explicit. For this article, the label function is public and exact, and the tests verify that uniform scaling leaves labels unchanged. The bundle includes six direct tests, including a counterexample that confirms raw pixels do *not* preserve the encoded values under scale even though the trained classifier happened to preserve accuracy.
 
 Run them with:
 
@@ -146,16 +160,16 @@ PYTHONPATH=code pytest -q code/test_coordinate_probe.py
 Expected result:
 
 ```text
-5 passed
+6 passed
 ```
 
 In a production research platform, the same pattern can become a pre-merge evaluation: every new spatial encoding or tokenizer must pass relation-preserving transformations, report uncertainty across seeds, and retain failure slices. That is more informative than asking whether the aggregate validation number moved by half a point.
 
 ## What the probe changed—and the next test
 
-The baseline suggested that raw pixels were not merely adequate but slightly better. The translated crop changed that conclusion. I would no longer approve a coordinate representation for a spatial model based on in-domain accuracy plus a resize test. I would require controlled shifts of origin, crop, scale, and bin boundaries, with the target relation held fixed.
+The baseline suggested that raw pixels were not merely adequate but slightly better for the MLP. The translated crop changed that conclusion, and the tiny transformer made the broader point sharper: a modern attention block does not remove the need to define the coordinate contract. I would no longer approve a coordinate representation for a spatial model based on in-domain accuracy plus a resize test. I would require controlled shifts of origin, crop, scale, and bin boundaries, with the target relation held fixed.
 
-The tested boundary is narrow: a two-point synthetic classification task, a small MLP, five seeds, four encodings, and CPU PyTorch. It does not settle how a large vision-language model should encode floor plans. Its value is diagnostic. It gives us a way to catch one class of shortcut before model size, image features, and language context make the failure harder to see.
+The tested boundary is narrow: a two-point synthetic classification task, a small MLP, a one-layer transformer, five seeds, four encodings, and CPU PyTorch. It does not settle how a large vision-language model should encode floor plans. Its value is diagnostic. It gives us a way to catch one class of shortcut before model size, image features, and language context make the failure harder to see.
 
 The next discriminating experiment is to train on mixed canvas sizes and translated crops, then compare three inputs: absolute normalized coordinates, relative displacement features, and both together. Add rotation only after defining which labels should rotate. That experiment would tell us whether data augmentation repairs the observed dependence or whether the input should expose the desired geometry directly.
 

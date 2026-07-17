@@ -1,4 +1,8 @@
-fourier: in_domain=0.799±0.012, scale_2x=0.789±0.014, scale_4x=0.800±0.010, translated_crop=0.596±0.017
-normalized: in_domain=0.883±0.025, scale_2x=0.882±0.027, scale_4x=0.887±0.016, translated_crop=0.817±0.073
-quantized_32: in_domain=0.887±0.023, scale_2x=0.887±0.028, scale_4x=0.892±0.015, translated_crop=0.798±0.071
-raw_pixels: in_domain=0.908±0.009, scale_2x=0.902±0.014, scale_4x=0.908±0.012, translated_crop=0.535±0.071
+mlp/fourier: in_domain=0.799±0.012, scale_2x=0.789±0.014, scale_4x=0.800±0.010, translated_crop=0.596±0.017
+mlp/normalized: in_domain=0.883±0.025, scale_2x=0.882±0.027, scale_4x=0.887±0.016, translated_crop=0.817±0.073
+mlp/quantized_32: in_domain=0.887±0.023, scale_2x=0.887±0.028, scale_4x=0.892±0.015, translated_crop=0.798±0.071
+mlp/raw_pixels: in_domain=0.908±0.009, scale_2x=0.902±0.014, scale_4x=0.908±0.012, translated_crop=0.535±0.071
+transformer/fourier: in_domain=0.923±0.007, scale_2x=0.918±0.009, scale_4x=0.919±0.011, translated_crop=0.650±0.043
+transformer/normalized: in_domain=0.956±0.011, scale_2x=0.955±0.007, scale_4x=0.951±0.012, translated_crop=0.674±0.037
+transformer/quantized_32: in_domain=0.952±0.006, scale_2x=0.950±0.011, scale_4x=0.950±0.007, translated_crop=0.679±0.024
+transformer/raw_pixels: in_domain=0.348±0.018, scale_2x=0.345±0.020, scale_4x=0.342±0.012, translated_crop=0.246±0.015

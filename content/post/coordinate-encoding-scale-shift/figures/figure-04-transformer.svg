@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620">
+<title>Tiny transformer coordinate probe</title>
+<desc>In-domain and translated-crop accuracy for a two-point transformer classifier across coordinate encodings.</desc>
+<rect width="1200" height="620" fill="#fffdf8"/>
+<text x="70" y="62" font-size="34" font-family="sans-serif" fill="#1f252b">A tiny transformer does not remove the coordinate contract</text>
+<text x="70" y="95" font-size="18" font-family="sans-serif" fill="#65717a">Two point tokens, one TransformerEncoderLayer, five seeds</text>
+<line x1="120" y1="435" x2="1000" y2="435" stroke="#ddd5c8" stroke-width="2"/>
+<line x1="120" y1="105" x2="120" y2="435" stroke="#ddd5c8" stroke-width="2"/>
+<line x1="112" y1="352.5" x2="1000" y2="352.5" stroke="#eee5d6" stroke-width="1"/>
+<text x="102" y="358.5" font-size="16" text-anchor="end" font-family="sans-serif" fill="#65717a">0.25</text>
+<line x1="112" y1="270.0" x2="1000" y2="270.0" stroke="#eee5d6" stroke-width="1"/>
+<text x="102" y="276.0" font-size="16" text-anchor="end" font-family="sans-serif" fill="#65717a">0.50</text>
+<line x1="112" y1="187.5" x2="1000" y2="187.5" stroke="#eee5d6" stroke-width="1"/>
+<text x="102" y="193.5" font-size="16" text-anchor="end" font-family="sans-serif" fill="#65717a">0.75</text>
+<line x1="112" y1="105.0" x2="1000" y2="105.0" stroke="#eee5d6" stroke-width="1"/>
+<text x="102" y="111.0" font-size="16" text-anchor="end" font-family="sans-serif" fill="#65717a">1.00</text>
+<rect x="178.0" y="320.0" width="56.0" height="115.0" fill="#416f89" rx="4"/>
+<text x="206.0" y="312.0" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.348</text>
+<rect x="248.0" y="353.8" width="56.0" height="81.2" fill="#9b6a2f" rx="4"/>
+<text x="276.0" y="345.8" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.246</text>
+<text x="241.0" y="467" font-size="18" text-anchor="middle" font-family="sans-serif" fill="#1f252b">raw pixels</text>
+<rect x="398.0" y="119.5" width="56.0" height="315.5" fill="#416f89" rx="4"/>
+<text x="426.0" y="111.5" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.956</text>
+<rect x="468.0" y="212.5" width="56.0" height="222.5" fill="#9b6a2f" rx="4"/>
+<text x="496.0" y="204.5" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.674</text>
+<text x="461.0" y="467" font-size="18" text-anchor="middle" font-family="sans-serif" fill="#1f252b">normalized</text>
+<rect x="618.0" y="120.8" width="56.0" height="314.2" fill="#416f89" rx="4"/>
+<text x="646.0" y="112.8" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.952</text>
+<rect x="688.0" y="211.0" width="56.0" height="224.0" fill="#9b6a2f" rx="4"/>
+<text x="716.0" y="203.0" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.679</text>
+<text x="681.0" y="467" font-size="18" text-anchor="middle" font-family="sans-serif" fill="#1f252b">32-bin</text>
+<rect x="838.0" y="130.5" width="56.0" height="304.5" fill="#416f89" rx="4"/>
+<text x="866.0" y="122.5" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.923</text>
+<rect x="908.0" y="220.6" width="56.0" height="214.4" fill="#9b6a2f" rx="4"/>
+<text x="936.0" y="212.6" font-size="15" text-anchor="middle" font-family="sans-serif" fill="#1f252b">0.650</text>
+<text x="901.0" y="467" font-size="18" text-anchor="middle" font-family="sans-serif" fill="#1f252b">Fourier</text>
+<rect x="790" y="438" width="20" height="20" fill="#416f89" rx="3"/>
+<text x="820" y="455" font-size="18" font-family="sans-serif" fill="#1f252b">in-domain</text>
+<rect x="790" y="472" width="20" height="20" fill="#9b6a2f" rx="3"/>
+<text x="820" y="489" font-size="18" font-family="sans-serif" fill="#1f252b">translated crop</text>
+<text x="120" y="548" font-size="18" font-family="sans-serif" fill="#65717a">The transformer learns normalized and quantized coordinates well in-domain, but the origin shift still exposes absolute-position dependence.</text>
+</svg>
