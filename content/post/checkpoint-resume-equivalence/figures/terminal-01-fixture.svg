@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1402" height="765" viewBox="0 0 1402 765" role="img" aria-labelledby="title desc">
+<title id="title">Inspecting the concrete model and checkpoint payloads</title>
+<desc id="desc">Actual terminal transcript showing Python and PyTorch versions, the TinyDropoutClassifier architecture, parameter shapes and counts, training configuration, and checkpoint payload keys.</desc>
+<rect width="1402" height="765" rx="18" fill="#0D1117"/>
+<rect x="1" y="1" width="1400" height="763" rx="18" fill="none" stroke="#30363D" stroke-width="2"/>
+<rect x="1" y="1" width="1400" height="58" rx="18" fill="#161B22"/>
+<rect x="1" y="42" width="1400" height="17" fill="#161B22"/>
+<circle cx="28" cy="29" r="7" fill="#FF5F56"/>
+<circle cx="52" cy="29" r="7" fill="#FFBD2E"/>
+<circle cx="76" cy="29" r="7" fill="#27C93F"/>
+<text x="701.0" y="36" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="16" font-weight="600" fill="#C9D1D9">Inspecting the concrete model and checkpoint payloads</text>
+<text x="36" y="96" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#7EE787">$ python code/checkpoint_equivalence.py inspect --seed 11</text>
+<text x="36" y="121" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#D2A8FF">runtime</text>
+<text x="36" y="146" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  python=3.13.5</text>
+<text x="36" y="171" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  torch=2.10.0+cpu numpy=2.3.5 device=cpu</text>
+<text x="36" y="196" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  deterministic_algorithms=true torch_threads=1</text>
+<text x="36" y="221" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#D2A8FF">model</text>
+<text x="36" y="246" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  TinyDropoutClassifier(</text>
+<text x="36" y="271" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">    (input): Linear(in_features=8, out_features=16, bias=True)</text>
+<text x="36" y="296" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">    (dropout): Dropout(p=0.35, inplace=False)</text>
+<text x="36" y="321" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">    (output): Linear(in_features=16, out_features=3, bias=True)</text>
+<text x="36" y="346" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  )</text>
+<text x="36" y="371" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#D2A8FF">parameters</text>
+<text x="36" y="396" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  input.weight   shape=(16, 8)    count=128</text>
+<text x="36" y="421" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  input.bias     shape=(16,)      count=16</text>
+<text x="36" y="446" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  output.weight  shape=(3, 16)    count=48</text>
+<text x="36" y="471" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  output.bias    shape=(3,)       count=3</text>
+<text x="36" y="496" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  trainable_total=195</text>
+<text x="36" y="521" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#D2A8FF">training</text>
+<text x="36" y="546" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  batch_shape=(4, 8) logits_shape=(4, 3)</text>
+<text x="36" y="571" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  optimizer=AdamW(lr=0.03, weight_decay=0.01)</text>
+<text x="36" y="596" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  scheduler=StepLR(step_size=4, gamma=0.7)</text>
+<text x="36" y="621" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  accumulation_steps=3 checkpoint_after_optimizer_step=5</text>
+<text x="36" y="646" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#D2A8FF">checkpoint payloads</text>
+<text x="36" y="671" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  boundary_keys=[&#x27;config&#x27;, &#x27;counters&#x27;, &#x27;model&#x27;, &#x27;optimizer&#x27;, &#x27;rng&#x27;, &#x27;scenario&#x27;, &#x27;scheduler&#x27;, &#x27;schema_version&#x27;, &#x27;stream&#x27;]</text>
+<text x="36" y="696" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="15" fill="#E6EDF3">  mid_accumulation_keys=[&#x27;config&#x27;, &#x27;counters&#x27;, &#x27;gradients&#x27;, &#x27;model&#x27;, &#x27;optimizer&#x27;, &#x27;rng&#x27;, &#x27;scenario&#x27;, &#x27;scheduler&#x27;, &#x27;schema_version&#x27;, &#x27;stream&#x27;]</text>
+</svg>

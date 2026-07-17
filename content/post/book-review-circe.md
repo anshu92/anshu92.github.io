@@ -3,7 +3,7 @@ date: "2025-06-16"
 draft: true
 title: "Book review: Circe by Madeline Miller"
 description: "A personal, spoiler-aware review of Circe and why its loneliness, rage, and self-making felt so real."
-categories: ["Books", "Fiction"]
+categories: ["Research methodology"]
 tags: ["book-review", "circe", "madeline-miller", "greek-mythology", "historical-fiction"]
 math: false
 mermaid: false

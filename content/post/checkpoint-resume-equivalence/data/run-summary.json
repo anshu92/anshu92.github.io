@@ -1,0 +1,165 @@
+{
+  "status": "PASS",
+  "experiment": "checkpoint_resume_equivalence",
+  "configuration": {
+    "input_dim": 8,
+    "hidden_dim": 16,
+    "num_classes": 3,
+    "num_examples": 48,
+    "batch_size": 4,
+    "accumulation_steps": 3,
+    "total_optimizer_steps": 12,
+    "boundary_interrupt_step": 5,
+    "mid_interrupt_completed_steps": 5,
+    "mid_interrupt_microsteps": 1,
+    "learning_rate": 0.03,
+    "weight_decay": 0.01,
+    "scheduler_step_size": 4,
+    "scheduler_gamma": 0.7,
+    "numpy_noise_std": 0.015,
+    "python_scale_half_width": 0.05,
+    "dropout_probability": 0.35,
+    "dataset_seed": 20260717
+  },
+  "seeds": [
+    11,
+    17,
+    29,
+    47,
+    83
+  ],
+  "scenarios": [
+    "full_boundary",
+    "model_optimizer_only",
+    "omit_rng",
+    "omit_stream",
+    "omit_scheduler",
+    "full_mid_accumulation",
+    "mid_without_gradients"
+  ],
+  "run_count": 35,
+  "scenario_summary": {
+    "full_boundary": {
+      "runs": 5,
+      "exact_runs": 5,
+      "exact_rate": 1.0,
+      "max_parameter_abs_error_min": 0.0,
+      "max_parameter_abs_error_median": 0.0,
+      "max_parameter_abs_error_max": 0.0,
+      "first_divergent_steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "all_next_batch_match": true
+    },
+    "model_optimizer_only": {
+      "runs": 5,
+      "exact_runs": 0,
+      "exact_rate": 0.0,
+      "max_parameter_abs_error_min": 0.06372273713350296,
+      "max_parameter_abs_error_median": 0.08740417659282684,
+      "max_parameter_abs_error_max": 0.09720434993505478,
+      "first_divergent_steps": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "all_next_batch_match": false
+    },
+    "omit_rng": {
+      "runs": 5,
+      "exact_runs": 0,
+      "exact_rate": 0.0,
+      "max_parameter_abs_error_min": 0.05418848246335983,
+      "max_parameter_abs_error_median": 0.07113778591156006,
+      "max_parameter_abs_error_max": 0.08231598138809204,
+      "first_divergent_steps": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "all_next_batch_match": true
+    },
+    "omit_stream": {
+      "runs": 5,
+      "exact_runs": 0,
+      "exact_rate": 0.0,
+      "max_parameter_abs_error_min": 0.06570293009281158,
+      "max_parameter_abs_error_median": 0.0747127290815115,
+      "max_parameter_abs_error_max": 0.09997017681598663,
+      "first_divergent_steps": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "all_next_batch_match": false
+    },
+    "omit_scheduler": {
+      "runs": 5,
+      "exact_runs": 0,
+      "exact_rate": 0.0,
+      "max_parameter_abs_error_min": 0.005801213905215263,
+      "max_parameter_abs_error_median": 0.005941152572631836,
+      "max_parameter_abs_error_max": 0.006064802408218384,
+      "first_divergent_steps": [
+        9,
+        9,
+        9,
+        9,
+        9
+      ],
+      "all_next_batch_match": true
+    },
+    "full_mid_accumulation": {
+      "runs": 5,
+      "exact_runs": 5,
+      "exact_rate": 1.0,
+      "max_parameter_abs_error_min": 0.0,
+      "max_parameter_abs_error_median": 0.0,
+      "max_parameter_abs_error_max": 0.0,
+      "first_divergent_steps": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "all_next_batch_match": true
+    },
+    "mid_without_gradients": {
+      "runs": 5,
+      "exact_runs": 0,
+      "exact_rate": 0.0,
+      "max_parameter_abs_error_min": 0.017922472208738327,
+      "max_parameter_abs_error_median": 0.03202208876609802,
+      "max_parameter_abs_error_max": 0.03545041382312775,
+      "first_divergent_steps": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "all_next_batch_match": true
+    }
+  },
+  "acceptance_checks": {
+    "full_boundary_all_exact": true,
+    "full_mid_accumulation_all_exact": true,
+    "model_optimizer_only_all_fail": true,
+    "omit_rng_all_fail": true,
+    "omit_stream_all_fail": true,
+    "omit_scheduler_all_fail": true,
+    "mid_without_gradients_all_fail": true
+  },
+  "claim_boundary": "Exact bitwise equality is asserted only for this deterministic CPU fixture and software environment."
+}

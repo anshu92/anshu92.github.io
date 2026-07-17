@@ -1,0 +1,29 @@
+assets:
+  - path: cover.svg
+    type: cover
+    purpose: show the two sufficient statistics
+    alt_text: two boxes labeled loss sum and valid-token count combine into one loss
+    generation_method: original SVG
+    provenance: original, generated for this article
+    section: cover
+  - path: figures/figure-01.svg
+    type: explanatory diagram
+    purpose: show mean-of-means error
+    alt_text: one-token rank and three-token rank produce wrong and correct global losses
+    generation_method: original SVG
+    provenance: original, generated for this article
+    section: opening counterexample
+  - path: figures/figure-02.svg
+    type: flow diagram
+    purpose: trace numerator and denominator across ranks
+    alt_text: local loss sums and token counts are globally summed before division
+    generation_method: original SVG
+    provenance: original, generated for this article
+    section: irreducible mechanism
+  - path: figures/figure-03.svg
+    type: conceptual sequence
+    purpose: show invariant across added systems complexity
+    alt_text: masking, packing, microbatches, data parallelism, and context parallelism retain the same contract
+    generation_method: original SVG
+    provenance: original, generated for this article
+    section: add one complication at a time

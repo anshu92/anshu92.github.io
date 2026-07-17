@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from . import config
 from . import jsonish
 from .llm import LLMClient
-from .models import RankedItem, SelectionResult
+from .models import CurriculumPlan, RankedItem, SelectionResult
 
 
 class SelectionError(RuntimeError):
@@ -19,14 +19,19 @@ class SelectionError(RuntimeError):
 LOG = logging.getLogger(__name__)
 
 
-def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[list[RankedItem], SelectionResult]:
+def select_daily_items(
+    ranked: list[RankedItem],
+    *,
+    llm: LLMClient,
+    curriculum_plan: CurriculumPlan | None = None,
+) -> tuple[list[RankedItem], SelectionResult]:
     # Let the selector reason over all available paper titles for the run.
     # This intentionally avoids pre-filtering by deterministic score buckets.
     papers = [r for r in ranked if r.item.source_kind == "paper"]
     candidates = papers or list(ranked)
     if not candidates:
         raise SelectionError("selector_no_candidates")
-    raw = _call_selector(llm, candidates)
+    raw = _call_selector(llm, candidates, curriculum_plan=curriculum_plan)
     try:
         result = _parse_selection(raw)
     except SelectionError as exc:
@@ -43,18 +48,27 @@ def select_daily_items(ranked: list[RankedItem], *, llm: LLMClient) -> tuple[lis
     return selected, result
 
 
-def _call_selector(llm: LLMClient, candidates: list[RankedItem]) -> str:
+def _call_selector(
+    llm: LLMClient,
+    candidates: list[RankedItem],
+    *,
+    curriculum_plan: CurriculumPlan | None = None,
+) -> str:
     max_tokens = config.selector_max_tokens()
     reject = _selector_completion_rejector(candidates)
     if isinstance(llm, LLMClient):
         return llm.complete(
             system=_selector_system(),
-            user=_selector_user(candidates),
+            user=_selector_user(candidates, curriculum_plan=curriculum_plan),
             max_tokens=max_tokens,
             task="selector",
             reject_completion=reject,
         )
-    return llm.complete(system=_selector_system(), user=_selector_user(candidates), max_tokens=max_tokens)
+    return llm.complete(
+        system=_selector_system(),
+        user=_selector_user(candidates, curriculum_plan=curriculum_plan),
+        max_tokens=max_tokens,
+    )
 
 
 def _selector_completion_rejector(candidates: list[RankedItem]):
@@ -88,11 +102,12 @@ def _selector_system() -> str:
         "3. ML applied research: strong methods with clear benchmarks, ablations, and deployment or evaluation lessons.\n"
         "4. ML theory: only when unusually interesting, surprising, or clearly relevant to systems or training practice.\n"
         "5. General popular ML stories: only when tier-1, technically substantive, and not a shallow roundup.\n"
-        "Do not write a literature survey. Select evidence that supports a problem-solving memo."
+        "Do not write a literature survey. Select evidence that supports a problem-solving memo. "
+        "When a curriculum target is supplied, choose items that can teach that lesson precisely; do not force weakly related papers."
     )
 
 
-def _selector_user(candidates: list[RankedItem]) -> str:
+def _selector_user(candidates: list[RankedItem], *, curriculum_plan: CurriculumPlan | None = None) -> str:
     payload = []
     for r in candidates:
         item = r.item
@@ -104,13 +119,25 @@ def _selector_user(candidates: list[RankedItem]) -> str:
                 "source_name": item.source_name,
                 "published_at": item.published_at.isoformat() if item.published_at else "",
                 "abstract": item.abstract_or_excerpt[:700],
+                "curriculum_fit": r.quality_signals.get("curriculum_fit", item.extra.get("curriculum_fit", 0.0)),
             }
         )
     primary = config.daily_primary_papers()
     supporting = config.daily_supporting_items()
+    curriculum_block = ""
+    if curriculum_plan is not None:
+        curriculum_block = (
+            "CURRICULUM_TARGET:\n"
+            f"{curriculum_plan.node.model_dump_json(indent=2)}\n"
+            f"selection_mode: {curriculum_plan.selected_by}\n"
+            "\n"
+        )
     return (
         f"Select {primary} primary evidence items and up to {supporting} supporting mentions for today's post. "
+        "The post is one lesson in a long-running foundation-model curriculum, not an isolated news scan. "
         "Primary items must support one specific problem to solve, not a loose roundup. "
+        "If a CURRICULUM_TARGET is present, select evidence that can answer its problem_statement and engineering_questions with precision. "
+        "Prefer a smaller coherent cluster over broad coverage; reject high-scoring recency items that do not fit the lesson. "
         "Follow the priority order: AEC foundation-model engineering problem > ML engineering > applied research > interesting theory > popular ML. "
         "Score each selected item from 0.0 to 1.0 on engineering value, applied-research value, theory interest, "
         "AEC transfer value, experiment strength, engineering actionability, and novelty relative to prior radar posts. "
@@ -129,6 +156,7 @@ def _selector_user(candidates: list[RankedItem]) -> str:
         '"reason": "short reason", "suggested_tags": ["tag"]}],\n'
         '  "suggested_tags": ["tag"]\n'
         "}\n\n"
+        f"{curriculum_block}"
         f"CANDIDATES:\n{json.dumps(payload, indent=2, ensure_ascii=False)}"
     )
 

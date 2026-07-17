@@ -1,0 +1,25 @@
+$ python code/checkpoint_equivalence.py inspect --seed 11
+runtime
+  python=3.13.5
+  torch=2.10.0+cpu numpy=2.3.5 device=cpu
+  deterministic_algorithms=true torch_threads=1
+model
+  TinyDropoutClassifier(
+    (input): Linear(in_features=8, out_features=16, bias=True)
+    (dropout): Dropout(p=0.35, inplace=False)
+    (output): Linear(in_features=16, out_features=3, bias=True)
+  )
+parameters
+  input.weight   shape=(16, 8)    count=128
+  input.bias     shape=(16,)      count=16
+  output.weight  shape=(3, 16)    count=48
+  output.bias    shape=(3,)       count=3
+  trainable_total=195
+training
+  batch_shape=(4, 8) logits_shape=(4, 3)
+  optimizer=AdamW(lr=0.03, weight_decay=0.01)
+  scheduler=StepLR(step_size=4, gamma=0.7)
+  accumulation_steps=3 checkpoint_after_optimizer_step=5
+checkpoint payloads
+  boundary_keys=['config', 'counters', 'model', 'optimizer', 'rng', 'scenario', 'scheduler', 'schema_version', 'stream']
+  mid_accumulation_keys=['config', 'counters', 'gradients', 'model', 'optimizer', 'rng', 'scenario', 'scheduler', 'schema_version', 'stream']

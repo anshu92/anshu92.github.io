@@ -1,0 +1,59 @@
+{
+  "successful_boundary_payload_fields": [
+    "model",
+    "optimizer",
+    "scheduler",
+    "rng",
+    "stream",
+    "counters"
+  ],
+  "independently_ablated_boundary_fields": [
+    "scheduler",
+    "rng",
+    "stream"
+  ],
+  "combined_anti_control_omissions": [
+    "scheduler",
+    "rng",
+    "stream",
+    "counters"
+  ],
+  "successful_mid_accumulation_additional_fields": [
+    "gradients"
+  ],
+  "independently_ablated_mid_accumulation_fields": [
+    "gradients"
+  ],
+  "retained_but_not_independently_ablated": [
+    "counters",
+    "microstep_in_accumulation",
+    "global_microstep"
+  ],
+  "rng_components_in_fixture": [
+    "python",
+    "numpy",
+    "torch_cpu"
+  ],
+  "stream_components_in_fixture": [
+    "epoch",
+    "cursor",
+    "current_permutation",
+    "permutation_generator_state"
+  ],
+  "comparison_surface": [
+    "model",
+    "optimizer",
+    "scheduler",
+    "stream",
+    "rng",
+    "gradients",
+    "next_batch_ids"
+  ],
+  "not_claimed": [
+    "CUDA RNG capture",
+    "per-rank distributed state",
+    "FSDP optimizer re-sharding",
+    "DataLoader worker queues",
+    "elastic world-size changes"
+  ]
+}

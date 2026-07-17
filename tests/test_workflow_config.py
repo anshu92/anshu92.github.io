@@ -18,17 +18,26 @@ def test_research_radar_pr_requires_content_post_change():
     assert "Generated radar data/assets changed, but no content/post draft was created. Skipping PR." in workflow
 
 
-def test_research_radar_workflow_caps_runtime():
+def test_research_radar_workflow_uses_swarm_with_openai_defaults():
     workflow = Path(".github/workflows/research-radar.yml").read_text()
     assert "timeout-minutes: 30" in workflow
-    assert "BLOGPIPE_LLM_MAX_RUNTIME_SECONDS: ${{ vars.BLOGPIPE_LLM_MAX_RUNTIME_SECONDS || '1500' }}" in workflow
-    assert "BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS: ${{ vars.BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS || '420' }}" in workflow
-    assert "BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS: ${{ vars.BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS || '1' }}" in workflow
-    assert "BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODEL_LIMIT: ${{ vars.BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODEL_LIMIT || '16' }}" in workflow
-    assert "BLOGPIPE_OPENROUTER_MODELS_TIMEOUT_SECONDS: ${{ vars.BLOGPIPE_OPENROUTER_MODELS_TIMEOUT_SECONDS || '5' }}" in workflow
-    assert "BLOGPIPE_LLM_RETRY_ATTEMPTS: ${{ vars.BLOGPIPE_LLM_RETRY_ATTEMPTS || '2' }}" in workflow
-    assert "BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS: ${{ vars.BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS || '60' }}" in workflow
-    assert "BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT: ${{ vars.BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT || '4' }}" in workflow
-    assert "BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS: ${{ vars.BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS || '3' }}" in workflow
-    assert "BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS: ${{ vars.BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS || '180' }}" in workflow
-    assert "BLOGPIPE_SECTIONWISE_DRAFTING: ${{ vars.BLOGPIPE_SECTIONWISE_DRAFTING || '0' }}" in workflow
+    assert "python -m blogpipe swarm run --window 14d" in workflow
+    assert "BLOGPIPE_LLM_BASE_URL: ${{ vars.BLOGPIPE_LLM_BASE_URL || 'https://api.openai.com/v1' }}" in workflow
+    assert "BLOGPIPE_LLM_API_KEY: ${{ secrets.BLOGPIPE_LLM_API_KEY || secrets.OPENAI_API_KEY }}" in workflow
+    assert "BLOGPIPE_LLM_MODEL_FAST: ${{ vars.BLOGPIPE_LLM_MODEL_FAST || 'gpt-5.6-luna' }}" in workflow
+    assert "BLOGPIPE_LLM_MODEL_SMART: ${{ vars.BLOGPIPE_LLM_MODEL_SMART || 'gpt-5.6-terra' }}" in workflow
+    assert "BLOGPIPE_LLM_MODEL_TECHNICAL_EXPLAINER" in workflow
+    assert "BLOGPIPE_LLM_MODEL_IMPLEMENTATION_ENGINEER" in workflow
+    assert "BLOGPIPE_LLM_MODEL_MANAGING_EDITOR" in workflow
+    assert "BLOGPIPE_ROLE_MARKET_LIVE" in workflow
+    assert "OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}" in workflow
+
+
+def test_research_radar_workflow_removes_legacy_generation_knobs():
+    workflow = Path(".github/workflows/research-radar.yml").read_text()
+    assert "python -m blogpipe run" not in workflow
+    assert "BLOGPIPE_LLM_MODEL_SELECTOR" not in workflow
+    assert "BLOGPIPE_LLM_MODEL_OUTLINE" not in workflow
+    assert "BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS" not in workflow
+    assert "BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS" not in workflow
+    assert "OPENROUTER_API_KEY" not in workflow

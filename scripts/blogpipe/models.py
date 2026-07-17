@@ -130,6 +130,7 @@ class EvidencePack(BaseModel):
     chunks: list[EvidenceChunk]
     evidence_cards: list[EvidenceCard] = Field(default_factory=list)
     prior_posts: list[dict[str, str]] = Field(default_factory=list)
+    curriculum: dict[str, Any] = Field(default_factory=dict)
 
     def evidence_blob(self) -> str:
         return "\n".join(c.text for c in self.chunks)
@@ -165,6 +166,73 @@ class SelectionResult(BaseModel):
     suggested_tags: list[str] = Field(default_factory=list)
 
 
+class CurriculumNode(BaseModel):
+    id: str
+    problem_statement: str
+    why_it_matters: str
+    prerequisites: list[str] = Field(default_factory=list)
+    concepts_to_teach: list[str] = Field(default_factory=list)
+    engineering_questions: list[str] = Field(default_factory=list)
+    research_strategy: dict[str, Any] = Field(default_factory=dict)
+    evidence_requirements: list[str] = Field(default_factory=list)
+    completion_criteria: list[str] = Field(default_factory=list)
+    growth_prompts: list[str] = Field(default_factory=list)
+    stage: str = ""
+    level: str = ""
+
+    @property
+    def node_id(self) -> str:
+        return self.id
+
+    @property
+    def title(self) -> str:
+        return self.problem_statement
+
+    @property
+    def reader_takeaway(self) -> str:
+        return self.completion_criteria[0] if self.completion_criteria else self.why_it_matters
+
+    @property
+    def questions(self) -> list[str]:
+        return self.engineering_questions
+
+
+class CurriculumPlan(BaseModel):
+    node: CurriculumNode
+    selected_by: str
+    completed_node_ids: list[str] = Field(default_factory=list)
+    tree_version: str = "foundation-models-v2"
+
+
+class ResearchPlan(BaseModel):
+    problem_id: str
+    problem_statement: str
+    queries: list[str] = Field(default_factory=list)
+    source_profiles: list[str] = Field(default_factory=list)
+    expected_evidence: list[str] = Field(default_factory=list)
+    background_queries: list[str] = Field(default_factory=list)
+
+
+class EvidenceCurationItem(BaseModel):
+    item_id: str
+    title: str
+    url: str
+    role: str = "background"
+    fit_score: float = 0.0
+    evidence_types: list[str] = Field(default_factory=list)
+    reason: str = ""
+
+
+class EvidenceCurationResult(BaseModel):
+    problem_id: str
+    problem_statement: str
+    selected_item_ids: list[str] = Field(default_factory=list)
+    items: list[EvidenceCurationItem] = Field(default_factory=list)
+    gaps: list[str] = Field(default_factory=list)
+    sufficient: bool = False
+    confidence: float = 0.0
+
+
 class OutlineSection(BaseModel):
     heading: str
     intent: str
@@ -180,6 +248,141 @@ class DailyOutline(BaseModel):
     angle: str = ""
     sections: list[OutlineSection] = Field(default_factory=list)
     suggested_tags: list[str] = Field(default_factory=list)
+
+
+class RoleMarketSignal(BaseModel):
+    company: str
+    role_title: str
+    seniority: str
+    source_url: str
+    topic_tags: list[str] = Field(default_factory=list)
+    skill_phrases: list[str] = Field(default_factory=list)
+    systems_phrases: list[str] = Field(default_factory=list)
+    evidence_quote: str = ""
+    catalogue_relevance: float = 0.0
+    freshness_date: str = ""
+
+
+class RoleMarketReport(BaseModel):
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    companies: list[str] = Field(default_factory=list)
+    signals: list[RoleMarketSignal] = Field(default_factory=list)
+    recurring_topics: list[str] = Field(default_factory=list)
+    topic_gaps: list[str] = Field(default_factory=list)
+    attempted_sources: list[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
+
+
+class CatalogueLesson(BaseModel):
+    id: str
+    title: str
+    series_id: str
+    series_title: str
+    level: str = "foundations"
+    prerequisites: list[str] = Field(default_factory=list)
+    concepts: list[str] = Field(default_factory=list)
+    engineering_questions: list[str] = Field(default_factory=list)
+    how_to: list[str] = Field(default_factory=list)
+    topic_tags: list[str] = Field(default_factory=list)
+    market_rationale: str = ""
+
+
+class CatalogueSeries(BaseModel):
+    id: str
+    title: str
+    description: str = ""
+    lesson_ids: list[str] = Field(default_factory=list)
+
+
+class LessonBrief(BaseModel):
+    lesson: CatalogueLesson
+    title: str
+    thesis: str
+    concept_arc: list[str] = Field(default_factory=list)
+    implementation_steps: list[str] = Field(default_factory=list)
+    failure_modes: list[str] = Field(default_factory=list)
+    evaluation_plan: list[str] = Field(default_factory=list)
+    principal_decisions: list[str] = Field(default_factory=list)
+    evidence_ids: list[str] = Field(default_factory=list)
+    source_urls: list[str] = Field(default_factory=list)
+
+
+class AgentReport(BaseModel):
+    agent_name: str
+    status: str = "ok"
+    summary: str = ""
+    output: dict[str, Any] = Field(default_factory=dict)
+    findings: list[str] = Field(default_factory=list)
+
+
+class TableSpec(BaseModel):
+    table_id: str
+    title: str
+    purpose: str
+    headers: list[str] = Field(default_factory=list)
+    rows: list[list[str]] = Field(default_factory=list)
+    evidence_ids: list[str] = Field(default_factory=list)
+    placement: str = ""
+
+
+class ComponentSpec(BaseModel):
+    component_id: str
+    kind: str
+    title: str
+    purpose: str
+    html: str
+    evidence_ids: list[str] = Field(default_factory=list)
+    placement: str = ""
+
+
+class VisualAsset(BaseModel):
+    asset_id: str
+    artifact_type: str
+    title: str
+    purpose: str
+    evidence_ids: list[str] = Field(default_factory=list)
+    placement: str = ""
+    content: str = ""
+    path: str = ""
+
+
+class VisualPlan(BaseModel):
+    assets: list[VisualAsset] = Field(default_factory=list)
+    tables: list[TableSpec] = Field(default_factory=list)
+    components: list[ComponentSpec] = Field(default_factory=list)
+    mermaid_required: bool = False
+
+
+class ReviewFinding(BaseModel):
+    agent_name: str
+    severity: str
+    message: str
+    evidence_id: str = ""
+    path: str = ""
+
+
+class FinalArticle(BaseModel):
+    ok: bool
+    title: str = ""
+    slug: str = ""
+    body: str = ""
+    path: str = ""
+    errors: list[str] = Field(default_factory=list)
+    mermaid: bool = False
+    assets: list[str] = Field(default_factory=list)
+
+
+class SwarmRunReport(BaseModel):
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ingest_count: int = 0
+    ranked_count: int = 0
+    selected_lesson: CatalogueLesson | None = None
+    role_market_report: RoleMarketReport | None = None
+    lesson_brief: LessonBrief | None = None
+    visual_plan: VisualPlan | None = None
+    final_article: FinalArticle
+    agent_reports: list[AgentReport] = Field(default_factory=list)
+    review_findings: list[ReviewFinding] = Field(default_factory=list)
 
 
 def canonicalize_url(url: str) -> str:

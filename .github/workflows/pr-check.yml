@@ -35,11 +35,8 @@ jobs:
       - name: Fixture dry run
         env:
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}
-        run: |
-          BLOGPIPE_FAKE_SELECTOR_RESPONSE="$(cat tests/fixtures/fake_selector.json)" \
-          BLOGPIPE_FAKE_OUTLINE_RESPONSE="$(cat tests/fixtures/fake_outline.json)" \
-          BLOGPIPE_FAKE_LLM_RESPONSE="$(cat tests/fixtures/fake_daily.md)" \
-          PYTHONPATH=scripts python -m blogpipe run --fixtures tests/fixtures --dry-run --max-deep-dives 0
+          BLOGPIPE_ROLE_MARKET_LIVE: "0"
+        run: PYTHONPATH=scripts python -m blogpipe swarm run --fixtures tests/fixtures --dry-run
 
       - name: Install Hugo
         run: |

@@ -1,0 +1,726 @@
+{{ define "main" }}
+    {{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
+    {{ $notHidden := where .Site.RegularPages "Params.hidden" "!=" true }}
+    {{ $posts := ($pages | intersect $notHidden).ByDate.Reverse }}
+    {{ $graphPosts := slice }}
+
+    {{ range $index, $post := $posts }}
+        {{ $tags := slice }}
+        {{ range ($post.GetTerms "tags") }}
+            {{ $tags = $tags | append .LinkTitle }}
+        {{ end }}
+
+        {{ $categories := slice }}
+        {{ range ($post.GetTerms "categories") }}
+            {{ $categories = $categories | append .LinkTitle }}
+        {{ end }}
+
+        {{ $graphPosts = $graphPosts | append (dict
+            "id" (printf "post-%d" $index)
+            "title" $post.Title
+            "url" $post.RelPermalink
+            "date" ($post.Date | time.Format (or $.Site.Params.dateFormat.published "Jan 02, 2006"))
+            "readingTime" (T "article.readingTime" $post.ReadingTime)
+            "description" (or $post.Params.description "")
+            "tags" $tags
+            "categories" $categories
+        ) }}
+    {{ end }}
+
+    <section class="blog-index" aria-labelledby="blog-index-title">
+        <header class="blog-index__hero">
+            <div>
+                <p class="blog-index__eyebrow">Engineering notes</p>
+                <h2 id="blog-index-title">Technical writing on machine learning systems.</h2>
+                <p>
+                    Practical essays on numerical correctness, transformer systems, inference, data quality,
+                    evaluation, and the engineering choices behind reliable AI products.
+                </p>
+            </div>
+
+            <form action="/page/search/" class="blog-index__search" role="search">
+                <label for="archive-search">Search posts</label>
+                <div>
+                    <input id="archive-search" name="keyword" required placeholder="softmax, attention, inference..." />
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+        </header>
+
+        <div class="blog-index__lead">
+            {{ range first 1 $posts }}
+                <article class="blog-index__featured">
+                    <p class="blog-index__section-label">Featured</p>
+                    <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+                    <p>{{ or .Params.description (.Summary | plainify | truncate 190) }}</p>
+                    <div class="blog-index__meta">
+                        <span>{{ .Date | time.Format (or $.Site.Params.dateFormat.published "Jan 02, 2006") }}</span>
+                        <span>{{ T "article.readingTime" .ReadingTime }}</span>
+                    </div>
+                    <div class="blog-index__chips" aria-label="Featured post categories">
+                        {{ range first 3 (.GetTerms "categories") }}
+                            <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+                        {{ end }}
+                    </div>
+                </article>
+            {{ end }}
+
+            <aside class="blog-index__topics" aria-labelledby="topic-index-title">
+                <p class="blog-index__section-label">Topic index</p>
+                <h3 id="topic-index-title">Browse by engineering area</h3>
+                <div>
+                    {{ range first 12 .Site.Taxonomies.categories.ByCount }}
+                        <a href="{{ .Page.RelPermalink }}">
+                            <span>{{ .Page.LinkTitle }}</span>
+                            <small>{{ .Count }}</small>
+                        </a>
+                    {{ end }}
+                </div>
+            </aside>
+        </div>
+
+        <section class="blog-index__latest" aria-labelledby="latest-posts-title">
+            <div class="blog-index__latest-heading">
+                <p class="blog-index__section-label">Latest</p>
+                <h3 id="latest-posts-title">Recent posts</h3>
+            </div>
+
+            <div class="blog-index__post-list">
+                {{ range after 1 (first 7 $posts) }}
+                    <article class="blog-index__post">
+                        <div class="blog-index__post-meta">
+                            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format (or $.Site.Params.dateFormat.published "Jan 02, 2006") }}</time>
+                            <span>{{ T "article.readingTime" .ReadingTime }}</span>
+                        </div>
+                        <div>
+                            <h4><a href="{{ .RelPermalink }}">{{ .Title }}</a></h4>
+                            <p>{{ or .Params.description (.Summary | plainify | truncate 160) }}</p>
+                            <div class="blog-index__chips">
+                                {{ range first 3 (.GetTerms "categories") }}
+                                    <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+                                {{ end }}
+                            </div>
+                        </div>
+                    </article>
+                {{ end }}
+            </div>
+        </section>
+    </section>
+
+    <section class="knowledge-graph knowledge-graph--secondary" data-knowledge-graph aria-labelledby="knowledge-graph-title">
+        <header class="knowledge-graph__header">
+            <div>
+                <p class="knowledge-graph__eyebrow">Relationship map</p>
+                <h2 id="knowledge-graph-title">Explore shared technical vocabulary.</h2>
+                <p>
+                    Nodes are posts; edges show shared tags. Use the map when you want to follow a concept
+                    across related articles.
+                </p>
+            </div>
+
+            <form action="/page/search/" class="knowledge-graph__search" role="search">
+                <label for="graph-search">Search archive</label>
+                <div>
+                    <input id="graph-search" name="keyword" required placeholder="attention, LoRA, softmax..." />
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+
+            <dl class="knowledge-graph__stats" aria-label="Archive graph statistics">
+                <div>
+                    <dt>Posts</dt>
+                    <dd data-graph-stat-posts>0</dd>
+                </div>
+                <div>
+                    <dt>Tags</dt>
+                    <dd data-graph-stat-tags>0</dd>
+                </div>
+                <div>
+                    <dt>Links</dt>
+                    <dd data-graph-stat-links>0</dd>
+                </div>
+            </dl>
+        </header>
+
+        <div class="knowledge-graph__filters" aria-label="Filter graph by tag" data-graph-filters>
+            <button type="button" class="is-active" data-graph-filter="all">All posts</button>
+        </div>
+
+        <div class="knowledge-graph__workspace">
+            <div class="knowledge-graph__stage">
+                <svg class="knowledge-graph__canvas" viewBox="0 0 640 460" role="img" aria-labelledby="graph-svg-title graph-svg-desc">
+                    <title id="graph-svg-title">Blog post knowledge graph</title>
+                    <desc id="graph-svg-desc">Posts are shown as nodes connected by weighted edges based on shared tags.</desc>
+                    <defs>
+                        <radialGradient id="graph-node-gradient" cx="35%" cy="30%" r="70%">
+                            <stop offset="0%" stop-color="#d9f4ff" />
+                            <stop offset="100%" stop-color="#2c7890" />
+                        </radialGradient>
+                        <symbol id="graph-icon-machine-learning" viewBox="0 0 24 24">
+                            <circle cx="6" cy="7" r="2.2" />
+                            <circle cx="18" cy="7" r="2.2" />
+                            <circle cx="12" cy="17" r="2.2" />
+                            <path d="M8 8.2l2.7 6.1M16 8.2l-2.7 6.1M8.2 7h7.6" />
+                        </symbol>
+                        <symbol id="graph-icon-nlp" viewBox="0 0 24 24">
+                            <path d="M5 6h14M5 11h11M5 16h7" />
+                            <path d="M15 15.5l2.5 2.5 3.5-5" />
+                        </symbol>
+                        <symbol id="graph-icon-llm" viewBox="0 0 24 24">
+                            <rect x="6" y="6" width="12" height="12" rx="2" />
+                            <path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3" />
+                            <path d="M10 10h4v4h-4z" />
+                        </symbol>
+                        <symbol id="graph-icon-ml-foundations" viewBox="0 0 24 24">
+                            <path d="M17 5H8.8c-2.4 0-3.6 2.9-1.9 4.6L11 14l-4.1 5h10.4" />
+                            <path d="M8 14h6" />
+                        </symbol>
+                        <symbol id="graph-icon-numerical-computing" viewBox="0 0 24 24">
+                            <rect x="5" y="5" width="14" height="14" rx="1.5" />
+                            <path d="M5 10h14M5 14h14M10 5v14M14 5v14" />
+                        </symbol>
+                        <symbol id="graph-icon-statistics" viewBox="0 0 24 24">
+                            <path d="M5 19V5M5 19h14" />
+                            <path d="M7 16c2.5-6 5.5-6 10-2" />
+                            <path d="M8 18v-3M12 18v-6M16 18v-4" />
+                        </symbol>
+                        <symbol id="graph-icon-optimization" viewBox="0 0 24 24">
+                            <path d="M5 18c3.5-1 5.2-3.8 7-6.3 1.8-2.6 3.8-4.8 7-5.7" />
+                            <path d="M15 6h4v4" />
+                            <circle cx="7" cy="17" r="1.6" />
+                            <circle cx="12" cy="11.8" r="1.6" />
+                        </symbol>
+                        <symbol id="graph-icon-algorithms" viewBox="0 0 24 24">
+                            <circle cx="7" cy="6" r="2" />
+                            <circle cx="17" cy="6" r="2" />
+                            <circle cx="7" cy="18" r="2" />
+                            <circle cx="17" cy="18" r="2" />
+                            <path d="M9 6h6M7 8v8M17 8v8M9 18h6M9 7.5l6.5 8.5" />
+                        </symbol>
+                        <symbol id="graph-icon-transformer" viewBox="0 0 24 24">
+                            <rect x="5" y="5" width="14" height="4" rx="1" />
+                            <rect x="5" y="10" width="14" height="4" rx="1" />
+                            <rect x="5" y="15" width="14" height="4" rx="1" />
+                            <path d="M8 7h.1M8 12h.1M8 17h.1M12 7h4M12 12h4M12 17h4" />
+                        </symbol>
+                        <symbol id="graph-icon-data-systems" viewBox="0 0 24 24">
+                            <ellipse cx="12" cy="6" rx="6" ry="2.5" />
+                            <path d="M6 6v8c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V6" />
+                            <path d="M6 10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5" />
+                        </symbol>
+                        <symbol id="graph-icon-tokenization" viewBox="0 0 24 24">
+                            <rect x="4" y="6" width="6" height="5" rx="1" />
+                            <rect x="14" y="6" width="6" height="5" rx="1" />
+                            <rect x="7" y="14" width="10" height="4" rx="1" />
+                            <path d="M10 8.5h4M12 11v3" />
+                        </symbol>
+                        <symbol id="graph-icon-distributed" viewBox="0 0 24 24">
+                            <circle cx="12" cy="6" r="2" />
+                            <circle cx="6" cy="17" r="2" />
+                            <circle cx="18" cy="17" r="2" />
+                            <path d="M11 8l-4 7M13 8l4 7M8 17h8" />
+                        </symbol>
+                        <symbol id="graph-icon-inference" viewBox="0 0 24 24">
+                            <rect x="5" y="5" width="9" height="14" rx="2" />
+                            <path d="M8 9h3M8 13h3M15 9l4 3-4 3" />
+                        </symbol>
+                        <symbol id="graph-icon-evaluation" viewBox="0 0 24 24">
+                            <path d="M5 19V5M5 19h14" />
+                            <path d="M8 15l3-4 3 2 4-6" />
+                            <path d="M15 7h3v3" />
+                        </symbol>
+                        <symbol id="graph-icon-reliability" viewBox="0 0 24 24">
+                            <path d="M4 13h4l2-5 4 10 2-5h4" />
+                            <circle cx="12" cy="12" r="8" />
+                        </symbol>
+                        <symbol id="graph-icon-alignment" viewBox="0 0 24 24">
+                            <path d="M12 4l7 3v5c0 4-2.7 6.8-7 8-4.3-1.2-7-4-7-8V7z" />
+                            <path d="M8.5 12l2.3 2.3 4.7-5" />
+                        </symbol>
+                        <symbol id="graph-icon-agents" viewBox="0 0 24 24">
+                            <circle cx="8" cy="8" r="2" />
+                            <circle cx="16" cy="8" r="2" />
+                            <circle cx="12" cy="17" r="2" />
+                            <path d="M9.5 9.5l1.5 5M14.5 9.5l-1.5 5M10 17h-4M14 17h4" />
+                        </symbol>
+                        <symbol id="graph-icon-multimodal" viewBox="0 0 24 24">
+                            <rect x="4" y="5" width="7" height="7" rx="1" />
+                            <rect x="13" y="5" width="7" height="7" rx="1" />
+                            <rect x="4" y="15" width="16" height="4" rx="1" />
+                            <path d="M6 10l2-2 1.5 1.5M15 8h3" />
+                        </symbol>
+                        <symbol id="graph-icon-scientific" viewBox="0 0 24 24">
+                            <path d="M10 4v5l-4 7a3 3 0 002.6 4h6.8A3 3 0 0018 16l-4-7V4" />
+                            <path d="M9 4h6M8 15h8" />
+                        </symbol>
+                        <symbol id="graph-icon-safety" viewBox="0 0 24 24">
+                            <path d="M12 4l7 3v5c0 4-2.7 6.8-7 8-4.3-1.2-7-4-7-8V7z" />
+                            <path d="M12 8v5M12 16h.1" />
+                        </symbol>
+                        <symbol id="graph-icon-software" viewBox="0 0 24 24">
+                            <path d="M8 8l-4 4 4 4M16 8l4 4-4 4" />
+                            <path d="M14 5l-4 14" />
+                        </symbol>
+                        <symbol id="graph-icon-leadership" viewBox="0 0 24 24">
+                            <path d="M12 4l3 7 7 1-5 4.8 1.2 7.2L12 20l-6.2 4 1.2-7.2L2 12l7-1z" />
+                            <path d="M12 8v6" />
+                        </symbol>
+                        <symbol id="graph-icon-books" viewBox="0 0 24 24">
+                            <path d="M6 5h8a4 4 0 0 1 4 4v10h-8a4 4 0 0 0-4 0z" />
+                            <path d="M6 5v14M10 8h4M10 12h5" />
+                        </symbol>
+                        <symbol id="graph-icon-fiction" viewBox="0 0 24 24">
+                            <path d="M7 5h10l2 5-7 9-7-9z" />
+                            <path d="M9 10h6M12 5v14" />
+                        </symbol>
+                        <symbol id="graph-icon-default" viewBox="0 0 24 24">
+                            <path d="M12 4l7 4v8l-7 4-7-4V8z" />
+                            <path d="M12 8v8M8.5 10l7 4M15.5 10l-7 4" />
+                        </symbol>
+                    </defs>
+                    <g class="graph-edges" data-graph-edges></g>
+                    <g class="graph-nodes" data-graph-nodes></g>
+                    <g class="graph-labels" data-graph-labels></g>
+                </svg>
+
+                <div class="knowledge-graph__legend" aria-label="Edge strength legend">
+                    <span><i class="edge-swatch edge-swatch--weak"></i> 1 shared tag</span>
+                    <span><i class="edge-swatch edge-swatch--strong"></i> 3+ shared tags</span>
+                </div>
+            </div>
+
+            <aside class="knowledge-graph__panel" aria-live="polite">
+                <p class="knowledge-graph__eyebrow">Selected post</p>
+                <h3 data-graph-title></h3>
+                <p data-graph-description></p>
+                <div class="knowledge-graph__meta" data-graph-meta></div>
+                <div class="knowledge-graph__category-list" data-graph-categories></div>
+                <div class="knowledge-graph__tag-list" data-graph-tags></div>
+                <div class="knowledge-graph__panel-actions">
+                    <a data-graph-link href="/">Read post</a>
+                    <button type="button" data-graph-expand>Expand neighbors</button>
+                    <button type="button" data-graph-reset>Reset map</button>
+                </div>
+                <section class="knowledge-graph__neighbors" aria-labelledby="graph-neighbor-title">
+                    <h4 id="graph-neighbor-title">Linked posts</h4>
+                    <ul data-graph-neighbors></ul>
+                </section>
+            </aside>
+        </div>
+
+        <noscript>
+            <section class="knowledge-graph__fallback" aria-label="Blog posts">
+                {{ range $posts }}
+                    <p><a href="{{ .RelPermalink }}">{{ .Title }}</a></p>
+                {{ end }}
+            </section>
+        </noscript>
+    </section>
+
+    <script type="application/json" id="knowledge-graph-data">{{ jsonify (dict "noHTMLEscape" true) $graphPosts | safeHTML }}</script>
+    <script>
+        (() => {
+            const root = document.querySelector("[data-knowledge-graph]");
+            const dataElement = document.getElementById("knowledge-graph-data");
+            if (!root || !dataElement) return;
+
+            const parsedPosts = JSON.parse(dataElement.textContent || "[]");
+            const posts = Array.isArray(parsedPosts) ? parsedPosts : JSON.parse(parsedPosts);
+            const edgesLayer = root.querySelector("[data-graph-edges]");
+            const nodesLayer = root.querySelector("[data-graph-nodes]");
+            const labelsLayer = root.querySelector("[data-graph-labels]");
+            const filters = root.querySelector("[data-graph-filters]");
+            const title = root.querySelector("[data-graph-title]");
+            const description = root.querySelector("[data-graph-description]");
+            const meta = root.querySelector("[data-graph-meta]");
+            const tagList = root.querySelector("[data-graph-tags]");
+            const postLink = root.querySelector("[data-graph-link]");
+            const expandButton = root.querySelector("[data-graph-expand]");
+            const resetButton = root.querySelector("[data-graph-reset]");
+            const neighborList = root.querySelector("[data-graph-neighbors]");
+            const categoryList = root.querySelector("[data-graph-categories]");
+            const statPosts = root.querySelector("[data-graph-stat-posts]");
+            const statTags = root.querySelector("[data-graph-stat-tags]");
+            const statLinks = root.querySelector("[data-graph-stat-links]");
+            const svgNS = "http://www.w3.org/2000/svg";
+            const width = 640;
+            const height = 460;
+            const center = { x: width / 2, y: height / 2 };
+            const state = {
+                selected: 0,
+                expanded: new Set([0]),
+                filter: "all",
+            };
+
+            const normalize = (value) => String(value || "").trim().toLowerCase();
+            const postTags = posts.map((post) => (post.tags || []).map(normalize).filter(Boolean));
+            const allTags = new Map();
+
+            posts.forEach((post) => {
+                (post.tags || []).forEach((tag) => {
+                    const key = normalize(tag);
+                    allTags.set(key, { label: tag, count: (allTags.get(key)?.count || 0) + 1 });
+                });
+            });
+
+            const tagEntries = [...allTags.entries()]
+                .sort((a, b) => b[1].count - a[1].count || a[1].label.localeCompare(b[1].label))
+                .slice(0, 8);
+
+            tagEntries.forEach(([key, value]) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.dataset.graphFilter = key;
+                button.textContent = value.label;
+                filters.appendChild(button);
+            });
+
+            const edges = [];
+            for (let i = 0; i < posts.length; i += 1) {
+                for (let j = i + 1; j < posts.length; j += 1) {
+                    const shared = postTags[i].filter((tag) => postTags[j].includes(tag));
+                    if (!shared.length) continue;
+                    edges.push({
+                        source: i,
+                        target: j,
+                        weight: shared.length,
+                        tags: shared,
+                    });
+                }
+            }
+
+            const neighborsByNode = posts.map(() => []);
+            edges.forEach((edge) => {
+                neighborsByNode[edge.source].push({ index: edge.target, edge });
+                neighborsByNode[edge.target].push({ index: edge.source, edge });
+            });
+
+            if (statPosts) statPosts.textContent = String(posts.length);
+            if (statTags) statTags.textContent = String(allTags.size);
+            if (statLinks) statLinks.textContent = String(edges.length);
+
+            const palette = [
+                { fill: "#2f80ed", ring: "#103a75", halo: "rgba(47, 128, 237, 0.24)" },
+                { fill: "#00a676", ring: "#07533f", halo: "rgba(0, 166, 118, 0.22)" },
+                { fill: "#0e7490", ring: "#164e63", halo: "rgba(14, 116, 144, 0.22)" },
+                { fill: "#5964d8", ring: "#2d337d", halo: "rgba(89, 100, 216, 0.2)" },
+                { fill: "#64748b", ring: "#334155", halo: "rgba(100, 116, 139, 0.2)" },
+            ];
+            const categoryIconIds = {
+                "linear algebra": "graph-icon-numerical-computing",
+                "probability and statistics": "graph-icon-statistics",
+                "calculus and optimization": "graph-icon-optimization",
+                "numerical computation": "graph-icon-numerical-computing",
+                "algorithms and complexity": "graph-icon-algorithms",
+                "statistical learning": "graph-icon-statistics",
+                "core machine learning": "graph-icon-machine-learning",
+                "generalization and calibration": "graph-icon-evaluation",
+                "deep-learning mechanisms": "graph-icon-machine-learning",
+                "transformer architecture": "graph-icon-transformer",
+                "data quality and data systems": "graph-icon-data-systems",
+                "tokenization and representation": "graph-icon-tokenization",
+                "foundation-model pretraining": "graph-icon-transformer",
+                "distributed training": "graph-icon-distributed",
+                "gpu systems and performance engineering": "graph-icon-llm",
+                "inference and serving": "graph-icon-inference",
+                "evaluation and experimentation": "graph-icon-evaluation",
+                "reliability and observability": "graph-icon-reliability",
+                "reinforcement learning": "graph-icon-optimization",
+                "post-training and alignment": "graph-icon-alignment",
+                "agents, retrieval and tool use": "graph-icon-agents",
+                "multimodal learning": "graph-icon-multimodal",
+                "scientific ai": "graph-icon-scientific",
+                "safety and interpretability": "graph-icon-safety",
+                "research methodology": "graph-icon-books",
+                "software architecture": "graph-icon-software",
+                "staff-level technical leadership": "graph-icon-leadership",
+            };
+            const positions = posts.map((post, index) => {
+                const tags = postTags[index];
+                const groupSeed = tags.length ? hash(tags[0]) : index * 41;
+                const angle = (-Math.PI / 2) + ((index / Math.max(posts.length, 1)) * Math.PI * 2) + (groupSeed % 19) / 100;
+                const ring = Math.min(width, height) * 0.32 + (((groupSeed % 3) - 1) * 22);
+                return {
+                    x: center.x + Math.cos(angle) * ring,
+                    y: center.y + Math.sin(angle) * (ring * 0.72),
+                };
+            });
+
+            function hash(value) {
+                return String(value).split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            }
+
+            function visible(index) {
+                return state.filter === "all" || postTags[index].includes(state.filter);
+            }
+
+            function connectedToSelected(index) {
+                return index === state.selected || neighborsByNode[state.selected].some((entry) => entry.index === index);
+            }
+
+            function edgeExpanded(edge) {
+                return state.expanded.has(edge.source) || state.expanded.has(edge.target);
+            }
+
+            function clearLayer(layer) {
+                while (layer.firstChild) layer.removeChild(layer.firstChild);
+            }
+
+            function svgElement(name, attributes = {}) {
+                const element = document.createElementNS(svgNS, name);
+                Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+                return element;
+            }
+
+            const nodeLabelStopWords = new Set([
+                "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "into", "is", "it", "not", "of", "on", "or", "the", "to", "with",
+                "deep", "dive", "evolution", "guide", "intro", "introduction", "mechanism", "mechanisms", "notes", "part", "programming", "pytorch",
+                "review", "series", "tracking", "why", "how", "what",
+            ]);
+            const nodeLabelVocabulary = new Set([
+                "agent", "agents", "alignment", "attention", "calibration", "calculus", "cuda", "data", "decoding", "distributed",
+                "evaluation", "gpu", "inference", "interpretability", "lora", "multimodal", "optimization", "pretraining",
+                "probability", "retrieval", "rlhf", "safety", "serving", "softmax", "stability", "stable", "statistics", "tokenization", "transformer",
+            ]);
+
+            function compactWord(value) {
+                const replacements = {
+                    "decoding": "Decode",
+                    "distributed": "Dist",
+                    "foundation": "Found",
+                    "generalization": "Gen",
+                    "inference": "Infer",
+                    "interpretability": "Interp",
+                    "numerically": "Numeric",
+                    "optimization": "Opt",
+                    "parameter": "Param",
+                    "pretraining": "Pretrain",
+                    "probability": "Prob",
+                    "representation": "Repr",
+                    "speculative": "Spec",
+                    "statistics": "Stats",
+                    "tokenization": "Tokens",
+                    "transformer": "Xformer",
+                };
+                const normalized = normalize(value);
+                if (replacements[normalized]) return replacements[normalized];
+                if (value.length <= 9) return value;
+                return `${value.slice(0, 8)}`;
+            }
+
+            function nodeLabel(post) {
+                const context = new Set([...(post.tags || []), ...(post.categories || [])]
+                    .flatMap((value) => String(value).match(/[A-Za-z0-9+]+/g) || [])
+                    .map(normalize));
+                const words = (String(post.title).match(/[A-Za-z0-9+]+/g) || [])
+                    .map((word, index) => ({ word, normalized: normalize(word), index }))
+                    .filter((entry) => entry.word.length > 1 && !nodeLabelStopWords.has(entry.normalized));
+
+                const scored = words.map((entry) => ({
+                    ...entry,
+                    score:
+                        (nodeLabelVocabulary.has(entry.normalized) ? 12 : 0) +
+                        (context.has(entry.normalized) ? 10 : 0) +
+                        (/^[A-Z0-9+]{2,}$/.test(entry.word) ? 8 : 0) +
+                        (entry.word.length >= 7 ? 2 : 0) +
+                        Math.max(0, 6 - entry.index),
+                }));
+                const ranked = scored
+                    .sort((a, b) => b.score - a.score || a.index - b.index);
+                const selected = ranked
+                    .filter((entry, index) => index === 0 || entry.score >= 12)
+                    .slice(0, 2)
+                    .sort((a, b) => a.index - b.index)
+                    .map((entry) => compactWord(entry.word));
+
+                if (!selected.length) return ["Post"];
+                const joined = selected.join(" ");
+                if (joined.length <= 14) return selected;
+
+                const acronym = selected.map((word) => word[0]).join("").toUpperCase();
+                if (acronym.length > 1 && acronym.length <= 4) return [acronym];
+                return selected.map((word) => word.length > 8 ? word.slice(0, 8) : word);
+            }
+
+            function primaryCategory(post) {
+                const categories = (post.categories || []).map(normalize);
+                return categories.find((category) => categoryIconIds[category]) || categories[0] || "";
+            }
+
+            function iconIdForPost(post) {
+                return categoryIconIds[primaryCategory(post)] || "graph-icon-default";
+            }
+
+            function renderGraph() {
+                clearLayer(edgesLayer);
+                clearLayer(nodesLayer);
+                clearLayer(labelsLayer);
+
+                edges.forEach((edge) => {
+                    const sourceVisible = visible(edge.source);
+                    const targetVisible = visible(edge.target);
+                    if (!sourceVisible || !targetVisible) return;
+
+                    const source = positions[edge.source];
+                    const target = positions[edge.target];
+                    const selectedEdge = edge.source === state.selected || edge.target === state.selected;
+                    const expanded = edgeExpanded(edge);
+                    const line = svgElement("line", {
+                        x1: source.x,
+                        y1: source.y,
+                        x2: target.x,
+                        y2: target.y,
+                        class: `graph-edge${selectedEdge ? " is-selected" : ""}${expanded ? " is-expanded" : ""}`,
+                        "stroke-width": 0.75 + edge.weight * 1.3,
+                        "data-weight": edge.weight,
+                    });
+                    line.appendChild(svgElement("title")).textContent = `${posts[edge.source].title} ↔ ${posts[edge.target].title}: ${edge.tags.join(", ")}`;
+                    edgesLayer.appendChild(line);
+                });
+
+                posts.forEach((post, index) => {
+                    if (!visible(index)) return;
+
+                    const position = positions[index];
+                    const selected = index === state.selected;
+                    const expanded = state.expanded.has(index);
+                    const connected = connectedToSelected(index);
+                    const dimmed = !connected && !expanded;
+                    const color = palette[hash((post.categories || post.tags || [])[0] || post.title) % palette.length];
+                    const group = svgElement("g", {
+                        class: `graph-node${selected ? " is-selected" : ""}${expanded ? " is-expanded" : ""}${dimmed ? " is-dimmed" : ""}`,
+                        tabindex: "0",
+                        role: "button",
+                        "aria-label": `Select ${post.title}`,
+                        transform: `translate(${position.x} ${position.y})`,
+                        style: `--node-fill: ${color.fill}; --node-ring: ${color.ring}; --node-halo: ${color.halo};`,
+                    });
+                    const radius = selected ? 34 : expanded ? 28 : 23;
+                    group.appendChild(svgElement("circle", { r: radius }));
+                    const iconSize = selected ? 13 : expanded ? 12 : 11;
+                    group.appendChild(svgElement("use", {
+                        class: "graph-node-icon",
+                        href: `#${iconIdForPost(post)}`,
+                        x: -iconSize / 2,
+                        y: selected ? -23 : expanded ? -20 : -17,
+                        width: iconSize,
+                        height: iconSize,
+                    }));
+                    const label = svgElement("text", {
+                        class: "graph-node-label",
+                        y: selected ? -1 : expanded ? 0 : 1,
+                        "text-anchor": "middle",
+                    });
+                    nodeLabel(post).forEach((line, lineIndex) => {
+                        const tspan = svgElement("tspan", {
+                            x: 0,
+                            dy: lineIndex === 0 ? 0 : selected ? 11 : 10,
+                        });
+                        tspan.textContent = line;
+                        label.appendChild(tspan);
+                    });
+                    group.appendChild(label);
+                    group.addEventListener("click", () => selectNode(index, true));
+                    group.addEventListener("keydown", (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            selectNode(index, true);
+                        }
+                    });
+                    nodesLayer.appendChild(group);
+
+                    if (selected || expanded || connected) {
+                        const label = svgElement("text", {
+                            class: `graph-label${selected ? " is-selected" : ""}`,
+                            x: position.x,
+                            y: position.y + radius + 20,
+                            "text-anchor": "middle",
+                        });
+                        label.textContent = nodeLabel(post).join(" ");
+                        labelsLayer.appendChild(label);
+                    }
+                });
+            }
+
+            function selectNode(index, expand) {
+                state.selected = index;
+                if (expand) state.expanded.add(index);
+                render();
+            }
+
+            function renderPanel() {
+                const post = posts[state.selected];
+                const neighbors = neighborsByNode[state.selected]
+                    .filter((entry) => visible(entry.index))
+                    .sort((a, b) => b.edge.weight - a.edge.weight || posts[a.index].title.localeCompare(posts[b.index].title));
+
+                title.textContent = post.title;
+                description.textContent = post.description || "No description provided.";
+                meta.textContent = `${post.date} · ${post.readingTime}`;
+                postLink.href = post.url;
+                categoryList.replaceChildren(...(post.categories || []).map((category) => {
+                    const chip = document.createElement("span");
+                    chip.textContent = category;
+                    return chip;
+                }));
+                tagList.replaceChildren(...(post.tags || []).map((tag) => {
+                    const chip = document.createElement("span");
+                    chip.textContent = tag;
+                    return chip;
+                }));
+
+                neighborList.replaceChildren(...neighbors.map((entry) => {
+                    const linkedPost = posts[entry.index];
+                    const item = document.createElement("li");
+                    const link = document.createElement("a");
+                    const tags = document.createElement("span");
+                    link.href = linkedPost.url;
+                    link.textContent = linkedPost.title;
+                    tags.textContent = `${entry.edge.weight} shared ${entry.edge.weight === 1 ? "tag" : "tags"}`;
+                    item.append(link, tags);
+                    return item;
+                }));
+            }
+
+            function render() {
+                renderGraph();
+                renderPanel();
+                filters.querySelectorAll("button").forEach((button) => {
+                    button.classList.toggle("is-active", button.dataset.graphFilter === state.filter);
+                });
+            }
+
+            filters.addEventListener("click", (event) => {
+                const button = event.target.closest("[data-graph-filter]");
+                if (!button) return;
+                state.filter = button.dataset.graphFilter;
+                const selectedStillVisible = visible(state.selected);
+                if (!selectedStillVisible) {
+                    const next = posts.findIndex((_, index) => visible(index));
+                    state.selected = Math.max(next, 0);
+                    state.expanded.add(state.selected);
+                }
+                render();
+            });
+
+            expandButton.addEventListener("click", () => {
+                neighborsByNode[state.selected].forEach((entry) => {
+                    if (visible(entry.index)) state.expanded.add(entry.index);
+                });
+                render();
+            });
+
+            resetButton.addEventListener("click", () => {
+                state.expanded = new Set([state.selected]);
+                state.filter = "all";
+                render();
+            });
+
+            render();
+        })();
+    </script>
+
+    {{- partial "footer/footer" . -}}
+{{ end }}
+
+{{ define "right-sidebar" }}{{ end }}

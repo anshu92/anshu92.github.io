@@ -3,7 +3,7 @@ date: "2025-09-22"
 draft: true
 title: "Data Mixing and KL Penalty for Domain Adoption in LLM Pretraining"
 description: "A practical playbook for adopting LLMs into new domains during continued pretraining using data mixing schedules and KL guardrails."
-categories: ["Machine Learning", "NLP", "LLM"]
+categories: ["Foundation-model pretraining", "Data quality and data systems", "Post-training and alignment"]
 tags: ["pretraining", "data-mixing", "domain-adaptation", "kl-divergence", "distillation", "rlhf"]
 math: true
 mermaid: true

@@ -81,6 +81,44 @@ def test_default_gemini_roster_documents_current_models():
     assert "gemini-2.5-pro" in config.DEFAULT_GEMINI_CHAIN_SMART
 
 
+def test_openai_api_key_defaults_to_openai_models(monkeypatch):
+    monkeypatch.delenv("BLOGPIPE_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("BLOGPIPE_LLM_API_KEY", raising=False)
+    monkeypatch.delenv("BLOGPIPE_LLM_MODEL", raising=False)
+    monkeypatch.delenv("BLOGPIPE_MODEL", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
+
+    llm_cfg = config.llm_config()
+    llm = LLMClient(cfg=llm_cfg)
+
+    assert llm_cfg.base_url == config.DEFAULT_OPENAI_BASE_URL
+    assert llm_cfg.api_key == "openai-key"
+    assert llm_cfg.model == config.DEFAULT_OPENAI_MODEL_FAST
+    assert llm_cfg.model_fast == config.DEFAULT_OPENAI_MODEL_FAST
+    assert llm_cfg.model_smart == config.DEFAULT_OPENAI_MODEL_SMART
+    assert llm._model_chain("selector")[0] == config.DEFAULT_OPENAI_MODEL_FAST
+    assert llm._model_chain("draft")[:2] == [
+        config.DEFAULT_OPENAI_MODEL_SMART,
+        config.DEFAULT_OPENAI_MODEL_FAST,
+    ]
+
+
+def test_base_url_override_uses_matching_provider_key(monkeypatch):
+    monkeypatch.delenv("BLOGPIPE_LLM_API_KEY", raising=False)
+    monkeypatch.delenv("BLOGPIPE_LLM_MODEL", raising=False)
+    monkeypatch.delenv("BLOGPIPE_MODEL", raising=False)
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://openrouter.ai/api/v1")
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
+
+    llm_cfg = config.llm_config()
+
+    assert llm_cfg.api_key == "openrouter-key"
+    assert llm_cfg.model == "openrouter/free"
+
+
 def test_default_openrouter_free_roster_documents_current_models():
     assert config.DEFAULT_OPENROUTER_FREE_MODELS[-1] == "openrouter/free"
     assert config.DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK[0] == "openrouter/free"
@@ -91,7 +129,7 @@ def test_default_openrouter_free_roster_documents_current_models():
     assert "nvidia/nemotron-3-nano-30b-a3b:free" in config.DEFAULT_OPENROUTER_FREE_MODELS
 
 
-def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
+def test_openrouter_free_roster_not_appended_when_key_exists(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")
     monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
     monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
@@ -102,23 +140,16 @@ def test_openrouter_free_roster_appended_when_key_exists(monkeypatch):
     llm = LLMClient()
     chain = llm._model_chain("outline")
     assert chain[0] == "gemini-2.5-flash"
-    assert "openrouter/free" in chain
-    assert chain.index("openrouter/free") < chain.index("nvidia/nemotron-3-ultra-550b-a55b:free")
-    assert "qwen/qwen3-next-80b-a3b-instruct:free" in chain
-    assert "nvidia/nemotron-3-ultra-550b-a55b:free" in chain
-    assert "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" in chain
-    assert "poolside/laguna-xs.2:free" in chain
-    assert "moonshotai/kimi-k2.6:free" not in chain
-    assert "minimax/minimax-m2.5:free" not in chain
-    assert "arcee-ai/trinity-large-thinking:free" not in chain
-    assert "inclusionai/ring-2.6-1t:free" not in chain
+    assert "openrouter/free" not in chain
+    assert "qwen/qwen3-next-80b-a3b-instruct:free" not in chain
 
 
-def test_gemini_api_key_defaults_to_gemini_primary_with_openrouter_fallback(monkeypatch):
+def test_gemini_api_key_defaults_to_gemini_primary_without_openrouter_fallback(monkeypatch):
     monkeypatch.delenv("BLOGPIPE_LLM_BASE_URL", raising=False)
     monkeypatch.delenv("BLOGPIPE_LLM_API_KEY", raising=False)
     monkeypatch.delenv("BLOGPIPE_LLM_MODEL", raising=False)
     monkeypatch.delenv("BLOGPIPE_MODEL", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
     monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
 
@@ -126,10 +157,13 @@ def test_gemini_api_key_defaults_to_gemini_primary_with_openrouter_fallback(monk
     assert "generativelanguage.googleapis.com" in llm_cfg.base_url
     assert llm_cfg.api_key == "gemini-key"
     assert llm_cfg.model == config.DEFAULT_GEMINI_MODEL_FAST
+    assert llm_cfg.model_fast == config.DEFAULT_GEMINI_MODEL_FAST
+    assert llm_cfg.model_smart == config.DEFAULT_GEMINI_MODEL_SMART
     assert llm_cfg.openrouter_api_key == "openrouter-key"
+    assert LLMClient(cfg=llm_cfg)._model_chain("outline") == [config.DEFAULT_GEMINI_MODEL_FAST]
 
 
-def test_openrouter_free_roster_can_be_overridden(monkeypatch):
+def test_openrouter_free_roster_override_is_not_automatic_fallback(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")
     monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
     monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
@@ -138,7 +172,8 @@ def test_openrouter_free_roster_can_be_overridden(monkeypatch):
 
     llm = LLMClient()
     chain = llm._model_chain("outline")
-    assert "openai/gpt-oss-120b:free" in chain
+    assert "openai/gpt-oss-120b:free" not in chain
+    assert "openrouter/free" not in chain
     assert "inclusionai/ring-2.6-1t:free" not in chain
 
 
@@ -226,11 +261,13 @@ def test_dynamic_openrouter_discovery_falls_back_to_static_roster(monkeypatch):
     llm_cfg = config.llm_config()
 
     assert models == []
-    assert llm_cfg.openrouter_free_models == config.DEFAULT_OPENROUTER_FREE_MODELS
+    assert llm_cfg.openrouter_free_models == []
 
 
 def test_dynamic_openrouter_discovery_can_feed_llm_config(monkeypatch):
     monkeypatch.setattr(config, "_OPENROUTER_DYNAMIC_FREE_MODELS_CACHE", None)
+    monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://openrouter.ai/api/v1")
+    monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "or-key")
     monkeypatch.setenv("BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS", "1")
     monkeypatch.delenv("BLOGPIPE_OPENROUTER_FREE_MODELS", raising=False)
 
@@ -295,7 +332,7 @@ def test_llm_runtime_budget_blocks_new_calls(monkeypatch):
         llm.complete(system="sys", user="usr", task="outline")
 
 
-def test_gemini_endpoint_includes_openrouter_in_all_task_chains(monkeypatch):
+def test_gemini_endpoint_does_not_include_openrouter_in_task_chains(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -304,13 +341,13 @@ def test_gemini_endpoint_includes_openrouter_in_all_task_chains(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
     monkeypatch.setenv("BLOGPIPE_OPENROUTER_FREE_MODELS", "openrouter/free,meta-llama/llama-3.3-70b-instruct:free")
     llm = LLMClient()
-    assert "openrouter/free" in llm._model_chain("draft")
-    assert "openrouter/free" in llm._model_chain("editor")
-    assert "openrouter/free" in llm._model_chain("outline")
-    assert "openrouter/free" in llm._model_chain("repair")
+    assert "openrouter/free" not in llm._model_chain("draft")
+    assert "openrouter/free" not in llm._model_chain("editor")
+    assert "openrouter/free" not in llm._model_chain("outline")
+    assert "openrouter/free" not in llm._model_chain("repair")
 
 
-def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
+def test_emergency_openrouter_models_are_disabled(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -322,9 +359,7 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.1-pro-preview"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert models[0] == "openrouter/free"
-    assert "meta-llama/llama-3.3-70b-instruct:free" in models
-    assert "google/gemini-3.1-pro-preview" not in models
+    assert models == []
     assert llm._emergency_openrouter_models(
         "draft",
         tried=["gemini-3.1-pro-preview"],
@@ -335,19 +370,19 @@ def test_emergency_openrouter_models_only_after_rate_limit(monkeypatch):
         tried=["gemini-3.1-pro-preview", "openrouter/free"],
         last_error=_RejectedCompletionError("outline_invalid", "{}"),
     )
-    assert emergency_after_reject[0] == "meta-llama/llama-3.3-70b-instruct:free"
+    assert emergency_after_reject == []
     outline_models = llm._emergency_openrouter_models(
         "outline_repair",
         tried=["gemini-3.5-flash"],
         last_error=RuntimeError("retriable_status:429"),
     )
-    assert outline_models[0] == "openrouter/free"
+    assert outline_models == []
 
 
-def test_openrouter_smart_fallback_defaults_on_when_key_present(monkeypatch):
+def test_openrouter_smart_fallback_defaults_off_when_key_present(monkeypatch):
     monkeypatch.delenv("BLOGPIPE_OPENROUTER_SMART_FALLBACK", raising=False)
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
-    assert config.openrouter_smart_fallback_enabled() is True
+    assert config.openrouter_smart_fallback_enabled() is False
 
 
 def test_openrouter_smart_fallback_can_be_disabled(monkeypatch):
@@ -356,7 +391,7 @@ def test_openrouter_smart_fallback_can_be_disabled(monkeypatch):
     assert config.openrouter_smart_fallback_enabled() is False
 
 
-def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
+def test_rate_limit_on_native_gemini_does_not_try_openrouter_free_models(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -380,13 +415,13 @@ def test_rate_limit_on_native_gemini_tries_openrouter_free_models(monkeypatch):
 
     monkeypatch.setattr("blogpipe.llm.httpx.post", _post)
     llm = LLMClient()
-    out = llm.complete(system="sys", user="usr", task="draft")
-    assert out == "free ok"
+    with pytest.raises(RuntimeError, match="LLM completion failed"):
+        llm.complete(system="sys", user="usr", task="draft")
     assert attempted[:2] == ["gemini-3.1-pro-preview"] * 2
-    assert attempted[2] == "openrouter/free"
+    assert "openrouter/free" not in attempted
 
 
-def test_openrouter_rate_limit_circuit_breaker_stops_free_roster(monkeypatch):
+def test_native_rate_limit_does_not_enter_openrouter_circuit(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -415,13 +450,13 @@ def test_openrouter_rate_limit_circuit_breaker_stops_free_roster(monkeypatch):
         llm.complete(system="sys", user="usr", task="draft")
 
     openrouter_attempts = [model for model in attempted if model == "openrouter/free" or model.endswith(":free")]
-    assert set(openrouter_attempts) == {"openrouter/free"}
-    assert llm._openrouter_rate_limit_hits == 2
+    assert openrouter_attempts == []
+    assert llm._openrouter_rate_limit_hits == 0
     assert attempted.count("gemini-a") == 2
     assert attempted.count("gemini-b") == 2
 
 
-def test_openrouter_rate_limit_circuit_breaker_is_task_scoped(monkeypatch):
+def test_task_chains_remain_task_scoped_without_openrouter_fallback(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -430,7 +465,7 @@ def test_openrouter_rate_limit_circuit_breaker_is_task_scoped(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
     monkeypatch.setenv("BLOGPIPE_LLM_MODEL", "gemini-a")
     monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_OUTLINE_REPAIR", "gemini-a")
-    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_DRAFT", "gemini-a")
+    monkeypatch.setenv("BLOGPIPE_LLM_CHAIN_DRAFT", "draft-ok")
     monkeypatch.setenv("BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS", "2")
     monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
     monkeypatch.setattr("blogpipe.llm.time.sleep", lambda _: None)
@@ -439,11 +474,9 @@ def test_openrouter_rate_limit_circuit_breaker_is_task_scoped(monkeypatch):
 
     def _post(url, headers, json, timeout):  # noqa: ANN001
         model = str(json["model"])
-        task = "outline_repair" if len(attempted) < 4 else "draft"
+        task = "outline_repair" if model == "gemini-a" else "draft"
         attempted.append((task, model))
         if model.startswith("gemini-"):
-            return _StubResponse(429)
-        if task == "outline_repair":
             return _StubResponse(429)
         return _StubResponse(200, {"choices": [{"message": {"content": "draft ok"}}]})
 
@@ -454,9 +487,9 @@ def test_openrouter_rate_limit_circuit_breaker_is_task_scoped(monkeypatch):
 
     out = llm.complete(system="sys", user="usr", task="draft")
     assert out == "draft ok"
-    assert llm._openrouter_rate_limit_hits_by_task["outline_repair"] >= 2
+    assert llm._openrouter_rate_limit_hits_by_task.get("outline_repair", 0) == 0
     assert llm._openrouter_rate_limit_hits_by_task.get("draft", 0) == 0
-    assert ("draft", "openrouter/free") in attempted
+    assert ("draft", "draft-ok") in attempted
 
 
 def test_rejected_completion_tracker_prefers_fewer_outline_errors():
@@ -467,7 +500,7 @@ def test_rejected_completion_tracker_prefers_fewer_outline_errors():
     assert chosen == "better"
 
 
-def test_rejected_native_completion_tries_openrouter_free_models(monkeypatch):
+def test_rejected_native_completion_does_not_try_openrouter_free_models(monkeypatch):
     monkeypatch.setenv(
         "BLOGPIPE_LLM_BASE_URL",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -496,9 +529,9 @@ def test_rejected_native_completion_tries_openrouter_free_models(monkeypatch):
         task="outline",
         reject_completion=lambda text: "invalid" if text == "bad outline" else None,
     )
-    assert out == "good outline"
+    assert out == "bad outline"
     assert attempted[0] == "gemini-3.5-flash"
-    assert "openrouter/free" in attempted
+    assert "openrouter/free" not in attempted
 
 
 def test_openrouter_models_use_longer_timeout(monkeypatch):

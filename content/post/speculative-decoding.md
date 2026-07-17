@@ -3,8 +3,8 @@ title: "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss"
 date: 2025-05-12
 description: "Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck."
 tags: ["LLM", "Speculative Decoding", "Transformers", "Inference Optimization"]
-categories: ["Machine Learning", "NLP"]
-draft: false
+categories: ["Inference and serving", "Transformer architecture", "GPU systems and performance engineering"]
+draft: true
 ---
 
 ## TL;DR
@@ -256,5 +256,4 @@ Usually draft models can be:
 * Leviathan, Y., Kalman, M., & Matias, Y. (2023). **Fast Inference from Transformers via Speculative Decoding**. ICML.
 * Chen, X., et al. (2023). **Accelerating Large Language Model Decoding with Speculative Sampling**. arXiv preprint.
 * Spector, B., & Murray, K. (2023). **Accelerating LLM Inference with Staged Speculative Decoding**. NeurIPS.
-
 

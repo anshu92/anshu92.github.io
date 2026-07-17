@@ -11,69 +11,29 @@ LOG = logging.getLogger(__name__)
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="blogpipe", description="Evidence-grounded research radar")
+    parser = argparse.ArgumentParser(prog="blogpipe", description="Agent-swarm technical blog pipeline")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    ingest_p = sub.add_parser("ingest")
-    ingest_p.add_argument("--window", default="14d")
-    ingest_p.add_argument("--fixtures", default="")
-    ingest_p.add_argument("--db", default="")
-
-    rank_p = sub.add_parser("rank")
-    rank_p.add_argument("--db", default="")
-    rank_p.add_argument("--limit", type=int, default=50)
-    rank_p.add_argument("--max-age", default="14d")
-
-    daily_p = sub.add_parser("write-daily")
-    daily_p.add_argument("--dry-run", action="store_true")
-
-    deep_p = sub.add_parser("write-deep-dives")
-    deep_p.add_argument("--max-new", type=int, default=1)
-    deep_p.add_argument("--dry-run", action="store_true")
-
-    assets_p = sub.add_parser("render-assets")
-    assets_p.set_defaults(render_assets=True)
-
-    run_p = sub.add_parser("run")
+    swarm_p = sub.add_parser("swarm", help="Run the technical blog agent swarm")
+    swarm_sub = swarm_p.add_subparsers(dest="swarm_command", required=True)
+    run_p = swarm_sub.add_parser("run", help="Generate one review-gated technical lesson draft")
     run_p.add_argument("--window", default="14d")
     run_p.add_argument("--fixtures", default="")
     run_p.add_argument("--dry-run", action="store_true")
     run_p.add_argument("--db", default="")
-    run_p.add_argument("--max-deep-dives", type=int, default=1)
 
     args = parser.parse_args(argv)
     try:
-        if args.command == "ingest":
-            from . import ingest
+        if args.command == "swarm" and args.swarm_command == "run":
+            from . import swarm
 
-            ingest.run(window_hours=_window_hours(args.window), fixtures=args.fixtures, db=args.db)
-        elif args.command == "rank":
-            from . import rank
-
-            rank.run(db=args.db, limit=args.limit, max_age_hours=_window_hours(args.max_age))
-        elif args.command == "write-daily":
-            from . import pipeline
-
-            pipeline.write_daily(dry_run=args.dry_run or config.dry_run_env())
-        elif args.command == "write-deep-dives":
-            from . import pipeline
-
-            pipeline.write_deep_dives(max_new=args.max_new, dry_run=args.dry_run or config.dry_run_env())
-        elif args.command == "render-assets":
-            from . import pipeline
-
-            pipeline.render_assets()
-        elif args.command == "run":
-            from . import pipeline
-
-            pipeline.run_all(
+            swarm.run(
                 window_hours=_window_hours(args.window),
                 fixtures=args.fixtures,
                 dry_run=args.dry_run or config.dry_run_env(),
                 db=args.db,
-                max_deep_dives=args.max_deep_dives,
             )
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         LOG.exception("command failed: %s", exc)
         return 1
     return 0

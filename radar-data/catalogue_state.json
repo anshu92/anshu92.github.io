@@ -1,0 +1,13 @@
+{
+  "completed_lesson_ids": [
+    "matmul-from-scalar-operations"
+  ],
+  "history": [
+    {
+      "completed_at": "2026-07-14T18:31:33.196955+00:00",
+      "lesson_id": "matmul-from-scalar-operations",
+      "title": "Matrix multiplication from scalar multiply-accumulate",
+      "path": "content/post/2026-07-14-matrix-multiplication-from-scalar-multiply-accumulate.md"
+    }
+  ]
+}

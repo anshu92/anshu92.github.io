@@ -94,6 +94,10 @@ ENGINEERING_JUDGMENT_CUES = (
     "adoption",
     "production",
     "tradeoff",
+    "reference implementation",
+    "regression case",
+    "test suite",
+    "shape invariant",
     "monitoring",
     "rollback",
     "latency budget",
@@ -310,8 +314,8 @@ def write_daily(
 ) -> WriteResult:
     client = llm or LLMClient()
     today = datetime.now(timezone.utc).date().isoformat()
-    title = _safe_daily_title(outline.title or f"Research Radar: ML systems update - {today}")
-    slug = f"{today}-research-radar"
+    title = _safe_daily_title(outline.title or f"ML systems update - {today}")
+    slug = f"{today}-{memory.slugify(title) or 'ml-systems-update'}"
     body = _generate_daily_body(
         client=client,
         pack=pack,
@@ -378,8 +382,6 @@ def validate_body(body: str, pack: EvidencePack, *, outline: DailyOutline | None
         errors.append("repeated_token_artifact")
     if pack.kind == "daily":
         errors.extend(_validate_final_title(body))
-    if "```mermaid" in (body or "").lower():
-        errors.append("mermaid_diagram_present")
     if "## visual map" in (body or "").lower():
         errors.append("generic_visual_map_present")
     if pack.kind == "daily":
@@ -498,6 +500,7 @@ def _emergency_daily_draft(
         primary_cards = pack.evidence_cards[: max(1, min(3, len(pack.evidence_cards)))]
     all_cards = primary_cards or pack.evidence_cards
     training = _pack_has_training_system_focus(pack)
+    curriculum_node = pack.curriculum.get("node", {}) if isinstance(pack.curriculum, dict) else {}
     lines = [f"# {title}", ""]
     for index, section in enumerate(outline.sections):
         lines.append(f"## {section.heading}")
@@ -513,15 +516,25 @@ def _emergency_daily_draft(
             all_cards=all_cards,
             training=training,
             index=index,
+            curriculum_node=curriculum_node if isinstance(curriculum_node, dict) else {},
         ):
             lines.append(paragraph)
             lines.append("")
         lines.append("")
-    lines.append("## Primary evidence depth check")
-    lines.append("")
-    for card in primary_cards:
-        lines.append(_emergency_primary_depth_paragraph(card, chunks_by_item, chunks_by_id, training=training))
+    if not (isinstance(curriculum_node, dict) and str(curriculum_node.get("id", "")).strip() == "matmul-from-scalar-operations"):
+        lines.append("## Sources and checks")
         lines.append("")
+        for card in primary_cards:
+            lines.append(
+                _emergency_primary_depth_paragraph(
+                    card,
+                    chunks_by_item,
+                    chunks_by_id,
+                    training=training,
+                    curriculum_node=curriculum_node if isinstance(curriculum_node, dict) else {},
+                )
+            )
+            lines.append("")
     return "\n".join(lines).strip() + "\n"
 
 
@@ -551,6 +564,7 @@ def _emergency_section_paragraphs(
     all_cards: list[object],
     training: bool,
     index: int,
+    curriculum_node: dict[str, object],
 ) -> list[str]:
     card = cards[index % len(cards)]
     next_card = _comparison_card(card, all_cards, cards, index=index)
@@ -558,12 +572,26 @@ def _emergency_section_paragraphs(
     second = _best_citation(next_card, chunks_by_item, preferred=("experiment", "limitation", "mechanism", "math_or_objective"))
     title = getattr(card, "title", "the primary paper")
     next_title = getattr(next_card, "title", "the comparison paper")
+    role = str(getattr(section, "section_role", "") or "").lower()
+    heading = str(getattr(section, "heading", "") or "").lower()
     problem = _clean_clause(_safe_card_field(card, "problem"))
     mechanism = _clean_clause(_safe_distinct_card_field(card, ("mechanism", "impact", "math_or_objective"), avoid=(problem,)))
     objective = _clean_clause(_safe_distinct_card_field(card, ("math_or_objective", "experiment", "impact"), avoid=(problem, mechanism)))
     experiment = _clean_clause(_safe_card_field(card, "experiment"))
     limitation = _clean_clause(_safe_card_field(card, "limitation"))
     impact = _clean_clause(_safe_card_field(card, "impact"))
+    if "plausible transfer" in mechanism.lower():
+        mechanism = "the cited system behavior that could change the measurement, retrieval, or evaluation path"
+    experiment_judgment = (
+        "the available benchmark or evaluation signal is a starting point, not enough by itself"
+        if "if the source is thin" in experiment.lower()
+        else f"{experiment} is useful"
+    )
+    adoption_hypothesis = (
+        "that transfer"
+        if "hypothesis" in impact.lower()
+        else impact
+    )
     url = _citation_url(citation, chunks_by_id)
     second_url = _citation_url(second, chunks_by_id)
     cite = f"[{citation}] {url}".strip()
@@ -581,20 +609,95 @@ def _emergency_section_paragraphs(
         else "Compare the mechanism and evaluation evidence inside the same source"
     )
     lead = _emergency_section_lead(section, index)
+    curriculum_title = str(curriculum_node.get("problem_statement") or curriculum_node.get("title", "") or "").strip()
+    curriculum_takeaway = str(curriculum_node.get("why_it_matters") or curriculum_node.get("reader_takeaway", "") or "").strip()
+    prerequisites = _curriculum_list(curriculum_node.get("prerequisites"))
+    concepts = _curriculum_list(curriculum_node.get("concepts_to_teach"))
+    criteria = _curriculum_list(curriculum_node.get("completion_criteria"))
+    prerequisite_phrase = ", ".join(prerequisites[:3]) if prerequisites else "the starting ideas"
+    concept_phrase = ", ".join(concepts[:4]) if concepts else "the mechanism named by the selected problem"
+    completion_phrase = criteria[0] if criteria else "the reader can answer the selected problem with a concrete mechanism and a small check"
+    first_question = ""
+    questions = curriculum_node.get("engineering_questions") or curriculum_node.get("questions", [])
+    if isinstance(questions, list) and questions:
+        first_question = str(questions[0] or "").strip()
+
+    if str(curriculum_node.get("id", "")).strip() == "matmul-from-scalar-operations":
+        return _matmul_scalar_section_paragraphs(
+            section=section,
+            index=index,
+            card=card,
+            next_card=next_card,
+            citation=citation,
+            second=second,
+            chunks_by_item=chunks_by_item,
+            chunks_by_id=chunks_by_id,
+            curriculum_node=curriculum_node,
+        )
+
+    if index == 0 or role == "synthesis" and "problem" in heading:
+        frame = f"The lesson starts with the selected problem: {_as_sentence(curriculum_title)} " if curriculum_title else ""
+        return [
+            (
+                f"{frame}Begin from {prerequisite_phrase}, then make the first boundary precise: {concept_phrase}. "
+                f"{title} is useful here only as evidence for the chosen problem. It gives the first concrete handle: {problem}. "
+                f"The mechanism to inspect is {mechanism}, and the measurable lens is {objective}. {cite}"
+            ),
+            (
+                f"The question to keep visible is {first_question or curriculum_title or 'whether the evidence answers the selected problem'}. "
+                f"Search did not choose this lesson; it only supplies checks after the node is fixed. Completion means {_as_sentence(completion_phrase)} "
+                f"The practical implication is {impact}, but it should stay tied to the mechanism rather than becoming a survey of papers. {second_cite}"
+            ),
+        ]
+
+    if role == "adoption":
+        return [
+            (
+                f"The readiness gate is deliberately stricter than the research claim. {title} supports {mechanism}, but the curriculum question is "
+                f"whether the mechanism can be derived, implemented, or measured without hand-waving. "
+                f"The minimum gate is a small worked example, a traceable benchmark slice, and an explicit failure label for what would falsify the explanation. {cite}"
+            ),
+            (
+                f"{comparison} before moving to the next node. The experiment evidence is {experiment}; the limitation to carry forward is {limitation}. "
+                f"Treat {adoption_hypothesis} as a hypothesis until a controlled reproduction exposes the same mechanism and failure mode. {second_cite}"
+            ),
+        ]
+
+    if "benchmark" in heading or "failure" in heading or "debug" in heading:
+        return [
+            (
+                f"{lead} {experiment}. For {title}, the benchmark is useful only if it separates mechanism quality from measurement noise. "
+                f"The practical read is to turn the reported setup into a regression slice: fixed inputs, traceable outputs, visible numerical or systems errors, "
+                f"and a failure taxonomy that an engineer can debug. {cite}"
+            ),
+            (
+                f"The caveat matters as much as the score: {limitation}. {comparison} so the team can see whether arithmetic cost, memory traffic, numerical stability, "
+                f"parallelism, or benchmark coverage is the real blocker. The next test should fail loudly when the objective stops matching the mechanism. {second_cite}"
+            ),
+        ]
+
+    if "tradeoff" in heading or "mechanism" in heading:
+        return [
+            (
+                f"The mechanism tradeoff is not which paper sounds broader; it is which operational variable moves. {title} points at {mechanism}. "
+                f"The paired objective is {objective}, so the engineering decision is whether to spend complexity on the mechanism or on a cleaner measurement loop. {cite}"
+            ),
+            (
+                f"{comparison}: the contrast should expose whether the next bottleneck is arithmetic count, memory layout, numerical precision, batching, "
+                f"communication, or evaluation coverage. Keep the claim modest and evidence-bound because the source only proves the mechanism it actually tests. {second_cite}"
+            ),
+        ]
+
     return [
-        (
-            f"{lead} {problem}. {title} matters because it turns that pressure point into an engineering choice, "
-            f"not a generic model-quality claim: {mechanism}. The objective lens is {objective}. A principal MLE would convert this into a validation slice: "
-            f"reproduce the smallest benchmark that exercises the claimed mechanism, inspect the failure mode, and decide whether the architecture, data pipeline, "
-            f"optimizer path, or evaluation metric can survive document, drawing, BIM/CAD, and construction workflow constraints. {cite}"
-            f"{training_sentence}"
-        ),
-        (
-            f"The evidence to trust is the experiment and limit pair: {experiment}; the visible risk is {limitation}. {comparison} before treating the idea as production-ready: "
-            f"one side should clarify the mechanism or objective, while the other should expose benchmark, ablation, limitation, or rollout evidence. The safe claim is a transfer hypothesis, "
-            f"not a proven integrated stack. For Autodesk AEC document, drawing, sheet, CAD, and BIM workflows, the practical impact is {impact}; the release gate should test source-grounded retrieval, "
-            f"traceable citations, throughput or cost under real document distributions, and domain-specific failure cases before deployment. {second_cite}"
-        ),
+            (
+                f"{lead} {problem}. Read {title} as a lesson in measurement discipline: the mechanism is {mechanism}, while the objective lens is {objective}. "
+                f"For this curriculum lesson, the source earns attention only where that mechanism changes a concrete derivation, implementation, or measurement decision. {cite}"
+                f"{training_sentence}"
+            ),
+            (
+                f"The section-level judgment is that {experiment_judgment}, and {limitation} must remain visible. {comparison} to avoid mistaking a single benchmark "
+                f"for a complete explanation. The next action is a narrow reproduction or worked example with source links, failure labels, and a clear stop condition. {second_cite}"
+            ),
     ]
 
 
@@ -602,9 +705,9 @@ def _emergency_section_lead(section: object, index: int) -> str:
     role = str(getattr(section, "section_role", "") or "").lower()
     heading = str(getattr(section, "heading", "") or "").strip()
     if role == "synthesis" or index == 0:
-        return "The throughline for this section is the AEC foundation-model bottleneck exposed by the evidence:"
+        return "The throughline for this section is the central technical question exposed by the evidence:"
     if role == "adoption":
-        return "The adoption question is whether this evidence changes an Autodesk AEC release gate:"
+        return "The readiness question is whether this evidence is enough to move to the next idea:"
     if "benchmark" in heading.lower() or "failure" in heading.lower():
         return "The debugging question is what benchmark signal would separate a real systems gain from noise:"
     if "tradeoff" in heading.lower() or "architecture" in heading.lower():
@@ -616,6 +719,182 @@ def _emergency_section_lead(section: object, index: int) -> str:
         "The implementation question is where the training system stops being predictable:",
     )
     return primary_leads[index % len(primary_leads)]
+
+
+def _matmul_scalar_section_paragraphs(
+    *,
+    section: object,
+    index: int,
+    card: object,
+    next_card: object,
+    citation: str,
+    second: str,
+    chunks_by_item: dict[str, list[object]],
+    chunks_by_id: dict[str, object],
+    curriculum_node: dict[str, object],
+) -> list[str]:
+    role = str(getattr(section, "section_role", "") or "").lower()
+    heading = str(getattr(section, "heading", "") or "").lower()
+    title = getattr(card, "title", "the primary source")
+    next_title = getattr(next_card, "title", "the comparison source")
+    cite = f"[{citation}] {_citation_url(citation, chunks_by_id)}".strip()
+    second_cite = f"[{second}] {_citation_url(second, chunks_by_id)}".strip()
+    current_secondary = _best_distinct_citation(
+        card,
+        chunks_by_item,
+        exclude={citation},
+        preferred=("limitation", "experiment", "math_or_objective", "impact", "context", "mechanism"),
+    )
+    current_secondary_cite = f"[{current_secondary}] {_citation_url(current_secondary, chunks_by_id)}".strip()
+    problem = str(curriculum_node.get("problem_statement") or "").strip()
+    why = str(curriculum_node.get("why_it_matters") or "").strip()
+    comparison = (
+        f"Compare that with {next_title}"
+        if getattr(next_card, "item_id", "") != getattr(card, "item_id", "")
+        else "Compare the mechanism and limitation evidence inside the same source"
+    )
+
+    if index == 0 or role == "synthesis" and "problem" in heading:
+        return [
+            (
+                "Why start with matrix multiplication? Because a surprising amount of modern machine learning reduces to this one operation repeated at scale: "
+                "embedding projections, linear layers, attention scores, MLP blocks, and the GPU kernels that make them fast. When a model layer is wrong or an optimized kernel is suspicious, "
+                "the safest place to debug is still one output cell. If A has shape m by k and B has shape k by n, the output C has shape m by n, and each output cell is "
+                f"`C[i, j] = sum_k A[i, k] * B[k, j]`. That is the whole mechanism: choose one row from A, one column from B, multiply aligned scalar pairs, "
+                f"and accumulate the products. The cited evidence supports this row-column, multiply-accumulate view and connects it to neural-network computation. {cite} {current_secondary_cite}"
+            ),
+            (
+                "A concrete 2x3 by 3x2 example makes the abstraction less slippery:\n\n"
+                "$$ C_{ij} = \\sum_{t=0}^{k-1} A_{it} B_{tj} $$\n\n"
+                "```text\n"
+                "A = [[1, 2, 3],      B = [[10, 11],\n"
+                "     [4, 5, 6]]           [20, 21],\n"
+                "                          [30, 31]]\n\n"
+                "C[0,0] = 1*10 + 2*20 + 3*30 = 140\n"
+                "C[0,1] = 1*11 + 2*21 + 3*31 = 146\n"
+                "```\n\n"
+                "| Output cell | Row from A | Column from B | Accumulation |\n"
+                "| --- | --- | --- | --- |\n"
+                "| `C[0,0]` | `[1, 2, 3]` | `[10, 20, 30]` | `10 + 40 + 90 = 140` |\n"
+                "| `C[0,1]` | `[1, 2, 3]` | `[11, 21, 31]` | `11 + 42 + 93 = 146` |\n\n"
+                f"The computation preserves the row-column linear interaction that the dot product measures. It discards the individual products once they are summed, "
+                f"so the output cell tells you the aggregate alignment, not which input pair contributed most unless you keep an intermediate trace. {second_cite}"
+                "\n\n"
+                "```mermaid\n"
+                "flowchart LR\n"
+                "    row[\"row from A\"] --> pair[\"aligned scalar products\"]\n"
+                "    col[\"column from B\"] --> pair\n"
+                "    pair --> acc[\"accumulate\"]\n"
+                "    acc --> cell[\"one output cell\"]\n"
+                "```\n"
+            ),
+            (
+                f"That is why this basic step matters before transformers, attention, or GPU kernels: {why} A strong lesson should leave the reader with a mental model, "
+                "a formula, and a checkable implementation. The check is not novelty; it is whether the reader can compute one cell by hand, predict the output shape, "
+                "and name one way the result can be wrong."
+            ),
+        ]
+
+    card_title_lower = str(title).lower()
+    if role == "primary" and ("row-column" in heading or "reference loop" in heading or "row-column" in card_title_lower):
+        return [
+            (
+                "At the scalar level, the algorithm does not multiply two matrices as opaque objects; it performs a sequence of dot products. "
+                f"For each `(i, j)`, the inner index walks across the shared dimension k. The objective is exact agreement between the mathematical dot product and the implemented loop, "
+                f"so a useful benchmark or evaluation first tests small cases where every intermediate product can be inspected. That small-case check comes before trusting a faster kernel "
+                f"or a larger model-layer implementation. {cite} {current_secondary_cite}"
+            ),
+            (
+                "The reference implementation should be boring:\n\n"
+                "```python\n"
+                "for i in range(m):\n"
+                "    for j in range(n):\n"
+                "        acc = 0.0\n"
+                "        for t in range(k):\n"
+                "            acc += A[i][t] * B[t][j]\n"
+                "        C[i][j] = acc\n"
+                "```\n\n"
+                "The loops teach the shape invariant: `A` contributes rows, `B` contributes columns, and the shared dimension must match. If a later optimized kernel is hard to trust, "
+                "this loop is the oracle for a tiny regression case."
+            ),
+        ]
+
+    if role == "primary" and ("implementing" in heading or "correctness" in heading or "implementing" in card_title_lower):
+        return [
+            (
+                "The first implementation failure mode is not exotic numerical analysis; it is indexing the wrong axis, accepting a shape that should fail, "
+                f"or silently changing the meaning with a transpose. The engineering metric is agreement with the scalar definition across small shapes, rectangular shapes, and edge cases "
+                f"such as a shared dimension of one. A good test suite checks each failure category before this code is used inside a larger training path. {cite} {current_secondary_cite}"
+            ),
+            (
+                f"The second failure mode is accumulation. Floating-point addition is not perfectly associative, so `(a*b + c*d) + e*f` can differ slightly from `a*b + (c*d + e*f)`. "
+                f"That rarely changes the concept, but it matters when comparing CPU, GPU, tensor-core, or mixed-precision implementations. The point is to separate a true "
+                f"mathematical mismatch from a small precision difference that a test tolerance should allow. {second_cite}"
+            ),
+        ]
+
+    if role == "primary":
+        return [
+            (
+                f"A linear layer computes `Y = XW + b`; every output activation is still a row-column "
+                f"multiply-accumulate, just batched over examples and output features. The mechanism is not changed by the neural-network framing; only the scale, memory movement, and "
+                f"gradient bookkeeping change. A careful implementation test compares one batch element against the scalar loop before profiling throughput. {cite} {current_secondary_cite}"
+            ),
+            (
+                f"The important information boundary is this: matrix multiplication preserves linear combinations of the input features, but the summed output hides the individual pairwise "
+                f"terms unless the system records them. That is why debugging a model layer often starts by reducing it to one tiny input row, one weight column, and one scalar output. "
+                f"{comparison} before attributing an error to optimization, architecture, or data. {second_cite}"
+            ),
+        ]
+
+    if "measurement" in heading or "breaks" in heading or "benchmark" in heading or "failure" in heading:
+        return [
+            (
+                f"The simple formula breaks operationally in three places: shape, order, and precision. Shape errors ask whether `A.shape[1] == B.shape[0]`. Order errors ask whether a transpose "
+                f"or layout change made the code read the wrong logical element. Precision errors ask whether a different accumulation order changed the last few bits. A good benchmark for this "
+                f"node is therefore not a large leaderboard result; it is a ladder of tiny cases whose expected outputs are known. That ladder lets the reader diagnose root cause instead of "
+                f"guessing from a final score. {cite}"
+            ),
+            (
+                "The practical test suite should include a square case, a rectangular case, a one-column case, a one-row case, and a case with positive and negative values that cancel. "
+                f"Those cases expose indexing bugs, broadcasting mistakes, and numerical sensitivity before the same mechanism is buried inside a transformer block. {second_cite}"
+            ),
+        ]
+
+    if "implication" in heading or "tradeoff" in heading or "mechanism" in heading or "faster" in heading or "contract" in heading:
+        return [
+            (
+                "The systems implication is that FLOPs are only the first accounting unit. The scalar definition says a matmul performs `m*n*k` multiply-accumulate steps, but runtime also depends "
+                f"on how often the same rows and columns are loaded, whether memory layout is contiguous, and whether the hardware can fuse the multiply and add. The tradeoff is measurable: "
+                f"profile arithmetic work, memory traffic, and latency budget together before calling an implementation fast. {cite}"
+            ),
+            (
+                f"This is the bridge to faster implementations and model layers. CPU blocking, GPU tiling, tensor cores, attention, and MLP layers all preserve the same mathematical contract while changing how data is moved "
+                f"and accumulated. {comparison}: the contrast separates the math contract from the implementation strategy, whereas the common pattern is reuse of rows, columns, and partial sums. {second_cite}"
+            ),
+        ]
+
+    if role == "adoption":
+        return [
+            (
+                "The useful stopping point is a worked example plus a reference implementation. The reader should be able to state the output shape, derive `C[i,j]`, write the three-loop "
+                f"algorithm, and explain why a single output cell is an aggregate. That proves the concept more strongly than a broad survey of matmul-related sources. {cite}"
+            ),
+            (
+                f"The next idea is to ask what a matrix does as a linear map. Do not move there because a newer source happened to be available; move there because this "
+                f"problem is complete: scalar operations, row-column products, shape checks, accumulation, and information loss are all explicit. {second_cite}"
+            ),
+        ]
+
+    return [
+        (
+            f"The local lesson from {title} is to reduce the claim back to one scalar output. Name the input row, name the input column, multiply aligned entries, accumulate, and check the shape. "
+            f"That gives the mechanism, objective, benchmark, and failure mode in a form an engineer can inspect. {cite}"
+        ),
+        (
+            f"{comparison} to keep the synthesis honest: a source that discusses neural-network layers or performance is useful only if it still respects the scalar contract. {second_cite}"
+        ),
+    ]
 
 
 def _safe_distinct_card_field(card: object, fields: tuple[str, ...], *, avoid: tuple[str, ...]) -> str:
@@ -664,6 +943,7 @@ def _emergency_primary_depth_paragraph(
     chunks_by_id: dict[str, object],
     *,
     training: bool,
+    curriculum_node: dict[str, object] | None = None,
 ) -> str:
     primary_id = _best_citation(card, chunks_by_item, preferred=("mechanism", "experiment", "math_or_objective", "limitation", "impact", "context"))
     secondary_id = _best_distinct_citation(
@@ -678,9 +958,16 @@ def _emergency_primary_depth_paragraph(
     mechanism = _safe_card_field(card, "mechanism")
     experiment = _safe_card_field(card, "experiment")
     limitation = _safe_card_field(card, "limitation")
+    if isinstance(curriculum_node, dict) and str(curriculum_node.get("id", "")).strip() == "matmul-from-scalar-operations":
+        return (
+            f"Use {title} as a source note, not as the lesson structure. Its mechanism evidence is {mechanism} "
+            f"[{primary_id}] {primary_url}. Its experiment or limitation evidence is {experiment}; the risk to carry forward is "
+            f"{limitation} [{secondary_id}] {secondary_url}. The source is sufficient only if it helps answer the central problem: "
+            "one output cell is a dot product, the output matrix is a grid of those dot products, and the summed scalar preserves aggregate alignment while hiding individual products."
+        )
     training_clause = (
         " For the training-system reading, this is also where FSDP or ZeRO sharding, activation checkpointing, "
-        "communication, profiling, checkpoint recovery, GPU utilization, and data pipeline throughput become release-gate checks."
+        "communication, profiling, checkpoint recovery, GPU utilization, and data pipeline throughput become release gate checks."
         if training
         else ""
     )
@@ -688,8 +975,13 @@ def _emergency_primary_depth_paragraph(
         f"For primary-depth coverage, {title} gets separate mechanism and evaluation treatment. The primary mechanism or benchmark evidence is {mechanism} "
         f"[{primary_id}] {primary_url}. The experiment, objective, or limitation evidence is {experiment}; the operational risk is "
         f"{limitation} [{secondary_id}] {secondary_url}. This compare and contrast pass keeps the production tradeoff grounded across "
-        f"the selected evidence, complements the synthesis sections, and separates benchmark evidence from adoption hypotheses. "
-        f"The next engineering action is to reproduce the cited signal on a representative AEC slice before changing the training, retrieval, or evaluation stack.{training_clause}"
+        f"the selected evidence, complements the synthesis sections, and separates benchmark evidence from the explanatory claim. "
+        f"The next engineering action is to reproduce the cited signal on a small controlled example before carrying it into a larger training, serving, or evaluation stack. "
+        f"Before a team acts on it, the source should be translated into a small decision record: what input slice is tested, what metric can move, "
+        f"what failure mode would falsify the claim, what system dependency is implicated, and what evidence would justify moving to the next problem. "
+        f"That discipline is what keeps a research radar post from becoming a list of interesting papers. "
+        f"The review should also name the owner of the follow-up experiment, the artifact to inspect, and the stop condition that would prevent premature adoption of the mechanism. "
+        f"Those details make the lesson auditable rather than decorative.{training_clause}"
     )
 
 
@@ -719,16 +1011,29 @@ def _citation_url(evidence_id: str, chunks_by_id: dict[str, object]) -> str:
     return str(getattr(chunk, "url", "")) if chunk is not None else ""
 
 
+def _curriculum_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _as_sentence(value: str) -> str:
+    text = re.sub(r"\s+", " ", (value or "").strip())
+    if not text:
+        return ""
+    return text if text.endswith((".", "?", "!")) else text + "."
+
+
 def _safe_card_field(card: object, field: str) -> str:
     value = str(getattr(card, field, "") or "").strip()
     if not value or value == "not found in evidence":
         fallbacks = {
-            "problem": "the blocker exposed by the cited evidence, which should be stated as a testable engineering problem before adoption",
+            "problem": "the concrete blocker exposed by the cited evidence, stated as a testable engineering problem",
             "mechanism": "the cited mechanism or system behavior, which should be treated as the implementation hypothesis to inspect",
             "math_or_objective": "the operational objective implied by the cited benchmark or evaluation evidence rather than an exposed formal loss",
-            "experiment": "the available benchmark or evaluation signal; if the source is thin, that absence becomes a validation gap to close before adoption",
+            "experiment": "the available benchmark or evaluation signal; if the source is thin, that absence becomes a validation gap to close before advancing",
             "limitation": "the missing or incomplete limitation evidence itself, which means the team should add explicit failure-mode tests before scaling",
-            "impact": "the plausible transfer to AEC foundation-model training, grounding, evaluation, or deployment, which remains a hypothesis until validated",
+            "impact": "the implication for foundation-model training, evaluation, serving, or systems design, which remains a hypothesis until validated",
         }
         return fallbacks.get(field, f"the {field.replace('_', ' ')} that must be confirmed from the cited evidence")
     return _truncate_clean(value, 260)
@@ -865,7 +1170,7 @@ def _evidence_ids_for_types(pack: EvidencePack, evidence_types: tuple[str, ...],
 
 
 def _section_system(post_type: str) -> str:
-    scope = "daily research radar section" if post_type == "daily" else "deep-dive section"
+    scope = "technical blog section" if post_type == "daily" else "deep-dive section"
     return (
         "Write one Markdown section only. "
         f"You are drafting a {scope}. "
@@ -920,12 +1225,14 @@ def _normalize_section_output(expected_heading: str, text: str) -> str:
 
 def _safe_daily_title(raw: str) -> str:
     title = re.sub(r"\s+", " ", (raw or "").strip())
+    title = re.sub(r"^Research Radar:\s*", "", title, flags=re.I).strip()
+    title = re.sub(r"\bResearch Radar\b", "", title, flags=re.I).strip(" :-")
     if not title:
-        return "Research Radar: ML systems and methods update"
+        return "ML systems and methods update"
     if _looks_like_truncated_fallback_title(title):
-        return "Research Radar: ML systems and methods update"
-    if title.lower().startswith("research radar:") and len(title) > 68:
-        return "Research Radar: ML systems and methods update"
+        return "ML systems and methods update"
+    if len(title) > 110:
+        return "ML systems and methods update"
     return title
 
 
@@ -993,13 +1300,13 @@ def _final_editor_pass(
 
 
 def _final_editor_system(post_type: str) -> str:
-    target = "daily research radar post" if post_type == "daily" else "deep-dive technical post"
+    target = "publish-ready technical post" if post_type == "daily" else "deep-dive technical post"
     return (
         f"You are the final editor for a {target}. "
         "Merge section drafts into one cohesive Markdown body with smooth transitions. "
         "Preserve evidence markers [E#] and include source URL links for substantive claims. "
         "Keep section headings specific and non-generic. "
-        "Do not include Mermaid diagrams, generic visual maps, or visual diagnostics unless the source evidence directly supports a useful technical figure. "
+        "Keep useful technical figures, tables, code, and equations when they explain the selected problem; remove generic visual maps or unsupported visual diagnostics. "
         "Remove corporate strategy language, repeated hype adjectives, duplicated-token artifacts such as 'multiple,multiple', "
         "unsupported first-person Autodesk claims, first-person 'we/our/my' product-roadmap claims, and paper-by-paper abstract summaries that do not add engineering judgment. "
         "Make the final article read like a Principal MLE problem-solving memo for AEC foundation models: name the blocker, the root-cause hypothesis, "
@@ -1026,7 +1333,7 @@ def _final_editor_user(
     return (
         f"POST_TYPE: {post_type}\n"
         f"TITLE: {title}\n"
-        "VISUAL_POLICY: Do not include Mermaid. Omit visuals unless they are a source-grounded mechanism diagram that adds technical signal.\n\n"
+        "VISUAL_POLICY: Keep source-grounded mechanism diagrams that add technical signal; omit generic or unsupported visuals.\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2) if outline is not None else '{}'}\n\n"
         f"SELECTION:\n{selection.model_dump_json(indent=2) if selection is not None else '{}'}\n\n"
         f"SECTION_DRAFTS:\n{json.dumps(section_drafts, indent=2, ensure_ascii=False)}\n\n"
@@ -1161,6 +1468,7 @@ def _validate_repair_and_publish(
     dry_run: bool,
 ) -> WriteResult:
     body = _ensure_visual_blocks(body, pack, slug)
+    body = _publish_ready_body(body, pack)
     body, errors = _sanitize_then_validate(body, pack, outline=outline)
     quality_review, errors = _review_if_ready(
         client,
@@ -1186,6 +1494,7 @@ def _validate_repair_and_publish(
             try:
                 body = _call_daily_draft(client, _daily_rewrite_system(), rewrite_user, outline=outline)
                 body = _ensure_visual_blocks(body, pack, slug)
+                body = _publish_ready_body(body, pack)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
                 quality_review, errors = _review_if_ready(
                     client,
@@ -1209,6 +1518,7 @@ def _validate_repair_and_publish(
                     reject_completion=_markdown_rejection,
                 )
                 body = _ensure_visual_blocks(body, pack, slug)
+                body = _publish_ready_body(body, pack)
                 body, errors = _sanitize_then_validate(body, pack, outline=outline)
                 quality_review, errors = _review_if_ready(
                     client,
@@ -1223,6 +1533,7 @@ def _validate_repair_and_publish(
                     setattr(client, "_blogpipe_emergency_daily_draft", True)
                     body = _emergency_daily_draft(pack=pack, outline=outline, selection=selection, title=title)
                     body = _ensure_visual_blocks(body, pack, slug)
+                    body = _publish_ready_body(body, pack)
                     body, errors = _sanitize_then_validate(body, pack, outline=outline)
                     quality_review = {}
                     errors.extend(_deterministic_quality_errors(body, pack))
@@ -1232,6 +1543,7 @@ def _validate_repair_and_publish(
                     setattr(client, "_blogpipe_emergency_daily_draft", True)
                     body = _emergency_daily_draft(pack=pack, outline=outline, selection=selection, title=title)
                     body = _ensure_visual_blocks(body, pack, slug)
+                    body = _publish_ready_body(body, pack)
                     body, errors = _sanitize_then_validate(body, pack, outline=outline)
                     quality_review = {}
                     if pack.kind == "daily":
@@ -1293,7 +1605,7 @@ def _frontmatter(
             f"paper_count: {paper_count}",
             f"blog_count: {blog_count}",
             "math: true",
-            "mermaid: false",
+            f"mermaid: {'true' if '```mermaid' in body else 'false'}",
             "---",
         ]
     )
@@ -1308,6 +1620,8 @@ def _daily_system() -> str:
         "Do not claim employment at any company and do not use first-person product-roadmap language. "
         "The post is problem-centered: identify a specific AEC foundation-model problem, explain why it blocks scale or quality, "
         "then use the evidence to reason through mechanisms, math/objectives when supported, experiments, limits, and next engineering actions. "
+        "When a target problem is supplied, write the article as an instructive standalone lesson that builds from first principles toward current evidence. "
+        "Never mention internal labels such as Research Radar, curriculum, selector, pipeline, run report, or GitHub Actions. "
         "Keep the research depth, but make the article read like a principal-engineer decision memo: benchmark design, failure modes, "
         "integration constraints, deployment dependencies, latency/cost tradeoffs, validation plans, and adoption tests should drive the practical judgment. "
         "When the evidence concerns scaled LLM training, teach the operational how-to: sharding/parallelism choices, memory and communication bottlenecks, "
@@ -1317,15 +1631,21 @@ def _daily_system() -> str:
         "Distinguish direct implication, plausible transfer, and open hypothesis when discussing production use. "
         "Every substantive item paragraph must include one or more evidence markers like [E1] and a source link. "
         "Do not publish a single-source post: cite at least three distinct primary papers when available. "
-        f"Do not invent numbers, benchmarks, authors, or claims. The daily post must be at least {config.daily_min_words()} words."
+        f"Do not invent numbers, benchmarks, authors, or claims. The post must be at least {config.daily_min_words()} words."
     )
 
 
 def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionResult, title: str) -> str:
+    curriculum_block = ""
+    if pack.curriculum:
+        curriculum_block = f"CURRICULUM_TARGET:\n{json.dumps(pack.curriculum, indent=2, ensure_ascii=False)}\n\n"
     return (
         f"TITLE: {title}\n\n"
         "Write a problem-first technical blog post using the OUTLINE headings exactly as provided. "
         f"The first line must be exactly '# {title}'. Each OUTLINE section heading must appear exactly once as '## <heading>'. "
+        "Make the post feel human-written: teach the technical idea cleanly, state the judgment, and avoid padded transition prose. "
+        "If CURRICULUM_TARGET is present, use it as private planning context: answer its problem_statement directly, teach the required concepts in order, and use the selected evidence to sharpen or challenge the lesson. "
+        "Do not mention Research Radar, curriculum, selector, pipeline, run report, GitHub Actions, or any other production machinery in the article. "
         "Do not use fixed template headings such as 'Paper mechanisms', 'Math or objective details', or 'Why it matters' unless the outline uses them. "
         "Do not organize the article as one section per paper unless the outline explicitly requires it. "
         "Start from a specific problem an AEC foundation-model team needs to solve: scaling a training run, removing a data bottleneck, "
@@ -1345,6 +1665,7 @@ def _daily_user(pack: EvidencePack, outline: DailyOutline, selection: SelectionR
         "Do not present a cross-paper stack, architecture, or workflow as proven unless the evidence cards directly support that integration. "
         "Do not use first-person employment claims such as 'As a Principal MLE at Autodesk'; write from that practical viewpoint without claiming identity. "
         "Avoid exact numeric claims unless the number appears verbatim in the evidence text.\n\n"
+        f"{curriculum_block}"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
         f"OUTLINE:\n{outline.model_dump_json(indent=2)}\n\n"
         f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
@@ -1357,7 +1678,7 @@ def _deep_system() -> str:
         "You write guided technical deep dives for ML engineers. Use only the evidence pack. "
         "Center the method, math/objective interpretation, experiment analysis, reproduction notes, limits, and impact. "
         "Write original Markdown. Include evidence markers [E1] and source links for substantive claims. "
-        "Do not include Mermaid diagrams or generic visual maps. Include code or pseudocode only if supported by evidence. "
+        "Include diagrams, code, or pseudocode only when they directly clarify the method and are supported by evidence; remove generic visual maps. "
         "Do not invent numbers or implementation details. Target 2500-4500 words when evidence supports it."
     )
 
@@ -1417,7 +1738,7 @@ def _repair_user(
         "- For every evidence ID you cite, include the matching source URL inline in that paragraph.\n"
         "- You do not need to cover every item in EVIDENCE_PACK; omit weak items rather than inventing details.\n"
         "- Remove unsupported numbers and unsupported claims; prefer qualitative phrasing when uncertain.\n"
-        "- Remove Mermaid diagrams, generic visual maps, stale source lists, duplicated-token artifacts, and first-person Autodesk employment/product claims.\n"
+        "- Remove generic visual maps, stale source lists, duplicated-token artifacts, and first-person Autodesk employment/product claims; keep useful technical diagrams when they clarify the selected problem.\n"
         "- Downgrade unsupported assertions into explicit plausible-transfer or open-hypothesis language.\n"
         "- Merge redundant same-paper sections unless the OUTLINE split is technically justified.\n"
         "- Mark supporting-paper mentions as supporting instead of presenting them as additional primaries.\n"
@@ -1687,7 +2008,59 @@ def _qualitative_number_replacement(line: str, token: str) -> str:
 
 
 def _ensure_visual_blocks(body: str, pack: EvidencePack, slug: str) -> str:
-    return (body or "").strip()
+    body = (body or "").strip()
+    if pack.kind != "daily" or not pack.curriculum or "The whole lesson:" in body:
+        return body
+    node = pack.curriculum.get("node", {}) if isinstance(pack.curriculum, dict) else {}
+    if not isinstance(node, dict):
+        return body
+    title = str(node.get("problem_statement") or node.get("title", "")).strip()
+    takeaway = str(node.get("why_it_matters") or node.get("reader_takeaway", "")).strip()
+    stage = str(node.get("stage", "")).strip()
+    if not title or not takeaway:
+        return body
+    lens = (
+        f"> **The whole lesson:** {title} "
+        f"{takeaway}\n"
+    )
+    lines = body.splitlines()
+    if lines and lines[0].startswith("# "):
+        return "\n".join([lines[0], "", lens, *lines[1:]]).strip()
+    return f"{lens}\n\n{body}".strip()
+
+
+def _publish_ready_body(body: str, pack: EvidencePack) -> str:
+    if pack.kind != "daily":
+        return (body or "").strip()
+    cleaned: list[str] = []
+    for line in (body or "").splitlines():
+        if line.startswith("# "):
+            cleaned.append(f"# {_safe_daily_title(line[2:])}")
+            continue
+        if "Problem lens:" in line or "Curriculum lens:" in line:
+            cleaned.append(
+                line.replace("**Problem lens:**", "**The whole lesson:**")
+                .replace("**Curriculum lens:**", "**The whole lesson:**")
+                .replace("curriculum", "learning path")
+            )
+            continue
+        cleaned.append(line)
+    text = "\n".join(cleaned).strip()
+    replacements = {
+        "Research Radar": "",
+        "research radar": "",
+        "curriculum node": "next idea",
+        "curriculum problem": "central problem",
+        "curriculum question": "central question",
+        "curriculum lesson": "lesson",
+        "curriculum claims": "explanatory claims",
+        "next curriculum node": "next idea",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    text = re.sub(r"[ \t]+(:)", r"\1", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
 
 
 def _markdown_rejection(text: str) -> str | None:
@@ -1767,7 +2140,7 @@ def _quality_review_user(
         "- first-person employment or product ownership claims involving Autodesk, including 'we', 'our', 'my', 'our roadmap', or 'our pipelines'\n"
         "- duplicated-token artifacts such as 'multiple,multiple'\n"
         "- missing source URL in the same paragraph as each cited evidence marker\n"
-        "- Mermaid diagrams, generic visual maps, or stale visuals that mention non-discussed papers\n"
+        "- generic visual maps or stale visuals that mention non-discussed papers\n"
         "- intro says four primary papers but body materially adds more without marking them supporting\n"
         "- weak mechanism/objective/experiment/limitation coverage for primary papers\n"
         "- research exposition with weak engineering usefulness: no benchmark, blocker, deployment implication, integration constraint, validation test, or operational tradeoff\n"
@@ -1876,7 +2249,7 @@ def _frontmatter_tags(
     body: str,
 ) -> list[str]:
     blob = (body or "").lower()
-    tags = ["research-radar"]
+    tags = ["machine-learning", "technical-explainer"]
     rules = (
         ("aec", ("aec", "construction", "building workflow", "facility workflow")),
         ("document-ai", ("document intelligence", "drawing sheet", "sheet-level", "pdf translation", "ocr", "layout preservation")),
@@ -2039,7 +2412,7 @@ def _validate_daily_technical_focus(body: str, pack: EvidencePack, *, outline: D
     if _looks_like_generic_roundup(headings):
         errors.append("generic_roundup_structure")
     lower = (body or "").lower()
-    errors.extend(_validate_daily_concepts(lower))
+    errors.extend(_validate_daily_concepts(lower, pack=pack))
     if _pack_has_training_system_focus(pack):
         errors.extend(_validate_training_howto_concepts(body))
         errors.extend(_validate_training_technology_details(body))
@@ -2112,9 +2485,19 @@ def _normalize_heading(heading: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]+", " ", (heading or "").lower())).strip()
 
 
-def _validate_daily_concepts(lower_body: str) -> list[str]:
+def _validate_daily_concepts(lower_body: str, *, pack: EvidencePack | None = None) -> list[str]:
     errors: list[str] = []
     for concept, cues in DAILY_CONCEPTS.items():
+        if concept == "autodesk_relevance" and pack is not None and pack.curriculum:
+            cues = (
+                *cues,
+                "foundation-model",
+                "foundation model",
+                "transformer",
+                "training",
+                "serving",
+                "curriculum",
+            )
         if not any(cue in lower_body for cue in cues):
             errors.append(f"missing_daily_concept:{concept}")
     return errors

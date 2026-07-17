@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="360" viewBox="0 0 920 360" role="img" aria-labelledby="title desc">
+<title id="title">How one C cell is produced</title>
+<desc id="desc">Connect the direct loop to the row, column, and accumulator the implementation must preserve.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="32" y="44" font-family="Arial" font-size="26" font-weight="700" fill="#111827">How one C cell is produced</text>
+<text x="32" y="74" font-family="Arial" font-size="15" fill="#4b5563">Connect the direct loop to the row, column, and accumulator the implementation must preserve.</text>
+<g font-family="Arial" font-size="16" fill="#111827">
+  <text x="70" y="118" font-weight="700">A row i</text>
+  <text x="368" y="118" font-weight="700">B column j</text>
+  <text x="676" y="118" font-weight="700">Output C[i,j]</text>
+</g>
+<g stroke="#111827" stroke-width="2" fill="none">
+  <rect x="52" y="145" width="250" height="54" rx="0"/>
+  <rect x="350" y="130" width="74" height="202" rx="0"/>
+  <rect x="682" y="176" width="92" height="76" rx="0"/>
+</g>
+<g font-family="Arial" font-size="15" text-anchor="middle">
+  <rect x="60" y="153" width="50" height="38" fill="#dbeafe"/><text x="85" y="177">a0</text>
+  <rect x="118" y="153" width="50" height="38" fill="#dbeafe"/><text x="143" y="177">a1</text>
+  <rect x="176" y="153" width="50" height="38" fill="#dbeafe"/><text x="201" y="177">...</text>
+  <rect x="234" y="153" width="50" height="38" fill="#dbeafe"/><text x="259" y="177">ak</text>
+  <rect x="362" y="140" width="50" height="38" fill="#dcfce7"/><text x="387" y="164">b0</text>
+  <rect x="362" y="186" width="50" height="38" fill="#dcfce7"/><text x="387" y="210">b1</text>
+  <rect x="362" y="232" width="50" height="38" fill="#dcfce7"/><text x="387" y="256">...</text>
+  <rect x="362" y="278" width="50" height="38" fill="#dcfce7"/><text x="387" y="302">bk</text>
+  <rect x="700" y="194" width="56" height="40" fill="#fef3c7"/><text x="728" y="219">sum</text>
+</g>
+<g stroke="#6b7280" stroke-width="2" fill="none" marker-end="url(#arrow)">
+  <path d="M 302 172 C 370 172, 454 172, 520 198"/>
+  <path d="M 424 232 C 468 232, 492 222, 520 208"/>
+  <path d="M 590 204 C 626 204, 650 204, 682 204"/>
+</g>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#6b7280"/></marker></defs>
+<g font-family="Arial" font-size="16" fill="#111827">
+  <rect x="500" y="176" width="100" height="56" fill="#f3f4f6" stroke="#111827"/>
+  <text x="550" y="198" text-anchor="middle">multiply</text>
+  <text x="550" y="218" text-anchor="middle">and add</text>
+  <text x="52" y="235" fill="#374151">Loop invariant: one accumulator belongs to one output cell.</text>
+  <text x="52" y="264" fill="#374151">Validation: direct loop, trusted library, then benchmark the bottleneck.</text>
+</g>
+</svg>

@@ -15,8 +15,30 @@ from . import config
 
 LOG = logging.getLogger(__name__)
 RETRY_STATUS_CODES = {429, 500, 502, 503, 504}
-FAST_TASKS = {"selector", "outline", "outline_repair", "quality_review", "repair"}
-SMART_TASKS = {"draft", "draft_section", "editor"}
+FAST_TASKS = {
+    "role_market_scout",
+    "catalogue_editor",
+    "research_lead",
+    "skeptical_fact_checker",
+    "principal_reviewer",
+    "layout_reviewer",
+    "selector",
+    "outline",
+    "outline_repair",
+    "quality_review",
+    "repair",
+}
+SMART_TASKS = {
+    "technical_explainer",
+    "implementation_engineer",
+    "visual_explainer",
+    "table_designer",
+    "component_designer",
+    "managing_editor",
+    "draft",
+    "draft_section",
+    "editor",
+}
 CompletionRejector = Callable[[str], str | None]
 
 
@@ -380,11 +402,7 @@ class LLMClient:
         return "" if self.cfg.model == "openrouter/free" and self.cfg.openrouter_api_key else self.cfg.model
 
     def _openrouter_fallback_models(self, task: str) -> list[str]:
-        if not (self.cfg.openrouter_api_key or "openrouter" in self.cfg.base_url.lower()):
-            return []
-        if _gemini_native_endpoint(self.cfg.base_url) and config.openrouter_smart_fallback_enabled():
-            return config.openrouter_chain_models(custom=self.cfg.openrouter_free_models)
-        return list(self.cfg.openrouter_free_models)
+        return []
 
     def _emergency_openrouter_models(
         self,
@@ -393,31 +411,7 @@ class LLMClient:
         tried: list[str],
         last_error: Exception | None,
     ) -> list[str]:
-        if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
-            return []
-        if not config.openrouter_smart_fallback_enabled():
-            return []
-        if self._openrouter_rate_limit_circuit_open("openrouter/free", task):
-            return []
-        if not _openrouter_fallback_eligible_error(last_error):
-            return []
-        seen = {model for model in tried if model}
-        out: list[str] = []
-        for model in config.DEFAULT_OPENROUTER_SMART_EMERGENCY:
-            if model not in seen:
-                out.append(model)
-        if not out:
-            for model in self.cfg.openrouter_free_models[:3]:
-                if model not in seen:
-                    out.append(model)
-        if out:
-            LOG.warning(
-                "llm task=%s native chain exhausted (%s); trying emergency openrouter models=%s",
-                task,
-                last_error,
-                out,
-            )
-        return out
+        return []
 
     def _openrouter_free_models_after_native_failure(
         self,
@@ -427,21 +421,7 @@ class LLMClient:
         task_name: str,
         tried: list[str],
     ) -> list[str]:
-        if not _openrouter_fallback_eligible_error(error):
-            return []
-        if not self.cfg.openrouter_api_key or not _gemini_native_endpoint(self.cfg.base_url):
-            return []
-        if not config.openrouter_smart_fallback_enabled():
-            return []
-        if self._openrouter_rate_limit_circuit_open("openrouter/free", task_name):
-            return []
-        if _is_openrouter_model(model):
-            return []
-        return config.openrouter_free_models_after_rate_limit(
-            config.DEFAULT_OPENROUTER_RATE_LIMIT_FALLBACK,
-            tried=tried,
-            limit=config.openrouter_rate_limit_fallback_limit(),
-        )
+        return []
 
     def _should_skip_slow_openrouter_model(self, model: str, task_name: str) -> bool:
         normalized = (model or "").strip().lower()

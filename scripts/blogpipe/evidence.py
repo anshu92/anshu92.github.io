@@ -3,11 +3,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import extract, memory
-from .models import EvidenceCard, EvidenceChunk, EvidencePack, RankedItem
+from .models import CurriculumPlan, EvidenceCard, EvidenceChunk, EvidencePack, RankedItem
 from .topics import has_training_system_focus
 
 
-def build_daily_pack(ranked: list[RankedItem], *, prior_limit: int = 5) -> EvidencePack:
+def build_daily_pack(
+    ranked: list[RankedItem],
+    *,
+    prior_limit: int = 5,
+    curriculum_plan: CurriculumPlan | None = None,
+) -> EvidencePack:
     chunks: list[EvidenceChunk] = []
     for item in ranked:
         max_chunks = 5 if _selector_role(item) == "primary" else 2
@@ -18,6 +23,7 @@ def build_daily_pack(ranked: list[RankedItem], *, prior_limit: int = 5) -> Evide
         chunks=chunks,
         evidence_cards=_evidence_cards(ranked, chunks),
         prior_posts=_prior_posts(prior_limit),
+        curriculum=curriculum_plan.model_dump(mode="json") if curriculum_plan else {},
     )
 
 

@@ -3,7 +3,7 @@ date: "2025-09-22"
 draft: true
 title: "The Foundation Series"
 description: "An endless endeavor to inform a new civilization about ML"
-categories: ["Machine Learning", "NLP", "LLM"]
+categories: ["Research methodology", "Core machine learning", "Foundation-model pretraining"]
 tags: ["attention", "transformers", "deep-learning", "nlp", "llm", "code"]
 math: true
 mermaid: true

@@ -10,6 +10,18 @@ import httpx
 LOG = logging.getLogger(__name__)
 
 LLM_TASK_ENV_VARS: dict[str, str] = {
+    "role_market_scout": "BLOGPIPE_LLM_MODEL_ROLE_MARKET_SCOUT",
+    "catalogue_editor": "BLOGPIPE_LLM_MODEL_CATALOGUE_EDITOR",
+    "research_lead": "BLOGPIPE_LLM_MODEL_RESEARCH_LEAD",
+    "technical_explainer": "BLOGPIPE_LLM_MODEL_TECHNICAL_EXPLAINER",
+    "implementation_engineer": "BLOGPIPE_LLM_MODEL_IMPLEMENTATION_ENGINEER",
+    "skeptical_fact_checker": "BLOGPIPE_LLM_MODEL_SKEPTICAL_FACT_CHECKER",
+    "principal_reviewer": "BLOGPIPE_LLM_MODEL_PRINCIPAL_REVIEWER",
+    "visual_explainer": "BLOGPIPE_LLM_MODEL_VISUAL_EXPLAINER",
+    "table_designer": "BLOGPIPE_LLM_MODEL_TABLE_DESIGNER",
+    "component_designer": "BLOGPIPE_LLM_MODEL_COMPONENT_DESIGNER",
+    "layout_reviewer": "BLOGPIPE_LLM_MODEL_LAYOUT_REVIEWER",
+    "managing_editor": "BLOGPIPE_LLM_MODEL_MANAGING_EDITOR",
     "selector": "BLOGPIPE_LLM_MODEL_SELECTOR",
     "outline": "BLOGPIPE_LLM_MODEL_OUTLINE",
     "outline_repair": "BLOGPIPE_LLM_MODEL_OUTLINE_REPAIR",
@@ -21,6 +33,18 @@ LLM_TASK_ENV_VARS: dict[str, str] = {
 }
 
 LLM_TASK_CHAIN_ENV_VARS: dict[str, str] = {
+    "role_market_scout": "BLOGPIPE_LLM_CHAIN_ROLE_MARKET_SCOUT",
+    "catalogue_editor": "BLOGPIPE_LLM_CHAIN_CATALOGUE_EDITOR",
+    "research_lead": "BLOGPIPE_LLM_CHAIN_RESEARCH_LEAD",
+    "technical_explainer": "BLOGPIPE_LLM_CHAIN_TECHNICAL_EXPLAINER",
+    "implementation_engineer": "BLOGPIPE_LLM_CHAIN_IMPLEMENTATION_ENGINEER",
+    "skeptical_fact_checker": "BLOGPIPE_LLM_CHAIN_SKEPTICAL_FACT_CHECKER",
+    "principal_reviewer": "BLOGPIPE_LLM_CHAIN_PRINCIPAL_REVIEWER",
+    "visual_explainer": "BLOGPIPE_LLM_CHAIN_VISUAL_EXPLAINER",
+    "table_designer": "BLOGPIPE_LLM_CHAIN_TABLE_DESIGNER",
+    "component_designer": "BLOGPIPE_LLM_CHAIN_COMPONENT_DESIGNER",
+    "layout_reviewer": "BLOGPIPE_LLM_CHAIN_LAYOUT_REVIEWER",
+    "managing_editor": "BLOGPIPE_LLM_CHAIN_MANAGING_EDITOR",
     "selector": "BLOGPIPE_LLM_CHAIN_SELECTOR",
     "outline": "BLOGPIPE_LLM_CHAIN_OUTLINE",
     "outline_repair": "BLOGPIPE_LLM_CHAIN_OUTLINE_REPAIR",
@@ -59,6 +83,12 @@ def _csv(name: str) -> list[str]:
         return []
     return [part.strip() for part in raw.split(",") if part.strip()]
 
+
+# Recommended OpenAI roster (July 2026). See developers.openai.com/api/docs/models.
+DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1"
+DEFAULT_OPENAI_MODEL_FAST = "gpt-5.6-luna"
+DEFAULT_OPENAI_MODEL_SMART = "gpt-5.6-terra"
+DEFAULT_OPENAI_MODEL_FLAGSHIP = "gpt-5.6-sol"
 
 # Recommended Gemini roster (June 2026). See ai.google.dev/gemini-api/docs/deprecations.
 # gemini-2.0-flash* shut down 2026-06-01; gemini-2.5-* remain until 2026-10-16.
@@ -352,21 +382,47 @@ def user_agent() -> str:
 def llm_config() -> LLMConfig:
     openrouter_base = _get("OPENROUTER_BASE", "https://openrouter.ai/api/v1")
     openrouter_key = _get("OPENROUTER_API_KEY")
+    openai_key = _get("OPENAI_API_KEY")
     gemini_key = _get("GEMINI_API_KEY")
-    default_base = "https://generativelanguage.googleapis.com/v1beta/openai" if gemini_key else openrouter_base
+    default_base = DEFAULT_OPENAI_BASE_URL if (openai_key or not gemini_key) else (
+        "https://generativelanguage.googleapis.com/v1beta/openai"
+    )
     base = _get("BLOGPIPE_LLM_BASE_URL", default_base)
-    key = _get("BLOGPIPE_LLM_API_KEY", gemini_key or openrouter_key)
+    base_lower = base.lower()
+    key = _get("BLOGPIPE_LLM_API_KEY")
+    if not key:
+        if DEFAULT_OPENAI_BASE_URL in base_lower:
+            key = openai_key
+        elif "generativelanguage.googleapis.com" in base_lower:
+            key = gemini_key
+        elif "openrouter" in base_lower:
+            key = openrouter_key
+        else:
+            key = openai_key or gemini_key or openrouter_key
     model_primary = _get("BLOGPIPE_LLM_MODEL")
     model_legacy = _get("BLOGPIPE_MODEL")
-    default_model = DEFAULT_GEMINI_MODEL_FAST if gemini_key else "openrouter/free"
+    if DEFAULT_OPENAI_BASE_URL in base_lower:
+        default_model = DEFAULT_OPENAI_MODEL_FAST
+        default_fast_model = DEFAULT_OPENAI_MODEL_FAST
+        default_smart_model = DEFAULT_OPENAI_MODEL_SMART
+    elif "generativelanguage.googleapis.com" in base_lower:
+        default_model = DEFAULT_GEMINI_MODEL_FAST
+        default_fast_model = DEFAULT_GEMINI_MODEL_FAST
+        default_smart_model = DEFAULT_GEMINI_MODEL_SMART
+    elif "openrouter" in base_lower:
+        default_model = "openrouter/free"
+        default_fast_model = ""
+        default_smart_model = ""
+    else:
+        default_model = DEFAULT_OPENAI_MODEL_FAST
+        default_fast_model = DEFAULT_OPENAI_MODEL_FAST
+        default_smart_model = DEFAULT_OPENAI_MODEL_SMART
     model = model_primary or model_legacy or default_model
-    model_fast = _get("BLOGPIPE_LLM_MODEL_FAST")
-    model_smart = _get("BLOGPIPE_LLM_MODEL_SMART")
+    model_fast = _get("BLOGPIPE_LLM_MODEL_FAST", default_fast_model)
+    model_smart = _get("BLOGPIPE_LLM_MODEL_SMART", default_smart_model)
     openrouter_free_models = _csv("BLOGPIPE_OPENROUTER_FREE_MODELS")
-    if not openrouter_free_models and openrouter_dynamic_free_models_enabled():
+    if not openrouter_free_models and "openrouter" in base_lower and openrouter_dynamic_free_models_enabled():
         openrouter_free_models = discover_openrouter_free_models(base_url=openrouter_base, api_key=openrouter_key)
-    if not openrouter_free_models:
-        openrouter_free_models = list(DEFAULT_OPENROUTER_FREE_MODELS)
     model_by_task = {
         task: override
         for task, env_name in LLM_TASK_ENV_VARS.items()
@@ -480,7 +536,7 @@ def openrouter_smart_fallback_enabled() -> bool:
         return True
     if raw in {"0", "false", "no", "off"}:
         return False
-    return bool(_get("OPENROUTER_API_KEY"))
+    return False
 
 
 def llm_rate_limit_cooldown_seconds() -> float:

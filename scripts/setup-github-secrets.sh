@@ -52,10 +52,9 @@ echo ""
 echo "Paste each secret when prompted. Input is hidden. Leave empty to skip a key."
 echo ""
 
-# --- Secrets used by .github/workflows/daily-blog-draft.yml + blogpipe ---
-set_secret OPENROUTER_API_KEY "LLM (OpenRouter) — required for draft/rank/edit"
-set_secret OPENAI_API_KEY "OpenAI (optional: embeddings if you use OpenAI base URL)"
-set_secret GEMINI_API_KEY "Google Gemini (optional: hero image generation)"
+# --- Secrets used by .github/workflows/research-radar.yml + blogpipe swarm ---
+set_secret OPENAI_API_KEY "OpenAI - default LLM for the blogpipe agent swarm"
+set_secret GEMINI_API_KEY "Google Gemini (optional for experiments outside the default swarm workflow)"
 set_secret GROQ_API_KEY "Groq (optional; workflow passes it for parity with evr)"
 set_secret SEMANTIC_SCHOLAR_API_KEY "Semantic Scholar (optional: higher rate limits for research)"
 set_secret FAL_API_KEY "Fal (optional: Flux image fallback)"

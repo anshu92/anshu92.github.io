@@ -1,22 +1,190 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
-from blogpipe import memory, store
+import pytest
+
+from blogpipe import memory
 from blogpipe.cli import main
-from blogpipe.llm import LLMClient
-from blogpipe.models import DailyOutline, SelectionResult, SourceItem
-from blogpipe.models import WriteResult
-from blogpipe.pipeline import _augment_ranked_with_store_papers, _plan_agent_run, run_all, write_daily
-from blogpipe.score import rank_items
+from blogpipe.models import ComponentSpec, RoleMarketReport, TableSpec
+from blogpipe.swarm import CatalogueEditor, RoleMarketScout, seed_sources_for_lesson
+from blogpipe.visuals import validate_component, validate_table
 
 
-def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
-    fake = Path("tests/fixtures/fake_daily.md").read_text()
-    selector = Path("tests/fixtures/fake_selector.json").read_text()
-    outline = Path("tests/fixtures/fake_outline.json").read_text()
+def test_swarm_run_with_fixtures_writes_preview_and_reports(monkeypatch, tmp_path):
+    _patch_memory(monkeypatch, tmp_path)
+    _disable_live_llm(monkeypatch)
+    lesson = CatalogueEditor().choose(RoleMarketReport())
+    fixtures = _write_fixture_items(tmp_path, seed_sources_for_lesson(lesson))
+
+    code = main(["swarm", "run", "--fixtures", str(fixtures), "--dry-run", "--db", str(tmp_path / "items.sqlite")])
+
+    assert code == 0
+    report_dir = tmp_path / "reports" / "swarm"
+    assert (report_dir / "run_report.json").is_file()
+    assert (report_dir / "role_market_signal.json").is_file()
+    assert (report_dir / "catalogue_decision.json").is_file()
+    assert (report_dir / "lesson_brief.json").is_file()
+    assert (report_dir / "visual_plan.json").is_file()
+    previews = list(report_dir.glob("*.preview.md"))
+    assert len(previews) == 1
+    preview = previews[0].read_text(encoding="utf-8")
+    assert "draft: true" in preview
+    assert "mermaid: true" in preview
+    assert "```mermaid" in preview
+    assert "Which matmul path answers which engineering question?" in preview
+    assert "matmul-output-cell.svg" in preview
+    assert "blogpipe-callout" in preview
+    assert list((tmp_path / "static" / "img" / "posts").glob("**/*.svg"))
+
+    report = json.loads((report_dir / "run_report.json").read_text(encoding="utf-8"))
+    assert report["final_article"]["ok"] is True
+    assert report["selected_lesson"]["id"] == "matmul-from-scalar-operations"
+    assert len(set(report["lesson_brief"]["source_urls"])) >= 2
+    assert any("deeplearningbook.org" in url for url in report["lesson_brief"]["source_urls"])
+    assert [item["agent_name"] for item in report["agent_reports"]][:4] == [
+        "RoleMarketScout",
+        "CatalogueEditor",
+        "ResearchLead",
+        "TechnicalExplainer",
+    ]
+
+
+def test_swarm_blocks_when_evidence_is_insufficient(monkeypatch, tmp_path):
+    _patch_memory(monkeypatch, tmp_path)
+    _disable_live_llm(monkeypatch)
+    monkeypatch.setenv("BLOGPIPE_CATALOGUE_LESSON", "distributed-training-parallelism")
+    fixtures = tmp_path / "fixtures"
+    fixtures.mkdir()
+    (fixtures / "source_items.json").write_text('{"items": []}', encoding="utf-8")
+
+    code = main(["swarm", "run", "--fixtures", str(fixtures), "--dry-run", "--db", str(tmp_path / "items.sqlite")])
+
+    assert code == 0
+    report_dir = tmp_path / "reports" / "swarm"
+    blocked = list(report_dir.glob("*.blocked.json"))
+    assert blocked
+    report = json.loads((report_dir / "run_report.json").read_text(encoding="utf-8"))
+    assert report["final_article"]["ok"] is False
+    assert "insufficient_evidence:0/2" in report["final_article"]["errors"]
+    assert not list((tmp_path / "content" / "post").glob("*.md"))
+
+
+def test_legacy_run_command_is_removed():
+    with pytest.raises(SystemExit):
+        main(["run"])
+
+
+def test_role_market_scout_fixture_filters_staff_principal_engineering_roles(monkeypatch, tmp_path):
+    postings = {
+        "postings": [
+            {
+                "company": "OpenAI",
+                "title": "Staff Machine Learning Engineer, Inference Systems",
+                "url": "https://openai.com/careers/staff-inference",
+                "description": "Lead inference serving, latency, throughput, cache, evaluation, and reliability work.",
+            },
+            {
+                "company": "Anthropic",
+                "title": "Junior Data Analyst",
+                "url": "https://anthropic.com/careers/junior",
+                "description": "Dashboard reporting and analytics.",
+            },
+            {
+                "company": "NVIDIA",
+                "title": "Principal Product Manager",
+                "url": "https://nvidia.com/careers/product",
+                "description": "Roadmap planning for developer products.",
+            },
+            {
+                "company": "Google DeepMind",
+                "title": "Principal Research Engineer, Distributed Training",
+                "url": "https://deepmind.google/careers/principal-training",
+                "description": "Distributed training, sharding, FSDP, checkpoint recovery, NCCL, and benchmark design.",
+            },
+            {
+                "company": "Anthropic",
+                "title": "Careers at Anthropic",
+                "url": "https://anthropic.com/careers",
+                "description": "Staff work on agents, tools, AI, infrastructure, and research across the company.",
+            },
+        ]
+    }
+    fixture = tmp_path / "roles.json"
+    fixture.write_text(json.dumps(postings), encoding="utf-8")
+    monkeypatch.setenv("BLOGPIPE_ROLE_MARKET_FIXTURES", str(fixture))
+
+    report = RoleMarketScout().run()
+
+    assert [signal.company for signal in report.signals] == ["OpenAI", "Google DeepMind"]
+    assert "inference-serving" in report.signals[0].topic_tags
+    assert "distributed-training" in report.signals[1].topic_tags
+    assert report.signals[0].source_url
+
+
+def test_role_market_scout_parses_job_cards_without_landing_page_noise():
+    html = """
+    <html><body>
+      <h1>Careers</h1>
+      <p>Our staff build AI systems, agents, infrastructure, and tools.</p>
+      <a href="/careers/staff-inference">Staff Machine Learning Engineer, Inference Systems</a>
+      <p>Lead inference serving, latency, throughput, cache, evaluation, and reliability work.</p>
+    </body></html>
+    """
+
+    signals = RoleMarketScout()._signals_from_text("https://openai.com/careers/search", html)
+
+    assert len(signals) == 1
+    assert signals[0].role_title == "Staff Machine Learning Engineer, Inference Systems"
+    assert signals[0].source_url == "https://openai.com/careers/staff-inference"
+
+
+def test_catalogue_editor_respects_prerequisites(monkeypatch, tmp_path):
+    _patch_memory(monkeypatch, tmp_path)
+    memory.ensure_dirs()
+    (tmp_path / "radar-data" / "catalogue_state.json").write_text(
+        json.dumps({"completed_lesson_ids": ["matmul-from-scalar-operations"]}),
+        encoding="utf-8",
+    )
+
+    lesson = CatalogueEditor().choose(RoleMarketReport(recurring_topics=["distributed-training"]))
+
+    assert lesson.id == "matrix-shapes-and-layout"
+    assert "distributed-training" in lesson.market_rationale
+
+
+def test_visual_component_sanitizer_rejects_unsafe_html():
+    component = ComponentSpec(
+        component_id="bad",
+        kind="callout",
+        title="Bad",
+        purpose="Should be rejected",
+        html='<div onclick="alert(1)"><script>alert(1)</script></div>',
+        evidence_ids=["E1"],
+    )
+
+    errors = validate_component(component, evidence_ids={"E1"})
+
+    assert "unsafe_component_html:bad" in errors
+
+
+def test_table_designer_rejects_numeric_claims_without_evidence():
+    table = TableSpec(
+        table_id="numeric",
+        title="Unsupported numbers",
+        purpose="Catch invented metrics",
+        headers=["Metric", "Value"],
+        rows=[["Latency", "20% faster"]],
+        evidence_ids=[],
+    )
+
+    errors = validate_table(table, evidence_ids={"E1"})
+
+    assert "table_numeric_claim_without_evidence:numeric" in errors
+
+
+def _patch_memory(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(memory, "ROOT", tmp_path)
     monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
     monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
@@ -24,475 +192,22 @@ def test_run_with_fixtures_and_fake_llm(monkeypatch, tmp_path):
     monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
     monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
     monkeypatch.setenv("BLOGPIPE_REPO_ROOT", str(tmp_path))
-    monkeypatch.setenv("BLOGPIPE_FAKE_SELECTOR_RESPONSE", selector)
-    monkeypatch.setenv("BLOGPIPE_FAKE_OUTLINE_RESPONSE", outline)
-    monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSE", fake)
-    code = main(
-        [
-            "run",
-            "--fixtures",
-            "tests/fixtures",
-            "--dry-run",
-            "--db",
-            str(tmp_path / "items.sqlite"),
-            "--max-deep-dives",
-            "0",
-        ]
-    )
-    assert code == 0
-    assert (tmp_path / "reports" / "run_report.json").is_file()
-    assert (tmp_path / "radar-data" / "daily").is_dir()
-    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
-    assert report["agent_plan"]["initial"]["daily_required"] is True
-    assert report["agent_plan"]["final"]["allowed_deep_dives"] == 0
+    monkeypatch.setenv("BLOGPIPE_ROLE_MARKET_LIVE", "0")
 
 
-def test_run_with_invalid_daily_recovers_to_emergency_preview(monkeypatch, tmp_path):
-    selector = Path("tests/fixtures/fake_selector.json").read_text()
-    outline = Path("tests/fixtures/fake_outline.json").read_text()
-    monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
-    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
-    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
-    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
-    monkeypatch.setenv("BLOGPIPE_REPO_ROOT", str(tmp_path))
-    monkeypatch.setenv("BLOGPIPE_FAKE_SELECTOR_RESPONSE", selector)
-    monkeypatch.setenv("BLOGPIPE_FAKE_OUTLINE_RESPONSE", outline)
-    monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSE", "No citations or source links.")
-    code = main(
-        [
-            "run",
-            "--fixtures",
-            "tests/fixtures",
-            "--db",
-            str(tmp_path / "items.sqlite"),
-            "--max-deep-dives",
-            "0",
-        ]
-    )
-    assert code == 0
-    assert not list((tmp_path / "reports").glob("*.blocked.json"))
-    posts = list((tmp_path / "content" / "post").glob("*.md"))
-    assert posts
-    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
-    assert report["daily"]["ok"] is True
-    assert report["daily"]["errors"] == []
+def _disable_live_llm(monkeypatch) -> None:
+    monkeypatch.setenv("BLOGPIPE_LLM_MAX_CALLS", "0")
+    monkeypatch.delenv("BLOGPIPE_LLM_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSE", raising=False)
+    monkeypatch.delenv("BLOGPIPE_FAKE_LLM_RESPONSES", raising=False)
 
 
-def test_run_with_training_fixtures_generates_howto_preview(monkeypatch, tmp_path):
-    items = _training_fixture_items()
+def _write_fixture_items(tmp_path: Path, items) -> Path:
     fixtures = tmp_path / "fixtures"
     fixtures.mkdir()
     (fixtures / "source_items.json").write_text(
         json.dumps({"items": [item.model_dump(mode="json") for item in items]}, indent=2),
         encoding="utf-8",
     )
-    selector = {
-        "selected_item_ids": [item.item_id for item in items],
-        "items": [
-            {
-                "item_id": item.item_id,
-                "role": "primary",
-                "relevance_label": "ml_engineering",
-                "scores": {
-                    "engineering_value": 0.95,
-                    "experiment_strength": 0.82,
-                    "engineering_actionability": 0.94,
-                    "training_howto_value": 0.96,
-                    "novelty": 0.7,
-                },
-                "reason": "Concrete scaled LLM training runbook evidence.",
-                "suggested_tags": ["llm-training", "mle"],
-            }
-            for item in items
-        ],
-        "suggested_tags": ["llm-training", "mle"],
-    }
-    outline = {
-        "title": "Research Radar: Scaled LLM training runbooks",
-        "angle": "Principal engineers need training-stack decisions, not generic production prose.",
-        "sections": [
-            {
-                "heading": "Training thesis",
-                "intent": "technical thesis angle framing",
-                "evidence_ids": ["E1", "E2", "E3"],
-                "word_budget": 80,
-            },
-            {
-                "heading": "FSDP sharding and parallelism runbook",
-                "intent": "mechanism method architecture distributed training sharding parallelism",
-                "evidence_ids": ["E1"],
-                "word_budget": 80,
-            },
-            {
-                "heading": "Objective and profiling metrics",
-                "intent": "math objective metric optimization throughput profiling",
-                "evidence_ids": ["E1", "E2"],
-                "word_budget": 80,
-            },
-            {
-                "heading": "Benchmarks and failure modes",
-                "intent": "experiments evidence benchmark evaluation limitation failure risk",
-                "evidence_ids": ["E2", "E3"],
-                "word_budget": 80,
-            },
-            {
-                "heading": "Principal rollout decision",
-                "intent": "cross-paper synthesis compare contrast tradeoff impact engineering production practical Autodesk AEC document validation release gate",
-                "evidence_ids": ["E1", "E2", "E3"],
-                "word_budget": 80,
-            },
-        ],
-        "suggested_tags": ["llm-training", "mle"],
-    }
-    fake_body = _training_fake_daily_body()
-    monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
-    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
-    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
-    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
-    monkeypatch.setenv("BLOGPIPE_REPO_ROOT", str(tmp_path))
-    monkeypatch.setenv("BLOGPIPE_DAILY_MIN_WORDS", "300")
-    monkeypatch.setenv("BLOGPIPE_FAKE_SELECTOR_RESPONSE", json.dumps(selector))
-    monkeypatch.setenv("BLOGPIPE_FAKE_OUTLINE_RESPONSE", json.dumps(outline))
-    monkeypatch.setenv("BLOGPIPE_FAKE_LLM_RESPONSE", fake_body)
-
-    code = main(
-        [
-            "run",
-            "--fixtures",
-            str(fixtures),
-            "--dry-run",
-            "--db",
-            str(tmp_path / "items.sqlite"),
-            "--max-deep-dives",
-            "0",
-        ]
-    )
-
-    assert code == 0
-    previews = list((tmp_path / "reports").glob("*.preview.md"))
-    assert len(previews) == 1
-    rendered = previews[0].read_text(encoding="utf-8")
-    assert '"llm-training"' in rendered
-    assert "FSDP sharding" in rendered
-    assert "tensor parallelism" in rendered
-    assert "NCCL all-reduce" in rendered
-    assert "checkpoint recovery" in rendered
-    assert "release gate" in rendered
-    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
-    assert report["daily"]["ok"] is True
-    assert report["deep_dives"] == []
-
-
-def test_write_daily_blocks_before_llm_when_ranked_papers_are_insufficient(monkeypatch, tmp_path):
-    class FailIfCalledLLM:
-        class Usage:
-            __dict__ = {"calls": 0}
-
-        usage = Usage()
-
-        def complete(self, **kwargs):
-            raise AssertionError("LLM should not run when there are not enough ranked papers")
-
-    monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
-    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
-    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
-    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
-
-    result = write_daily(ranked=[], llm=FailIfCalledLLM(), dry_run=True)
-    assert not result.ok
-    assert result.errors == ["insufficient_ranked_items:0/3"]
-    assert list((tmp_path / "reports").glob("*.blocked.json"))
-
-
-def test_write_daily_accepts_nonpaper_engineering_evidence(monkeypatch, tmp_path):
-    now = datetime.now(timezone.utc)
-    items = [
-        SourceItem(
-            item_id=f"eng-blog-{idx}",
-            canonical_url=f"https://example.com/eng-blog-{idx}",
-            source_kind="blog",
-            source_name="engineering",
-            source_tier=1,
-            title=f"AEC foundation model training bottleneck memo {idx}",
-            published_at=now,
-            abstract_or_excerpt=(
-                "This engineering memo describes a concrete AEC foundation model problem: distributed training "
-                "throughput, FSDP sharding, activation checkpointing, NCCL communication, GPU utilization, "
-                "data pipeline stalls, checkpoint recovery, benchmark design, root cause diagnosis, and release gates."
-            ),
-            tags=["aec", "foundation-models", "distributed training"],
-        )
-        for idx in range(3)
-    ]
-    selector = {
-        "selected_item_ids": [item.item_id for item in items],
-        "items": [{"item_id": item.item_id, "role": "primary", "suggested_tags": ["aec", "llm-training"]} for item in items],
-        "suggested_tags": ["aec", "llm-training"],
-    }
-    outline = {
-        "title": "Research Radar: AEC foundation-model training bottlenecks",
-        "angle": "The problem is scaling training and data loops before model quality work can be trusted.",
-        "sections": [
-            {"heading": "The AEC foundation-model problem to solve", "intent": "technical thesis angle framing Autodesk AEC document relevance", "evidence_ids": ["E1"], "word_budget": 260},
-            {"heading": "FSDP sharding and checkpointing decision", "intent": "mechanism method architecture distributed training sharding activation checkpointing", "evidence_ids": ["E1"], "word_budget": 260},
-            {"heading": "NCCL and data-pipeline bottleneck diagnosis", "intent": "math objective metric optimization throughput profiling data pipeline communication nccl", "evidence_ids": ["E2"], "word_budget": 260},
-            {"heading": "Benchmarks and failure modes", "intent": "experiments evidence benchmark evaluation ablation limitation caveat failure risk", "evidence_ids": ["E2"], "word_budget": 260},
-            {"heading": "Autodesk AEC adoption gate", "intent": "cross-paper synthesis compare contrast tradeoff impact engineering production practical Autodesk AEC document release gate", "evidence_ids": ["E3"], "word_budget": 260},
-        ],
-        "suggested_tags": ["aec", "llm-training"],
-    }
-
-    class FakeLLM:
-        class Usage:
-            __dict__ = {"calls": 0}
-
-        usage = Usage()
-
-        def __init__(self):
-            self.calls = 0
-
-        def complete(self, **kwargs):
-            self.calls += 1
-            if self.calls == 1:
-                return json.dumps(selector)
-            if self.calls == 2:
-                return json.dumps(outline)
-            return "No citations or source links."
-
-    monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
-    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
-    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
-    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
-
-    result = write_daily(ranked=rank_items(items, now=now, max_age_hours=72), llm=FakeLLM(), dry_run=True)
-    assert result.ok, result.errors
-    assert "insufficient_ranked_papers" not in ",".join(result.errors)
-    assert "AEC foundation-model problem" in result.body
-
-
-def test_daily_rank_fallback_recovers_recent_store_papers(tmp_path):
-    db = tmp_path / "items.sqlite"
-    now = datetime.now(timezone.utc)
-    items = [_recent_paper(idx, now=now) for idx in range(3)]
-    with store.connect(db) as conn:
-        store.upsert_items(conn, items)
-
-    ranked = _augment_ranked_with_store_papers(
-        [],
-        required_papers=3,
-        db=str(db),
-        max_age_hours=72,
-    )
-
-    assert sum(1 for item in ranked if item.item.source_kind == "paper") >= 3
-
-
-def test_daily_rank_fallback_avoids_duplicate_recent_papers(tmp_path):
-    db = tmp_path / "items.sqlite"
-    now = datetime.now(timezone.utc)
-    items = [_recent_paper(idx, now=now) for idx in range(3)]
-    with store.connect(db) as conn:
-        store.upsert_items(conn, items)
-
-    already_ranked = rank_items([items[0]], now=now, max_age_hours=72)
-    ranked = _augment_ranked_with_store_papers(
-        already_ranked,
-        required_papers=3,
-        db=str(db),
-        max_age_hours=72,
-    )
-    item_ids = [item.item.item_id for item in ranked]
-
-    assert sum(1 for item in ranked if item.item.source_kind == "paper") >= 3
-    assert len(item_ids) == len(set(item_ids))
-
-
-def test_write_daily_blocks_instead_of_crashing_when_writer_runtime_expires(monkeypatch, tmp_path):
-    now = datetime.now(timezone.utc)
-    ranked = rank_items([_recent_paper(idx, now=now) for idx in range(3)], now=now, max_age_hours=72)
-
-    class FakeLLM:
-        class Usage:
-            __dict__ = {"calls": 0}
-
-        usage = Usage()
-
-    monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
-    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
-    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
-    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
-    monkeypatch.setattr(
-        "blogpipe.pipeline.selector.select_daily_items",
-        lambda ranked, llm: (
-            ranked,
-            SelectionResult(selected_item_ids=[item.item.item_id for item in ranked]),
-        ),
-    )
-    monkeypatch.setattr(
-        "blogpipe.pipeline.outline_mod.generate_daily_outline",
-        lambda pack, selection, llm: DailyOutline(title="Research Radar: Test", angle="budget guard", sections=[]),
-    )
-    monkeypatch.setattr(
-        "blogpipe.pipeline.writer.write_daily",
-        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached")),
-    )
-
-    result = write_daily(ranked=ranked, llm=FakeLLM(), dry_run=True)
-
-    assert not result.ok
-    assert result.errors == ["daily_writer_failed:BLOGPIPE_LLM_MAX_RUNTIME_SECONDS reached"]
-    assert list((tmp_path / "reports").glob("*.blocked.json"))
-
-
-def test_run_all_keeps_daily_when_optional_deep_dive_exhausts_models(monkeypatch, tmp_path):
-    now = datetime.now(timezone.utc)
-    ranked = rank_items([_recent_paper(idx, now=now) for idx in range(3)], now=now, max_age_hours=72)
-    ranked[0].deep_dive_score = 0.99
-
-    monkeypatch.setattr(memory, "ROOT", tmp_path)
-    monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
-    monkeypatch.setattr(memory, "DAILY_DATA", tmp_path / "radar-data" / "daily")
-    monkeypatch.setattr(memory, "REPORTS", tmp_path / "reports")
-    monkeypatch.setattr(memory, "CONTENT_POST", tmp_path / "content" / "post")
-    monkeypatch.setattr(memory, "STATIC_POSTS", tmp_path / "static" / "img" / "posts")
-    monkeypatch.setattr("blogpipe.pipeline.ingest.run", lambda **kwargs: len(ranked))
-    monkeypatch.setattr("blogpipe.pipeline.rank.run", lambda **kwargs: ranked)
-    monkeypatch.setattr(
-        "blogpipe.pipeline.write_daily",
-        lambda **kwargs: WriteResult(ok=True, title="Daily OK", body="# Daily OK\n\nNo generated image."),
-    )
-    monkeypatch.setattr(
-        "blogpipe.pipeline.writer.write_deep_dive",
-        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("LLM completion failed for task=draft; last_error=retriable_status:429")),
-    )
-
-    result = run_all(dry_run=True, max_deep_dives=1)
-
-    assert result["daily"]["ok"] is True
-    assert result["deep_dives"][0]["ok"] is False
-    assert "optional_deep_dive_failed:RuntimeError" in result["deep_dives"][0]["errors"][0]
-    report = json.loads((tmp_path / "reports" / "run_report.json").read_text(encoding="utf-8"))
-    assert report["daily"]["ok"] is True
-    assert report["deep_dives"][0]["ok"] is False
-
-
-def test_agent_run_plan_skips_optional_deep_dives_when_runtime_budget_is_low(monkeypatch):
-    monkeypatch.setenv("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", "1200")
-    monkeypatch.setenv("BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS", "420")
-    llm = LLMClient()
-    monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 1000.0)
-
-    plan = _plan_agent_run(llm, requested_deep_dives=1)
-
-    assert plan.daily_required is True
-    assert plan.requested_deep_dives == 1
-    assert plan.allowed_deep_dives == 0
-    assert plan.rationale == "skip_optional_deep_dives_to_preserve_github_actions_budget"
-
-
-def test_agent_run_plan_allows_deep_dives_when_runtime_budget_remains(monkeypatch):
-    monkeypatch.setenv("BLOGPIPE_LLM_MAX_RUNTIME_SECONDS", "1200")
-    monkeypatch.setenv("BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS", "420")
-    llm = LLMClient()
-    monkeypatch.setattr("blogpipe.llm.time.monotonic", lambda: llm.started_at + 100.0)
-
-    plan = _plan_agent_run(llm, requested_deep_dives=2)
-
-    assert plan.allowed_deep_dives == 2
-    assert plan.rationale == "runtime_budget_allows_optional_deep_dives"
-
-
-def _recent_paper(idx: int, *, now: datetime) -> SourceItem:
-    return SourceItem(
-        canonical_url=f"https://arxiv.org/abs/2605.10{idx:03d}",
-        source_kind="paper",
-        source_name="arxiv",
-        source_tier=1,
-        title=f"Benchmarking CAD deployment paper {idx}",
-        published_at=now,
-        abstract_or_excerpt=(
-            "We propose a language model benchmark with objective design, implementation detail, "
-            "failure mode analysis, latency measurements, deployment constraints, and ablation evidence "
-            "for CAD and document intelligence workflows."
-        ),
-        extra={"search_profile": "fallback_test"},
-    )
-
-
-def _training_fixture_items() -> list[SourceItem]:
-    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
-    return [
-        SourceItem(
-            item_id="train-fsdp",
-            canonical_url="https://example.com/train-fsdp",
-            source_kind="paper",
-            source_name="arxiv",
-            source_tier=1,
-            title="FSDP sharding runbooks for scaled LLM training",
-            published_at=now,
-            abstract_or_excerpt=(
-                "We propose a distributed training method using FSDP sharding, tensor parallelism, activation checkpointing, "
-                "microbatch scheduling, and optimizer state partitioning to improve scaled LLM training throughput under memory pressure."
-            ),
-            tags=["distributed training", "fsdp", "tensor parallel"],
-        ),
-        SourceItem(
-            item_id="train-nccl",
-            canonical_url="https://example.com/train-nccl",
-            source_kind="paper",
-            source_name="arxiv",
-            source_tier=1,
-            title="NCCL profiling for LLM training communication bottlenecks",
-            published_at=now,
-            abstract_or_excerpt=(
-                "The evaluation reports benchmark ablations for NCCL all-reduce communication, GPU utilization, data pipeline throughput, "
-                "checkpoint recovery, profiling, and scaling efficiency in large-scale training."
-            ),
-            tags=["distributed training", "nccl", "profiling"],
-        ),
-        SourceItem(
-            item_id="train-data",
-            canonical_url="https://example.com/train-data",
-            source_kind="paper",
-            source_name="arxiv",
-            source_tier=1,
-            title="Data pipeline and checkpoint recovery for reliable LLM pretraining",
-            published_at=now,
-            abstract_or_excerpt=(
-                "The limitation is that data loader stalls, workload balance, checkpoint cadence, and restart behavior create failure modes "
-                "that a principal engineer must validate before a production training rollout."
-            ),
-            tags=["distributed training", "data pipeline", "checkpointing"],
-        ),
-    ]
-
-
-def _training_fake_daily_body() -> str:
-    return """
-# Research Radar: Scaled LLM training runbooks
-
-## Training thesis
-The thesis is that scaled LLM training papers should be read as runbooks for resource allocation, not as generic model-quality updates. Across the three papers, the common pattern is a compare-and-tradeoff loop: sharding, communication, and data-pipeline choices must be evaluated together before the next training run. The evidence frames the problem as training throughput under memory and communication pressure, so the practical question is what stack decision a principal engineer would change. The mechanism, objective, benchmark, limitation, impact, and Autodesk/AEC transfer lens all point to the same claim: training reliability depends on making the parallelism and recovery plan explicit [E1] [E2] [E3]. Sources: https://example.com/train-fsdp https://example.com/train-nccl https://example.com/train-data
-
-## FSDP sharding and parallelism runbook
-The concrete training stack starts with FSDP sharding for optimizer state and parameter state, then uses tensor parallelism where a single layer no longer fits cleanly on one device. Activation checkpointing trades recomputation for memory headroom, while microbatch scheduling controls how much work each device sees before synchronization. That is the how-to decision path: choose the sharding boundary, decide whether tensor parallelism is needed, then check whether activation memory or communication is the current bottleneck [E1]. Source: https://example.com/train-fsdp
-
-## Objective and profiling metrics
-The objective should be treated as an operational optimization problem rather than a single model score. A principal MLE would measure throughput, GPU utilization, data pipeline stalls, NCCL all-reduce time, checkpoint cadence, and recovery time after interruption. Those metrics decide whether to tune microbatch size, revise token packing, move data loading work, or change checkpoint frequency. The evidence supports this profiling view because it names benchmark ablations around utilization, recovery, and scaling efficiency [E1] [E2]. Sources: https://example.com/train-fsdp https://example.com/train-nccl
-
-## Benchmarks and failure modes
-The benchmark section should become a validation matrix. Test one run where memory pressure is dominant, one where all-reduce communication dominates, one where the data pipeline starves accelerators, and one restart path that exercises checkpoint recovery. The root cause to isolate is whether workload balance, checkpoint cadence, or input starvation is turning a nominally efficient setup into a fragile production run. The failure mode to watch is not just lower throughput; it is a training job that cannot resume cleanly or wastes expensive GPU time while waiting on input data [E2] [E3]. Sources: https://example.com/train-nccl https://example.com/train-data
-
-## Principal rollout decision
-The rollout decision is to treat this stack as a staged adoption, not a default architecture. First profile a representative training slice, then benchmark FSDP-only against FSDP plus tensor parallelism, then validate checkpoint recovery and data loader pressure before scaling. For Autodesk or AEC document-model work, the transfer is an open hypothesis: better training infrastructure can shorten iteration loops for document models, but only if the same release gate tracks utilization, cost, restart behavior, and quality regression risk [E1] [E2] [E3]. Sources: https://example.com/train-fsdp https://example.com/train-nccl https://example.com/train-data
-"""
+    return fixtures

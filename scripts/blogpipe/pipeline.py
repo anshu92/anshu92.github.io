@@ -7,9 +7,9 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from . import assets, config, evidence, ingest, memory, outline as outline_mod, rank, score, selector, store, writer
+from . import assets, config, curriculum, evidence, ingest, memory, outline as outline_mod, rank, score, store, writer
 from .llm import LLMClient
-from .models import RankedItem, WriteResult
+from .models import CurriculumPlan, RankedItem, ResearchPlan, WriteResult
 
 LOG = logging.getLogger(__name__)
 RANKED = TypeAdapter(list[RankedItem])
@@ -33,6 +33,8 @@ def run_all(
     db: str = "",
     max_deep_dives: int = 1,
 ) -> dict[str, object]:
+    curriculum_plan = curriculum.choose_next_problem()
+    research_plan = curriculum.build_research_plan(curriculum_plan)
     ingest_count = ingest.run(window_hours=window_hours, fixtures=fixtures, db=db)
     ranked = rank.run(db=db, max_age_hours=None if fixtures else window_hours)
     client = LLMClient()
@@ -43,6 +45,8 @@ def run_all(
         llm=client,
         db=db,
         fallback_max_age_hours=None if fixtures else window_hours,
+        curriculum_plan=curriculum_plan,
+        research_plan=research_plan,
     )
     if daily.ok:
         final_plan = _plan_agent_run(client, requested_deep_dives=max_deep_dives)
@@ -105,9 +109,13 @@ def write_daily(
     llm: LLMClient | None = None,
     db: str = "",
     fallback_max_age_hours: int | None = 14 * 24,
+    curriculum_plan: CurriculumPlan | None = None,
+    research_plan: ResearchPlan | None = None,
 ) -> WriteResult:
     ranked = load_ranked() if ranked is None else ranked
     client = llm or LLMClient()
+    curriculum_plan = curriculum_plan or curriculum.choose_next_problem()
+    research_plan = research_plan or curriculum.build_research_plan(curriculum_plan)
     required_items = min(3, config.daily_primary_papers())
     ranked = _augment_ranked_with_store_papers(
         ranked,
@@ -115,17 +123,31 @@ def write_daily(
         db=db,
         max_age_hours=fallback_max_age_hours,
     )
+    try:
+        curation = curriculum.curate_evidence(ranked, curriculum_plan)
+        shortlist, selection = curriculum.apply_curation(ranked, curation)
+        research_packet = curriculum.research_packet(
+            plan=curriculum_plan,
+            research_plan=research_plan,
+            curation=curation,
+            ranked=ranked,
+        )
+        tree_proposals = curriculum.propose_tree_growth(curriculum_plan, curation)
+        _write_curriculum_reports(curriculum_plan, research_plan, curation, research_packet, tree_proposals)
+    except ValueError as exc:
+        result = _blocked_daily([str(exc)])
+        _write_daily_reports(result, client)
+        return result
     if len(ranked) < required_items:
         result = _blocked_daily([f"insufficient_ranked_items:{len(ranked)}/{required_items}"])
         _write_daily_reports(result, client)
         return result
-    try:
-        shortlist, selection = selector.select_daily_items(ranked, llm=client)
-    except selector.SelectionError as exc:
-        result = _blocked_daily([str(exc)])
+    if not curation.sufficient or not shortlist:
+        details = ",".join(curation.gaps[:4]) or "no_matching_evidence"
+        result = _blocked_daily([f"insufficient_problem_evidence:{curriculum_plan.node.id}:{details}"])
         _write_daily_reports(result, client)
         return result
-    pack = evidence.build_daily_pack(shortlist)
+    pack = evidence.build_daily_pack(shortlist, curriculum_plan=curriculum_plan)
     try:
         daily_outline = outline_mod.generate_daily_outline(pack, selection=selection, llm=client)
     except outline_mod.OutlineError as exc:
@@ -151,8 +173,53 @@ def write_daily(
         json.dumps({"items": [r.model_dump(mode="json") for r in shortlist]}, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
+    (memory.REPORTS / "curriculum_plan.json").write_text(
+        curriculum_plan.model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+    if not dry_run:
+        curriculum.record_completion(curriculum_plan, result)
     _write_daily_reports(result, client)
     return result
+
+
+def _write_curriculum_reports(
+    curriculum_plan: CurriculumPlan,
+    research_plan: ResearchPlan,
+    curation: object,
+    research_packet: dict[str, object],
+    tree_proposals: dict[str, object],
+) -> None:
+    memory.ensure_dirs()
+    (memory.REPORTS / "curriculum_plan.json").write_text(
+        curriculum_plan.model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+    (memory.REPORTS / "curriculum_run_plan.json").write_text(
+        json.dumps(
+            {
+                "tree_version": curriculum_plan.tree_version,
+                "selected_by": curriculum_plan.selected_by,
+                "node": curriculum_plan.node.model_dump(mode="json"),
+                "research_plan": research_plan.model_dump(mode="json"),
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (memory.REPORTS / "research_packet.json").write_text(
+        json.dumps(research_packet, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    (memory.REPORTS / "evidence_curation.json").write_text(
+        curation.model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+    (memory.REPORTS / "curriculum_tree_proposals.json").write_text(
+        json.dumps(tree_proposals, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
 
 def _augment_ranked_with_store_papers(

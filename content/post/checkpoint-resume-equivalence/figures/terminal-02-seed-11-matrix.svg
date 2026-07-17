@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="420" viewBox="0 0 1120 420" role="img" aria-labelledby="title desc">
+<title id="title">Running all seven interventions for seed 11</title>
+<desc id="desc">Actual terminal transcript showing exact resume status, first divergent optimizer step, final parameter error, next-batch match, and learning-rate error for seven checkpoint scenarios.</desc>
+<rect width="1120" height="420" rx="18" fill="#0D1117"/>
+<rect x="1" y="1" width="1118" height="418" rx="18" fill="none" stroke="#30363D" stroke-width="2"/>
+<rect x="1" y="1" width="1118" height="58" rx="18" fill="#161B22"/>
+<rect x="1" y="42" width="1118" height="17" fill="#161B22"/>
+<circle cx="28" cy="29" r="7" fill="#FF5F56"/>
+<circle cx="52" cy="29" r="7" fill="#FFBD2E"/>
+<circle cx="76" cy="29" r="7" fill="#27C93F"/>
+<text x="560.0" y="36" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="16" font-weight="600" fill="#C9D1D9">Running all seven interventions for seed 11</text>
+<text x="36" y="96" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#7EE787">$ python code/checkpoint_equivalence.py matrix --seed 11</text>
+<text x="36" y="124" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">seed=11</text>
+<text x="36" y="152" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">scenario                    exact  first  next_batch  lr_error   max_param_error</text>
+<text x="36" y="180" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">full_boundary               yes       --        same  0.000e+00  0.000e+00</text>
+<text x="36" y="208" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">model_optimizer_only        no         6        DIFF  4.410e-03  6.397e-02</text>
+<text x="36" y="236" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">omit_rng                    no         6        same  0.000e+00  7.114e-02</text>
+<text x="36" y="264" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">omit_stream                 no         6        DIFF  0.000e+00  6.570e-02</text>
+<text x="36" y="292" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">omit_scheduler              no         9        same  4.410e-03  6.065e-03</text>
+<text x="36" y="320" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">full_mid_accumulation       yes       --        same  0.000e+00  0.000e+00</text>
+<text x="36" y="348" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">mid_without_gradients       no         6        same  0.000e+00  1.792e-02</text>
+</svg>

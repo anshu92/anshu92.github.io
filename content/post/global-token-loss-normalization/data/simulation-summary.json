@@ -1,0 +1,5 @@
+{
+  "runs": 100,
+  "mean_absolute_error": 0.1812494378424041,
+  "max_absolute_error": 0.6139573690532876
+}

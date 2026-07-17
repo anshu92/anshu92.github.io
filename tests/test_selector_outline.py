@@ -9,8 +9,9 @@ from pydantic import TypeAdapter
 
 from blogpipe.evidence import build_daily_pack
 from blogpipe.llm import LLMClient
+from blogpipe import curriculum
 from blogpipe.models import DailyOutline, EvidencePack, RankedItem, SelectionResult, SourceItem, TopicScores
-from blogpipe.outline import OutlineError, _outline_close_enough_for_repair, generate_daily_outline, validate_outline
+from blogpipe.outline import OutlineError, _outline_close_enough_for_repair, _outline_user, generate_daily_outline, validate_outline
 from blogpipe.selector import SelectionError, _selector_system, _selector_user, select_daily_items
 from blogpipe.writer import _frontmatter
 
@@ -145,6 +146,18 @@ def test_selector_prompt_prioritizes_scaled_training_howto():
     assert "AEC foundation-model decision" in user
 
 
+def test_selector_prompt_includes_curriculum_target():
+    ranked = [
+        _ranked_item("eval", text="Reproducible evaluation benchmark objective metric ablation dataset"),
+    ]
+    plan = curriculum.choose_next_problem()
+    user = _selector_user(ranked, curriculum_plan=plan)
+    assert "CURRICULUM_TARGET" in user
+    assert plan.node.node_id in user
+    assert "curriculum_fit" in user
+    assert "problem_statement" in user
+
+
 def test_selector_malformed_json_blocks_publication():
     with pytest.raises(SelectionError):
         select_daily_items(_fixture_ranked(), llm=FakeLLM("not json"))
@@ -269,6 +282,16 @@ def test_outline_accepts_generated_headings_and_required_intents():
     pack = build_daily_pack(ranked[:5])
     outline = DailyOutline.model_validate_json(Path("tests/fixtures/fake_outline.json").read_text())
     assert validate_outline(outline, pack) == []
+
+
+def test_outline_prompt_includes_curriculum_target():
+    ranked = [_ranked_item("eval", text="Reproducible evaluation benchmark objective metric ablation dataset")]
+    plan = curriculum.choose_next_problem()
+    pack = build_daily_pack(ranked, curriculum_plan=plan)
+    selection = SelectionResult(selected_item_ids=["eval"])
+    user = _outline_user(pack, selection)
+    assert "CURRICULUM_TARGET" in user
+    assert plan.node.problem_statement in user
 
 
 def test_outline_missing_required_intent_fails():
@@ -448,7 +471,7 @@ def test_frontmatter_tags_are_dynamic():
         selection=None,
         body="language model serving latency monitoring",
     )
-    assert 'tags: ["research-radar", "llm", "mle"]' in frontmatter
+    assert 'tags: ["machine-learning", "technical-explainer", "llm", "mle"]' in frontmatter
     assert '"aec"' not in frontmatter
 
 
@@ -482,7 +505,7 @@ def test_frontmatter_tags_ignore_metadata_without_body_support():
     outline = DailyOutline(title="Metadata-only tag drift", suggested_tags=["aec", "bim", "cad", "foundation-models"])
     selection = SelectionResult(suggested_tags=["aec", "bim", "cad", "foundation-models"])
     frontmatter = _frontmatter("Metadata-only tag drift", "daily", pack, outline=outline, selection=selection, body="Latency and monitoring matter for deployment.")
-    assert 'tags: ["research-radar", "mle"]' in frontmatter
+    assert 'tags: ["machine-learning", "technical-explainer", "mle"]' in frontmatter
     assert '"aec"' not in frontmatter
     assert '"bim"' not in frontmatter
     assert '"cad"' not in frontmatter
@@ -506,7 +529,7 @@ def test_frontmatter_specialized_tags_require_body_support():
     assert '"multimodal"' in frontmatter
 
 
-def test_non_openrouter_endpoint_can_fall_back_to_openrouter(monkeypatch):
+def test_non_openrouter_endpoint_uses_only_explicit_openrouter_models(monkeypatch):
     monkeypatch.setenv("BLOGPIPE_LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")
     monkeypatch.setenv("BLOGPIPE_LLM_API_KEY", "gemini-key")
     monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
@@ -519,7 +542,7 @@ def test_non_openrouter_endpoint_can_fall_back_to_openrouter(monkeypatch):
     client = LLMClient()
     chain = client._model_chain("outline")
     assert chain[:3] == ["gemini-3.5-flash", "gemini-3.1-flash-lite", "openrouter/free"]
-    assert "qwen/qwen3-next-80b-a3b-instruct:free" in chain
+    assert "qwen/qwen3-next-80b-a3b-instruct:free" not in chain
     assert client._endpoint_for_model("gemini-3.5-flash") == (
         "https://generativelanguage.googleapis.com/v1beta/openai",
         "gemini-key",

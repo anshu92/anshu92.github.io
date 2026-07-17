@@ -1,318 +1,107 @@
-# Blogpipe Research Radar
+# Blogpipe Agent Swarm
 
-Blogpipe is now a metadata-first research radar for Synaptic Radio. It ingests
-papers and first-party engineering blogs, stores normalized records in SQLite +
-FTS5, ranks them deterministically, builds compact evidence packs, and asks a
-single OpenAI-compatible LLM pipeline to produce evidence-grounded Hugo posts.
-Generated posts are evidence-grounded engineering memos for a Principal Machine
-Learning Engineer in AEC at Autodesk building foundation models for drawings,
-documents, BIM/CAD context, and construction workflows. Daily posts prioritize a
-specific problem to solve over recency or paper coverage: scaling a training
-pipeline, diagnosing a data/evaluation bottleneck, improving grounding, or
-deciding whether a method is ready for prototype. Papers and engineering posts
-are supporting evidence, not necessarily the subject of the article.
+Blogpipe is a technical ML blog generation pipeline for Synaptic Radio. The
+current generation path is a controlled agent swarm: it picks the next
+foundations-first lesson, curates evidence, writes the technical explanation,
+adds implementation detail, plans visuals/tables/components, reviews the result,
+and writes a review-gated Hugo draft.
 
-## Commands
+The public generation command is:
 
 ```bash
-python -m blogpipe ingest --window 14d
-python -m blogpipe rank
-python -m blogpipe write-daily
-python -m blogpipe write-deep-dives --max-new 1
-python -m blogpipe render-assets
-python -m blogpipe run
+python -m blogpipe swarm run
 ```
 
-## Publishing flow
-
-The scheduled `Research radar` workflow does not publish directly. It generates
-Hugo posts with `draft: true`, pushes them to a `radar/draft-*` branch, opens a
-pull request, and emails the PR link for review.
-
-If validation blocks the draft, the workflow does not publish or open a review
-PR. Instead it writes a blocked report under `reports/` and sends a failure
-email with the workflow run link and validator summary so the run does not fail
-silently.
-
-If live source harvesting is temporarily throttled, the daily writer can reuse
-recent paper records already present in the SQLite store to satisfy the minimum
-paper pool before selector/outliner work begins. The fallback stays inside the
-same recency window and still blocks when the store cannot supply enough current
-papers.
-
-If repository settings block GitHub Actions from creating pull requests, the
-workflow still pushes the branch and emails a GitHub PR creation URL. To restore
-fully automatic PR creation, enable "Allow GitHub Actions to create and approve
-pull requests" in the repository Actions settings or add a `PR_CREATION_TOKEN`
-secret with pull request write access.
-
-Merge the generated PR to approve publication. The
-`Publish approved research radar` workflow then flips changed draft posts to
-`draft: false`, commits that publish change to `main`, builds Hugo, and deploys
-GitHub Pages.
-
-For local fixture checks:
+Fixture check:
 
 ```bash
-PYTHONPATH=scripts \
-BLOGPIPE_FAKE_SELECTOR_RESPONSE="$(cat tests/fixtures/fake_selector.json)" \
-BLOGPIPE_FAKE_OUTLINE_RESPONSE="$(cat tests/fixtures/fake_outline.json)" \
-BLOGPIPE_FAKE_LLM_RESPONSE="$(cat tests/fixtures/fake_daily.md)" \
-  python -m blogpipe run --fixtures tests/fixtures --dry-run
+PYTHONPATH=scripts python -m blogpipe swarm run --fixtures tests/fixtures --dry-run
 ```
 
-## LLM Configuration
+## Agent Flow
 
-The writer uses one OpenAI-compatible endpoint:
+The orchestrator owns state transitions. Agents do not call each other directly;
+each one receives validated artifacts and returns a typed report.
 
-- `BLOGPIPE_LLM_BASE_URL`
-- `BLOGPIPE_LLM_API_KEY`
-- `BLOGPIPE_LLM_MODEL`
-- `OPENROUTER_API_KEY` and optional `OPENROUTER_BASE` for cross-provider
-  fallback when an OpenRouter model such as `openrouter/free` appears in a
-  failover chain.
-- `BLOGPIPE_OPENROUTER_FREE_MODELS`, a comma-separated override for the
-  OpenRouter free-model fallback roster. When unset in the scheduled workflow,
-  blogpipe dynamically retrieves `GET /api/v1/models` from OpenRouter, filters
-  free text-output models, ranks them by available benchmark/performance
-  metadata, context length, structured-output/tool support, and recency, then
-  falls back to the static roster if discovery fails.
-- `BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODELS` (workflow default `1`; local default
-  `0`): enable dynamic OpenRouter free-model discovery.
-- `BLOGPIPE_OPENROUTER_DYNAMIC_FREE_MODEL_LIMIT` (workflow default `16`): maximum
-  dynamically ranked free models to keep before the `openrouter/free` router.
-- `BLOGPIPE_OPENROUTER_MODELS_TIMEOUT_SECONDS` (workflow default `5`): timeout
-  for the OpenRouter model-list request.
-- When the primary endpoint is Gemini (`generativelanguage.googleapis.com`),
-  set `BLOGPIPE_LLM_MODEL_FAST` / `BLOGPIPE_LLM_MODEL_SMART` and per-task
-  chains to current models. As of June 2026 the recommended roster is:
-  fast tasks → `gemini-3.5-flash`, chain
-  `gemini-3.5-flash,gemini-3.1-flash-lite,gemini-2.5-flash`; smart tasks →
-  `gemini-3.1-pro-preview`, chain
-  `gemini-3.1-pro-preview,gemini-3.5-flash,gemini-2.5-pro`. Do not use
-  `gemini-2.0-flash*` (shut down 2026-06-01). `gemini-2.5-*` remain until
-  2026-10-16. Constants live in `config.DEFAULT_GEMINI_*`.
-- optional per-step model overrides:
-  - `BLOGPIPE_LLM_MODEL_SELECTOR`
-  - `BLOGPIPE_LLM_MODEL_OUTLINE`
-  - `BLOGPIPE_LLM_MODEL_OUTLINE_REPAIR`
-  - `BLOGPIPE_LLM_MODEL_DRAFT`
-  - `BLOGPIPE_LLM_MODEL_DRAFT_SECTION`
-  - `BLOGPIPE_LLM_MODEL_EDITOR`
-  - `BLOGPIPE_LLM_MODEL_QUALITY_REVIEW`
-  - `BLOGPIPE_LLM_MODEL_REPAIR`
-  - workflow convenience knobs: `BLOGPIPE_LLM_MODEL_FAST` and `BLOGPIPE_LLM_MODEL_SMART`
-- optional failover chains (comma-separated):
-  - `BLOGPIPE_LLM_CHAIN` (global)
-  - `BLOGPIPE_LLM_CHAIN_SELECTOR`
-  - `BLOGPIPE_LLM_CHAIN_OUTLINE`
-  - `BLOGPIPE_LLM_CHAIN_OUTLINE_REPAIR`
-  - `BLOGPIPE_LLM_CHAIN_DRAFT`
-  - `BLOGPIPE_LLM_CHAIN_DRAFT_SECTION`
-  - `BLOGPIPE_LLM_CHAIN_EDITOR`
-  - `BLOGPIPE_LLM_CHAIN_QUALITY_REVIEW`
-  - `BLOGPIPE_LLM_CHAIN_REPAIR`
-- `BLOGPIPE_LLM_MAX_CALLS`
-- `BLOGPIPE_LLM_MAX_TOKENS`
-- `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS` (workflow default `1500`; the GitHub
-  Actions job is capped at 30 minutes, leaving budget for setup, PR creation,
-  email, and cleanup)
-- `BLOGPIPE_LLM_RETRY_ATTEMPTS` (workflow default `2`): per-model HTTP attempts
-  before moving to the next model. Keep this low for free-tier budgets.
-- `BLOGPIPE_LLM_FAST_TIMEOUT_SECONDS` (workflow default `45`)
-- `BLOGPIPE_LLM_SMART_TIMEOUT_SECONDS` (workflow default `90`)
-- `BLOGPIPE_SECTIONWISE_DRAFTING` (default `0`; opt in only when a longer,
-  higher-call run is acceptable)
-- `BLOGPIPE_DAILY_MIN_WORDS` (default `1200`)
-- `BLOGPIPE_DAILY_PRIMARY_PAPERS` (default `4`)
-- `BLOGPIPE_DAILY_SUPPORTING_ITEMS` (default `2`)
-- `BLOGPIPE_MIN_SIGNAL_SCORE` (default `0.75`)
-- `BLOGPIPE_GENERIC_PHRASE_MAX_DENSITY` (default `0.015`)
-- `BLOGPIPE_MIN_PAPERS` (default `4`)
-- `BLOGPIPE_MAX_BLOGS` (default `2`)
-- `BLOGPIPE_PROFILE_RESULTS` (default `40`)
-- `BLOGPIPE_SELECTOR_CANDIDATES` (default `24`)
-- `BLOGPIPE_SELECTOR_MAX_TOKENS` (default `3200`)
-- `BLOGPIPE_OUTLINE_MAX_TOKENS` (default `3200`)
-- `BLOGPIPE_OPENREVIEW_VENUES` (comma-separated venue override)
+1. `RoleMarketScout` surveys Staff/Principal+ AI engineering roles and extracts
+   recurring technical expectations as weak catalogue signals.
+2. `CatalogueEditor` selects the next prerequisite-safe lesson from the
+   foundations-first catalogue.
+3. `ResearchLead` curates evidence for that lesson only.
+4. `TechnicalExplainer` creates the first-principles concept arc.
+5. `ImplementationEngineer` adds the practical how-to path.
+6. `SkepticalFactChecker` checks citations, source links, unsupported numbers,
+   and overclaims.
+7. `PrincipalReviewer` checks Staff/Principal-level usefulness.
+8. `VisualExplainer` creates a visual plan.
+9. `TableDesigner` turns dense comparisons into compact tables.
+10. `ComponentDesigner` adds safe static Hugo-compatible callouts/components.
+11. `LayoutReviewer` checks the final look.
+12. `ManagingEditor` writes a Hugo draft or a blocked report.
 
-If those are unset, the client falls back to `OPENROUTER_BASE`,
-`OPENROUTER_API_KEY`, and `BLOGPIPE_MODEL` for continuity.
-When a chain is provided, blogpipe tries models in order and automatically
-falls back to the next model on retriable/server/model-availability failures.
-Each live LLM request also has a hard wall-clock deadline in addition to HTTP
-read timeouts, so a slow fallback provider cannot hold a workflow open for
-several minutes past the configured task budget. A model that exceeds that
-deadline is skipped instead of being retried repeatedly.
-If the primary endpoint is Gemini-compatible and a chain includes an OpenRouter
-model name, that model is sent to `OPENROUTER_BASE` with `OPENROUTER_API_KEY`
-instead of being sent to the Gemini endpoint.
-When `OPENROUTER_API_KEY` is present, the default fallback roster appends to **all**
-tasks (including `draft`, `editor`, and `outline_repair`), after the configured
-primary models, ordered for expected Research Radar performance rather than recency:
-`qwen/qwen3-next-80b-a3b-instruct:free`,
-`nvidia/nemotron-3-ultra-550b-a55b:free`,
-`nvidia/nemotron-3-super-120b-a12b:free`,
-`nousresearch/hermes-3-llama-3.1-405b:free`,
-`cognitivecomputations/dolphin-mistral-24b-venice-edition:free`,
-`nex-agi/nex-n2-pro:free`, `qwen/qwen3-coder:free`, `poolside/laguna-m.1:free`,
-`poolside/laguna-xs.2:free`, `openai/gpt-oss-120b:free`,
-`google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`,
-`nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`,
-`nvidia/nemotron-3-nano-30b-a3b:free`,
-`meta-llama/llama-3.3-70b-instruct:free`, `openai/gpt-oss-20b:free`,
-and `openrouter/free`.
-- `BLOGPIPE_OPENROUTER_SMART_FALLBACK` (default on when `OPENROUTER_API_KEY`
-  is set): when the primary endpoint is Gemini and any task hits rate limits,
-  validation rejection, or wall-clock timeout on a native model, try fast free
-  OpenRouter models immediately (`openrouter/free`, Llama 3.3 70B, Gemma, etc.),
-  then walk the full merged OpenRouter chain appended to every task, and finally
-  the emergency roster in `config.DEFAULT_OPENROUTER_SMART_EMERGENCY`.
-  Paid OpenRouter Gemini mirrors are not used (they require OpenRouter credits).
-- `BLOGPIPE_LLM_OPENROUTER_TIMEOUT_SECONDS` (workflow default `60`): wall-clock timeout
-  for OpenRouter model calls. Applies on top of fast/smart task timeouts so slow
-  free-tier responses are less likely to hit the 45s fast-task ceiling.
-- `BLOGPIPE_OPENROUTER_RATE_LIMIT_FALLBACK_LIMIT` (default `4`): how many fast
-  OpenRouter models to try immediately after each native Gemini failure.
-- `BLOGPIPE_OPENROUTER_RATE_LIMIT_CIRCUIT_BREAKER_HITS` (workflow default `3`):
-  stop trying additional OpenRouter free models after this many OpenRouter
-  429/503 responses in the current run, preserving Actions time for native
-  Gemini retries, repair, and blocked-run reporting.
-- `BLOGPIPE_OUTLINE_REPAIR_ERROR_THRESHOLD` (default `4`): during outline
-  generation, accept a primary completion with up to this many non-structural
-  validation gaps and proceed to repair instead of walking the rest of the chain.
-- `BLOGPIPE_LLM_SLOW_OPENROUTER_MIN_BUDGET_SECONDS` (default `180`): skip 550B
-  OpenRouter models when less than this much runtime budget remains.
-- `BLOGPIPE_AGENT_DEEP_DIVE_MIN_BUDGET_SECONDS` (workflow default `420`): skip
-  optional deep-dive generation unless this much LLM runtime budget remains
-  after the daily draft.
+## Catalogue
 
-## Agent Orchestration
+The catalogue starts with basics and then expands toward frontier systems:
 
-The live workflow is capped at 30 minutes, so the pipeline treats the daily
-research radar as the mandatory objective and deep dives as optional follow-up
-work. `pipeline.run_all()` now records an explicit `agent_plan` in
-`reports/run_report.json` before and after the daily draft. The plan captures
-the requested optional deep dives, the allowed deep dives under the remaining
-runtime budget, and the rationale for skipping or executing optional work.
+- linear algebra for ML systems
+- autodiff and optimization
+- neural network architecture foundations
+- transformers and attention
+- distributed training systems
+- inference and serving systems
+- evaluation and reliability
+- retrieval, grounding, and multimodal systems
+- agents and tool-using systems
 
-This keeps the agent loop budget-aware: select evidence, build an outline,
-draft, validate, repair/rewrite if needed, then execute optional deep dives only
-when enough runtime remains. Low-signal validator feedback is converted into
-repair guidance so the repair step acts on concrete failures instead of opaque
-error codes.
+Autodesk AEC is an occasional application lens, not the primary topic selector.
+The primary target is technical depth for a Staff/Principal ML engineer.
 
-## Search and Ranking
+## Visual Policy
 
-arXiv ingest fans out across named profiles for LLM methods, LLM systems,
-MLE/evaluation, multimodal geometry, and AEC/CAD/building AI. OpenReview ingest
-queries a small best-effort venue list unless overridden. The 14-day recency window
-is strict for live sources; undated or stale items are dropped before ranking.
-If arXiv returns persistent `429` responses, blogpipe stops the remaining arXiv
-profiles for that run instead of burning retries across every profile. If fewer
-than three ranked papers remain afterward, daily drafting blocks before any
-selector, outline, or writer LLM calls.
+Generated posts should look finished, but visuals must teach. Allowed visual
+forms are Mermaid diagrams, deterministic SVGs under `static/img/posts/<slug>/`,
+Markdown tables, fenced code/pseudocode, and small static HTML callouts.
 
-The daily flow asks the selector LLM to choose directly from all available paper
-titles in the current run for Autodesk/AEC foundation-model and 2D-document
-work, rather than pre-filtering with score-ranked candidate slices. The selector
-classifies selected items as:
+The sanitizer rejects scripts, iframes, remote JS/CSS, inline event handlers,
+unsupported shortcodes, and components that were not produced through a
+`ComponentSpec`.
 
-- `primary`: papers that must receive deep treatment in the article.
-- `supporting`: optional context used briefly for comparison, implementation
-  detail, or an "also watch" mention.
+## Reports
 
-The selector scores candidates for direct AEC/document relevance, transferable
-mechanism, experiment strength, engineering actionability, and novelty relative
-to prior radar posts. It should prefer a coherent thesis cluster over topic
-diversity for its own sake.
+Each run writes artifacts under `reports/swarm/`:
 
-## Daily Synthesis Format
+- `role_market_signal.json`
+- `catalogue_decision.json`
+- `lesson_brief.json`
+- `visual_plan.json`
+- `agent_reports.json`
+- `review_findings.json`
+- `run_report.json`
+- `llm_usage.json`
 
-For each primary paper, blogpipe builds a structured evidence card with:
+Blocked runs write `reports/swarm/<slug>.blocked.json`. Successful dry runs
+write `reports/swarm/<slug>.preview.md`; non-dry runs write a Hugo draft under
+`content/post/` with `draft: true`.
 
-- problem statement
-- core mechanism or architecture
-- objective, metric, or math detail when present
-- evaluation setup
-- key result text without invented numbers
-- limitations or failure modes
-- paper-supported claim
-- paper-supported limitation
-- AEC / 2D-document transfer hypothesis
-- open research question when the transfer remains unproven
+## Configuration
 
-An LLM outline stage then creates thesis-led natural headings instead of public
-template sections. Good headings name the technical object or tradeoff:
+Default endpoint:
 
-- `Executable CAD is the evaluation target, not visual plausibility`
-- `Layout preservation is a systems problem, not a translation feature`
-- `Grounding confidence needs counterfactual visual evidence`
+- `BLOGPIPE_LLM_BASE_URL=https://api.openai.com/v1`
+- `BLOGPIPE_LLM_API_KEY` or `OPENAI_API_KEY`
 
-Bad headings are blocked or repaired because they add noise:
+Default model routing:
 
-- `Navigating the Future`
-- `Bridging the Digital Divide`
-- `Our Path Forward`
-- `AI's Blueprint for AEC`
+- fast/planning/review agents: `gpt-5.6-luna`
+- writing/synthesis/design agents: `gpt-5.6-terra`
+- explicit high-cost override: `gpt-5.6-sol`
 
-The writer drafts each section with separate LLM calls and then runs a final
-editor pass. Each section should open with a concrete claim, walk through the
-mechanism, state the engineering implication, and name a limitation or adoption
-blocker. Daily posts should stay research-deep while reading like engineering
-judgment: benchmark design, failure modes, deployment constraints, integration
-dependencies, latency/cost tradeoffs, and validation tests should shape the
-practical takeaway. The editor removes corporate transformation language, repeated
-`crucial` / `paramount` / `game-changer` phrasing, unsupported first-person
-Autodesk claims, paper-by-paper abstract summaries that lack synthesis, and
-speculative AEC transfer claims that are phrased as proven results.
+Useful overrides:
 
-Validation requires method/objective, experiment, limitation, impact, and
-Autodesk/AEC/document relevance coverage, resolved evidence IDs, source links,
-supported numbers, at least `BLOGPIPE_DAILY_MIN_WORDS` words, and enough cited
-primary papers. It also runs a signal rubric:
-
-- `technical_specificity`: evidence-cited concrete algorithms, objectives,
-  system components, or evaluation design.
-- `engineering_judgment`: evidence-cited adoption decision, blocker, prototype
-  recommendation, benchmark, release gate, or production risk.
-- `synthesis`: evidence-cited cross-paper comparison or tradeoff.
-- `noise_control`: low density of generic strategy/corporate phrases.
-- `primary_depth`: each primary paper has mechanism evidence and a limitation,
-  experiment, or objective when available.
-- `evidence_discipline`: transfer hypotheses stay clearly separated from
-  paper-supported findings.
-- `section_nonredundancy`: repeated same-paper sections do not restate the same
-  mechanism without a distinct technical purpose.
-- `experiment_detail`: evaluation detail keeps pace with the strength of the
-  mechanism claims.
-
-Low-signal drafts are blocked, not merely warned. The rubric is assigned by an
-evidence-linked deterministic floor plus an LLM quality-review pass. The local
-floor counts technical, judgment, synthesis, and training-how-to cues only in
-paragraphs that include both evidence IDs and source URLs, so headings and
-uncited cue stuffing do not satisfy publish gates. The LLM review adds contextual
-editorial checks for title/body drift, generic recommendations without an
-engineering decision, and synthesis claims that sound stronger than the cited
-evidence supports. Blocked reports include validator errors, rubric scores, and
-examples of failing text where available.
-When a draft contains unsupported numeric claims, blogpipe first rewrites them
-into qualitative phrasing before giving up on the run. Paragraphs that already
-cite an evidence ID but omit its same-paragraph source URL are normalized
-deterministically before repair, which keeps LLM repair budget focused on
-substantive editorial problems. Frontmatter tags are
-derived from the final body text rather than applying every selected-paper or
-global radar tag. The edited body `# H1` is the canonical publication title and
-frontmatter title source.
-
-Generated posts do not include generic Mermaid maps or auto-injected chart
-decorations. A visual should appear only when the writing model produces a
-source-grounded technical figure that adds real explanatory value.
-
-## Data Policy
-
-- Durable index: `radar-data/items.sqlite`
-- Recent snapshots: `radar-data/daily/*.jsonl.gz`
-- Published Markdown: `content/post/`
-- Generated assets: `static/img/posts/<slug>/`
-- Raw PDFs and built site output are not committed.
+- `BLOGPIPE_CATALOGUE_LESSON`: force a lesson id.
+- `BLOGPIPE_ROLE_MARKET_LIVE=1`: fetch public career pages for role-market
+  signals.
+- `BLOGPIPE_ROLE_MARKET_FIXTURES=/path/to/role_market.json`: use fixture
+  postings instead of live pages.
+- `BLOGPIPE_LLM_MAX_CALLS`, `BLOGPIPE_LLM_MAX_TOKENS`,
+  `BLOGPIPE_LLM_MAX_RUNTIME_SECONDS`: run budget controls.

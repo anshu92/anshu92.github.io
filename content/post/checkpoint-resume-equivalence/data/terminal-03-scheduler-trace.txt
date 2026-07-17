@@ -1,0 +1,11 @@
+$ python code/checkpoint_equivalence.py trace --seed 11 --scenario omit_scheduler
+seed=11 scenario=omit_scheduler
+step  control_lr  resumed_lr  lr_error     batch  model  max_param_error
+   6  0.021000    0.021000    0.000e+00  match  match  0.000e+00
+   7  0.021000    0.021000    0.000e+00  match  match  0.000e+00
+   8  0.014700    0.021000    6.300e-03  match  match  0.000e+00
+   9  0.014700    0.014700    0.000e+00  match   DIFF  6.159e-03
+  10  0.014700    0.014700    0.000e+00  match   DIFF  6.154e-03
+  11  0.014700    0.014700    0.000e+00  match   DIFF  6.109e-03
+  12  0.010290    0.014700    4.410e-03  match   DIFF  6.065e-03
+final_exact=false first_divergent_step=9

@@ -1,9 +1,9 @@
 ---
 date: "2025-05-16"
-draft: false
+draft: true
 title: "Attention Mechanisms - tracking the evolution + pair programming in pytorch"
 description: "A comprehensive exploration of attention mechanisms in transformers and how they enable models to selectively focus on relevant information."
-categories: ["Machine Learning", "NLP", "LLM"]
+categories: ["Deep-learning mechanisms", "Transformer architecture", "Tokenization and representation"]
 tags: ["attention", "transformers", "deep-learning", "nlp", "llm"]
 math: true
 mermaid: true

@@ -1,0 +1,409 @@
+version: foundation-models-v2
+nodes:
+  - id: matmul-from-scalar-operations
+    stage: Computation Foundations
+    level: basic
+    problem_statement: How does matrix multiplication reduce to repeated multiply-accumulate operations, and what information does it preserve or discard?
+    why_it_matters: Matrix multiplication is the primitive behind neural network layers, attention, projections, and many GPU kernels.
+    prerequisites: []
+    concepts_to_teach: [scalar multiplication, dot product, multiply-accumulate, row-column product, associativity, numerical precision]
+    engineering_questions:
+      - What exactly is computed for one output cell?
+      - Which input relationships are preserved by a matrix product?
+      - Where can rounding, shape, or indexing mistakes change the result?
+    research_strategy:
+      source_profiles: [textbooks, tutorials, engineering_blogs, papers]
+      queries:
+        - matrix multiplication multiply accumulate dot product tutorial
+        - matrix multiplication implementation numerical precision row column product
+        - matrix multiplication deep learning linear algebra foundations
+    evidence_requirements:
+      - conceptual explanation of row-column multiply-accumulate work
+      - implementation or algorithmic evidence
+      - limitation or numerical precision caveat
+    completion_criteria:
+      - Explains one output element from scalar operations.
+      - Connects matmul to later neural network computation.
+      - Names one correctness or numerical caveat.
+    growth_prompts:
+      - How do sparse, low-rank, or structured matrices change the cost and meaning of matrix multiplication?
+
+  - id: matrices-as-linear-maps
+    stage: Computation Foundations
+    level: basic
+    problem_statement: How do matrices transform vectors, compose operations, change bases, and represent geometry?
+    why_it_matters: Principal ML engineers need the linear-map view before reasoning about embeddings, projections, rotations, and feature spaces.
+    prerequisites: [matmul-from-scalar-operations]
+    concepts_to_teach: [linear map, basis, composition, inverse, rank, projection, rotation, eigenspace]
+    engineering_questions:
+      - What does a matrix do to a vector space?
+      - How does composition show up as another matrix multiplication?
+      - What does rank reveal about preserved or lost information?
+    research_strategy:
+      source_profiles: [textbooks, tutorials, visual_explainers]
+      queries:
+        - matrices as linear transformations basis composition rank
+        - linear maps matrix multiplication geometry machine learning
+    evidence_requirements:
+      - conceptual explanation of matrices as transformations
+      - visual or geometric example
+      - failure mode for rank or non-invertibility
+    completion_criteria:
+      - Explains matrix action on vectors.
+      - Explains composition and change of basis.
+      - Connects rank to information loss.
+    growth_prompts:
+      - How do embeddings use linear maps to create useful feature spaces?
+
+  - id: matrix-shapes-strides-and-layout
+    stage: Computation Foundations
+    level: basic
+    problem_statement: Why do shape, stride, transpose, broadcasting, and memory layout change both correctness and speed?
+    why_it_matters: Tensor bugs and performance bugs often start as misunderstood shape and memory-layout behavior.
+    prerequisites: [matmul-from-scalar-operations]
+    concepts_to_teach: [shape, stride, contiguous layout, transpose, broadcasting, row-major, column-major]
+    engineering_questions:
+      - When does a reshape change interpretation but not memory?
+      - Why can a transpose be cheap logically but expensive physically?
+      - How do broadcasting rules create silent correctness bugs?
+    research_strategy:
+      source_profiles: [numpy, pytorch, engineering_blogs, tutorials]
+      queries:
+        - tensor shape stride contiguous transpose broadcasting pytorch numpy
+        - memory layout row major column major matrix performance
+    evidence_requirements:
+      - implementation evidence from array or tensor libraries
+      - performance consequence of non-contiguous layout
+      - correctness caveat involving broadcasting or transpose
+    completion_criteria:
+      - Explains shape and stride separately.
+      - Shows why layout changes speed.
+      - Names a concrete bug pattern.
+    growth_prompts:
+      - How should tensor libraries expose layout constraints without surprising users?
+
+  - id: cpu-matmul-cache-blocking
+    stage: Systems Foundations
+    level: basic
+    problem_statement: Why is naive matrix multiplication slow on CPUs, and how do cache locality and blocking change the cost?
+    why_it_matters: The memory hierarchy lesson transfers directly to GPU tiling, attention kernels, and serving systems.
+    prerequisites: [matrix-shapes-strides-and-layout]
+    concepts_to_teach: [cache locality, blocking, tiling, memory bandwidth, arithmetic intensity, vectorization]
+    engineering_questions:
+      - Why does arithmetic count alone fail to predict runtime?
+      - Which data gets reused in a blocked matmul?
+      - How do cache size and memory bandwidth constrain implementation?
+    research_strategy:
+      source_profiles: [systems_blogs, textbooks, benchmarks]
+      queries:
+        - naive matrix multiplication cache blocking tiling CPU performance
+        - arithmetic intensity matrix multiplication cache locality
+    evidence_requirements:
+      - benchmark or performance evidence
+      - implementation explanation of blocking
+      - memory hierarchy limitation
+    completion_criteria:
+      - Contrasts naive and blocked matmul.
+      - Explains reuse and locality.
+      - Connects CPU blocking to later GPU tiling.
+    growth_prompts:
+      - How do compiler optimizations choose tile sizes for real hardware?
+
+  - id: gpu-execution-model
+    stage: GPU Foundations
+    level: basic
+    problem_statement: How do GPU threads, warps, blocks, memory hierarchy, and occupancy determine what computation is fast?
+    why_it_matters: GPU performance cannot be understood from FLOPs alone; execution shape and memory movement dominate many ML workloads.
+    prerequisites: [cpu-matmul-cache-blocking]
+    concepts_to_teach: [thread, warp, block, SM, occupancy, shared memory, global memory, coalescing]
+    engineering_questions:
+      - What work is assigned to a thread, warp, block, and SM?
+      - Why do coalesced memory accesses matter?
+      - When does occupancy help or stop helping?
+    research_strategy:
+      source_profiles: [cuda_docs, engineering_blogs, tutorials]
+      queries:
+        - CUDA execution model threads warps blocks occupancy shared memory
+        - GPU memory hierarchy coalesced access machine learning kernels
+    evidence_requirements:
+      - implementation evidence from CUDA or GPU programming
+      - performance evidence or benchmark
+      - memory hierarchy caveat
+    completion_criteria:
+      - Explains thread/warp/block/SM responsibilities.
+      - Explains memory hierarchy and coalescing.
+      - Names an occupancy tradeoff.
+    growth_prompts:
+      - How do GPU execution constraints shape transformer kernel design?
+
+  - id: gpu-matmul-tiling
+    stage: GPU Foundations
+    level: intermediate
+    problem_statement: How does tiled matrix multiplication use shared memory, coalesced loads, and tensor cores to become efficient?
+    why_it_matters: Efficient matmul is the bridge from linear algebra to practical deep learning systems.
+    prerequisites: [gpu-execution-model]
+    concepts_to_teach: [tiling, shared memory, coalesced loads, tensor cores, warp-level matrix multiply, occupancy]
+    engineering_questions:
+      - Which tile does each block compute?
+      - What data is staged in shared memory and why?
+      - How do tensor cores change precision and throughput tradeoffs?
+    research_strategy:
+      source_profiles: [cuda_docs, triton_docs, engineering_blogs, papers]
+      queries:
+        - tiled matrix multiplication shared memory coalesced loads tensor cores
+        - CUDA GEMM kernel tiling tensor cores performance
+        - Triton matmul tutorial GPU tiling
+    evidence_requirements:
+      - implementation evidence from CUDA, Triton, or GEMM kernels
+      - performance or throughput benchmark
+      - precision or memory limitation
+    completion_criteria:
+      - Explains tile ownership and data reuse.
+      - Connects tensor cores to throughput.
+      - Names a precision or occupancy tradeoff.
+    growth_prompts:
+      - How do attention kernels generalize matmul tiling ideas?
+
+  - id: autodiff-through-linear-algebra
+    stage: Learning Foundations
+    level: intermediate
+    problem_statement: How do gradients flow through matrix operations, and why do transposes appear in backpropagation?
+    why_it_matters: Backpropagation through matmul explains parameter gradients, activation gradients, and many distributed-training tensor shapes.
+    prerequisites: [matrices-as-linear-maps, matrix-shapes-strides-and-layout]
+    concepts_to_teach: [autodiff, chain rule, Jacobian, gradient, transpose, vector-Jacobian product]
+    engineering_questions:
+      - Which gradient is computed for inputs versus weights?
+      - Why does the backward pass reuse transposed operands?
+      - How can shape mistakes hide in gradient code?
+    research_strategy:
+      source_profiles: [autodiff_docs, tutorials, textbooks]
+      queries:
+        - matrix multiplication gradient transpose backpropagation
+        - autodiff linear algebra vector Jacobian product matmul
+    evidence_requirements:
+      - derivation or conceptual explanation
+      - implementation evidence from autodiff libraries
+      - shape or numerical caveat
+    completion_criteria:
+      - Derives matmul gradients.
+      - Explains transpose in backprop.
+      - Connects gradient shapes to implementation.
+    growth_prompts:
+      - How do custom kernels preserve correct gradients?
+
+  - id: mlp-as-composed-matmul
+    stage: Neural Networks
+    level: intermediate
+    problem_statement: How does a neural network layer reduce to matrix multiplication, nonlinearity, normalization, and parameter updates?
+    why_it_matters: MLPs are the simplest bridge from linear algebra to trainable models and transformer feed-forward blocks.
+    prerequisites: [autodiff-through-linear-algebra]
+    concepts_to_teach: [linear layer, activation, normalization, loss, optimizer, parameter update]
+    engineering_questions:
+      - What does a linear layer compute?
+      - Why is nonlinearity required?
+      - How do optimizers update matrix parameters?
+    research_strategy:
+      source_profiles: [textbooks, tutorials, framework_docs]
+      queries:
+        - neural network linear layer matrix multiplication activation optimizer
+        - MLP forward backward matrix multiplication normalization
+    evidence_requirements:
+      - conceptual explanation of layer computation
+      - implementation evidence from a framework
+      - training or optimization caveat
+    completion_criteria:
+      - Connects layer forward pass to matmul.
+      - Explains role of activation and normalization.
+      - Connects gradients to parameter updates.
+    growth_prompts:
+      - How do MLP blocks scale inside transformer architectures?
+
+  - id: attention-as-batched-matmul
+    stage: Transformers
+    level: intermediate
+    problem_statement: How does attention use Q/K/V projections, batched matmul, softmax, masking, and memory movement?
+    why_it_matters: Attention is the central transformer operation and a direct continuation of batched matrix multiplication.
+    prerequisites: [gpu-matmul-tiling, mlp-as-composed-matmul]
+    concepts_to_teach: [QKV projection, batched matmul, softmax, mask, sequence length, memory movement]
+    engineering_questions:
+      - What are Q, K, and V and how are they computed?
+      - Why does attention scale with sequence length?
+      - Which tensors dominate memory traffic?
+    research_strategy:
+      source_profiles: [papers, tutorials, kernel_blogs]
+      queries:
+        - attention QKV batched matrix multiplication softmax mask
+        - transformer attention memory movement sequence length
+        - flash attention IO aware exact attention
+    evidence_requirements:
+      - conceptual explanation of attention computation
+      - implementation or kernel evidence
+      - memory or sequence-length limitation
+    completion_criteria:
+      - Explains Q/K/V and attention scores.
+      - Connects attention to batched matmul.
+      - Names memory and length bottlenecks.
+    growth_prompts:
+      - How do IO-aware attention kernels change transformer economics?
+
+  - id: transformer-block-computation
+    stage: Transformers
+    level: intermediate
+    problem_statement: How do attention, MLPs, residual paths, normalization, and positional information compose into a transformer block?
+    why_it_matters: Understanding block composition is necessary before judging architecture papers or diagnosing model behavior.
+    prerequisites: [attention-as-batched-matmul]
+    concepts_to_teach: [residual connection, layer norm, MLP block, positional encoding, attention head, block stack]
+    engineering_questions:
+      - What information path does each sublayer provide?
+      - Why do residuals and normalization stabilize optimization?
+      - Which parts dominate compute and memory?
+    research_strategy:
+      source_profiles: [papers, tutorials, framework_docs]
+      queries:
+        - transformer block attention MLP residual layer norm positional encoding
+        - transformer architecture computation memory FLOPs
+    evidence_requirements:
+      - conceptual architecture explanation
+      - implementation evidence from transformer frameworks
+      - compute or memory breakdown
+    completion_criteria:
+      - Explains one transformer block end to end.
+      - Connects sublayers to compute cost.
+      - Identifies optimization stability role.
+    growth_prompts:
+      - Which transformer block modifications are mechanisms versus benchmark artifacts?
+
+  - id: training-transformers-at-scale
+    stage: Training Systems
+    level: advanced
+    problem_statement: What breaks when transformer training no longer fits on one GPU, and how do sharding, parallelism, checkpointing, and communication address it?
+    why_it_matters: Principal ML engineers need a systems runbook before approving large training jobs.
+    prerequisites: [transformer-block-computation, gpu-matmul-tiling]
+    concepts_to_teach: [data parallelism, tensor parallelism, pipeline parallelism, FSDP, ZeRO, activation checkpointing, all-reduce]
+    engineering_questions:
+      - Which state is replicated, sharded, recomputed, or communicated?
+      - Is the bottleneck memory, communication, data loading, or checkpoint recovery?
+      - What profile must pass before scaling?
+    research_strategy:
+      source_profiles: [papers, systems_blogs, framework_docs]
+      queries:
+        - transformer training scale FSDP ZeRO tensor parallel activation checkpointing all-reduce
+        - distributed training transformer communication memory checkpointing benchmark
+    evidence_requirements:
+      - systems implementation evidence
+      - benchmark or scaling evidence
+      - failure mode or operational limitation
+    completion_criteria:
+      - Explains at least two parallelism strategies.
+      - Names memory and communication bottlenecks.
+      - Defines a rollout/profile gate.
+    growth_prompts:
+      - How should training runbooks change for sparse or mixture-of-experts models?
+
+  - id: serving-transformers-efficiently
+    stage: Serving Systems
+    level: advanced
+    problem_statement: Why does inference bottleneck on KV cache, batching, memory bandwidth, and latency rather than only FLOPs?
+    why_it_matters: Serving constraints decide whether foundation models are usable in interactive products.
+    prerequisites: [attention-as-batched-matmul, gpu-execution-model]
+    concepts_to_teach: [KV cache, batching, prefill, decode, memory bandwidth, latency, throughput, quantization]
+    engineering_questions:
+      - What differs between prefill and decode?
+      - Why does KV cache movement dominate long contexts?
+      - Which batching policy changes latency and throughput?
+    research_strategy:
+      source_profiles: [systems_blogs, papers, serving_docs]
+      queries:
+        - transformer inference KV cache batching prefill decode latency throughput
+        - LLM serving memory bandwidth KV cache optimization
+    evidence_requirements:
+      - serving-system implementation evidence
+      - latency or throughput benchmark
+      - memory or cost limitation
+    completion_criteria:
+      - Explains prefill/decode difference.
+      - Explains KV cache bottleneck.
+      - Defines a serving adoption gate.
+    growth_prompts:
+      - How do speculative decoding and caching change serving economics?
+
+  - id: evaluating-foundation-models
+    stage: Evaluation
+    level: advanced
+    problem_statement: How do objectives, benchmarks, task slices, and failure taxonomies determine whether a model improvement is real?
+    why_it_matters: Evaluation decides whether research changes are signal, noise, or product risk.
+    prerequisites: [mlp-as-composed-matmul]
+    concepts_to_teach: [objective, benchmark, task slice, ablation, failure taxonomy, reproducibility, monitoring]
+    engineering_questions:
+      - What quantity is optimized and what does it miss?
+      - Which task slice exposes the product failure?
+      - What evidence would change the engineering decision?
+    research_strategy:
+      source_profiles: [papers, eval_blogs, benchmarks]
+      queries:
+        - foundation model evaluation benchmarks task slices failure taxonomy reproducibility
+        - LLM evaluation objective ablation monitoring benchmark design
+    evidence_requirements:
+      - benchmark or evaluation evidence
+      - failure taxonomy or limitation
+      - reproducibility or monitoring evidence
+    completion_criteria:
+      - Explains objective versus benchmark.
+      - Names failure taxonomy.
+      - Defines a model-change acceptance gate.
+    growth_prompts:
+      - How should evaluation change for agentic or multimodal workflows?
+
+  - id: multimodal-and-document-foundation-models
+    stage: Applied Foundation Models
+    level: advanced
+    problem_statement: What changes when foundation models must ground text, layout, drawings, geometry, CAD/BIM context, and source evidence?
+    why_it_matters: AEC and document workflows require grounding beyond generic text generation.
+    prerequisites: [evaluating-foundation-models, attention-as-batched-matmul]
+    concepts_to_teach: [document layout, OCR, grounding, geometry, CAD, BIM, citations, multimodal retrieval]
+    engineering_questions:
+      - "What is grounded: text, region, entity, geometry, or source citation?"
+      - Which failure modes are unique to documents and drawings?
+      - What prototype separates direct evidence from plausible transfer?
+    research_strategy:
+      source_profiles: [papers, aec_sources, multimodal_blogs]
+      queries:
+        - multimodal document foundation models layout grounding citations CAD BIM drawings
+        - vision language model document layout OCR grounding benchmark
+    evidence_requirements:
+      - multimodal or document evidence
+      - grounding or citation failure mode
+      - domain-specific benchmark or prototype evidence
+    completion_criteria:
+      - Explains grounding target.
+      - Names document/drawing failure modes.
+      - Defines a domain prototype gate.
+    growth_prompts:
+      - How should CAD/BIM structure be represented for foundation-model context?
+
+  - id: frontier-research-readiness
+    stage: Frontier Research
+    level: advanced
+    problem_statement: How should a principal ML research engineer decide whether a new foundation-model paper is a mechanism worth adopting, a benchmark artifact, or only a hypothesis?
+    why_it_matters: The latest research matters only when it changes a mechanism, evaluation, or deployment decision.
+    prerequisites: [training-transformers-at-scale, serving-transformers-efficiently, evaluating-foundation-models]
+    concepts_to_teach: [mechanism, benchmark artifact, transfer hypothesis, adoption gate, ablation, production risk]
+    engineering_questions:
+      - What is the new mechanism?
+      - Which evidence is direct and which is only transfer?
+      - What minimum prototype would justify adoption?
+    research_strategy:
+      source_profiles: [papers, openreview, arxiv, engineering_blogs]
+      queries:
+        - foundation model paper mechanism benchmark artifact adoption readiness
+        - frontier LLM research ablation transfer hypothesis production evaluation
+    evidence_requirements:
+      - current research evidence
+      - ablation or benchmark evidence
+      - limitation or transfer-risk evidence
+    completion_criteria:
+      - Separates mechanism from benchmark artifact.
+      - Names direct evidence versus hypothesis.
+      - Defines a prototype adoption gate.
+    growth_prompts:
+      - What new frontier mechanism deserves its own prerequisite branch?

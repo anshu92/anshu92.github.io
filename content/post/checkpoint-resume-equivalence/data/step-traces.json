@@ -1,0 +1,5602 @@
+[
+  {
+    "seed": 11,
+    "scenario": "full_boundary",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "scenario": "model_optimizer_only",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 1,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.015689969062805176,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          47,
+          22,
+          27,
+          40
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 2,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.027971982955932617,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          29,
+          10,
+          6,
+          19
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 3,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.037650346755981445,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          31,
+          39,
+          43,
+          20
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 4,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04460275173187256,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          34,
+          9,
+          21,
+          8
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 5,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.048409461975097656,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          27,
+          31,
+          47,
+          30
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.055400535464286804,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06397426128387451,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "scenario": "omit_rng",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.01839393377304077,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.027922943234443665,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0387662872672081,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04726302623748779,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0551556721329689,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06384193152189255,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.07113778591156006,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "scenario": "omit_stream",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.014696851372718811,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          47,
+          22,
+          27,
+          40
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02434501424431801,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          29,
+          10,
+          6,
+          19
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.034325383603572845,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          31,
+          39,
+          43,
+          20
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04130625491961837,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          34,
+          9,
+          21,
+          8
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0522640123963356,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          27,
+          31,
+          47,
+          30
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0562761090695858,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06570293009281158,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "scenario": "omit_scheduler",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006159275770187378,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.00615355372428894,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006109356880187988,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006064802408218384,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "scenario": "full_mid_accumulation",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 11,
+    "scenario": "mid_without_gradients",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.008926469832658768,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "expected_last_batch_ids": [
+          23,
+          42,
+          25,
+          34
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.012327015399932861,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "expected_last_batch_ids": [
+          1,
+          18,
+          20,
+          10
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.014950756449252367,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "expected_last_batch_ids": [
+          4,
+          13,
+          5,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.016336685046553612,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "expected_last_batch_ids": [
+          18,
+          42,
+          25,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.017347928136587143,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "expected_last_batch_ids": [
+          4,
+          2,
+          45,
+          43
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.017845476046204567,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "expected_last_batch_ids": [
+          20,
+          29,
+          36,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.017922472208738327,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "expected_last_batch_ids": [
+          11,
+          41,
+          37,
+          10
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "full_boundary",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "model_optimizer_only",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 1,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.013189882040023804,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          21,
+          31,
+          25,
+          32
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 2,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.026428699493408203,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          43,
+          5,
+          47
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 3,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0420810729265213,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          23,
+          13,
+          30,
+          4
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 4,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05689750611782074,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          19,
+          0,
+          8
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 5,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06795735657215118,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          29,
+          16,
+          46
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.07828478515148163,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.08740417659282684,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "omit_rng",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.016290172934532166,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03255674988031387,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04464982450008392,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05291147530078888,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.061075370758771896,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06617260538041592,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.07143750134855509,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "omit_stream",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.01321209967136383,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          21,
+          31,
+          25,
+          32
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02841469645500183,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          43,
+          5,
+          47
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03740429878234863,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          23,
+          13,
+          30,
+          4
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04874365031719208,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          19,
+          0,
+          8
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06054282188415527,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          29,
+          16,
+          46
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06675992906093597,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.07317064702510834,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "omit_scheduler",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006047755479812622,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0060614049434661865,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006001412868499756,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.005885720252990723,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "full_mid_accumulation",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 17,
+    "scenario": "mid_without_gradients",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.00949522852897644,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "expected_last_batch_ids": [
+          9,
+          35,
+          8,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.016050279140472412,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "expected_last_batch_ids": [
+          33,
+          17,
+          36,
+          3
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02211424708366394,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "expected_last_batch_ids": [
+          5,
+          44,
+          19,
+          12
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.025519952178001404,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "expected_last_batch_ids": [
+          38,
+          0,
+          14,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.027938559651374817,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "expected_last_batch_ids": [
+          18,
+          30,
+          2,
+          15
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.030240967869758606,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "expected_last_batch_ids": [
+          31,
+          26,
+          11,
+          40
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03204452991485596,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "expected_last_batch_ids": [
+          17,
+          34,
+          28,
+          13
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "full_boundary",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "model_optimizer_only",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 1,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.018367737531661987,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          29,
+          17,
+          43,
+          23
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 2,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03631207346916199,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          46,
+          0,
+          22,
+          25
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 3,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04365977644920349,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          10,
+          34,
+          40,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 4,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04859402775764465,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          45,
+          27,
+          14
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 5,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05646153353154659,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          23,
+          36,
+          26
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06347266305238008,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06372273713350296,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "omit_rng",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.013345502316951752,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02106078714132309,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03276117146015167,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.041139230132102966,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04589657485485077,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.049196332693099976,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05418848246335983,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "omit_stream",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.016730934381484985,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          29,
+          17,
+          43,
+          23
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03755909204483032,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          46,
+          0,
+          22,
+          25
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05308261513710022,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          10,
+          34,
+          40,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.056802839040756226,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          45,
+          27,
+          14
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06893420219421387,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          23,
+          36,
+          26
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0840272307395935,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.09997017681598663,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "omit_scheduler",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006066113710403442,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.00606951117515564,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.005908757448196411,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.005801213905215263,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "full_mid_accumulation",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 29,
+    "scenario": "mid_without_gradients",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.012242801487445831,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "expected_last_batch_ids": [
+          38,
+          17,
+          7,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02019251137971878,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "expected_last_batch_ids": [
+          28,
+          5,
+          0,
+          20
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.026534095406532288,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "expected_last_batch_ids": [
+          6,
+          34,
+          43,
+          19
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02998650074005127,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "expected_last_batch_ids": [
+          35,
+          41,
+          45,
+          11
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03273332118988037,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "expected_last_batch_ids": [
+          42,
+          24,
+          8,
+          0
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.034347087144851685,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "expected_last_batch_ids": [
+          15,
+          26,
+          12,
+          23
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03545041382312775,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "expected_last_batch_ids": [
+          22,
+          25,
+          6,
+          9
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "full_boundary",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "model_optimizer_only",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 1,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.01489327847957611,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          12,
+          2,
+          31
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 2,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03106749802827835,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          41,
+          8,
+          10,
+          20
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 3,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.033817946910858154,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          37,
+          15,
+          33,
+          0
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 4,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.047917842864990234,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          25,
+          38,
+          18,
+          16
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 5,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06063508987426758,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          36,
+          25,
+          20,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0730682909488678,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.09413851797580719,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "omit_rng",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.011391997337341309,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02089640498161316,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0317588746547699,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04153652489185333,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05135519802570343,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06561703979969025,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.08231598138809204,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "omit_stream",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.014656610786914825,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          12,
+          2,
+          31
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.029927365481853485,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          41,
+          8,
+          10,
+          20
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04237060248851776,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          37,
+          15,
+          33,
+          0
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.049481868743896484,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          25,
+          38,
+          18,
+          16
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.055731192231178284,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          36,
+          25,
+          20,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0612325519323349,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.07839614152908325,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "omit_scheduler",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006056338548660278,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006028801202774048,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0060002803802490234,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.005978286266326904,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "full_mid_accumulation",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 47,
+    "scenario": "mid_without_gradients",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.008909955620765686,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "expected_last_batch_ids": [
+          38,
+          34,
+          3,
+          47
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.016831934452056885,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "expected_last_batch_ids": [
+          7,
+          4,
+          15,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02519311010837555,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "expected_last_batch_ids": [
+          6,
+          26,
+          17,
+          9
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.028521180152893066,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "expected_last_batch_ids": [
+          39,
+          23,
+          13,
+          44
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0308818519115448,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "expected_last_batch_ids": [
+          11,
+          6,
+          40,
+          33
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.031561315059661865,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          10,
+          30
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03202208876609802,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "expected_last_batch_ids": [
+          35,
+          42,
+          25,
+          28
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "full_boundary",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "model_optimizer_only",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 1,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.019334755837917328,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          32,
+          39,
+          43,
+          30
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 2,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.041992150247097015,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          24,
+          8,
+          34,
+          26
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 3,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.061511967331171036,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          4,
+          5,
+          29,
+          7
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 4,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.07897442579269409,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          10,
+          25,
+          0,
+          21
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 5,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.09390964359045029,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          46,
+          30,
+          0,
+          37
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.10074612125754356,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.09720434993505478,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "omit_rng",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.015299692749977112,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02979174256324768,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04060851037502289,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.03954453766345978,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.041905730962753296,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.04985255002975464,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05853545665740967,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "omit_stream",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.01710289716720581,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          32,
+          39,
+          43,
+          30
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.027942359447479248,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          24,
+          8,
+          34,
+          26
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.050525084137916565,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          4,
+          5,
+          29,
+          7
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.05691686272621155,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          10,
+          25,
+          0,
+          21
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0629512369632721,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          46,
+          30,
+          0,
+          37
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.06405373848974705,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": false
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.0747127290815115,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": false
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "omit_scheduler",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0063,
+        "last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006017625331878662,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.006010770797729492,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.005973160266876221,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.005941152572631836,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.004410000000000001,
+        "last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "full_mid_accumulation",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": true,
+        "max_parameter_abs_error": 0.0,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": true
+      }
+    ]
+  },
+  {
+    "seed": 83,
+    "scenario": "mid_without_gradients",
+    "step_trace": [
+      {
+        "logical_step": 6,
+        "actual_optimizer_step_counter": 6,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.010699719190597534,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "expected_last_batch_ids": [
+          33,
+          1,
+          19,
+          35
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 7,
+        "actual_optimizer_step_counter": 7,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.017041265964508057,
+        "actual_learning_rate": 0.020999999999999998,
+        "expected_learning_rate": 0.020999999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "expected_last_batch_ids": [
+          12,
+          47,
+          43,
+          32
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 8,
+        "actual_optimizer_step_counter": 8,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02399677038192749,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "expected_last_batch_ids": [
+          3,
+          39,
+          15,
+          14
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 9,
+        "actual_optimizer_step_counter": 9,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.02593851089477539,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "expected_last_batch_ids": [
+          11,
+          20,
+          24,
+          1
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 10,
+        "actual_optimizer_step_counter": 10,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.027624547481536865,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "expected_last_batch_ids": [
+          8,
+          2,
+          6,
+          46
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 11,
+        "actual_optimizer_step_counter": 11,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.028899461030960083,
+        "actual_learning_rate": 0.014699999999999998,
+        "expected_learning_rate": 0.014699999999999998,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "expected_last_batch_ids": [
+          39,
+          31,
+          29,
+          28
+        ],
+        "batch_match": true
+      },
+      {
+        "logical_step": 12,
+        "actual_optimizer_step_counter": 12,
+        "model_exact": false,
+        "max_parameter_abs_error": 0.029249072074890137,
+        "actual_learning_rate": 0.010289999999999997,
+        "expected_learning_rate": 0.010289999999999997,
+        "learning_rate_error": 0.0,
+        "last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "expected_last_batch_ids": [
+          18,
+          22,
+          42,
+          45
+        ],
+        "batch_match": true
+      }
+    ]
+  }
+]

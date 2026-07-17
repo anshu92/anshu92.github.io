@@ -8,10 +8,10 @@ from pathlib import Path
 from pydantic import TypeAdapter
 
 from blogpipe.evidence import build_daily_pack
-from blogpipe import evidence
+from blogpipe import curriculum, evidence
 from blogpipe.llm import LLMClient
 from blogpipe import memory
-from blogpipe.models import DailyOutline, SelectionResult, SourceItem
+from blogpipe.models import CurriculumPlan, DailyOutline, SelectionResult, SourceItem
 from blogpipe.score import daily_shortlist, rank_items
 from blogpipe.writer import (
     _canonical_title_from_body,
@@ -20,9 +20,11 @@ from blogpipe.writer import (
     _deterministic_quality_errors,
     _daily_rewrite_user,
     _emergency_daily_draft,
+    _ensure_visual_blocks,
     _llm_quality_errors,
     _quality_floor_guidance,
     _quality_review_user,
+    _publish_ready_body,
     _repair_user,
     _review_if_ready,
     _signal_rubric,
@@ -86,6 +88,79 @@ def _training_outline() -> DailyOutline:
     )
 
 
+def _matmul_curriculum_pack():
+    now = datetime(2026, 5, 11, tzinfo=timezone.utc)
+    items = [
+        SourceItem(
+            item_id="matmul-mac",
+            canonical_url="https://example.com/matmul-mac",
+            source_kind="paper",
+            source_name="course",
+            source_tier=1,
+            title="Matrix multiplication as row-column multiply-accumulate work",
+            published_at=now,
+            abstract_or_excerpt=(
+                "This tutorial explains matrix multiplication as scalar multiplication, dot product, and repeated "
+                "multiply-accumulate operations for each output cell. It includes an implementation algorithm, "
+                "indexing caveats, benchmark framing, and numerical precision limitations for transformer systems."
+            ),
+            tags=["matrix multiplication", "linear algebra", "implementation"],
+            extra={"selector_role": "primary"},
+        ),
+        SourceItem(
+            item_id="matmul-implementation",
+            canonical_url="https://example.com/matmul-implementation",
+            source_kind="paper",
+            source_name="systems",
+            source_tier=1,
+            title="Implementing matrix multiplication loops and accumulation correctly",
+            published_at=now,
+            abstract_or_excerpt=(
+                "The implementation maps rows and columns to output elements, uses loops over scalar "
+                "multiply-accumulate work, and benchmarks memory traffic. It discusses shape mistakes, "
+                "rounding failure modes, and why matrix products preserve linear combinations."
+            ),
+            tags=["matrix multiplication", "benchmark", "precision"],
+            extra={"selector_role": "primary"},
+        ),
+        SourceItem(
+            item_id="matmul-deeplearning",
+            canonical_url="https://example.com/matmul-deeplearning",
+            source_kind="paper",
+            source_name="ml-systems",
+            source_tier=1,
+            title="Why matrix products are the base operation of neural network layers",
+            published_at=now,
+            abstract_or_excerpt=(
+                "Matrix multiplication connects linear algebra to deep learning layers. The paper explains "
+                "row-column dot products, scalar accumulation, implementation code, floating point precision, "
+                "language model transformer computation, and benchmark consequences for neural network computation."
+            ),
+            tags=["matrix multiplication", "neural networks", "deep learning"],
+            extra={"selector_role": "primary"},
+        ),
+    ]
+    node = curriculum.load_tree()[0]
+    plan = CurriculumPlan(node=node, selected_by="test")
+    return build_daily_pack(rank_items(items, now=now, max_age_hours=72), curriculum_plan=plan)
+
+
+def _matmul_outline() -> DailyOutline:
+    return DailyOutline(
+        title="Matrix Multiplication, One Cell at a Time",
+        angle="Teach one output cell before moving to linear maps.",
+        sections=[
+            {"heading": "Set up the exact computation problem", "intent": "technical thesis angle framing mechanism objective math problem Autodesk AEC document downstream relevance", "evidence_ids": ["E1", "E2", "E3"], "word_budget": 260},
+            {"heading": "From one scalar output to a model layer", "intent": "mechanism method architecture pipeline math objective optimization metric experiment evidence benchmark evaluation limitation risk", "evidence_ids": ["E5"], "focus_item_ids": ["matmul-deeplearning"], "word_budget": 260, "section_role": "primary"},
+            {"heading": "The reference loop", "intent": "mechanism method architecture pipeline math objective optimization metric experiment evidence benchmark evaluation limitation risk", "evidence_ids": ["E1"], "focus_item_ids": ["matmul-mac"], "word_budget": 260, "section_role": "primary"},
+            {"heading": "Correctness traps: shape, order, and precision", "intent": "mechanism method architecture pipeline math objective optimization metric experiment evidence benchmark evaluation limitation risk", "evidence_ids": ["E3"], "focus_item_ids": ["matmul-implementation"], "word_budget": 260, "section_role": "primary"},
+            {"heading": "Where the simple model breaks", "intent": "experiments evidence benchmark evaluation ablation limitation caveat failure risk tradeoff", "evidence_ids": ["E1", "E3", "E5"], "word_budget": 260},
+            {"heading": "Why faster matmul still obeys this contract", "intent": "compare contrast cross-paper synthesis tradeoff across mechanisms objectives and limits", "evidence_ids": ["E2", "E4", "E6"], "word_budget": 220},
+            {"heading": "What to understand before moving on", "intent": "impact engineering production practical Autodesk AEC document drawing sheet CAD BIM validation release gate", "evidence_ids": ["E1", "E3", "E5"], "word_budget": 260, "section_role": "adoption"},
+        ],
+    )
+
+
 def _patch_root(monkeypatch, tmp_path):
     monkeypatch.setattr(memory, "ROOT", tmp_path)
     monkeypatch.setattr(memory, "DATA", tmp_path / "radar-data")
@@ -105,8 +180,23 @@ def test_valid_llm_daily_post_passes(monkeypatch, tmp_path):
     assert result.path.startswith("reports/")
     rendered = (tmp_path / result.path).read_text()
     assert "draft: true" in rendered
-    assert 'title: "Research Radar: Evidence Boundaries for AEC Foundation Models"' in rendered
-    assert result.title == "Research Radar: Evidence Boundaries for AEC Foundation Models"
+    assert 'title: "Evidence Boundaries for AEC Foundation Models"' in rendered
+    assert result.title == "Evidence Boundaries for AEC Foundation Models"
+    assert "Research Radar" not in rendered
+
+
+def test_daily_user_and_visual_lens_include_curriculum_target():
+    pack = _pack()
+    plan = curriculum.choose_next_problem()
+    pack = build_daily_pack(pack.ranked_items, curriculum_plan=plan)
+    user = _daily_user(pack, _outline(), _selection(), "Research Radar: Test")
+    body = "# Research Radar: Test\n\n## Section\nEvidence-driven prose."
+    rendered = _publish_ready_body(_ensure_visual_blocks(body, pack, "slug"), pack)
+    assert "CURRICULUM_TARGET" in user
+    assert plan.node.problem_statement in user
+    assert "The whole lesson:" in rendered
+    assert "Problem lens:" not in rendered
+    assert "Research Radar" not in rendered
 
 
 def test_final_h1_is_canonical_title():
@@ -722,6 +812,32 @@ def test_emergency_daily_draft_passes_deterministic_validation():
     assert "and the same source" not in body
     assert " with ," not in body
     assert "visual-token e," not in body
+
+
+def test_matmul_curriculum_emergency_draft_reads_like_worked_lesson():
+    pack = _matmul_curriculum_pack()
+    outline = _matmul_outline()
+
+    body = _emergency_daily_draft(pack=pack, outline=outline, selection=SelectionResult(), title=outline.title)
+
+    assert validate_body(body, pack, outline=outline) == []
+    assert _deterministic_quality_errors(body, pack) == []
+    assert "C[0,0] = 1*10 + 2*20 + 3*30 = 140" in body
+    assert "```python" in body
+    assert "```mermaid" in body
+    assert "| Output cell |" in body
+    assert "C[i, j] = sum_k A[i, k] * B[k, j]" in body
+    assert "Why start with matrix multiplication?" in body
+    assert "## Sources and checks" not in body
+    assert "Search did not choose this lesson" not in body
+    assert "Research Radar" not in body
+    assert "curriculum" not in body.lower()
+    assert "basic node" not in body.lower()
+    assert "evidence pool" not in body.lower()
+    assert "production blocker" not in body.lower()
+    assert "release gate" not in body.lower()
+    assert "principal engineer" not in body.lower()
+    assert body.lower().count("broad survey") <= 1
 
 
 def test_emergency_daily_draft_passes_primary_depth_without_mechanism_chunks():

@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "validated_at_utc": "2026-07-17T16:32:00Z",
+  "method": "Browser retrieval through the active web research tool; official source content or redirect target was inspected. Container DNS was unavailable, so no claim of an in-container HTTP status code is made.",
+  "container_network_note": "curl could not resolve external hosts in the artifact runtime; this is an environment limitation, not a broken-link result.",
+  "links": [
+    {
+      "url": "https://docs.pytorch.org/docs/stable/distributed.checkpoint.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.Generator.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.get_rng_state.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.optim.Optimizer.load_state_dict.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.optim.Optimizer.state_dict.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.LRScheduler.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.set_rng_state.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/notes/numerical_accuracy.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/docs/stable/notes/randomness.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/tutorials/beginner/saving_loading_models.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://docs.pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    },
+    {
+      "url": "https://meta-pytorch.org/data/0.9/stateful_dataloader_tutorial.html",
+      "status": "PASS",
+      "source_class": "official_primary",
+      "retrieval": "content_or_redirect_resolved"
+    }
+  ]
+}

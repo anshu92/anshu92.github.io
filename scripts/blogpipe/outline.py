@@ -239,16 +239,35 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
     all_selected_evidence = _outline_evidence_ids([*primary_cards, *support_cards], evidence_by_item)
     training = _pack_has_training_system_focus(pack)
 
-    title_object = "scaling AEC foundation-model training" if training else "solving AEC foundation-model reliability"
-    title = f"Research Radar: {title_object.title()}"
+    node = pack.curriculum.get("node", {}) if isinstance(pack.curriculum, dict) else {}
+    problem_statement = str(node.get("problem_statement", "") or "").strip()
+    node_id = str(node.get("id", "") or "").strip()
+    if node_id == "matmul-from-scalar-operations":
+        title = "Matrix Multiplication, One Cell at a Time"
+    elif problem_statement:
+        title = _short_problem_title(problem_statement)
+    else:
+        title_object = "debugging transformer training at scale" if training else "teaching a foundation-model mechanism"
+        title = title_object.title()
+    why_it_matters = str(node.get("why_it_matters", "") or "").strip()
     angle = (
-        "The evidence is useful only when it becomes a concrete AEC foundation-model decision with measurable limits, "
-        "failure modes, and release gates."
+        f"Teach the selected problem directly: {problem_statement} "
+        f"Connect the mechanism to measurable engineering checks and downstream foundation-model decisions."
+        if problem_statement
+        else (
+            "Teach one foundation-model mechanism from first principles, then connect the evidence to "
+            "measurable engineering checks and downstream decisions."
+        )
     )
+    if why_it_matters:
+        angle += f" Why it matters: {why_it_matters}"
     sections: list[dict[str, object]] = [
         {
-            "heading": "The AEC foundation-model problem to solve",
-            "intent": "technical thesis angle framing for the selected evidence cluster",
+            "heading": "Set up the exact computation problem",
+            "intent": (
+                "technical thesis angle framing mechanism objective math problem "
+                "Autodesk AEC document downstream relevance"
+            ),
             "evidence_ids": all_primary_evidence[:4] or all_selected_evidence[:4],
             "word_budget": 260,
             "focus_item_ids": [],
@@ -256,8 +275,13 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
             "split_reason": "",
         }
     ]
+    matmul_headings = [
+        "From one scalar output to a model layer",
+        "The reference loop",
+        "Correctness traps: shape, order, and precision",
+    ] if node_id == "matmul-from-scalar-operations" else []
     for index, card in enumerate(primary_cards, start=1):
-        heading = _primary_outline_heading(card, training=training and index == 1)
+        heading = matmul_headings[index - 1] if index <= len(matmul_headings) else _primary_outline_heading(card, training=training and index == 1)
         sections.append(
             {
                 "heading": heading,
@@ -272,7 +296,7 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
     sections.extend(
         [
             {
-                "heading": "Benchmarks, failure modes, and debug signals",
+                "heading": "Where the simple model breaks",
                 "intent": "experiments evidence benchmark evaluation ablation limitation caveat failure risk tradeoff",
                 "evidence_ids": all_selected_evidence[:5],
                 "word_budget": 260,
@@ -281,7 +305,7 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
                 "split_reason": "",
             },
             {
-                "heading": "Mechanism tradeoffs across the evidence",
+                "heading": "Why faster matmul still obeys this contract",
                 "intent": "compare contrast cross-paper synthesis tradeoff across mechanisms objectives and limits",
                 "evidence_ids": all_primary_evidence[:5] or all_selected_evidence[:5],
                 "word_budget": 220,
@@ -290,7 +314,7 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
                 "split_reason": "",
             },
             {
-                "heading": "Autodesk AEC adoption gate and next experiment",
+                "heading": "What to understand before moving on",
                 "intent": "impact engineering production practical Autodesk AEC document drawing sheet CAD BIM validation release gate",
                 "evidence_ids": all_selected_evidence[:5],
                 "word_budget": 260,
@@ -301,6 +325,16 @@ def _deterministic_outline(pack: EvidencePack, selection: SelectionResult) -> Da
         ]
     )
     return DailyOutline(title=title, angle=angle, sections=sections, suggested_tags=selection.suggested_tags)
+
+
+def _short_problem_title(problem_statement: str) -> str:
+    text = problem_statement.strip().rstrip("?")
+    text = re.sub(r"^(how|why|what|when|where|which)\s+(does|do|should|is|are|can)\s+", "", text, flags=re.I)
+    text = re.sub(r"\breduce to\b", "as", text, flags=re.I)
+    text = re.sub(r"\s+", " ", text)
+    if len(text) > 54:
+        text = text[:54].rsplit(" ", 1)[0]
+    return text[:1].upper() + text[1:]
 
 
 def _outline_evidence_ids(cards: list[object], evidence_by_item: dict[str, list[str]]) -> list[str]:
@@ -459,9 +493,11 @@ def _pack_has_training_system_focus(pack: EvidencePack) -> bool:
 
 def _outline_system() -> str:
     return (
-        "You are the Research Radar outline planner. Return JSON only. "
+        "You are the technical-blog outline planner. Return JSON only. "
         "Create natural, non-template section headings for a technical blog from the point of view of a Principal MLE in AEC at Autodesk. "
         "The outline must be problem-led, deep, and mechanism-first, not a broad roundup or literature survey. "
+        "When a target problem is present, make the outline teach that lesson in sequence: concept boundary, mechanism, evidence, failure mode, and engineering test. "
+        "Do not use internal labels such as Research Radar, curriculum, selector, pipeline, or run report in titles or headings. "
         "Frame the post around building AEC foundation models: scaling training pipelines, data/evaluation loops, drawing/document/BIM grounding, "
         "failure diagnosis, and concrete engineering decisions. "
         "When the cluster is about scaled LLM training, include a concrete how-to section on training architecture, "
@@ -474,10 +510,16 @@ def _outline_system() -> str:
 
 
 def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
+    curriculum_block = ""
+    if pack.curriculum:
+        curriculum_block = f"CURRICULUM_TARGET:\n{json.dumps(pack.curriculum, indent=2, ensure_ascii=False)}\n\n"
     return (
         f"Create an outline for a daily post of at least {config.daily_min_words()} words. "
+        "Treat the post as one standalone lesson for a principal foundation-model engineer. "
         "Do not use fixed headings such as 'Paper mechanisms' or 'Why it matters'. "
         "Use the evidence to write a problem-solving memo, not a paper roundup. "
+        "If CURRICULUM_TARGET is present, use it as private planning context only; never mention curriculum, Research Radar, selector, pipeline, or run reports in the article. "
+        "Every section should either teach the target concept, test it against evidence, or convert it into an engineering decision. "
         "Use 3-4 deep primary evidence sections, one comparison section, and one adoption or production-readiness section when warranted. "
         "Headings must name a concrete problem, technical object, mechanism, benchmark, bottleneck, or tradeoff. "
         "Prefer titles such as 'Diagnosing data-loader stalls before scaling FSDP' over titles that merely name papers. "
@@ -491,6 +533,7 @@ def _outline_user(pack: EvidencePack, selection: SelectionResult) -> str:
         '"focus_item_ids": ["item-id"], "section_role": "primary|supporting|synthesis|adoption", "split_reason": ""}],\n'
         '  "suggested_tags": ["tag"]\n'
         "}\n\n"
+        f"{curriculum_block}"
         f"SELECTION:\n{selection.model_dump_json(indent=2)}\n\n"
         f"EVIDENCE_CARDS:\n{json.dumps([card.model_dump(mode='json') for card in pack.evidence_cards], indent=2, ensure_ascii=False)}\n\n"
         f"EVIDENCE_PACK:\n{pack.as_prompt_json()}"

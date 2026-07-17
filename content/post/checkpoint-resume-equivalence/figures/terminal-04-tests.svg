@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="224" viewBox="0 0 1120 224" role="img" aria-labelledby="title desc">
+<title id="title">Running the direct equivalence and counterexample tests</title>
+<desc id="desc">Actual terminal transcript showing twenty-one Pytest checks passing for the checkpoint equivalence harness and its inspectable commands.</desc>
+<rect width="1120" height="224" rx="18" fill="#0D1117"/>
+<rect x="1" y="1" width="1118" height="222" rx="18" fill="none" stroke="#30363D" stroke-width="2"/>
+<rect x="1" y="1" width="1118" height="58" rx="18" fill="#161B22"/>
+<rect x="1" y="42" width="1118" height="17" fill="#161B22"/>
+<circle cx="28" cy="29" r="7" fill="#FF5F56"/>
+<circle cx="52" cy="29" r="7" fill="#FFBD2E"/>
+<circle cx="76" cy="29" r="7" fill="#27C93F"/>
+<text x="560.0" y="36" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="16" font-weight="600" fill="#C9D1D9">Running the direct equivalence and counterexample tests</text>
+<text x="36" y="96" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#7EE787">$ pytest -q code/test_checkpoint_equivalence.py</text>
+<text x="36" y="124" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">.....................                                                    [100%]</text>
+<text x="36" y="152" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#7EE787">21 passed in 6.44s</text>
+</svg>

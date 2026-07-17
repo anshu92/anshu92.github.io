@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="448" viewBox="0 0 1120 448" role="img" aria-labelledby="title desc">
+<title id="title">Tracing the delayed scheduler failure</title>
+<desc id="desc">Actual terminal transcript showing the control and resumed learning rates. The learning rate differs at step eight while parameters still match; model parameters first differ at step nine.</desc>
+<rect width="1120" height="448" rx="18" fill="#0D1117"/>
+<rect x="1" y="1" width="1118" height="446" rx="18" fill="none" stroke="#30363D" stroke-width="2"/>
+<rect x="1" y="1" width="1118" height="58" rx="18" fill="#161B22"/>
+<rect x="1" y="42" width="1118" height="17" fill="#161B22"/>
+<circle cx="28" cy="29" r="7" fill="#FF5F56"/>
+<circle cx="52" cy="29" r="7" fill="#FFBD2E"/>
+<circle cx="76" cy="29" r="7" fill="#27C93F"/>
+<text x="560.0" y="36" text-anchor="middle" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="16" font-weight="600" fill="#C9D1D9">Tracing the delayed scheduler failure</text>
+<text x="36" y="96" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#7EE787">$ python code/checkpoint_equivalence.py trace --seed 11 --scenario omit_scheduler</text>
+<text x="36" y="124" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">seed=11 scenario=omit_scheduler</text>
+<text x="36" y="152" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">step  control_lr  resumed_lr  lr_error     batch  model  max_param_error</text>
+<text x="36" y="180" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">   6  0.021000    0.021000    0.000e+00  match  match  0.000e+00</text>
+<text x="36" y="208" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">   7  0.021000    0.021000    0.000e+00  match  match  0.000e+00</text>
+<text x="36" y="236" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#E6EDF3">   8  0.014700    0.021000    6.300e-03  match  match  0.000e+00</text>
+<text x="36" y="264" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">   9  0.014700    0.014700    0.000e+00  match   DIFF  6.159e-03</text>
+<text x="36" y="292" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">  10  0.014700    0.014700    0.000e+00  match   DIFF  6.154e-03</text>
+<text x="36" y="320" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">  11  0.014700    0.014700    0.000e+00  match   DIFF  6.109e-03</text>
+<text x="36" y="348" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">  12  0.010290    0.014700    4.410e-03  match   DIFF  6.065e-03</text>
+<text x="36" y="376" xml:space="preserve" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="18" fill="#FF7B72">final_exact=false first_divergent_step=9</text>
+</svg>

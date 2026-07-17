@@ -1,0 +1,10 @@
+$ python code/checkpoint_equivalence.py matrix --seed 11
+seed=11
+scenario                    exact  first  next_batch  lr_error   max_param_error
+full_boundary               yes       --        same  0.000e+00  0.000e+00
+model_optimizer_only        no         6        DIFF  4.410e-03  6.397e-02
+omit_rng                    no         6        same  0.000e+00  7.114e-02
+omit_stream                 no         6        DIFF  0.000e+00  6.570e-02
+omit_scheduler              no         9        same  4.410e-03  6.065e-03
+full_mid_accumulation       yes       --        same  0.000e+00  0.000e+00
+mid_without_gradients       no         6        same  0.000e+00  1.792e-02
