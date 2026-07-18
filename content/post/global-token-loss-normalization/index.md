@@ -1,8 +1,8 @@
 ---
 title: "The Two Numbers Every Distributed Loss Needs"
 description: "A minimal derivation and executable test suite for preserving token-level loss across masking, packing, microbatching, and data-parallel ranks."
-date: 2026-07-17T07:00:00-04:00
-lastmod: 2026-07-17T07:00:00-04:00
+date: 2026-06-28T07:00:00-04:00
+lastmod: 2026-06-29T07:00:00-04:00
 draft: true
 slug: "global-token-loss-normalization"
 author: "Anshuman Sahoo"

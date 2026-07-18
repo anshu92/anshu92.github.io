@@ -1,6 +1,6 @@
 ---
 title: "Why Softmax Can Break—and How to Make It Safe"
-date: 2026-07-14T07:00:00-04:00
+date: 2026-06-21T07:00:00-04:00
 description: "A plain-language guide to turning model scores into probabilities without numbers becoming too large or invalid."
 slug: "numerically-stable-softmax-invariant"
 tags:

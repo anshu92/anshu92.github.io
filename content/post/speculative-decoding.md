@@ -1,6 +1,6 @@
 ---
 title: "Speculative Decoding: 2x to 4x speedup of LLMs without quality loss"
-date: 2025-05-12
+date: 2026-05-11
 description: "Understand how speculative decoding achieves 2-4x faster LLM inference without compromising output quality. This technique uses a smaller model to draft tokens that are verified in parallel by the main model, solving the memory bandwidth bottleneck."
 tags: ["LLM", "Speculative Decoding", "Transformers", "Inference Optimization"]
 categories: ["Inference and serving", "Transformer architecture", "GPU systems and performance engineering"]

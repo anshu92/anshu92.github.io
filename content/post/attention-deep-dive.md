@@ -1,5 +1,5 @@
 ---
-date: "2025-05-16"
+date: "2026-04-19"
 draft: true
 title: "Attention Mechanisms - tracking the evolution + pair programming in pytorch"
 description: "A comprehensive exploration of attention mechanisms in transformers and how they enable models to selectively focus on relevant information."

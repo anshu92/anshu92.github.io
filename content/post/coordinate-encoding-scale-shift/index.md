@@ -2,8 +2,8 @@
 title: "Pixels Are Not Positions: Testing 2D Coordinate Encodings Under Scale and Translation"
 description: "A five-seed synthetic probe with an MLP and a tiny transformer shows why in-domain accuracy is a weak test of coordinate encodings for spatial reasoning."
 summary: "A small coordinate-encoding probe shows why in-domain accuracy can miss absolute-position shortcuts under scale and translation shifts, even with a transformer block."
-date: 2026-07-17
-lastmod: 2026-07-17
+date: 2026-07-10
+lastmod: 2026-07-11
 draft: false
 slug: "coordinate-encoding-scale-shift"
 author: "Anshuman Sahoo"

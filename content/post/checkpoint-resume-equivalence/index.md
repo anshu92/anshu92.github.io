@@ -2,8 +2,8 @@
 title: "A Restart Is Not a Resume: Testing PyTorch Checkpoints"
 description: "I built a small PyTorch training loop, interrupted it, removed checkpoint fields one at a time, and checked which resumes reproduced the original run."
 summary: "A practical checkpoint test: run a control, resume from an interruption, remove one saved field at a time, and find the first update that diverges."
-date: 2026-07-17T12:00:00-04:00
-lastmod: 2026-07-17T14:00:00-04:00
+date: 2026-07-04T12:00:00-04:00
+lastmod: 2026-07-05T14:00:00-04:00
 draft: false
 slug: "checkpoint-resume-equivalence"
 author: "Anshuman Sahoo"

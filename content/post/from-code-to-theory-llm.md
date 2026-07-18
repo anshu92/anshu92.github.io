@@ -1,5 +1,5 @@
 ---
-date: "2025-06-13"
+date: "2026-05-03"
 draft: true
 title: "Decoding Large Language Models from Code to Theory"
 description: "A ranting guide to engineer LLM systems from code to underlying decisions and reasoning."

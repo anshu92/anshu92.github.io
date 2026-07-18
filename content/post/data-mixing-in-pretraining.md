@@ -1,5 +1,5 @@
 ---
-date: "2025-09-22"
+date: "2026-05-27"
 draft: true
 title: "Data Mixing and KL Penalty for Domain Adoption in LLM Pretraining"
 description: "A practical playbook for adopting LLMs into new domains during continued pretraining using data mixing schedules and KL guardrails."

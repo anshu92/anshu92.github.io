@@ -1,5 +1,5 @@
 ---
-date: "2025-09-22"
+date: "2026-06-13"
 draft: true
 title: "The Foundation Series"
 description: "An endless endeavor to inform a new civilization about ML"

@@ -1,6 +1,6 @@
 ---
 title: "A complete meandering journey through the exciting world of Deep Learning"
-date: 2026-06-06
+date: 2026-06-04
 description: "Study notes as I refresh and explore corners of the topics from a technical ML Engineering perspective"
 tags: ["LLM", "Training", "Transformers", "Inference"]
 categories: ["GPU systems and performance engineering", "Distributed training", "Inference and serving", "Deep-learning mechanisms"]

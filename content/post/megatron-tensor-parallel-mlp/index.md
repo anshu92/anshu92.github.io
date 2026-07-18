@@ -2,8 +2,8 @@
 title: "Megatron Tensor Parallelism: Rebuilding a SwiGLU Feed-Forward Block Across Two Ranks"
 description: "I rebuilt a pre-RMSNorm SwiGLU Transformer feed-forward sublayer with Megatron-style tensor parallelism and checked one complete training step against a dense reference."
 summary: "Split the expansion by output features, split the contraction by input features, place one collective in forward and one in backward, then test the result against dense training."
-date: 2026-07-17
-lastmod: 2026-07-18
+date: 2026-07-16
+lastmod: 2026-07-17
 draft: false
 slug: "megatron-tensor-parallel-mlp"
 author: "Anshuman Sahoo"

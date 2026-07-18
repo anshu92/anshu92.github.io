@@ -1,5 +1,5 @@
 ---
-date: "2026-04-22"
+date: "2026-04-25"
 draft: true
 title: "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models"
 description: "By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, the authors achieve superior performance on MMLU-Math using "

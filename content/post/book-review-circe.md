@@ -1,5 +1,5 @@
 ---
-date: "2025-06-16"
+date: "2026-05-18"
 draft: true
 title: "Book review: Circe by Madeline Miller"
 description: "A personal, spoiler-aware review of Circe and why its loneliness, rage, and self-making felt so real."
