@@ -61,6 +61,10 @@
                                     <span class="blog-toc__post-icon" aria-hidden="true"></span>
                                     <a href="{{ .RelPermalink }}">{{ .Title }}</a>
                                     <time datetime="{{ .Date.Format "2006-01-02" }}">[{{ $date }}]</time>
+                                    <span class="blog-toc__article-like" data-article-like-count data-like-id="{{ .RelPermalink }}" title="Article likes">
+                                        <span aria-hidden="true">♥</span>
+                                        <span>0</span>
+                                    </span>
                                 </li>
                             {{ end }}
                         </ol>
@@ -93,10 +97,65 @@
         </nav>
     </section>
 
-    <script>
+    <script data-likes-worker-url="{{ .Site.Params.likes.workerURL | default "" }}">
         (() => {
+            const script = document.currentScript;
             const input = document.querySelector("[data-blog-toc-search]");
             const tree = document.querySelector("[data-blog-toc-tree]");
+            const likesWorkerURL = script ? script.dataset.likesWorkerUrl || "" : "";
+            const storage = {
+                get(key) {
+                    try {
+                        return localStorage.getItem(key);
+                    } catch {
+                        return null;
+                    }
+                },
+                set(key, value) {
+                    try {
+                        localStorage.setItem(key, value);
+                    } catch {
+                    }
+                },
+            };
+
+            const likeCountKey = (id) => `synaptic-radio:article-like-count:${id}`;
+            const readNumber = (key) => {
+                const value = Number.parseInt(storage.get(key) || "0", 10);
+                return Number.isFinite(value) ? value : 0;
+            };
+
+            const counters = [...document.querySelectorAll("[data-article-like-count][data-like-id]")];
+            const setCounterValue = (counter, count) => {
+                const value = counter.querySelector("span:last-child") || counter;
+                value.textContent = String(count);
+            };
+
+            counters.forEach((counter) => {
+                const count = readNumber(likeCountKey(counter.dataset.likeId || ""));
+                setCounterValue(counter, count);
+            });
+
+            if (likesWorkerURL && counters.length > 0) {
+                const ids = [...new Set(counters.map((counter) => counter.dataset.likeId || "").filter(Boolean))];
+                const url = new URL("/likes", likesWorkerURL);
+                url.searchParams.set("ids", ids.join(","));
+
+                fetch(url)
+                    .then((response) => (response.ok ? response.json() : Promise.reject(response)))
+                    .then((data) => {
+                        counters.forEach((counter) => {
+                            const id = counter.dataset.likeId || "";
+                            if (data.counts && Number.isFinite(data.counts[id])) {
+                                const count = data.counts[id];
+                                storage.set(likeCountKey(id), String(count));
+                                setCounterValue(counter, count);
+                            }
+                        });
+                    })
+                    .catch(() => {});
+            }
+
             if (!input || !tree) return;
 
             const folders = [...tree.querySelectorAll("[data-blog-toc-folder]")];

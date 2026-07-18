@@ -2354,9 +2354,91 @@ a:hover {
     margin: 0;
 }
 
+.article-like {
+    align-items: center;
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid rgba(127, 63, 31, 0.22);
+    border-radius: 999px;
+    color: var(--card-text-color-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--base-font-family);
+    font-size: 1.12rem;
+    font-weight: 700;
+    gap: 6px;
+    margin-top: 8px;
+    min-height: 30px;
+    padding: 0 10px;
+}
+
+.article-like:hover,
+.article-like.is-liked {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.article-like__heart {
+    display: inline-block;
+    height: 10px;
+    position: relative;
+    transform: rotate(-45deg);
+    width: 11px;
+}
+
+.article-like__heart,
+.article-like__heart::before,
+.article-like__heart::after {
+    background: currentColor;
+}
+
+.article-like__heart::before,
+.article-like__heart::after {
+    border-radius: 50%;
+    content: "";
+    height: 10px;
+    position: absolute;
+    width: 10px;
+}
+
+.article-like__heart::before {
+    left: 0;
+    top: -5px;
+}
+
+.article-like__heart::after {
+    left: 5px;
+    top: 0;
+}
+
+.article-like__count {
+    color: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    opacity: 0.78;
+}
+
+.blog-toc__article-like {
+    align-items: center;
+    color: var(--toc-muted);
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 1.18rem;
+    font-weight: 800;
+    gap: 3px;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.blog-toc__article-like span:first-child {
+    color: var(--toc-accent);
+    font-family: var(--base-font-family);
+}
+
 .blog-toc__search {
     display: grid;
     gap: 8px;
+    grid-column: 1 / -1;
 }
 
 .blog-toc__search label {
@@ -2528,7 +2610,9 @@ a:hover {
 .blog-toc__folder li a {
     color: var(--toc-ink);
     font-family: var(--base-font-family);
+    flex: 1 1 auto;
     font-weight: 700;
+    min-width: 160px;
     overflow-wrap: anywhere;
 }
 

@@ -1,0 +1,191 @@
+<div class="article-details">
+    {{ if .Params.categories }}
+    <header class="article-category">
+        {{ range (.GetTerms "categories") }}
+            <a href="{{ .RelPermalink }}" {{ with .Params.style }}style="background-color: {{ .background }}; color: {{ .color }};"{{ end }}>
+                {{ .LinkTitle }}
+            </a>
+        {{ end }}
+    </header>
+    {{ end }}
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="{{ .RelPermalink }}">
+                {{- .Title -}}
+            </a>
+        </h2>
+
+        <button class="article-like" type="button" aria-pressed="false" data-article-like data-like-id="{{ .RelPermalink }}">
+            <span class="article-like__heart" aria-hidden="true"></span>
+            <span>Like</span>
+            <span class="article-like__count" data-article-like-count>0</span>
+        </button>
+
+        {{ with .Params.description }}
+        <h3 class="article-subtitle">
+            {{ . }}
+        </h3>
+        {{ end }}
+    </div>
+
+    {{ $showReadingTime := .Params.readingTime | default (.Site.Params.article.readingTime) }}
+    {{ $showDate := not .Date.IsZero }}
+    {{ $showFooter := or $showDate $showReadingTime }}
+    {{ if $showFooter }}
+    <footer class="article-time">
+        {{ if $showDate }}
+            <div>
+                {{ partial "helper/icon" "date" }}
+                <time class="article-time--published">
+                    {{- .Date | time.Format (or .Site.Params.dateFormat.published "Jan 02, 2006") -}}
+                </time>
+            </div>
+        {{ end }}
+
+        {{ if $showReadingTime }}
+            <div>
+                {{ partial "helper/icon" "clock" }}
+                <time class="article-time--reading">
+                    {{ T "article.readingTime" .ReadingTime }}
+                </time>
+            </div>
+        {{ end }}
+    </footer>
+    {{ end }}
+
+    {{ if .IsTranslated }}
+        <footer class="article-translations">
+            {{ partial "helper/icon" "language" }}
+            <div>
+                {{ range .Translations }}
+                    <a href="{{ .Permalink }}" class="link">{{ .Language.LanguageName }}</a>
+                {{ end }}
+            </div>
+        </footer>
+    {{ end }}
+</div>
+
+<script data-likes-worker-url="{{ .Site.Params.likes.workerURL | default "" }}">
+    (() => {
+        const script = document.currentScript;
+        const button = document.querySelector("[data-article-like]");
+        if (!button) return;
+
+        const countElement = button.querySelector("[data-article-like-count]");
+        const articleId = button.dataset.likeId || window.location.pathname;
+        const likesWorkerURL = script ? script.dataset.likesWorkerUrl || "" : "";
+        const countKey = `synaptic-radio:article-like-count:${articleId}`;
+        const likedKey = `synaptic-radio:article-liked:${articleId}`;
+        const storage = {
+            get(key) {
+                try {
+                    return localStorage.getItem(key);
+                } catch {
+                    return null;
+                }
+            },
+            set(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch {
+                }
+            },
+        };
+
+        const readCount = () => {
+            const value = Number.parseInt(storage.get(countKey) || "0", 10);
+            return Number.isFinite(value) ? value : 0;
+        };
+
+        const trackLike = (count, liked) => {
+            const detail = { articleId, count, liked };
+            window.dispatchEvent(new CustomEvent("article-like", { detail }));
+
+            if (typeof window.plausible === "function") {
+                window.plausible("Article Like", { props: detail });
+            }
+
+            if (typeof window.gtag === "function") {
+                window.gtag("event", "article_like", { article_id: articleId, value: count, liked });
+            }
+
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ event: "article_like", article_id: articleId, like_count: count, liked });
+        };
+
+        const fetchGlobalCount = () => {
+            if (!likesWorkerURL) return Promise.resolve(null);
+
+            const url = new URL("/likes", likesWorkerURL);
+            url.searchParams.set("ids", articleId);
+
+            return fetch(url)
+                .then((response) => (response.ok ? response.json() : Promise.reject(response)))
+                .then((data) => {
+                    if (!data.counts || !Number.isFinite(data.counts[articleId])) return null;
+                    return data.counts[articleId];
+                });
+        };
+
+        const sendGlobalLike = (nextLiked) => {
+            if (!likesWorkerURL) return Promise.resolve(null);
+
+            return fetch(new URL("/likes", likesWorkerURL), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: articleId,
+                    action: nextLiked ? "like" : "unlike",
+                }),
+            })
+                .then((response) => (response.ok ? response.json() : Promise.reject(response)))
+                .then((data) => (Number.isFinite(data.count) ? data.count : null));
+        };
+
+        let count = readCount();
+        let liked = storage.get(likedKey) === "true";
+
+        const render = () => {
+            button.setAttribute("aria-pressed", String(liked));
+            button.classList.toggle("is-liked", liked);
+            if (countElement) countElement.textContent = String(count);
+        };
+
+        button.addEventListener("click", () => {
+            const previousLiked = liked;
+            const previousCount = count;
+            liked = !previousLiked;
+            count = Math.max(0, previousCount + (liked ? 1 : -1));
+            storage.set(countKey, String(count));
+            storage.set(likedKey, String(liked));
+            render();
+            trackLike(count, liked);
+
+            sendGlobalLike(liked)
+                .then((globalCount) => {
+                    if (globalCount === null) return;
+                    count = globalCount;
+                    storage.set(countKey, String(count));
+                    render();
+                })
+                .catch(() => {
+                    liked = previousLiked;
+                    count = previousCount;
+                    storage.set(countKey, String(count));
+                    storage.set(likedKey, String(liked));
+                    render();
+                });
+        });
+
+        render();
+        fetchGlobalCount()
+            .then((globalCount) => {
+                if (globalCount === null) return;
+                count = globalCount;
+                storage.set(countKey, String(count));
+                render();
+            })
+            .catch(() => {});
+    })();
+</script>

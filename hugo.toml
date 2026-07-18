@@ -39,6 +39,10 @@ license.enabled = false
 [params.comments]
 enabled = false
 
+# Global article likes. Leave empty for local browser-only counts.
+[params.likes]
+workerURL = ""
+
 # Widget configuration
 [params.widgets]
 homepage = [

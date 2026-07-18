@@ -1,0 +1,10 @@
+name = "synaptic-radio-article-likes"
+main = "src/index.js"
+compatibility_date = "2026-07-18"
+
+[vars]
+ALLOWED_ORIGINS = "https://anshu92.github.io,http://localhost:1313,http://127.0.0.1:1313"
+
+[[kv_namespaces]]
+binding = "LIKES"
+id = "REPLACE_WITH_CLOUDFLARE_KV_NAMESPACE_ID"
