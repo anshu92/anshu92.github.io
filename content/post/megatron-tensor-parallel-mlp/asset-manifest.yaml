@@ -1,0 +1,28 @@
+assets:
+  - path: figures/cover.svg
+    type: cover
+    purpose: Show the reconstructed pre-RMSNorm SwiGLU feed-forward sublayer across two ranks.
+    provenance: Original SVG generated locally by code/generate_visuals.py.
+  - path: figures/figure-01-sharding.svg
+    type: diagram
+    purpose: Show matched gate, value, and down-projection shards and their tensor shapes.
+    provenance: Original SVG generated locally by code/generate_visuals.py.
+  - path: figures/figure-02-collectives.svg
+    type: diagram
+    purpose: Contrast the first failure signal from missing forward and backward collectives.
+    provenance: Original SVG generated locally by code/generate_visuals.py.
+  - path: data/terminal-01-inspect.txt
+    type: retained_terminal_output
+    purpose: Record environment, Transformer sublayer path, tensor shapes, collectives, and exclusions.
+  - path: data/terminal-02-equivalence.txt
+    type: retained_terminal_output
+    purpose: Record dense-versus-sharded forward, gradient, and optimizer-step equivalence.
+  - path: data/terminal-03-missing-forward.txt
+    type: retained_terminal_output
+    purpose: Record immediate output divergence after removing the forward all-reduce.
+  - path: data/terminal-04-missing-backward.txt
+    type: retained_terminal_output
+    purpose: Record backward-only divergence after removing the hidden-gradient all-reduce.
+  - path: data/terminal-05-tests.txt
+    type: retained_terminal_output
+    purpose: Record direct distributed test results.

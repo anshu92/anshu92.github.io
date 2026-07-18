@@ -1,0 +1,77 @@
+[Gloo] Rank [Gloo] Rank 1 is connected to 0 is connected to 11 peer ranks. Expected number of connected peer ranks is :  peer ranks. 1Expected number of connected peer ranks is : 
+1
+{
+  "python": "3.13.5",
+  "pytorch": "2.10.0+cpu",
+  "platform": "Linux-4.4.0-x86_64-with-glibc2.41",
+  "backend": "gloo",
+  "world_size": 2,
+  "block_path": "pre-RMSNorm -> fused gate/up -> SwiGLU -> down projection -> residual add",
+  "dense_shapes": {
+    "x": [
+      3,
+      2,
+      8
+    ],
+    "norm_weight": [
+      8
+    ],
+    "w_gate_up": [
+      2,
+      12,
+      8
+    ],
+    "w_down": [
+      8,
+      12
+    ],
+    "output": [
+      3,
+      2,
+      8
+    ]
+  },
+  "rank_local_shapes": {
+    "gate_up_weight": [
+      2,
+      6,
+      8
+    ],
+    "gate": [
+      3,
+      2,
+      6
+    ],
+    "up": [
+      3,
+      2,
+      6
+    ],
+    "swiglu": [
+      3,
+      2,
+      6
+    ],
+    "down_weight": [
+      8,
+      6
+    ],
+    "partial_output": [
+      3,
+      2,
+      8
+    ]
+  },
+  "collectives": [
+    "row-parallel forward: all-reduce partial down-projection outputs",
+    "column-parallel backward: all-reduce hidden-state gradient before RMSNorm"
+  ],
+  "not_included": [
+    "self-attention",
+    "sequence parallelism",
+    "CUDA/NCCL",
+    "mixed precision",
+    "fused kernels",
+    "Megatron-Core classes"
+  ]
+}

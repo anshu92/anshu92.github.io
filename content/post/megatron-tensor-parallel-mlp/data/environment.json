@@ -1,0 +1,7 @@
+{
+  "python": "3.13.5 (main, May  5 2026, 21:05:52) [GCC 14.2.0]",
+  "pytorch": "2.10.0+cpu",
+  "platform": "Linux-4.4.0-x86_64-with-glibc2.41",
+  "device": "CPU",
+  "distributed_backend": "gloo"
+}

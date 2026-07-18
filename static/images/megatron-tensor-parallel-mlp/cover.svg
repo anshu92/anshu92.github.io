@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+<style>text{font-family:Inter,Arial,sans-serif;fill:#172033} .t{font-size:34px;font-weight:700} .s{font-size:22px} .m{font-size:18px} .box{fill:#f4f6fa;stroke:#67748a;stroke-width:2} .rank0{fill:#e8f0ff;stroke:#4169a1;stroke-width:2} .rank1{fill:#fff0e6;stroke:#a65f2c;stroke-width:2} .arrow{stroke:#26354a;stroke-width:3;marker-end:url(#a)} </style>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#26354a"/></marker></defs><text x="60" y="70" class="t">Megatron tensor parallelism, rebuilt inside a Transformer block</text>
+<text x="60" y="110" class="s">pre-RMSNorm → SwiGLU → row-parallel down projection → residual</text>
+<rect x="55" y="205" width="180" height="90" rx="16" class="box"/><text x="95" y="258" class="s">Tokens X</text>
+<line x1="235" y1="250" x2="315" y2="250" class="arrow"/>
+<rect x="325" y="205" width="190" height="90" rx="16" class="box"/><text x="365" y="258" class="s">RMSNorm</text>
+<line x1="515" y1="250" x2="590" y2="190" class="arrow"/><line x1="515" y1="250" x2="590" y2="380" class="arrow"/>
+<rect x="600" y="135" width="260" height="125" rx="16" class="rank0"/><text x="655" y="185" class="s">Rank 0</text><text x="625" y="220" class="m">local gate/up → SiLU × up → partial down</text>
+<rect x="600" y="330" width="260" height="125" rx="16" class="rank1"/><text x="655" y="380" class="s">Rank 1</text><text x="625" y="415" class="m">local gate/up → SiLU × up → partial down</text>
+<line x1="860" y1="200" x2="940" y2="285" class="arrow"/><line x1="860" y1="390" x2="940" y2="315" class="arrow"/>
+<rect x="950" y="245" width="200" height="110" rx="16" class="box"/><text x="990" y="290" class="s">all-reduce</text><text x="980" y="325" class="m">then add residual</text></svg>

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "markdown": true,
+  "links": true,
+  "yaml": true,
+  "latex_controls": true,
+  "svgs": 3,
+  "terminal_outputs": 5
+}

@@ -1,0 +1,15 @@
+[Gloo] Rank [Gloo] Rank 1 is connected to 01 is connected to  peer ranks. 1Expected number of connected peer ranks is :  peer ranks. 1Expected number of connected peer ranks is : 
+1
+{
+  "mode": "missing_forward_reduce",
+  "world_size": 2,
+  "forward_max_abs_diff": 1.1021764278411865,
+  "loss_abs_diff": 0.19488954544067383,
+  "input_grad_max_abs_diff": 0.03851410746574402,
+  "norm_grad_max_abs_diff": 0.04135049879550934,
+  "gate_up_grad_max_abs_diff": 0.05925934761762619,
+  "down_grad_max_abs_diff": 0.026660695672035217,
+  "down_bias_grad_max_abs_diff": 0.07337987422943115,
+  "post_step_weight_max_abs_diff": 0.0036689937114715576,
+  "passed": false
+}
