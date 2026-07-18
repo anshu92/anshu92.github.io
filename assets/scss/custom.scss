@@ -2537,8 +2537,13 @@ a:hover {
 }
 
 .blog-toc__folder time,
+.blog-toc__book-author,
 .blog-toc__empty {
     color: var(--toc-muted);
+}
+
+.blog-toc__book-author {
+    font-size: 1.18rem;
 }
 
 .blog-toc__empty {

@@ -4,6 +4,7 @@
     {{ $posts := ($pages | intersect $notHidden).ByDate.Reverse }}
     {{ $folders := dict }}
     {{ $folderNames := slice }}
+    {{ $bookRecommendations := .Site.Data.book_recommendations_2026 }}
 
     {{ range $posts }}
         {{ $category := "Uncategorized" }}
@@ -41,7 +42,7 @@
             </form>
         </header>
 
-        <nav class="blog-toc__tree" aria-label="Blog posts by category" data-blog-toc-tree>
+        <nav class="blog-toc__tree" aria-label="Blog posts and links by folder" data-blog-toc-tree>
             {{ range $categoryIndex, $category := $folderNames }}
                 {{ $categoryPosts := index $folders $category }}
                 {{ if gt (len $categoryPosts) 0 }}
@@ -60,6 +61,28 @@
                                     <span class="blog-toc__post-icon" aria-hidden="true"></span>
                                     <a href="{{ .RelPermalink }}">{{ .Title }}</a>
                                     <time datetime="{{ .Date.Format "2006-01-02" }}">[{{ $date }}]</time>
+                                </li>
+                            {{ end }}
+                        </ol>
+                    </details>
+                {{ end }}
+            {{ end }}
+            {{ with $bookRecommendations }}
+                {{ if gt (len .books) 0 }}
+                    <details class="blog-toc__folder" open data-blog-toc-folder>
+                        <summary>
+                            <span class="blog-toc__folder-marker" aria-hidden="true"></span>
+                            <span class="blog-toc__folder-icon" aria-hidden="true"></span>
+                            <span class="blog-toc__folder-name">{{ .title }}</span>
+                            <span class="blog-toc__folder-count">{{ len .books }}</span>
+                        </summary>
+                        <ol>
+                            {{ range .books }}
+                                <li data-blog-toc-item data-search-text="{{ printf "%s %s %s" .title .author $bookRecommendations.title | plainify | lower }}">
+                                    <span class="blog-toc__branch" aria-hidden="true"></span>
+                                    <span class="blog-toc__post-icon blog-toc__post-icon--book" aria-hidden="true"></span>
+                                    <a href="{{ .url }}" target="_blank" rel="noopener noreferrer">{{ .title }}</a>
+                                    <span class="blog-toc__book-author">by {{ .author }}</span>
                                 </li>
                             {{ end }}
                         </ol>
