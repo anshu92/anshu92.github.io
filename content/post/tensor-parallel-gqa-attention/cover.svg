@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+<rect width="100%" height="100%" fill="#0b1020"/>
+<text x="60" y="70" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Tensor-parallel GQA</text>
+<text x="60" y="108" fill="#94a3b8" font-family="Arial" font-size="19">Partition complete query/KV groups, then reduce output partials.</text>
+<rect x="70" y="180" width="290" height="220" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="90" y="218" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Dense GQA</text>
+<text x="90" y="250" fill="#cbd5e1" font-family="Arial" font-size="17">4 query heads</text>
+<text x="90" y="275" fill="#cbd5e1" font-family="Arial" font-size="17">2 KV heads</text>
+<text x="90" y="300" fill="#cbd5e1" font-family="Arial" font-size="17">2 queries per KV</text>
+<rect x="455" y="155" width="300" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="475" y="193" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Rank 0</text>
+<text x="475" y="225" fill="#cbd5e1" font-family="Arial" font-size="17">Q heads 0–1</text>
+<text x="475" y="250" fill="#cbd5e1" font-family="Arial" font-size="17">KV head 0</text>
+<text x="475" y="275" fill="#cbd5e1" font-family="Arial" font-size="17">local attention</text>
+<rect x="455" y="385" width="300" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="475" y="423" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Rank 1</text>
+<text x="475" y="455" fill="#cbd5e1" font-family="Arial" font-size="17">Q heads 2–3</text>
+<text x="475" y="480" fill="#cbd5e1" font-family="Arial" font-size="17">KV head 1</text>
+<text x="475" y="505" fill="#cbd5e1" font-family="Arial" font-size="17">local attention</text>
+<rect x="850" y="260" width="280" height="220" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="870" y="298" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Dense output</text>
+<text x="870" y="330" fill="#cbd5e1" font-family="Arial" font-size="17">sum rank-local</text>
+<text x="870" y="355" fill="#cbd5e1" font-family="Arial" font-size="17">output projections</text>
+<text x="870" y="380" fill="#cbd5e1" font-family="Arial" font-size="17">then residual add</text>
+<line x1="360" y1="290" x2="455" y2="245" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="455,245 441,237 441,253" fill="#38bdf8"/>
+<text x="407" y="255" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">group 0</text>
+<line x1="360" y1="290" x2="455" y2="475" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="455,475 441,467 441,483" fill="#38bdf8"/>
+<text x="407" y="370" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">group 1</text>
+<line x1="755" y1="245" x2="850" y2="335" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="850,335 836,327 836,343" fill="#38bdf8"/>
+<text x="802" y="278" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">partial 0</text>
+<line x1="755" y1="475" x2="850" y2="385" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="850,385 836,377 836,393" fill="#38bdf8"/>
+<text x="802" y="418" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">partial 1</text>
+</svg>

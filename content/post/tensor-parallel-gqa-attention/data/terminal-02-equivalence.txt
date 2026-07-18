@@ -1,0 +1,10 @@
+{
+  "seed": 11,
+  "mode": "equivalence",
+  "forward_max_abs_diff": 1.1920928955078125e-07,
+  "loss_abs_diff": 0.0,
+  "input_grad_max_abs_diff": 3.725290298461914e-09,
+  "parameter_grad_max_abs_diff": 2.2351741790771484e-08,
+  "post_step_weight_max_abs_diff": 1.4901161193847656e-08,
+  "passed": true
+}

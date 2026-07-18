@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+<rect width="100%" height="100%" fill="#0b1020"/>
+<text x="60" y="70" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Second transformation: row-parallel output projection</text>
+<text x="60" y="108" fill="#94a3b8" font-family="Arial" font-size="19">Local contexts produce full-width partial outputs that must be summed.</text>
+<rect x="70" y="180" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="90" y="218" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Rank 0 context</text>
+<text x="90" y="250" fill="#cbd5e1" font-family="Arial" font-size="17">[S,B,2,D]</text>
+<text x="90" y="275" fill="#cbd5e1" font-family="Arial" font-size="17">Wo columns 0–7</text>
+<rect x="70" y="400" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="90" y="438" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Rank 1 context</text>
+<text x="90" y="470" fill="#cbd5e1" font-family="Arial" font-size="17">[S,B,2,D]</text>
+<text x="90" y="495" fill="#cbd5e1" font-family="Arial" font-size="17">Wo columns 8–15</text>
+<rect x="460" y="180" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="480" y="218" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Partial output 0</text>
+<text x="480" y="250" fill="#cbd5e1" font-family="Arial" font-size="17">[S,B,H]</text>
+<text x="480" y="275" fill="#cbd5e1" font-family="Arial" font-size="17">not independently valid</text>
+<rect x="460" y="400" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="480" y="438" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Partial output 1</text>
+<text x="480" y="470" fill="#cbd5e1" font-family="Arial" font-size="17">[S,B,H]</text>
+<text x="480" y="495" fill="#cbd5e1" font-family="Arial" font-size="17">not independently valid</text>
+<rect x="850" y="285" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="870" y="323" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">All-reduce sum</text>
+<text x="870" y="355" fill="#cbd5e1" font-family="Arial" font-size="17">dense attention output</text>
+<text x="870" y="380" fill="#cbd5e1" font-family="Arial" font-size="17">then residual add</text>
+<line x1="350" y1="270" x2="460" y2="270" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="460,270 446,262 446,278" fill="#38bdf8"/>
+<text x="405" y="258" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">local GEMM</text>
+<line x1="350" y1="490" x2="460" y2="490" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="460,490 446,482 446,498" fill="#38bdf8"/>
+<text x="405" y="478" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">local GEMM</text>
+<line x1="740" y1="270" x2="850" y2="350" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="850,350 836,342 836,358" fill="#38bdf8"/>
+<text x="795" y="298" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">sum</text>
+<line x1="740" y1="490" x2="850" y2="400" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="850,400 836,392 836,408" fill="#38bdf8"/>
+<text x="795" y="433" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">sum</text>
+</svg>

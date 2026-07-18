@@ -1,0 +1,38 @@
+{
+  "python": "3.13.5",
+  "pytorch": "2.10.0+cpu",
+  "config": {
+    "seq": 5,
+    "batch": 2,
+    "hidden": 16,
+    "query_heads": 4,
+    "kv_heads": 2,
+    "head_dim": 4,
+    "world_size": 2,
+    "eps": 1e-06
+  },
+  "dense_shapes": {
+    "x": [
+      5,
+      2,
+      16
+    ],
+    "q": [
+      5,
+      2,
+      4,
+      4
+    ],
+    "k_v": [
+      5,
+      2,
+      2,
+      4
+    ]
+  },
+  "rank_local": {
+    "query_heads": 2,
+    "kv_heads": 1
+  },
+  "rule": "keep complete query/KV groups on each rank; sum output-projection partials"
+}

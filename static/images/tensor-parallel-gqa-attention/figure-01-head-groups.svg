@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+<rect width="100%" height="100%" fill="#0b1020"/>
+<text x="60" y="70" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">First transformation: preserve semantic head groups</text>
+<text x="60" y="108" fill="#94a3b8" font-family="Arial" font-size="19">Each rank owns complete query heads and the KV head they reuse.</text>
+<rect x="70" y="180" width="300" height="260" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="90" y="218" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Dense head topology</text>
+<text x="90" y="250" fill="#cbd5e1" font-family="Arial" font-size="17">Q0 Q1 → KV0</text>
+<text x="90" y="275" fill="#cbd5e1" font-family="Arial" font-size="17">Q2 Q3 → KV1</text>
+<text x="90" y="300" fill="#cbd5e1" font-family="Arial" font-size="17">head_dim = 4</text>
+<rect x="480" y="160" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="500" y="198" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Rank 0</text>
+<text x="500" y="230" fill="#cbd5e1" font-family="Arial" font-size="17">Q0, Q1</text>
+<text x="500" y="255" fill="#cbd5e1" font-family="Arial" font-size="17">K0, V0</text>
+<text x="500" y="280" fill="#cbd5e1" font-family="Arial" font-size="17">repeat KV locally</text>
+<rect x="480" y="390" width="280" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="500" y="428" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Rank 1</text>
+<text x="500" y="460" fill="#cbd5e1" font-family="Arial" font-size="17">Q2, Q3</text>
+<text x="500" y="485" fill="#cbd5e1" font-family="Arial" font-size="17">K1, V1</text>
+<text x="500" y="510" fill="#cbd5e1" font-family="Arial" font-size="17">repeat KV locally</text>
+<line x1="370" y1="270" x2="480" y2="240" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="480,240 466,232 466,248" fill="#38bdf8"/>
+<text x="425" y="243" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">slice by group</text>
+<line x1="370" y1="330" x2="480" y2="470" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="480,470 466,462 466,478" fill="#38bdf8"/>
+<text x="425" y="388" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">slice by group</text>
+</svg>

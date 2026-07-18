@@ -1,0 +1,56 @@
+{
+  "equivalence": {
+    "forward_max_abs_diff": {
+      "min": 1.1920928955078125e-07,
+      "max": 2.384185791015625e-07
+    },
+    "input_grad_max_abs_diff": {
+      "min": 3.725290298461914e-09,
+      "max": 1.1175870895385742e-08
+    },
+    "parameter_grad_max_abs_diff": {
+      "min": 1.4901161193847656e-08,
+      "max": 4.470348358154297e-08
+    },
+    "post_step_weight_max_abs_diff": {
+      "min": 7.450580596923828e-09,
+      "max": 2.9802322387695312e-08
+    }
+  },
+  "missing_output_reduce": {
+    "forward_max_abs_diff": {
+      "min": 0.32424601912498474,
+      "max": 0.9368336200714111
+    },
+    "input_grad_max_abs_diff": {
+      "min": 0.010287338867783546,
+      "max": 0.01798693835735321
+    },
+    "parameter_grad_max_abs_diff": {
+      "min": 0.05687633529305458,
+      "max": 0.12953613698482513
+    },
+    "post_step_weight_max_abs_diff": {
+      "min": 0.002843816764652729,
+      "max": 0.0064768195152282715
+    }
+  },
+  "missing_input_grad_reduce": {
+    "forward_max_abs_diff": {
+      "min": 1.1920928955078125e-07,
+      "max": 2.384185791015625e-07
+    },
+    "input_grad_max_abs_diff": {
+      "min": 0.009984754025936127,
+      "max": 0.01818237267434597
+    },
+    "parameter_grad_max_abs_diff": {
+      "min": 0.012469504028558731,
+      "max": 0.040605735033750534
+    },
+    "post_step_weight_max_abs_diff": {
+      "min": 0.0006234645843505859,
+      "max": 0.0020302534103393555
+    }
+  }
+}

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+<rect width="100%" height="100%" fill="#0b1020"/>
+<text x="60" y="70" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Two bugs, two first-failure signals</text>
+<text x="60" y="108" fill="#94a3b8" font-family="Arial" font-size="19">Forward and backward communication must be tested independently.</text>
+<rect x="70" y="170" width="320" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="90" y="208" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Missing output reduce</text>
+<text x="90" y="240" fill="#cbd5e1" font-family="Arial" font-size="17">first failure: output</text>
+<text x="90" y="265" fill="#cbd5e1" font-family="Arial" font-size="17">forward error ≈ 0.701</text>
+<text x="90" y="290" fill="#cbd5e1" font-family="Arial" font-size="17">loss changes immediately</text>
+<rect x="70" y="400" width="320" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="90" y="438" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Missing input-grad reduce</text>
+<text x="90" y="470" fill="#cbd5e1" font-family="Arial" font-size="17">forward still matches</text>
+<text x="90" y="495" fill="#cbd5e1" font-family="Arial" font-size="17">first failure: dX</text>
+<text x="90" y="520" fill="#cbd5e1" font-family="Arial" font-size="17">input-grad error ≈ 0.011</text>
+<rect x="520" y="285" width="580" height="180" rx="18" fill="#172033" stroke="#64748b" stroke-width="2"/>
+<text x="540" y="323" fill="#f8fafc" font-family="Arial" font-size="22" font-weight="700">Required test hierarchy</text>
+<text x="540" y="355" fill="#cbd5e1" font-family="Arial" font-size="17">forward comparison catches row-parallel bug</text>
+<text x="540" y="380" fill="#cbd5e1" font-family="Arial" font-size="17">backward comparison catches replicated-input bug</text>
+<text x="540" y="405" fill="#cbd5e1" font-family="Arial" font-size="17">optimizer-step comparison catches state divergence</text>
+<line x1="390" y1="260" x2="520" y2="335" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="520,335 506,327 506,343" fill="#38bdf8"/>
+<text x="455" y="285" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">forward test</text>
+<line x1="390" y1="490" x2="520" y2="415" stroke="#38bdf8" stroke-width="4"/>
+<polygon points="520,415 506,407 506,423" fill="#38bdf8"/>
+<text x="455" y="440" text-anchor="middle" fill="#7dd3fc" font-family="Arial" font-size="16">backward test</text>
+</svg>
