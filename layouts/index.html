@@ -7,16 +7,15 @@
     {{ $bookRecommendations := .Site.Data.book_recommendations_2026 }}
 
     {{ range $posts }}
-        {{ $category := "Uncategorized" }}
+        {{ $post := . }}
         {{ with .Params.categories }}
-            {{ $category = printf "%s" (index . 0) }}
-        {{ end }}
-
-        {{ if isset $folders $category }}
-            {{ $folders = merge $folders (dict $category ((index $folders $category) | append .)) }}
-        {{ else }}
-            {{ $folderNames = $folderNames | append $category }}
-            {{ $folders = merge $folders (dict $category (slice .)) }}
+            {{ $category := printf "%s" (index . 0) }}
+            {{ if isset $folders $category }}
+                {{ $folders = merge $folders (dict $category ((index $folders $category) | append $post)) }}
+            {{ else }}
+                {{ $folderNames = $folderNames | append $category }}
+                {{ $folders = merge $folders (dict $category (slice $post)) }}
+            {{ end }}
         {{ end }}
     {{ end }}
 
