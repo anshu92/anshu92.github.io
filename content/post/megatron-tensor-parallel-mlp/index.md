@@ -1,9 +1,9 @@
 ---
-title: "Megatron Tensor Parallelism: Rebuilding a SwiGLU Feed-Forward Block Across Two Ranks"
+title: "Tensor Parallelism I: Rebuilding a Megatron SwiGLU Block Across Two Ranks"
 description: "I rebuilt a pre-RMSNorm SwiGLU Transformer feed-forward sublayer with Megatron-style tensor parallelism and checked one complete training step against a dense reference."
 summary: "Split the expansion by output features, split the contraction by input features, place one collective in forward and one in backward, then test the result against dense training."
 date: 2026-07-16
-lastmod: 2026-07-17
+lastmod: 2026-07-20
 draft: false
 slug: "megatron-tensor-parallel-mlp"
 author: "Anshuman Sahoo"
@@ -14,8 +14,10 @@ series_order: 6
 tags: ["Megatron-LM", "distributed training", "tensor parallelism", "SwiGLU", "PyTorch"]
 categories:
   - Distributed training
+  - Tensor Parallelism
   - Deep-learning mechanisms
   - GPU systems and performance engineering
+subfolder: "Tensor Parallelism"
 competencies: ["tensor-parallel layer reconstruction", "distributed autograd reasoning", "collective placement", "equivalence testing"]
 prerequisites: ["matrix multiplication", "backpropagation", "Transformer feed-forward layers", "PyTorch distributed basics"]
 current_role_tracks: ["CR2", "CR5"]

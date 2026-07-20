@@ -1,9 +1,9 @@
 ---
-title: "Tensor-Parallel GQA Attention, One Head Group at a Time"
+title: "Tensor Parallelism II: GQA Attention, One Head Group at a Time"
 description: "I start from a dense pre-norm GQA block, partition complete query/KV groups across two ranks, and verify the forward pass, gradients, and SGD update."
 summary: "Split semantic head groups, sum output-projection partials, and test forward and backward communication independently."
 date: 2026-07-16
-lastmod: 2026-07-18
+lastmod: 2026-07-20
 draft: false
 slug: "tensor-parallel-gqa-attention"
 author: "Anshuman Sahoo"
@@ -13,9 +13,11 @@ series: "Frontier Research Engineer Curriculum"
 series_order: 4
 categories:
   - Distributed training
+  - Tensor Parallelism
   - Transformer architecture
   - GPU systems and performance engineering
   - Inference and serving
+subfolder: "Tensor Parallelism"
 tags: ["Megatron-LM", "grouped-query attention", "tensor parallelism", "PyTorch", "transformers"]
 competencies: ["GQA topology", "attention partitioning", "collective placement", "equivalence testing"]
 prerequisites: ["scaled dot-product attention", "multi-head attention", "backpropagation"]

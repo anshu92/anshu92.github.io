@@ -2577,6 +2577,28 @@ a:hover {
     min-width: 0;
 }
 
+.blog-toc__subfolder {
+    display: block;
+    width: 100%;
+}
+
+.blog-toc__subfolder > details {
+    width: 100%;
+}
+
+.blog-toc__subfolder > details > summary {
+    min-height: 30px;
+    padding-left: 0;
+}
+
+.blog-toc__subfolder .blog-toc__folder-name {
+    font-size: 1.3rem;
+}
+
+.blog-toc__subfolder .blog-toc__folder-count {
+    font-size: 1.08rem;
+}
+
 .blog-toc__branch {
     align-self: stretch;
     border-bottom: 1.5px solid var(--toc-line);

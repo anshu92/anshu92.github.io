@@ -10,12 +10,29 @@
         {{ $post := . }}
         {{ with .Params.categories }}
             {{ $category := printf "%s" (index . 0) }}
+            {{ $folder := dict "posts" slice "subfolderNames" slice "subfolders" dict }}
             {{ if isset $folders $category }}
-                {{ $folders = merge $folders (dict $category ((index $folders $category) | append $post)) }}
+                {{ $folder = index $folders $category }}
             {{ else }}
                 {{ $folderNames = $folderNames | append $category }}
-                {{ $folders = merge $folders (dict $category (slice $post)) }}
             {{ end }}
+
+            {{ with $post.Params.subfolder }}
+                {{ $subfolder := printf "%s" . }}
+                {{ $subfolders := index $folder "subfolders" }}
+                {{ $subfolderNames := index $folder "subfolderNames" }}
+                {{ if isset $subfolders $subfolder }}
+                    {{ $subfolders = merge $subfolders (dict $subfolder ((index $subfolders $subfolder) | append $post)) }}
+                {{ else }}
+                    {{ $subfolderNames = $subfolderNames | append $subfolder }}
+                    {{ $subfolders = merge $subfolders (dict $subfolder (slice $post)) }}
+                {{ end }}
+                {{ $folder = merge $folder (dict "subfolderNames" $subfolderNames "subfolders" $subfolders) }}
+            {{ else }}
+                {{ $folder = merge $folder (dict "posts" ((index $folder "posts") | append $post)) }}
+            {{ end }}
+
+            {{ $folders = merge $folders (dict $category $folder) }}
         {{ end }}
     {{ end }}
 
@@ -43,14 +60,21 @@
 
         <nav class="blog-toc__tree" aria-label="Blog posts and links by folder" data-blog-toc-tree>
             {{ range $categoryIndex, $category := $folderNames }}
-                {{ $categoryPosts := index $folders $category }}
-                {{ if gt (len $categoryPosts) 0 }}
+                {{ $folder := index $folders $category }}
+                {{ $categoryPosts := index $folder "posts" }}
+                {{ $subfolderNames := index $folder "subfolderNames" }}
+                {{ $subfolders := index $folder "subfolders" }}
+                {{ $folderCount := len $categoryPosts }}
+                {{ range $subfolderNames }}
+                    {{ $folderCount = add $folderCount (len (index $subfolders .)) }}
+                {{ end }}
+                {{ if gt $folderCount 0 }}
                     <details class="blog-toc__folder" open data-blog-toc-folder>
                         <summary>
                             <span class="blog-toc__folder-marker" aria-hidden="true"></span>
                             <span class="blog-toc__folder-icon" aria-hidden="true"></span>
                             <span class="blog-toc__folder-name">{{ $category }}</span>
-                            <span class="blog-toc__folder-count">{{ len $categoryPosts }}</span>
+                            <span class="blog-toc__folder-count">{{ $folderCount }}</span>
                         </summary>
                         <ol>
                             {{ range $categoryPosts }}
@@ -64,6 +88,35 @@
                                         <span aria-hidden="true">♥</span>
                                         <span>0</span>
                                     </span>
+                                </li>
+                            {{ end }}
+                            {{ range $subfolderNames }}
+                                {{ $subfolder := . }}
+                                {{ $subfolderPosts := index $subfolders $subfolder }}
+                                <li class="blog-toc__subfolder" data-blog-toc-subfolder>
+                                    <details open data-blog-toc-folder>
+                                        <summary>
+                                            <span class="blog-toc__branch" aria-hidden="true"></span>
+                                            <span class="blog-toc__folder-icon" aria-hidden="true"></span>
+                                            <span class="blog-toc__folder-name">{{ $subfolder }}</span>
+                                            <span class="blog-toc__folder-count">{{ len $subfolderPosts }}</span>
+                                        </summary>
+                                        <ol>
+                                            {{ range $subfolderPosts }}
+                                                {{ $date := .Date | time.Format (or $.Site.Params.dateFormat.published "Jan 02, 2006") }}
+                                                <li data-blog-toc-item data-search-text="{{ printf "%s %s %s %s" .Title $category $subfolder $date | plainify | lower }}">
+                                                    <span class="blog-toc__branch" aria-hidden="true"></span>
+                                                    <span class="blog-toc__post-icon" aria-hidden="true"></span>
+                                                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                                                    <time datetime="{{ .Date.Format "2006-01-02" }}">[{{ $date }}]</time>
+                                                    <span class="blog-toc__article-like" data-article-like-count data-like-id="{{ .RelPermalink }}" title="Article likes">
+                                                        <span aria-hidden="true">♥</span>
+                                                        <span>0</span>
+                                                    </span>
+                                                </li>
+                                            {{ end }}
+                                        </ol>
+                                    </details>
                                 </li>
                             {{ end }}
                         </ol>
