@@ -1,0 +1,37 @@
+{
+  "reserve_max": {
+    "rejected": [
+      "D",
+      "E"
+    ],
+    "growth_failures": 0,
+    "peak_reserved": 70,
+    "peak_waste": 33
+  },
+  "grow_contiguous": {
+    "rejected": [],
+    "growth_failures": 4,
+    "peak_reserved": 31,
+    "peak_waste": 0
+  },
+  "paged_4": {
+    "rejected": [],
+    "growth_failures": 0,
+    "peak_reserved": 64,
+    "peak_waste": 8
+  },
+  "paged_8": {
+    "rejected": [],
+    "growth_failures": 1,
+    "peak_reserved": 72,
+    "peak_waste": 13
+  },
+  "paged_16": {
+    "rejected": [
+      "E"
+    ],
+    "growth_failures": 1,
+    "peak_reserved": 80,
+    "peak_waste": 25
+  }
+}

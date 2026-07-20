@@ -1,0 +1,117 @@
+{
+  "consensus": {
+    "selected": "KV-cache allocation and paging",
+    "runner_up": "CUDA memory coalescing probes",
+    "Borda_score": 47,
+    "objective_score": 94,
+    "combined_score": 95.2,
+    "reason": "Highest current-role and frontier multiplier; directly addresses H6 and H2 while remaining separable from prior attention architecture articles."
+  },
+  "drift": {
+    "assigned": "Reconstructive Engineer",
+    "actual": "Reconstructive Engineer",
+    "runner_up": "Systems Architect",
+    "mismatch": false
+  },
+  "editor-brief": {
+    "sequence": 8,
+    "slug": "paged-kv-cache-allocation",
+    "lead_archetype": "Reconstructive Engineer",
+    "secondary_archetypes": [
+      "Systems Architect",
+      "Experimental Field Reporter"
+    ],
+    "central_thesis": "Paged KV caches change the allocation unit; they solve physical contiguity requirements but not kernel efficiency or scheduling.",
+    "reader_payoff": "A runnable allocator simulator and a design contract for separating allocation, scheduling, and kernel claims.",
+    "mastery_artifact": "Deterministic allocator simulator with fragmentation counterexample and block-size tests."
+  },
+  "editorial-contract": {
+    "lead_archetype": "Reconstructive Engineer",
+    "core_editorial_question": "What does paging change in KV-cache allocation, and what remains unsolved?",
+    "opening_move": "Start with an admission failure despite enough total free memory.",
+    "narrative_spine": [
+      "contiguous failure",
+      "minimal block mapping",
+      "same-trace experiment",
+      "bounded conclusion"
+    ],
+    "evidence_sequence": [
+      "counterexample",
+      "implementation",
+      "test output",
+      "primary sources"
+    ],
+    "sentence_level_style": "Mechanism-first, concrete, varied.",
+    "required_visual_logic": "One comparative allocator chart.",
+    "ending_move": "Turn the result into a layered ownership contract.",
+    "forbidden_drift_patterns": [
+      "broad inference survey",
+      "unbounded throughput claims"
+    ],
+    "repetition_watchlist": [
+      "fragmentation",
+      "paging",
+      "allocator"
+    ]
+  },
+  "evidence-ledger": {
+    "resume_fingerprint": "7c88450b176dfe01b35254f54217b1753a85ab3eb29146e29c38c155e1013f01",
+    "explicit": [
+      "Ray/vLLM inference experience",
+      "distributed training infrastructure",
+      "foundation-model production ownership"
+    ],
+    "inferred": [
+      "Would benefit from deeper inference memory internals"
+    ],
+    "unsupported": []
+  },
+  "fidelity": {
+    "score": 46,
+    "minimum_item": 4,
+    "verdict": "PASS"
+  },
+  "focused-revision": {
+    "changes": [
+      "Separated paper throughput claim from local allocator evidence",
+      "Added vAttention alternative",
+      "Added explicit block-size non-conclusion",
+      "Reduced repeated terminology"
+    ]
+  },
+  "human-texture": {
+    "score": 35,
+    "minimum_item": 4,
+    "mechanical_passages_corrected": [
+      "opening definition replaced by failure scene",
+      "block-size section shortened",
+      "ending changed from recap to ownership rule"
+    ],
+    "verdict": "PASS"
+  },
+  "source-resolution": {
+    "status": "PASS",
+    "state_version": 8,
+    "sequences": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "canonical_source": "Google Drive",
+    "workflow_complete": true
+  },
+  "staff-plus": {
+    "score": 91,
+    "blockers": [],
+    "verdict": "PASS",
+    "limits": [
+      "synthetic allocator trace",
+      "no GPU kernel benchmark",
+      "no production throughput claim"
+    ]
+  }
+}

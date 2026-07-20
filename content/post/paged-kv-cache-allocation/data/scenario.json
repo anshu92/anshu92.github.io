@@ -1,0 +1,53 @@
+{
+  "capacity": 80,
+  "steps": 30,
+  "block_sizes": [
+    4,
+    8,
+    16
+  ],
+  "requests": [
+    {
+      "rid": "A",
+      "arrival": 0,
+      "prompt": 12,
+      "max_new": 16,
+      "actual_new": 10
+    },
+    {
+      "rid": "B",
+      "arrival": 0,
+      "prompt": 10,
+      "max_new": 12,
+      "actual_new": 4
+    },
+    {
+      "rid": "C",
+      "arrival": 2,
+      "prompt": 8,
+      "max_new": 12,
+      "actual_new": 9
+    },
+    {
+      "rid": "D",
+      "arrival": 7,
+      "prompt": 14,
+      "max_new": 10,
+      "actual_new": 8
+    },
+    {
+      "rid": "E",
+      "arrival": 10,
+      "prompt": 12,
+      "max_new": 12,
+      "actual_new": 6
+    },
+    {
+      "rid": "F",
+      "arrival": 13,
+      "prompt": 18,
+      "max_new": 8,
+      "actual_new": 5
+    }
+  ]
+}

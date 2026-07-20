@@ -1,0 +1,13 @@
+{
+  "name": "synaptic-radio-article-likes-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "login": "wrangler login",
+    "kv:create": "wrangler kv namespace create LIKES",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

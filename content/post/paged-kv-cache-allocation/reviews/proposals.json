@@ -1,0 +1,1352 @@
+[
+  {
+    "archetype": "Research Cartographer",
+    "rank": 1,
+    "title": "KV-cache allocation and paging",
+    "core_question": "What mechanism and falsifiable test make kv-cache allocation and paging operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 9,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Cartographer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Cartographer",
+    "rank": 2,
+    "title": "Continuous batching admission control",
+    "core_question": "What mechanism and falsifiable test make continuous batching admission control operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Cartographer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Cartographer",
+    "rank": 3,
+    "title": "Prefix-cache correctness",
+    "core_question": "What mechanism and falsifiable test make prefix-cache correctness operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Cartographer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Cartographer",
+    "rank": 4,
+    "title": "CUDA memory coalescing probes",
+    "core_question": "What mechanism and falsifiable test make cuda memory coalescing probes operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Cartographer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Cartographer",
+    "rank": 5,
+    "title": "Triton reduction reconstruction",
+    "core_question": "What mechanism and falsifiable test make triton reduction reconstruction operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Cartographer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Reconstructive Engineer",
+    "rank": 1,
+    "title": "Quantization error evaluation",
+    "core_question": "What mechanism and falsifiable test make quantization error evaluation operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Reconstructive Engineer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Reconstructive Engineer",
+    "rank": 2,
+    "title": "Speculative decoding acceptance",
+    "core_question": "What mechanism and falsifiable test make speculative decoding acceptance operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Reconstructive Engineer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Reconstructive Engineer",
+    "rank": 3,
+    "title": "Serving SLO decomposition",
+    "core_question": "What mechanism and falsifiable test make serving slo decomposition operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Reconstructive Engineer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Reconstructive Engineer",
+    "rank": 4,
+    "title": "NCCL cost-model validation",
+    "core_question": "What mechanism and falsifiable test make nccl cost-model validation operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Reconstructive Engineer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Reconstructive Engineer",
+    "rank": 5,
+    "title": "Paged-attention block-size trade-offs",
+    "core_question": "What mechanism and falsifiable test make paged-attention block-size trade-offs operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Reconstructive Engineer",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Production Pattern Miner",
+    "rank": 1,
+    "title": "Dynamic batching fairness",
+    "core_question": "What mechanism and falsifiable test make dynamic batching fairness operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Production Pattern Miner",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Production Pattern Miner",
+    "rank": 2,
+    "title": "Inference scheduler preemption",
+    "core_question": "What mechanism and falsifiable test make inference scheduler preemption operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Production Pattern Miner",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Production Pattern Miner",
+    "rank": 3,
+    "title": "FlashAttention IO model",
+    "core_question": "What mechanism and falsifiable test make flashattention io model operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Production Pattern Miner",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Production Pattern Miner",
+    "rank": 4,
+    "title": "KV-cache compression controls",
+    "core_question": "What mechanism and falsifiable test make kv-cache compression controls operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 9,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Production Pattern Miner",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Production Pattern Miner",
+    "rank": 5,
+    "title": "Topology-aware collectives",
+    "core_question": "What mechanism and falsifiable test make topology-aware collectives operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Production Pattern Miner",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Frontier Strategist",
+    "rank": 1,
+    "title": "Distributed checkpoint sharding",
+    "core_question": "What mechanism and falsifiable test make distributed checkpoint sharding operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Frontier Strategist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Frontier Strategist",
+    "rank": 2,
+    "title": "Elastic training fault injection",
+    "core_question": "What mechanism and falsifiable test make elastic training fault injection operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Frontier Strategist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Frontier Strategist",
+    "rank": 3,
+    "title": "Gradient noise scale estimation",
+    "core_question": "What mechanism and falsifiable test make gradient noise scale estimation operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Frontier Strategist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Frontier Strategist",
+    "rank": 4,
+    "title": "Loss-mask audit",
+    "core_question": "What mechanism and falsifiable test make loss-mask audit operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Frontier Strategist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Frontier Strategist",
+    "rank": 5,
+    "title": "Retrieval evaluation leakage",
+    "core_question": "What mechanism and falsifiable test make retrieval evaluation leakage operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Frontier Strategist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Visual Translator",
+    "rank": 1,
+    "title": "Embedding hard-negative mining",
+    "core_question": "What mechanism and falsifiable test make embedding hard-negative mining operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Visual Translator",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Visual Translator",
+    "rank": 2,
+    "title": "Spatial equivariance probes",
+    "core_question": "What mechanism and falsifiable test make spatial equivariance probes operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Visual Translator",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Visual Translator",
+    "rank": 3,
+    "title": "AEC constraint decoding",
+    "core_question": "What mechanism and falsifiable test make aec constraint decoding operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Visual Translator",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Visual Translator",
+    "rank": 4,
+    "title": "Multimodal packing",
+    "core_question": "What mechanism and falsifiable test make multimodal packing operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Visual Translator",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Visual Translator",
+    "rank": 5,
+    "title": "Reward-hacking diagnostics",
+    "core_question": "What mechanism and falsifiable test make reward-hacking diagnostics operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Visual Translator",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Systems Architect",
+    "rank": 1,
+    "title": "LLM judge calibration",
+    "core_question": "What mechanism and falsifiable test make llm judge calibration operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Systems Architect",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Systems Architect",
+    "rank": 2,
+    "title": "GRPO variance controls",
+    "core_question": "What mechanism and falsifiable test make grpo variance controls operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Systems Architect",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Systems Architect",
+    "rank": 3,
+    "title": "Long-context retrieval tests",
+    "core_question": "What mechanism and falsifiable test make long-context retrieval tests operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Systems Architect",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Systems Architect",
+    "rank": 4,
+    "title": "Activation checkpointing cost",
+    "core_question": "What mechanism and falsifiable test make activation checkpointing cost operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Systems Architect",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Systems Architect",
+    "rank": 5,
+    "title": "Compiler graph breaks",
+    "core_question": "What mechanism and falsifiable test make compiler graph breaks operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Systems Architect",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Seminar Builder",
+    "rank": 1,
+    "title": "CUDA stream overlap",
+    "core_question": "What mechanism and falsifiable test make cuda stream overlap operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 9,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Seminar Builder",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Seminar Builder",
+    "rank": 2,
+    "title": "Kernel fusion decision rules",
+    "core_question": "What mechanism and falsifiable test make kernel fusion decision rules operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Seminar Builder",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Seminar Builder",
+    "rank": 3,
+    "title": "Memory allocator telemetry",
+    "core_question": "What mechanism and falsifiable test make memory allocator telemetry operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Seminar Builder",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Seminar Builder",
+    "rank": 4,
+    "title": "Inference observability",
+    "core_question": "What mechanism and falsifiable test make inference observability operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Seminar Builder",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Research Seminar Builder",
+    "rank": 5,
+    "title": "Model-serving rollback",
+    "core_question": "What mechanism and falsifiable test make model-serving rollback operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Research Seminar Builder",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "First-Principles Minimalist",
+    "rank": 1,
+    "title": "Data mixture attribution",
+    "core_question": "What mechanism and falsifiable test make data mixture attribution operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "First-Principles Minimalist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "First-Principles Minimalist",
+    "rank": 2,
+    "title": "Scaling-law experiment design",
+    "core_question": "What mechanism and falsifiable test make scaling-law experiment design operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "First-Principles Minimalist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "First-Principles Minimalist",
+    "rank": 3,
+    "title": "Numerical stability in BF16",
+    "core_question": "What mechanism and falsifiable test make numerical stability in bf16 operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "First-Principles Minimalist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "First-Principles Minimalist",
+    "rank": 4,
+    "title": "Optimizer-state sharding",
+    "core_question": "What mechanism and falsifiable test make optimizer-state sharding operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "First-Principles Minimalist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "First-Principles Minimalist",
+    "rank": 5,
+    "title": "Pipeline bubble measurement",
+    "core_question": "What mechanism and falsifiable test make pipeline bubble measurement operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "First-Principles Minimalist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Conceptual Microscopist",
+    "rank": 1,
+    "title": "Tensor-parallel communication overlap",
+    "core_question": "What mechanism and falsifiable test make tensor-parallel communication overlap operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Conceptual Microscopist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "medium",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Conceptual Microscopist",
+    "rank": 2,
+    "title": "Context parallelism",
+    "core_question": "What mechanism and falsifiable test make context parallelism operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Conceptual Microscopist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Conceptual Microscopist",
+    "rank": 3,
+    "title": "MoE routing load balance",
+    "core_question": "What mechanism and falsifiable test make moe routing load balance operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Conceptual Microscopist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Conceptual Microscopist",
+    "rank": 4,
+    "title": "Expert-parallel dispatch",
+    "core_question": "What mechanism and falsifiable test make expert-parallel dispatch operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Conceptual Microscopist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Conceptual Microscopist",
+    "rank": 5,
+    "title": "Sequence-parallel normalization",
+    "core_question": "What mechanism and falsifiable test make sequence-parallel normalization operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Conceptual Microscopist",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Experimental Field Reporter",
+    "rank": 1,
+    "title": "Interpretability causal tracing",
+    "core_question": "What mechanism and falsifiable test make interpretability causal tracing operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Experimental Field Reporter",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Experimental Field Reporter",
+    "rank": 2,
+    "title": "Adversarial spatial prompts",
+    "core_question": "What mechanism and falsifiable test make adversarial spatial prompts operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Experimental Field Reporter",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Experimental Field Reporter",
+    "rank": 3,
+    "title": "Safety evaluation harness",
+    "core_question": "What mechanism and falsifiable test make safety evaluation harness operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Experimental Field Reporter",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Experimental Field Reporter",
+    "rank": 4,
+    "title": "Agent retrieval failure taxonomy",
+    "core_question": "What mechanism and falsifiable test make agent retrieval failure taxonomy operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Experimental Field Reporter",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  },
+  {
+    "archetype": "Experimental Field Reporter",
+    "rank": 5,
+    "title": "Reproducible benchmark governance",
+    "core_question": "What mechanism and falsifiable test make reproducible benchmark governance operationally trustworthy?",
+    "why_now": "Closes a documented role-compounding or frontier gap without duplicating the seven published articles.",
+    "resume_evidence": [
+      "R2",
+      "R3",
+      "R6"
+    ],
+    "current_role_multiplier": 7,
+    "frontier_relevance": 7,
+    "prerequisites": [
+      "basic attention",
+      "Python systems experiment"
+    ],
+    "reader_payoff": "An inspectable mechanism, counterexample, and reusable test artifact.",
+    "suitable_lead_archetype": "Experimental Field Reporter",
+    "required_evidence": "Executable synthetic experiment plus primary-source bounds.",
+    "mastery_artifact": "Runnable diagnostic harness.",
+    "duplication_risk": "low",
+    "scope_risk": "low",
+    "competency_effects": [
+      "inference memory systems"
+    ]
+  }
+]

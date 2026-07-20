@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "checks": [
+    "YAML",
+    "links",
+    "SVG/XML",
+    "Python compilation",
+    "tests",
+    "single publishable article"
+  ],
+  "test_output": "PASS: allocator policy, fragmentation counterexample, and block-size assertions",
+  "file_count": 18
+}

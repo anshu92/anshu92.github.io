@@ -1,0 +1,90 @@
+{
+  "file_count": 17,
+  "files": [
+    {
+      "path": "article/article.md",
+      "bytes": 7964,
+      "sha256": "a0b3d37e19125af09da76c6ee93be41bdb68a269ef9f5ef032447992c5d2f810"
+    },
+    {
+      "path": "code/kv_allocator.py",
+      "bytes": 4293,
+      "sha256": "166dfc5f7176d62b5972312feab016fce75d34fa671979c97b2f7975f5c7d2d0"
+    },
+    {
+      "path": "code/make_figure.py",
+      "bytes": 1113,
+      "sha256": "a71f86c95139aab82dd82f430e99f33816d4d12965ca9827c8861933f586f8bd"
+    },
+    {
+      "path": "data/scenario.json",
+      "bytes": 786,
+      "sha256": "80f4a26964dc3f46c2df6441a65cb15e65debeb8f47e9b78710a59e70c408f17"
+    },
+    {
+      "path": "figures/allocator-layout.svg",
+      "bytes": 1428,
+      "sha256": "ae2b90fe4914516728ce21a1c343580891a44e3d64cc458232fe5b756de8d83e"
+    },
+    {
+      "path": "manifests/README.md",
+      "bytes": 95,
+      "sha256": "e3a08e9448a61b9bf12c8cae6bdaa1fc5d0246e8345ba2ef9a46edd37590c8a4"
+    },
+    {
+      "path": "manifests/asset-manifest.json",
+      "bytes": 2845,
+      "sha256": "54e12a699a8575d3c6276c07cedc496d4f8b4a370cc9680cd780faf871fd4d3e"
+    },
+    {
+      "path": "manifests/validation-report.json",
+      "bytes": 290,
+      "sha256": "5eca469cd317a9820819bc28748840dfa26da0b654c39943718ab81812086607"
+    },
+    {
+      "path": "outputs/results.json",
+      "bytes": 30746,
+      "sha256": "09a24fc8a080f42da7ab5c9658287807f5cc3ef020e56a4da82bac892d9f9b1d"
+    },
+    {
+      "path": "outputs/simulation-summary.txt",
+      "bytes": 615,
+      "sha256": "8c4fb00eaa49830537facce24d094c927a3987484b2493f61c4b3cfb1c0455bf"
+    },
+    {
+      "path": "outputs/test-output.txt",
+      "bytes": 80,
+      "sha256": "4837b6c18bec813a766ef8f323bf8804c4d4c6a46ca68dc1c4d042d7c281eddd"
+    },
+    {
+      "path": "references/references.md",
+      "bytes": 286,
+      "sha256": "e982e59656a64050f3836e67d3a125a2239335256387d4c2498cff1f7649f128"
+    },
+    {
+      "path": "reviews/cycle-records.json",
+      "bytes": 3566,
+      "sha256": "dcf6d38d5712469d7f54a9824f3d72db2830caa8bd8a972c4f2ac12dd7c7c11c"
+    },
+    {
+      "path": "reviews/final-report.json",
+      "bytes": 1010,
+      "sha256": "da964d4e8824c000bd85aca452df806ff68f8fd763b72d89976b7b6218154e8f"
+    },
+    {
+      "path": "reviews/proposal-validation.json",
+      "bytes": 7026,
+      "sha256": "501746ef2c029c59cd7896c538ddb7d20ed0b6d648584d3fb30fba6bae530461"
+    },
+    {
+      "path": "reviews/proposals.json",
+      "bytes": 49468,
+      "sha256": "f78613ad9197f2fe0793aade6b06e00a48bb9c9e532c65e5b431fd5184af30c5"
+    },
+    {
+      "path": "tests/test_allocator.py",
+      "bytes": 734,
+      "sha256": "4016eaf54469125d6f6559f47797712d958b3e62fd35c744744d61fcfddf2dbe"
+    }
+  ]
+}

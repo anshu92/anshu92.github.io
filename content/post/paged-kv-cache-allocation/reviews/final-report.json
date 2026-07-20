@@ -1,0 +1,28 @@
+{
+  "cycle_id": "2026-07-19-cycle-008",
+  "sequence": 8,
+  "title": "The KV Cache Is an Allocator Problem",
+  "slug": "paged-kv-cache-allocation",
+  "phase": "ROLE_COMPOUNDING",
+  "selected_topic": "KV-cache allocation and paging",
+  "runner_up": "CUDA memory coalescing probes",
+  "selection_score": 95.2,
+  "assigned_archetype": "Reconstructive Engineer",
+  "actual_archetype": "Reconstructive Engineer",
+  "fidelity_score": 46,
+  "human_texture_score": 35,
+  "technical_review_score": 91,
+  "mastery_artifact": "Deterministic allocator simulator with fragmentation counterexample and block-size tests",
+  "competencies_taught": [
+    "KV-cache allocation modeling",
+    "internal versus external fragmentation",
+    "paged block-size trade-off testing"
+  ],
+  "practice_status": "NOT_RECORDED",
+  "demonstration_status": "NOT_RECORDED",
+  "mastery_status": "NOT_RECORDED",
+  "runtime_validation": "PASS",
+  "persistence_status": "PENDING_DRIVE",
+  "state_version_before": 8,
+  "state_version_after": null
+}
