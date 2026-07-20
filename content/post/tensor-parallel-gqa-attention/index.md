@@ -27,7 +27,7 @@ code_level: "executable"
 
 Grouped-query attention creates a partitioning problem that ordinary multi-head attention can hide. There are more query heads than key/value heads, so several query heads reuse the same KV head. If a tensor-parallel split cuts projection matrices at an arbitrary width, it can separate a query head from the KV head it is supposed to share.
 
-I wanted to reconstruct the smallest attention block that still preserves that constraint. The reference is a pre-RMSNorm, causal GQA layer with rotary position embeddings, four query heads, two KV heads, and a residual connection. I then turn it into two rank-local attention paths in visible steps and compare the resulting training update against the dense block.
+I wanted to reconstruct the smallest attention block that still preserves that constraint. The reference is a pre-RMSNorm, causal GQA layer with rotary position embeddings, four query heads, two KV heads, and a residual connection. It follows the same reconstruction style as the earlier [Megatron tensor-parallel MLP walkthrough](https://synapticradio.com/post/megatron-tensor-parallel-mlp/), but moves the partitioning problem from feed-forward channels to query/KV head groups. I then turn it into two rank-local attention paths in visible steps and compare the resulting training update against the dense block.
 
 The result is narrow but useful: **the natural partition is a complete query/KV group, not an arbitrary matrix slice**. The forward pass also needs an output reduction, while the replicated input path needs a separate backward reduction. A forward-only test catches the first bug and misses the second.
 

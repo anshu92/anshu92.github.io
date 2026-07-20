@@ -477,6 +477,8 @@ Still, the reconstruction changes how I read Megatron code. I no longer start wi
 
 For the feed-forward block, those questions lead directly to the matched column-parallel and row-parallel projections—and to one collective in each direction.
 
+The next reconstruction applies the same discipline to attention rather than the MLP: [tensor-parallel grouped-query attention](https://synapticradio.com/post/tensor-parallel-gqa-attention/) keeps complete query/KV head groups together, then tests the separate forward and backward communication obligations.
+
 ## References
 
 - NVIDIA, [Megatron Core User Guide](https://docs.nvidia.com/megatron-core/developer-guide/latest/index.html).
