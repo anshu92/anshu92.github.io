@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Continuous batching admission control</title>
+  <desc id="desc">A scheduler admits requests into a running batch while a KV-cache meter shows limited persistent memory.</desc>
+  <rect width="1200" height="630" fill="#f7f3ea"/>
+  <rect x="62" y="58" width="1076" height="514" rx="26" fill="#172027"/>
+  <rect x="102" y="105" width="312" height="420" rx="18" fill="#202b32" stroke="#34424a" stroke-width="2"/>
+  <rect x="474" y="105" width="292" height="420" rx="18" fill="#202b32" stroke="#34424a" stroke-width="2"/>
+  <rect x="826" y="105" width="272" height="420" rx="18" fill="#202b32" stroke="#34424a" stroke-width="2"/>
+  <text x="132" y="158" fill="#f3efe5" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">waiting queue</text>
+  <text x="504" y="158" fill="#f3efe5" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">admission</text>
+  <text x="856" y="158" fill="#f3efe5" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">KV cache</text>
+  <g fill="#385d66">
+    <rect x="132" y="205" width="238" height="44" rx="10"/>
+    <rect x="132" y="268" width="238" height="44" rx="10"/>
+    <rect x="132" y="331" width="238" height="44" rx="10"/>
+    <rect x="132" y="394" width="238" height="44" rx="10"/>
+  </g>
+  <g fill="#f3efe5" font-family="JetBrains Mono, Menlo, monospace" font-size="21">
+    <text x="154" y="234">prompt 320</text>
+    <text x="154" y="297">prompt 64</text>
+    <text x="154" y="360">prompt 384</text>
+    <text x="154" y="423">prompt 48</text>
+  </g>
+  <path d="M414 314H474" stroke="#c46b46" stroke-width="8" stroke-linecap="round"/>
+  <path d="M452 286l28 28-28 28" fill="none" stroke="#c46b46" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="522" y="214" width="196" height="58" rx="14" fill="#2b3a42" stroke="#6f959b" stroke-width="2"/>
+  <rect x="522" y="314" width="196" height="58" rx="14" fill="#2b3a42" stroke="#c46b46" stroke-width="2"/>
+  <text x="552" y="250" fill="#f3efe5" font-family="Inter, Arial, sans-serif" font-size="22">token budget</text>
+  <text x="556" y="350" fill="#f3efe5" font-family="Inter, Arial, sans-serif" font-size="22">cache contract</text>
+  <path d="M766 314H826" stroke="#6f959b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M804 286l28 28-28 28" fill="none" stroke="#6f959b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <g>
+    <rect x="868" y="210" width="188" height="252" rx="18" fill="#11181d" stroke="#44555d" stroke-width="2"/>
+    <rect x="894" y="236" width="136" height="28" rx="7" fill="#6f959b"/>
+    <rect x="894" y="278" width="136" height="28" rx="7" fill="#6f959b"/>
+    <rect x="894" y="320" width="136" height="28" rx="7" fill="#6f959b"/>
+    <rect x="894" y="362" width="136" height="28" rx="7" fill="#c46b46"/>
+    <rect x="894" y="404" width="82" height="28" rx="7" fill="#2f3d44"/>
+  </g>
+  <text x="96" y="604" fill="#24313a" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">continuous batching needs admission control</text>
+</svg>

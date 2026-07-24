@@ -87,6 +87,8 @@ class DenseSwiGLUBlock(nn.Module):
         return residual + F.linear(hidden, self.w_down, self.b_down)
 ```
 
+> **Initialization side note.** In this fixture, `torch.empty` means "allocate storage; fill it later," not "leave the model with random garbage." Gate, up, and down weights are allocated first and initialized from the same deterministic tensor set used by the dense and sharded paths. The zero term here is the bias, which starts without an output offset. Some production Transformer variants intentionally zero-initialize the residual branch's output projection so the block starts as `x + 0`; that can stabilize very deep models, but it is a separate design choice from this equivalence fixture.
+
 The executable fixture uses:
 
 - sequence length `S = 3`;

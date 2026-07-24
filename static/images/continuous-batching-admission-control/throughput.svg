@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360">
+<style>text{font-family:system-ui,sans-serif;fill:#111;font-size:15px} rect{fill:#4b5563} .axis{stroke:#111;stroke-width:1}</style>
+<text x="380" y="30" text-anchor="middle" font-size="22">Completed requests per scheduler step</text>
+<line class="axis" x1="70" y1="290" x2="730" y2="290"/>
+<rect x="95" y="70.0" width="120" height="220.0" rx="4"/><text x="155" y="60.0" text-anchor="middle">0.06</text><text x="155" y="320" text-anchor="middle">naive</text><rect x="305" y="70.0" width="120" height="220.0" rx="4"/><text x="365" y="60.0" text-anchor="middle">0.06</text><text x="365" y="320" text-anchor="middle">reserve</text><rect x="515" y="70.0" width="120" height="220.0" rx="4"/><text x="575" y="60.0" text-anchor="middle">0.06</text><text x="575" y="320" text-anchor="middle">reserve watermark</text>
+</svg>

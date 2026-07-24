@@ -1,0 +1,4 @@
+policy,completed,unfinished,preemptions,steps,throughput_requests_per_step,p50_ttft_steps,p95_ttft_steps,p50_e2e_steps,p95_e2e_steps,mean_peak_used_blocks
+naive,30,50,1923,500,0.06,134.0,393.0,224.0,423.0,48
+reserve,30,50,115,500,0.06,135.0,399.0,225.0,448.0,48
+reserve_watermark,30,50,77,500,0.06,138.0,416.0,228.0,467.0,48

@@ -1,0 +1,68 @@
+{
+  "naive": {
+    "config": {
+      "total_blocks": 48,
+      "block_size": 16,
+      "max_num_batched_tokens": 64,
+      "max_num_seqs": 12,
+      "reserve_full_input": false,
+      "watermark_fraction": 0.0,
+      "max_steps": 500
+    },
+    "completed": 30,
+    "unfinished": 50,
+    "rejected_oversized": 0,
+    "preemptions": 1923,
+    "steps": 500,
+    "throughput_requests_per_step": 0.06,
+    "p50_ttft_steps": 134.0,
+    "p95_ttft_steps": 393.0,
+    "p50_e2e_steps": 224.0,
+    "p95_e2e_steps": 423.0,
+    "mean_peak_used_blocks": 48
+  },
+  "reserve": {
+    "config": {
+      "total_blocks": 48,
+      "block_size": 16,
+      "max_num_batched_tokens": 64,
+      "max_num_seqs": 12,
+      "reserve_full_input": true,
+      "watermark_fraction": 0.0,
+      "max_steps": 500
+    },
+    "completed": 30,
+    "unfinished": 50,
+    "rejected_oversized": 0,
+    "preemptions": 115,
+    "steps": 500,
+    "throughput_requests_per_step": 0.06,
+    "p50_ttft_steps": 135.0,
+    "p95_ttft_steps": 399.0,
+    "p50_e2e_steps": 225.0,
+    "p95_e2e_steps": 448.0,
+    "mean_peak_used_blocks": 48
+  },
+  "reserve_watermark": {
+    "config": {
+      "total_blocks": 48,
+      "block_size": 16,
+      "max_num_batched_tokens": 64,
+      "max_num_seqs": 12,
+      "reserve_full_input": true,
+      "watermark_fraction": 0.125,
+      "max_steps": 500
+    },
+    "completed": 30,
+    "unfinished": 50,
+    "rejected_oversized": 0,
+    "preemptions": 77,
+    "steps": 500,
+    "throughput_requests_per_step": 0.06,
+    "p50_ttft_steps": 138.0,
+    "p95_ttft_steps": 416.0,
+    "p50_e2e_steps": 228.0,
+    "p95_e2e_steps": 467.0,
+    "mean_peak_used_blocks": 48
+  }
+}
