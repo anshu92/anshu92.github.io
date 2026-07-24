@@ -90,7 +90,7 @@ class DenseSwiGLUBlock(nn.Module):
 
 Stacking is not required for tensor parallelism; separate gate and up weights would also work if both used the same shard boundaries. Here, the leading dimension selects gate or up, while slicing the shared `ffn_size` dimension gives each rank matching channels from both projections. Those matching local channels can then be multiplied without communication in `SiLU(gate) * up`.
 
-> **Initialization side note.** `torch.empty` allocates storage without initializing its values, so these weights must be filled before the first forward pass. The executable fixture gives the dense and sharded paths clones of the same deterministic tensors. The down-projection bias is shown zero-initialized, so it begins without an output offset. Some production Transformer variants also zero-initialize the residual branch's output projection so the block starts as `x + 0`; that can stabilize very deep models, but it is a separate design choice from this equivalence fixture.
+> **Initialization side note.** The class above is a schematic module definition. `torch.empty` allocates storage without initializing its values, so a real module must initialize those weights before the first forward pass. The executable fixture uses the equivalent functional computation and creates deterministic tensors directly: the dense path receives the full tensors, while each sharded path receives the corresponding slices. The class above shows a zero-initialized down-projection bias, but the fixture uses a small deterministic nonzero bias replicated across ranks. Some production Transformer variants intentionally zero-initialize the residual branch's output projection so the block starts as `x + 0`; that can stabilize very deep models, but it is a separate design choice from this equivalence fixture.
 
 The executable fixture uses:
 
@@ -169,41 +169,6 @@ For every channel i, gi and ui are multiplied to produce activation ai.
 Column di of w_down consumes that same ai.
 ```
 
-Each rank can therefore run the nonlinear expansion and contraction locally. Side by side, the sharded path performs the same channelwise work as the dense path and restores the dense contraction with one sum:
-
-```text
-DENSE: one process                         TENSOR PARALLEL: two ranks
-------------------                         --------------------------
-N [S, B, H]                                N [S, B, H], replicated
-     |                                          |               |
-     +--> G = linear(N, Wg)                     v               v
-     +--> U = linear(N, Wu)                  rank 0          rank 1
-     |                                     channels 0:6    channels 6:12
-     |                                          |               |
-     |                                     G_0 = N Wg_0^T  G_1 = N Wg_1^T
-     |                                     U_0 = N Wu_0^T  U_1 = N Wu_1^T
-     |                                          |               |
-     v                                          v               v
-A = SiLU(G) * U                         A_0 = SiLU(G_0)*U_0  A_1 = SiLU(G_1)*U_1
-  [S, B, 12]                                  [S, B, 6]         [S, B, 6]
-     v                                          |               |
-W_down columns 0:12                         Wd[:, 0:6]      Wd[:, 6:12]
-     |                                          |               |
-     v                                          v               v
-Z_dense [S, B, H]                         Z_0 [S,B,H]     Z_1 [S,B,H]
-                                                |               |
-                                                +-- all-reduce -+
-                                                         |
-                                                         v
-                                                Z_tp = Z_0 + Z_1
-                                                [S, B, H], replicated
-
-Z_dense = sum(i=0..11, A_i * d_i)
-        = sum(i=0..5,  A_i * d_i) + sum(i=6..11, A_i * d_i)
-        = Z_0                         + Z_1
-        = Z_tp
-```
-
 With `F = 12` and `P = 2`, rank 0 owns FFN channels `0:6` and rank 1 owns channels `6:12`. The same interval selects the gate/up **output** channels and the down-projection **input** channels, so each rank can pass its local SwiGLU result directly into its local down projection. The input `X`, RMSNorm weight, residual, and down-projection bias remain replicated. The fixture clones these slices into leaf tensors for gradient comparison; a production tensor-parallel module would usually allocate only the local parameter shapes from the start.
 
 ## Split the expansion
@@ -267,7 +232,7 @@ The shape correspondence is easier to see in one table:
 | Partial down output | — | `[3, 2, 8]` | partial sum |
 | Reduced output | `[3, 2, 8]` | `[3, 2, 8]` | replicated |
 
-In Megatron terminology, this expansion is the role played by a column-parallel linear layer: each rank owns different output columns of the logical projection.
+In Megatron terminology, this expansion is the role played by a column-parallel linear layer: each rank owns a different slice of the projection's output features.
 
 ## Split the contraction
 
@@ -318,6 +283,41 @@ class ReduceFromTensorParallelRegion(torch.autograd.Function):
 The backward pass through this operation is an identity. Every rank receives the same gradient for the replicated output, and each local down-projection shard uses that gradient to compute its own weight and activation gradients.
 
 This is the row-parallel half of the pair: split the input features, compute partial outputs, and sum them.
+
+Side by side, the sharded forward path performs the same channelwise work as the dense path. SiLU remains local to each rank, and the all-reduce restores the dense contraction:
+
+```text
+DENSE: one process                         TENSOR PARALLEL: two ranks
+------------------                         --------------------------
+N [S, B, H]                                N [S, B, H], replicated
+     |                                          |               |
+     +--> G = linear(N, Wg)                     v               v
+     +--> U = linear(N, Wu)                  rank 0          rank 1
+     |                                     channels 0:6    channels 6:12
+     |                                          |               |
+     |                                     G_0 = N Wg_0^T  G_1 = N Wg_1^T
+     |                                     U_0 = N Wu_0^T  U_1 = N Wu_1^T
+     |                                          |               |
+     v                                          v               v
+A = SiLU(G) * U                         A_0 = SiLU(G_0)*U_0  A_1 = SiLU(G_1)*U_1
+  [S, B, 12]                                  [S, B, 6]         [S, B, 6]
+     v                                          |               |
+W_down columns 0:12                         Wd[:, 0:6]      Wd[:, 6:12]
+     |                                          |               |
+     v                                          v               v
+Z_dense [S, B, H]                         Z_0 [S,B,H]     Z_1 [S,B,H]
+                                                |               |
+                                                +-- all-reduce -+
+                                                         |
+                                                         v
+                                                Z_tp = Z_0 + Z_1
+                                                [S, B, H], replicated
+
+Z_dense = sum(i=0..11, A_i * d_i)
+        = sum(i=0..5,  A_i * d_i) + sum(i=6..11, A_i * d_i)
+        = Z_0                         + Z_1
+        = Z_tp
+```
 
 ## Put the other collective in backward
 
@@ -384,7 +384,7 @@ This maps to the core Megatron pattern:
 | Identity forward, reduce backward | copy-to-tensor-parallel region | combine contributions to replicated input gradients |
 | Reduce forward, identity backward | reduce-from-tensor-parallel region | reconstruct the dense contraction output |
 
-The fixture implements these semantics directly with `torch.distributed`; it does not import Megatron-Core classes.
+The fixture implements these semantics directly with `torch.distributed`; it does not import Megatron Core classes.
 
 ## Reproduce one dense training step
 
@@ -496,7 +496,7 @@ python -m torch.distributed.run --standalone --nproc_per_node=2 \
 
 The retained output is [`data/terminal-03-missing-forward.txt`](data/terminal-03-missing-forward.txt).
 
-The prediction holds. The first changed signal is the model output, with a maximum error of `1.10`. Once the loss is computed from the wrong output, every downstream gradient is also wrong.
+The prediction holds. The first mismatched signal is the model output, with a maximum error of `1.10`. Once the loss is computed from the wrong output, every downstream gradient is also wrong.
 
 ### Remove the backward reduction
 
@@ -551,7 +551,7 @@ The small implementation establishes one precise result: for this pre-RMSNorm Sw
 
 It also shows why the two reductions need separate tests. A missing forward collective is visible immediately. A missing backward collective can survive output and loss checks while silently corrupting upstream learning.
 
-The fixture does **not** execute Megatron-Core. It does not test:
+The fixture does **not** execute Megatron Core. It does not test:
 
 - self-attention or a complete Transformer block;
 - sequence parallelism;
