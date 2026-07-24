@@ -134,6 +134,78 @@ Y = X + A W_d^\top + b_d.
 
 The gate and up matrices each have shape `[F, H]`. The down matrix has shape `[H, F]`. That shared feed-forward dimension is the axis we will partition.
 
+The equivalence fixture starts from dense tensors and derives each rank's local parameters with one shared FFN interval:
+
+```python
+rank = dist.get_rank()
+world_size = dist.get_world_size()
+ffn_size = w_gate_up.shape[1]
+
+assert ffn_size % world_size == 0
+local_ffn = ffn_size // world_size
+lo = rank * local_ffn
+hi = (rank + 1) * local_ffn
+
+# w_gate_up: [gate_or_up, ffn, hidden]
+w_gate_up_local = w_gate_up[:, lo:hi, :]
+
+# w_down: [hidden, ffn]
+w_down_local = w_down[:, lo:hi]
+```
+
+The shared slice keeps the corresponding FFN channels together:
+
+```text
+                           FFN channel axis
+                    0  1  2  3  4  5 | 6  7  8  9 10 11
+                                      |
+w_gate_up[gate]     g0 g1 g2 g3 g4 g5 | g6 g7 g8 g9 g10 g11
+w_gate_up[up]       u0 u1 u2 u3 u4 u5 | u6 u7 u8 u9 u10 u11
+                    <---- rank 0 ----> | <----- rank 1 ----->
+                                      |
+w_down columns      d0 d1 d2 d3 d4 d5 | d6 d7 d8 d9 d10 d11
+
+For every channel i, gi and ui are multiplied to produce activation ai.
+Column di of w_down consumes that same ai.
+```
+
+Each rank can therefore run the nonlinear expansion and contraction locally. Side by side, the sharded path performs the same channelwise work as the dense path and restores the dense contraction with one sum:
+
+```text
+DENSE: one process                         TENSOR PARALLEL: two ranks
+------------------                         --------------------------
+N [S, B, H]                                N [S, B, H], replicated
+     |                                          |               |
+     +--> G = linear(N, Wg)                     v               v
+     +--> U = linear(N, Wu)                  rank 0          rank 1
+     |                                     channels 0:6    channels 6:12
+     |                                          |               |
+     |                                     G_0 = N Wg_0^T  G_1 = N Wg_1^T
+     |                                     U_0 = N Wu_0^T  U_1 = N Wu_1^T
+     |                                          |               |
+     v                                          v               v
+A = SiLU(G) * U                         A_0 = SiLU(G_0)*U_0  A_1 = SiLU(G_1)*U_1
+  [S, B, 12]                                  [S, B, 6]         [S, B, 6]
+     v                                          |               |
+W_down columns 0:12                         Wd[:, 0:6]      Wd[:, 6:12]
+     |                                          |               |
+     v                                          v               v
+Z_dense [S, B, H]                         Z_0 [S,B,H]     Z_1 [S,B,H]
+                                                |               |
+                                                +-- all-reduce -+
+                                                         |
+                                                         v
+                                                Z_tp = Z_0 + Z_1
+                                                [S, B, H], replicated
+
+Z_dense = sum(i=0..11, A_i * d_i)
+        = sum(i=0..5,  A_i * d_i) + sum(i=6..11, A_i * d_i)
+        = Z_0                         + Z_1
+        = Z_tp
+```
+
+With `F = 12` and `P = 2`, rank 0 owns FFN channels `0:6` and rank 1 owns channels `6:12`. The same interval selects the gate/up **output** channels and the down-projection **input** channels, so each rank can pass its local SwiGLU result directly into its local down projection. The input `X`, RMSNorm weight, residual, and down-projection bias remain replicated. The fixture clones these slices into leaf tensors for gradient comparison; a production tensor-parallel module would usually allocate only the local parameter shapes from the start.
+
 ## Split the expansion
 
 The first change is to divide the gate and up projections by **output feature**. Each rank receives the full normalized token representation but computes only half of the feed-forward channels.
