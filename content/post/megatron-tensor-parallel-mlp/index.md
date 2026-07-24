@@ -165,6 +165,33 @@ A^{(r)} = \operatorname{SiLU}\left(G^{(r)}\right) \odot U^{(r)}.
 
 The nonlinear operation remains local because each gate feature is paired with the corresponding up feature on the same rank.
 
+The one subtle line is the wrapper around `normed`. `CopyToTensorParallelRegion` is an identity in the forward pass: each rank receives the same normalized input. Its job is delayed until backward, where the partial input gradients from all column-parallel shards must be summed before the gradient continues into RMSNorm.
+
+```python
+class CopyToTensorParallelRegion(torch.autograd.Function):
+    r"""
+    Forward:
+        replicated N ── identity copy ── replicated N on every TP rank
+
+    Backward:
+        dN from rank 0 ─┐
+        dN from rank 1 ─┼─ all_reduce(SUM) ── full dN on every TP rank
+        ...             ┘
+    """
+
+    @staticmethod
+    def forward(ctx, x):
+        return x
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        grad = grad_output.clone()
+        dist.all_reduce(grad, op=dist.ReduceOp.SUM)
+        return grad
+```
+
+This is the tensor-parallel boundary for replicated inputs. Without it, the forward pass still looks correct because every rank had the same `normed` tensor. The bug appears only during backpropagation: each rank would send only its local gate/up contribution into RMSNorm instead of the dense sum.
+
 ```python
 normed_parallel = CopyToTensorParallelRegion.apply(normed)
 
@@ -262,16 +289,7 @@ $$
 That sum must happen before the gradient continues through RMSNorm and into the residual input. The custom operation around `normed` therefore does nothing in forward and reduces gradients in backward:
 
 ```python
-class CopyToTensorParallelRegion(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, x):
-        return x
-
-    @staticmethod
-    def backward(ctx, grad_output):
-        grad = grad_output.clone()
-        dist.all_reduce(grad, op=dist.ReduceOp.SUM)
-        return grad
+normed_parallel = CopyToTensorParallelRegion.apply(normed)
 ```
 
 The two communication rules are now paired:
