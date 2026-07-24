@@ -71,7 +71,8 @@ class DenseSwiGLUBlock(nn.Module):
     def __init__(self, hidden_size: int, ffn_size: int):
         super().__init__()
         self.norm_weight = nn.Parameter(torch.ones(hidden_size))
-        # Stack gate and up projections so the tensor-parallel version can shard the shared FFN dimension.
+        # Gate and up channels must stay paired for SiLU(gate) * up.
+        # Stacking lets one FFN-axis slice shard both projections identically.
         self.w_gate_up = nn.Parameter(torch.empty(2, ffn_size, hidden_size))
         self.w_down = nn.Parameter(torch.empty(hidden_size, ffn_size))
         self.b_down = nn.Parameter(torch.zeros(hidden_size))
@@ -86,6 +87,8 @@ class DenseSwiGLUBlock(nn.Module):
 
         return residual + F.linear(hidden, self.w_down, self.b_down)
 ```
+
+Stacking is not required for tensor parallelism; separate gate and up weights would also work if both used the same shard boundaries. Here, the leading dimension selects gate or up, while slicing the shared `ffn_size` dimension gives each rank matching channels from both projections. Those matching local channels can then be multiplied without communication in `SiLU(gate) * up`.
 
 > **Initialization side note.** `torch.empty` allocates storage without initializing its values, so these weights must be filled before the first forward pass. The executable fixture gives the dense and sharded paths clones of the same deterministic tensors. The down-projection bias is shown zero-initialized, so it begins without an output offset. Some production Transformer variants also zero-initialize the residual branch's output projection so the block starts as `x + 0`; that can stabilize very deep models, but it is a separate design choice from this equivalence fixture.
 
