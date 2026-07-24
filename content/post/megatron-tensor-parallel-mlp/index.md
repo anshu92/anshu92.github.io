@@ -3,7 +3,7 @@ title: "Tensor Parallelism I: Rebuilding a Megatron SwiGLU Block Across Two Rank
 description: "I rebuilt a pre-RMSNorm SwiGLU Transformer feed-forward sublayer with Megatron-style tensor parallelism and checked one complete training step against a dense reference."
 summary: "Split the expansion by output features, split the contraction by input features, place one collective in forward and one in backward, then test the result against dense training."
 date: 2026-07-16
-lastmod: 2026-07-20
+lastmod: 2026-07-24
 draft: false
 slug: "megatron-tensor-parallel-mlp"
 author: "Anshuman Sahoo"
@@ -87,7 +87,7 @@ class DenseSwiGLUBlock(nn.Module):
         return residual + F.linear(hidden, self.w_down, self.b_down)
 ```
 
-> **Initialization side note.** In this fixture, `torch.empty` means "allocate storage; fill it later," not "leave the model with random garbage." Gate, up, and down weights are allocated first and initialized from the same deterministic tensor set used by the dense and sharded paths. The zero term here is the bias, which starts without an output offset. Some production Transformer variants intentionally zero-initialize the residual branch's output projection so the block starts as `x + 0`; that can stabilize very deep models, but it is a separate design choice from this equivalence fixture.
+> **Initialization side note.** `torch.empty` allocates storage without initializing its values, so these weights must be filled before the first forward pass. The executable fixture gives the dense and sharded paths clones of the same deterministic tensors. The down-projection bias is shown zero-initialized, so it begins without an output offset. Some production Transformer variants also zero-initialize the residual branch's output projection so the block starts as `x + 0`; that can stabilize very deep models, but it is a separate design choice from this equivalence fixture.
 
 The executable fixture uses:
 
@@ -165,32 +165,7 @@ A^{(r)} = \operatorname{SiLU}\left(G^{(r)}\right) \odot U^{(r)}.
 
 The nonlinear operation remains local because each gate feature is paired with the corresponding up feature on the same rank.
 
-The one subtle line is the wrapper around `normed`. `CopyToTensorParallelRegion` is an identity in the forward pass: each rank receives the same normalized input. Its job is delayed until backward, where the partial input gradients from all column-parallel shards must be summed before the gradient continues into RMSNorm.
-
-```python
-class CopyToTensorParallelRegion(torch.autograd.Function):
-    r"""
-    Forward:
-        replicated N ── identity copy ── replicated N on every TP rank
-
-    Backward:
-        dN from rank 0 ─┐
-        dN from rank 1 ─┼─ all_reduce(SUM) ── full dN on every TP rank
-        ...             ┘
-    """
-
-    @staticmethod
-    def forward(ctx, x):
-        return x
-
-    @staticmethod
-    def backward(ctx, grad_output):
-        grad = grad_output.clone()
-        dist.all_reduce(grad, op=dist.ReduceOp.SUM)
-        return grad
-```
-
-This is the tensor-parallel boundary for replicated inputs. Without it, the forward pass still looks correct because every rank had the same `normed` tensor. The bug appears only during backpropagation: each rank would send only its local gate/up contribution into RMSNorm instead of the dense sum.
+The normalized input is wrapped at the column-parallel boundary before either local projection uses it:
 
 ```python
 normed_parallel = CopyToTensorParallelRegion.apply(normed)
@@ -200,7 +175,7 @@ up_local = F.linear(normed_parallel, w_gate_up_local[1])
 hidden_local = F.silu(gate_local) * up_local
 ```
 
-Nothing needs to be summed in the forward pass yet. Rank 0 owns one set of feed-forward features; rank 1 owns the other. Concatenating those slices would recover the dense SwiGLU activation.
+`CopyToTensorParallelRegion` is an identity in forward, so nothing needs to be summed yet. Rank 0 owns one set of feed-forward features; rank 1 owns the other. Concatenating those slices would recover the dense SwiGLU activation. The wrapper's backward behavior becomes necessary after we trace the contraction and its gradients.
 
 ![The gate, up, and down matrices are partitioned along the shared feed-forward dimension](/images/megatron-tensor-parallel-mlp/figure-01-sharding.svg)
 
@@ -262,7 +237,7 @@ class ReduceFromTensorParallelRegion(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        return grad_output
+        return (grad_output,)
 ```
 
 The backward pass through this operation is an identity. Every rank receives the same gradient for the replicated output, and each local down-projection shard uses that gradient to compute its own weight and activation gradients.
@@ -286,11 +261,35 @@ $$
 \end{aligned}
 $$
 
-That sum must happen before the gradient continues through RMSNorm and into the residual input. The custom operation around `normed` therefore does nothing in forward and reduces gradients in backward:
+That sum must happen before the gradient continues through RMSNorm and into the residual input. `CopyToTensorParallelRegion` encodes exactly that rule: it is an identity in forward and an all-reduce in backward.
 
 ```python
+class CopyToTensorParallelRegion(torch.autograd.Function):
+    r"""
+    Forward:
+        replicated N ── identity ── replicated N on every TP rank
+
+    Backward:
+        local dN from rank 0 ─┐
+        local dN from rank 1 ─┼─ all_reduce(SUM) ── dense dN on every rank
+        ...                   ┘
+    """
+
+    @staticmethod
+    def forward(ctx, x):
+        return x
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        grad = grad_output.clone()
+        dist.all_reduce(grad, op=dist.ReduceOp.SUM)
+        return (grad,)
+
+
 normed_parallel = CopyToTensorParallelRegion.apply(normed)
 ```
+
+This operation marks the tensor-parallel boundary for the replicated normalized input. Without it, the forward pass still looks correct because every rank receives the same `normed` tensor. The error appears only during backpropagation: each rank would pass only its local gate/up contribution into RMSNorm instead of the sum required by the dense computation.
 
 The two communication rules are now paired:
 
@@ -382,7 +381,7 @@ The complete transcript is [`data/terminal-02-equivalence.txt`](data/terminal-02
 | Forward output | `1.27e-07` |
 | Loss | `0.00` |
 | Input gradient | `2.98e-08` |
-| RMSNorm-weight gradient | `1.49e-08` |
+| RMSNorm weight gradient | `1.49e-08` |
 | Fused gate/up gradient | `4.47e-08` |
 | Down-projection gradient | `2.24e-08` |
 | Down-projection bias gradient | `2.24e-08` |
@@ -452,7 +451,7 @@ python -m torch.distributed.run --standalone --nproc_per_node=2 \
 
 The retained output is [`data/terminal-04-missing-backward.txt`](data/terminal-04-missing-backward.txt).
 
-This is the more revealing failure. The forward output still agrees to `1.27e-07`, and the loss is identical. The local gate/up and down-projection gradients also match. Yet the input gradient differs by `0.139`, the RMSNorm-weight gradient differs by `0.202`, and one optimizer step moves the parameters apart by `0.0101`.
+This is the more revealing failure. The forward output still agrees to `1.27e-07`, and the loss is identical. The local gate/up and down-projection gradients also match. Yet the input gradient differs by `0.139`, the RMSNorm weight gradient differs by `0.202`, and one optimizer step moves the parameters apart by `0.0101`.
 
 A forward-only test would approve this broken training graph.
 
