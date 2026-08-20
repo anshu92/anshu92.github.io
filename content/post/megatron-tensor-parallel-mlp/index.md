@@ -17,6 +17,7 @@ categories:
   - Tensor Parallelism
   - Deep-learning mechanisms
   - GPU systems and performance engineering
+toc_category: "Infrastructure & Scaling"
 subfolder: "Tensor Parallelism"
 competencies: ["tensor-parallel layer reconstruction", "distributed autograd reasoning", "collective placement", "equivalence testing"]
 prerequisites: ["matrix multiplication", "backpropagation", "Transformer feed-forward layers", "PyTorch distributed basics"]

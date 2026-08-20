@@ -15,6 +15,7 @@ categories:
   - Inference and serving
   - GPU systems and performance engineering
   - Reliability and observability
+toc_category: "Infrastructure & Scaling"
 tags: ["llm-inference", "vLLM", "continuous-batching", "kv-cache", "scheduling"]
 competencies: ["admission control", "KV-cache capacity", "tail latency", "serving simulators"]
 prerequisites: ["autoregressive decoding", "continuous batching", "KV cache"]

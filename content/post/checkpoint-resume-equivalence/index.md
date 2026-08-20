@@ -23,6 +23,7 @@ categories:
   - Distributed training
   - Reliability and observability
   - Software architecture
+toc_category: "Training Ergonomics and Choices"
 competencies: ["checkpoint state modeling", "restart-equivalence testing", "stochastic-state capture", "accumulation-boundary recovery", "differential training validation"]
 current_role_tracks: ["CR2", "CR5"]
 frontier_tracks: ["FR3", "FR5"]

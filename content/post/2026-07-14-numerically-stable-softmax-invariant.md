@@ -12,6 +12,7 @@ tags:
   - diagnostics
 categories:
   - Numerical computation
+toc_category: "Training Ergonomics and Choices"
 series:
   - Foundation Model Engineering
 curriculum_stage: "Foundations — Numerical Computation"

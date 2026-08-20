@@ -4,6 +4,7 @@ date: 2026-06-04
 description: "Study notes as I refresh and explore corners of the topics from a technical ML Engineering perspective"
 tags: ["LLM", "Training", "Transformers", "Inference"]
 categories: ["GPU systems and performance engineering", "Distributed training", "Inference and serving", "Deep-learning mechanisms"]
+toc_category: "Model Architecture"
 draft: true
 ---
 

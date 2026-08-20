@@ -15,6 +15,7 @@ categories:
   - Inference and serving
   - GPU systems and performance engineering
   - Data quality and data systems
+toc_category: "Infrastructure & Scaling"
 tags: ["llm-inference", "kv-cache", "paged-attention", "systems", "vLLM"]
 ---
 

@@ -17,6 +17,7 @@ categories:
   - Transformer architecture
   - GPU systems and performance engineering
   - Inference and serving
+toc_category: "Infrastructure & Scaling"
 subfolder: "Tensor Parallelism"
 tags: ["Megatron-LM", "grouped-query attention", "tensor parallelism", "PyTorch", "transformers"]
 competencies: ["GQA topology", "attention partitioning", "collective placement", "equivalence testing"]

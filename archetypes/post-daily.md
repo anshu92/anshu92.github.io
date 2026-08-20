@@ -4,6 +4,7 @@ draft: true
 title: "{{ replace .Name "-" " " | title }}"
 description: ""
 categories: ["Machine Learning"]
+toc_category: "" # Data, Evaluation, Training Ergonomics and Choices, Model Architecture, Applied Problem Solving With ML, or Infrastructure & Scaling
 tags: []
 math: true
 mermaid: true

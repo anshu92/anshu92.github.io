@@ -4,6 +4,7 @@ draft: true
 title: "The Foundation Series"
 description: "An endless endeavor to inform a new civilization about ML"
 categories: ["Research methodology", "Core machine learning", "Foundation-model pretraining"]
+toc_category: "Applied Problem Solving With ML"
 tags: ["attention", "transformers", "deep-learning", "nlp", "llm", "code"]
 math: true
 mermaid: true

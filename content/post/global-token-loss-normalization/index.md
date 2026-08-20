@@ -20,6 +20,7 @@ categories:
   - Distributed training
   - Foundation-model pretraining
   - GPU systems and performance engineering
+toc_category: "Training Ergonomics and Choices"
 competencies: ["token-normalized objectives", "distributed loss reduction", "gradient equivalence testing"]
 prerequisites: ["Sequence Packing Is a Measurement Problem", "cross-entropy", "data parallelism"]
 current_role_tracks: ["CR1", "CR2", "CR5"]

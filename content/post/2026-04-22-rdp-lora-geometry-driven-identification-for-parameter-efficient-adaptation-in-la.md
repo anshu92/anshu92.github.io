@@ -4,6 +4,7 @@ draft: true
 title: "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models"
 description: "By integrating this geometry-aware layer selection strategy into LoRA fine-tuning of Qwen3-8B-Base, the authors achieve superior performance on MMLU-Math using "
 categories: ["Post-training and alignment", "Transformer architecture", "Evaluation and experimentation"]
+toc_category: "Applied Problem Solving With ML"
 tags: ["llm", "paper", "blogpipe"]
 math: true
 mermaid: true

@@ -3,38 +3,56 @@
     {{ $notHidden := where .Site.RegularPages "Params.hidden" "!=" true }}
     {{ $posts := ($pages | intersect $notHidden).ByDate.Reverse }}
     {{ $folders := dict }}
-    {{ $folderNames := slice }}
+    {{ $folderNames := slice
+        "Data"
+        "Evaluation"
+        "Training Ergonomics and Choices"
+        "Model Architecture"
+        "Applied Problem Solving With ML"
+        "Infrastructure & Scaling"
+    }}
     {{ $bookRecommendations := .Site.Data.book_recommendations_2026 }}
+
+    {{ range $folderNames }}
+        {{ $folders = merge $folders (dict . (dict "posts" slice "subfolderNames" slice "subfolders" dict)) }}
+    {{ end }}
 
     {{ range $posts }}
         {{ $post := . }}
-        {{ with .Params.categories }}
-            {{ $category := printf "%s" (index . 0) }}
-            {{ $folder := dict "posts" slice "subfolderNames" slice "subfolders" dict }}
+        {{ with .Params.toc_category }}
+            {{ $category := printf "%s" . }}
             {{ if isset $folders $category }}
-                {{ $folder = index $folders $category }}
-            {{ else }}
-                {{ $folderNames = $folderNames | append $category }}
-            {{ end }}
+                {{ $folder := index $folders $category }}
 
-            {{ with $post.Params.subfolder }}
-                {{ $subfolder := printf "%s" . }}
-                {{ $subfolders := index $folder "subfolders" }}
-                {{ $subfolderNames := index $folder "subfolderNames" }}
-                {{ if isset $subfolders $subfolder }}
-                    {{ $subfolders = merge $subfolders (dict $subfolder ((index $subfolders $subfolder) | append $post)) }}
+                {{ with $post.Params.subfolder }}
+                    {{ $subfolder := printf "%s" . }}
+                    {{ $subfolders := index $folder "subfolders" }}
+                    {{ $subfolderNames := index $folder "subfolderNames" }}
+                    {{ if isset $subfolders $subfolder }}
+                        {{ $subfolders = merge $subfolders (dict $subfolder ((index $subfolders $subfolder) | append $post)) }}
+                    {{ else }}
+                        {{ $subfolderNames = $subfolderNames | append $subfolder }}
+                        {{ $subfolders = merge $subfolders (dict $subfolder (slice $post)) }}
+                    {{ end }}
+                    {{ $folder = merge $folder (dict "subfolderNames" $subfolderNames "subfolders" $subfolders) }}
                 {{ else }}
-                    {{ $subfolderNames = $subfolderNames | append $subfolder }}
-                    {{ $subfolders = merge $subfolders (dict $subfolder (slice $post)) }}
+                    {{ $folder = merge $folder (dict "posts" ((index $folder "posts") | append $post)) }}
                 {{ end }}
-                {{ $folder = merge $folder (dict "subfolderNames" $subfolderNames "subfolders" $subfolders) }}
-            {{ else }}
-                {{ $folder = merge $folder (dict "posts" ((index $folder "posts") | append $post)) }}
+                {{ $folders = merge $folders (dict $category $folder) }}
             {{ end }}
-
-            {{ $folders = merge $folders (dict $category $folder) }}
         {{ end }}
     {{ end }}
+
+    <section class="blog-intro" aria-labelledby="blog-intro-title">
+        <p class="blog-intro__eyebrow">A first-principles ML journey</p>
+        <h1 id="blog-intro-title">Building understanding from the ground up</h1>
+        <p class="blog-intro__lead">
+            Synaptic Radio is a ground-up exploration of machine learning and foundation-model engineering. I start with the assumptions beneath an idea, rebuild the mechanism, and test whether the explanation survives contact with code and real systems.
+        </p>
+        <p>
+            This is both a record of what I have learned through my own work and a working notebook for what I am still learning. The purpose is to make the journey visible: the reasoning, experiments, wrong turns, and engineering choices that turn an abstract concept into practical understanding.
+        </p>
+    </section>
 
     <section class="blog-toc" aria-labelledby="blog-toc-title">
         <header class="blog-toc__header">
@@ -68,14 +86,14 @@
                 {{ range $subfolderNames }}
                     {{ $folderCount = add $folderCount (len (index $subfolders .)) }}
                 {{ end }}
-                {{ if gt $folderCount 0 }}
-                    <details class="blog-toc__folder" open data-blog-toc-folder>
-                        <summary>
-                            <span class="blog-toc__folder-marker" aria-hidden="true"></span>
-                            <span class="blog-toc__folder-icon" aria-hidden="true"></span>
-                            <span class="blog-toc__folder-name">{{ $category }}</span>
-                            <span class="blog-toc__folder-count">{{ $folderCount }}</span>
-                        </summary>
+                <details class="blog-toc__folder" open data-blog-toc-folder>
+                    <summary>
+                        <span class="blog-toc__folder-marker" aria-hidden="true"></span>
+                        <span class="blog-toc__folder-icon" aria-hidden="true"></span>
+                        <span class="blog-toc__folder-name">{{ $category }}</span>
+                        <span class="blog-toc__folder-count">{{ $folderCount }}</span>
+                    </summary>
+                    {{ if gt $folderCount 0 }}
                         <ol>
                             {{ range $categoryPosts }}
                                 {{ $date := .Date | time.Format (or $.Site.Params.dateFormat.published "Jan 02, 2006") }}
@@ -120,8 +138,10 @@
                                 </li>
                             {{ end }}
                         </ol>
-                    </details>
-                {{ end }}
+                    {{ else }}
+                        <p class="blog-toc__folder-empty">Essays in progress.</p>
+                    {{ end }}
+                </details>
             {{ end }}
             {{ with $bookRecommendations }}
                 {{ if gt (len .books) 0 }}
@@ -228,7 +248,7 @@
                         if (visible) visibleInFolder += 1;
                     });
 
-                    folder.hidden = visibleInFolder === 0;
+                    folder.hidden = Boolean(query) && visibleInFolder === 0;
                     folder.open = Boolean(query) ? visibleInFolder > 0 : folder.open;
                     visibleItems += visibleInFolder;
                 });

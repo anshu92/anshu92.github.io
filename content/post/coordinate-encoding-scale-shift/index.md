@@ -16,6 +16,7 @@ categories:
   - Multimodal learning
   - Evaluation and experimentation
   - Tokenization and representation
+toc_category: "Evaluation"
 competencies: ["coordinate normalization", "coordinate quantization", "spatial OOD testing", "intervention-based evaluation"]
 prerequisites: ["basic coordinate geometry", "MLP classification", "train/test distribution shift"]
 current_role_tracks: ["CR4", "CR5"]

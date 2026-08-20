@@ -4,6 +4,7 @@ draft: true
 title: "Decoding Large Language Models from Code to Theory"
 description: "A ranting guide to engineer LLM systems from code to underlying decisions and reasoning."
 categories: ["Transformer architecture", "Foundation-model pretraining", "Software architecture"]
+toc_category: "Model Architecture"
 tags: ["attention", "transformers", "deep-learning", "nlp", "llm", "code"]
 math: true
 mermaid: true
