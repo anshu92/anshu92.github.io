@@ -5,7 +5,7 @@ description: "Ray is best understood as a distributed execution substrate for Py
 tags: ["Ray", "distributed systems", "tasks", "actors", "scheduling", "placement groups"]
 categories: ["Distributed training", "Inference and serving", "Software architecture"]
 toc_category: "Infrastructure & Scaling"
-draft: true
+draft: false
 ---
 
 Ray is best understood as a distributed execution substrate for Python programs. It lets an application express stateful and stateless units of work while the runtime handles placement, resource accounting, object references, retries, and cluster membership. Ray Data, Ray Train, Ray Serve, and many RL stacks are higher-level patterns on top of these primitives.
