@@ -27,19 +27,6 @@
             {{ . }}
         </h3>
         {{ end }}
-
-        {{ if eq .Params.content_type "research-report" }}
-        <div class="research-report-meta" aria-label="Research report evidence status">
-            <a href="/page/curriculum/#{{ .Params.module_id }}">{{ replace (replace .Params.module_id "module-" "Module ") "-" " " | title }}</a>
-            <span class="status-pill status-pill--{{ .Params.result_status | default "planned" | urlize }}">{{ .Params.result_status | default "planned" | humanize }}</span>
-            <span class="evidence-pill evidence-pill--{{ .Params.evidence_level | default "not-started" | urlize }}">{{ .Params.evidence_level | default "not-started" | humanize }}</span>
-            {{ with .Params.code_tag }}<code>{{ . }}</code>{{ end }}
-        </div>
-        {{ else if eq .Params.content_type "lab" }}
-        <div class="research-report-meta" aria-label="Supplementary lab classification">
-            <a href="/page/labs/">Supplementary Lab</a>
-        </div>
-        {{ end }}
     </div>
 
     {{ $showReadingTime := .Params.readingTime | default (.Site.Params.article.readingTime) }}

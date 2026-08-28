@@ -1596,7 +1596,6 @@ def _frontmatter(
             "---",
             f'date: "{datetime.now(timezone.utc).date().isoformat()}"',
             "draft: true",
-            'content_type: "lab"',
             f'title: "{_yaml_escape(title)}"',
             f"post_type: {post_type}",
             "categories: [\"Machine Learning\"]",

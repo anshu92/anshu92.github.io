@@ -32,9 +32,6 @@ jobs:
       - name: Unit tests
         run: PYTHONPATH=scripts pytest -q
 
-      - name: Validate canonical curriculum
-        run: PYTHONPATH=scripts python -m blogpipe curriculum validate
-
       - name: Fixture dry run
         env:
           BLOGPIPE_REPO_ROOT: ${{ github.workspace }}

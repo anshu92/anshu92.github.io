@@ -66,40 +66,27 @@ name = 'Home'
 url = '/'
 weight = -100
 [[menu.main]]
-identifier = 'start-here'
-name = 'Start Here'
-url = '/page/start-here/'
+identifier = 'archives'
+name = 'Archives'
+url = '/page/archives/'
 weight = -90
+params = { icon = '' }
 [[menu.main]]
-identifier = 'curriculum'
-name = 'Curriculum'
-url = '/page/curriculum/'
+identifier = 'categories'
+name = 'Categories'
+url = '/categories/'
 weight = -80
 [[menu.main]]
-identifier = 'research-reports'
-name = 'Research Reports'
-url = '/page/research-reports/'
+identifier = 'tags'
+name = 'Tags'
+url = '/tags/'
 weight = -70
 [[menu.main]]
-identifier = 'labs'
-name = 'Labs'
-url = '/page/labs/'
+identifier = 'resume'
+name = 'Resume'
+url = '/files/anshuman-sahoo-resume.pdf'
 weight = -60
-[[menu.main]]
-identifier = 'artifacts'
-name = 'Artifacts'
-url = '/page/artifacts/'
-weight = -50
-[[menu.main]]
-identifier = 'reading-map'
-name = 'Reading Map'
-url = '/page/reading-map/'
-weight = -40
-[[menu.main]]
-identifier = 'about'
-name = 'About'
-url = '/page/about/'
-weight = -30
+params = { icon = 'resume', newTab = true }
 
 # Social menu configuration
 [[menu.social]]
