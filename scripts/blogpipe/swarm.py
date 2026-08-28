@@ -1246,6 +1246,7 @@ def _frontmatter(brief: LessonBrief, *, body: str, mermaid: bool) -> str:
         f'title: "{brief.title.replace(chr(34), chr(39))}"',
         f"date: {datetime.now(timezone.utc).date().isoformat()}",
         "draft: true",
+        'content_type: "lab"',
         f"mermaid: {'true' if mermaid else 'false'}",
         "tags:",
         *[f'  - "{tag}"' for tag in tags],

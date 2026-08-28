@@ -12,6 +12,22 @@ The public generation command is:
 python -m blogpipe swarm run
 ```
 
+The canonical research curriculum is intentionally non-generative. These
+commands inspect its status, create an empty evidence skeleton, and validate a
+module before publication:
+
+```bash
+python -m blogpipe curriculum status
+python -m blogpipe curriculum prepare module-02-tokenizer-stream --dry-run
+python -m blogpipe curriculum validate module-01-loss-semantics
+```
+
+`curriculum prepare` never overwrites an existing report. It creates headings
+and metadata only; hypotheses, implementations, measurements, and conclusions
+must come from the author's work. `curriculum validate` blocks a report marked
+published when its result, evidence level, hypothesis, manifest, raw results,
+reproduction command, or required evidence sections are missing.
+
 Fixture check:
 
 ```bash
@@ -55,6 +71,10 @@ The catalogue starts with basics and then expands toward frontier systems:
 
 Autodesk AEC is an occasional application lens, not the primary topic selector.
 The primary target is technical depth for a Staff/Principal ML engineer.
+
+This automated catalogue produces supplementary Labs. It does not select,
+complete, or publish the fourteen canonical research reports defined in
+`data/research_curriculum.yaml`.
 
 ## Visual Policy
 

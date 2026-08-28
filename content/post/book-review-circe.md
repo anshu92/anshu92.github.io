@@ -1,6 +1,6 @@
 ---
 date: "2026-05-18"
-draft: true
+draft: false
 title: "Book review: Circe by Madeline Miller"
 description: "A personal, spoiler-aware review of Circe and why its loneliness, rage, and self-making felt so real."
 categories: ["Research methodology"]

@@ -48,6 +48,8 @@ The error is not numerical noise. It is a different objective. Equal rank weight
 
 Everything in this article follows from one small fact: **a token-normalized loss needs two numbers, not one**.
 
+> **Runnable source:** [README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/global-token-loss-normalization/README.md), [implementation](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/global-token-loss-normalization/code/loss_reduction.py), and [tests](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/global-token-loss-normalization/code/test_loss_reduction.py). The commands below run from the cloned module directory.
+
 ## The irreducible mechanism
 
 Let token $i$ have unreduced loss $\ell_i$ and non-negative training weight $m_i$. For ordinary masked language modeling, $m_i$ is 1 for a supervised token and 0 for an ignored token.
@@ -113,7 +115,7 @@ else:
     loss = global_numerator / global_denominator
 ```
 
-The bundle's [minimal implementation](code/loss_reduction.py) uses the same rule without requiring a distributed launch. The tests simulate shards so the result can be compared against one concatenated global batch.
+The bundle's [minimal implementation](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/global-token-loss-normalization/code/loss_reduction.py) uses the same rule without requiring a distributed launch. The tests simulate shards so the result can be compared against one concatenated global batch.
 
 ![The invariant follows two numbers](figures/figure-02.svg)
 
@@ -300,7 +302,7 @@ That is the smallest complete mental model.
 ## Mastery check
 
 1. Construct a three-rank example where the mean of local means overweights the shortest rank. Compute both answers by hand.
-2. Extend [`loss_reduction.py`](code/loss_reduction.py) to support arbitrary floating-point token weights.
+2. Extend [`loss_reduction.py`](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/global-token-loss-normalization/code/loss_reduction.py) to support arbitrary floating-point token weights.
 3. Add a test for example-normalized loss: each example should contribute equal total weight regardless of length.
 4. Implement gradient accumulation over unequal-token microbatches and prove equivalence to one concatenated step.
 5. Draw the reduction groups needed when sequence tokens are partitioned by context parallelism and examples are replicated by data parallelism.

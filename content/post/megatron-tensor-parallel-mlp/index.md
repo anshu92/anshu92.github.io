@@ -40,6 +40,8 @@ The finished two-rank step matched the dense reference to within `1.27e-07` in t
 
 That difference is the useful lesson. Tensor parallelism is not merely a way to divide weights. It is a way to divide one algebraic operation while restoring the missing sums at the exact boundaries where the dense computation requires them.
 
+> **Runnable source:** [README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/megatron-tensor-parallel-mlp/README.md), [implementation](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/megatron-tensor-parallel-mlp/code/megatron_tp_mlp.py), and [tests](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/megatron-tensor-parallel-mlp/code/test_megatron_tp_mlp.py). The commands below run from the cloned module directory.
+
 ## Start with the dense block
 
 Here is the dense computation the two ranks must reproduce:
@@ -544,7 +546,7 @@ pytest -q code/test_megatron_tp_mlp.py
 ```
 <!-- END AUTO-GENERATED TERMINAL OUTPUT: tests -->
 
-The retained test output is [`data/terminal-05-tests.txt`](data/terminal-05-tests.txt). The complete implementation is [`code/megatron_tp_mlp.py`](code/megatron_tp_mlp.py), and the direct tests are [`code/test_megatron_tp_mlp.py`](code/test_megatron_tp_mlp.py).
+The retained test output is [`data/terminal-05-tests.txt`](data/terminal-05-tests.txt). The complete implementation is [`megatron_tp_mlp.py`](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/megatron-tensor-parallel-mlp/code/megatron_tp_mlp.py), and the direct tests are [`test_megatron_tp_mlp.py`](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/megatron-tensor-parallel-mlp/code/test_megatron_tp_mlp.py).
 
 ## What this reconstruction proves—and what it does not
 

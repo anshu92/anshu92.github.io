@@ -1,0 +1,49 @@
+schema_version: "1.0"
+module_id: "module-XX-name"
+report_id: "report-XX-name"
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+author: ""
+
+research_question: ""
+directional_hypothesis:
+  prediction: ""
+  proposed_mechanism: ""
+  disconfirming_result: ""
+
+governing_contract:
+  description: ""
+  invariants: []
+  expected_failure_signatures: []
+
+trusted_baseline:
+  description: ""
+  oracle_or_reference: ""
+
+conditions:
+  baseline: ""
+  interventions: []
+  negative_controls: []
+
+run_design:
+  model: ""
+  data: ""
+  token_budget: null
+  seeds: []
+  primary_metrics: []
+  secondary_metrics: []
+  stopping_rule: ""
+  numerical_tolerances: {}
+
+compute_ceiling:
+  hardware: ""
+  maximum_gpu_hours: null
+  maximum_wall_time_hours: null
+  free_tier_constraints: ""
+
+analysis_plan:
+  aggregation: ""
+  uncertainty: ""
+  exclusions: []
+  comparison_rule: ""
+
+publication_gate: ""

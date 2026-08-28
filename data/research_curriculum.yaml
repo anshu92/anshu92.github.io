@@ -1,0 +1,448 @@
+version: "2026.1"
+title: "Synaptic Radio LLM Research Engineer Curriculum"
+subtitle: "A public, self-directed apprenticeship in trustworthy LLM research engineering"
+research_baseline: "2026-08-20"
+start_date: "2026-08-24"
+target_end_date: "2027-08-22"
+duration_weeks: 52
+module_count: 12
+report_count: 14
+weekly_hours: "8-12"
+code_repository:
+  name: "synaptic-lm-lab"
+  current_url: "https://github.com/anshu92/synaptic-radio-code"
+  target_url: "https://github.com/anshu92/synaptic-lm-lab"
+  migration_status: "planned"
+
+workflow:
+  - id: research
+    label: "Research"
+    description: "Read primary material and derive the mechanism before consulting production implementations."
+  - id: preregister
+    label: "Preregister"
+    description: "Commit the hypothesis, controls, metrics, compute limit, and stopping rule before the main run."
+  - id: implement
+    label: "Implement"
+    description: "Build the smallest trustworthy reference implementation personally."
+  - id: validate
+    label: "Validate"
+    description: "Add unit, equivalence, negative-control, and failure-injection tests."
+  - id: experiment
+    label: "Experiment"
+    description: "Run controlled comparisons while retaining configurations, seeds, raw results, and failed-run compute."
+  - id: reproduce
+    label: "Reproduce"
+    description: "Repeat the result from a clean environment or fresh notebook session."
+  - id: write
+    label: "Write"
+    description: "Write only from retained evidence, including negative and inconclusive results."
+  - id: publish
+    label: "Publish"
+    description: "Tag the code and link immutable manifests, results, and reproduction commands."
+
+evidence_levels:
+  - id: not-started
+    label: "Not started"
+    description: "The work is scheduled but no evidence has been claimed."
+  - id: derived
+    label: "Derived"
+    description: "The mechanism, invariants, and expected failure signatures are documented."
+  - id: implemented
+    label: "Implemented"
+    description: "A tested reference implementation exists."
+  - id: validated
+    label: "Validated"
+    description: "Controlled experiments and negative controls support the bounded claim."
+  - id: scaled
+    label: "Scaled"
+    description: "The claim is supported by meaningful multi-GPU or larger-scale execution."
+  - id: transferred
+    label: "Transferred"
+    description: "The conclusion survives an out-of-distribution or downstream setting."
+
+result_states:
+  - planned
+  - preregistered
+  - running
+  - published
+  - deferred
+
+reading_stack:
+  - id: cs336
+    title: "Stanford CS336: Language Modeling from Scratch"
+    url: "https://cs336.stanford.edu/"
+    role: "Canonical curriculum spine and assignments"
+  - id: nanochat
+    title: "nanochat"
+    url: "https://github.com/karpathy/nanochat"
+    role: "Minimal end-to-end comparison after the mechanism is implemented"
+  - id: olmo
+    title: "OLMo and OLMo-core"
+    url: "https://allenai.org/olmo"
+    role: "Transparent production-oriented lifecycle reference"
+  - id: tuning-playbook
+    title: "Deep Learning Tuning Playbook"
+    url: "https://github.com/google-research/tuning_playbook"
+    role: "Experimental discipline, baselines, and tuning order"
+  - id: datacomp-lm
+    title: "DataComp-LM"
+    url: "https://arxiv.org/abs/2406.11794"
+    role: "Controlled pretraining-data experiments"
+  - id: cuda
+    title: "CUDA Programming Guide"
+    url: "https://docs.nvidia.com/cuda/cuda-programming-guide/"
+    role: "GPU execution and memory model"
+  - id: pytorch-distributed
+    title: "PyTorch distributed tensor documentation"
+    url: "https://docs.pytorch.org/docs/stable/distributed.tensor.html"
+    role: "DTensor, FSDP2, and tensor-parallel reference"
+  - id: rlhf-book
+    title: "The RLHF Book"
+    url: "https://rlhfbook.com/"
+    role: "LLM post-training objectives and lifecycle"
+  - id: inspect
+    title: "Inspect AI"
+    url: "https://inspect.aisi.org.uk/"
+    role: "Programmable evaluation and agentic environments"
+  - id: vllm
+    title: "vLLM"
+    url: "https://docs.vllm.ai/"
+    role: "Inference, paging, batching, and serving experiments"
+
+modules:
+  - id: module-01-loss-semantics
+    number: 1
+    phase: "Construct the complete language-model training loop"
+    weeks: "1-4"
+    starts: "2026-08-24"
+    publish_by: "2026-09-20"
+    status: "planned"
+    current: true
+    evidence_level: "not-started"
+    title: "What does next-token training actually optimize?"
+    research_question: "Under padding, packing, variable sequence lengths, gradient accumulation, and data parallelism, what coefficient does every valid token receive in the update?"
+    prerequisites: []
+    competencies:
+      - "token-normalized objectives"
+      - "gradient-equivalence testing"
+      - "distributed loss reduction"
+    implementation_target: "Explicit loss numerator and denominator, packing and accumulation equivalence, simulated rank partitions, and a broken mean-of-means control."
+    publication_gate: "Every semantics-preserving repartition must preserve the scalar objective, gradients, and one optimizer update; the broken reduction must fail."
+    code_tag: "module-01-loss-semantics"
+    resources: ["cs336", "tuning-playbook"]
+    reports:
+      - id: report-01-loss-semantics
+        title: "The Two Numbers Behind Every Language-Model Loss"
+        slug: "the-two-numbers-behind-every-language-model-loss"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-02-tokenizer-stream
+    number: 2
+    phase: "Construct the complete language-model training loop"
+    weeks: "5-8"
+    starts: "2026-09-21"
+    publish_by: "2026-10-18"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Tokenization and the training stream"
+    research_question: "How do vocabulary design and stream construction redistribute context, FLOPs, memory, and representation fidelity?"
+    prerequisites: ["module-01-loss-semantics"]
+    competencies:
+      - "BPE implementation"
+      - "tokenizer measurement"
+      - "deterministic data streams"
+    implementation_target: "BPE, reversible normalization, vocabulary experiments, deterministic packing, sharding, and exact stream resume."
+    publication_gate: "The report must connect tokenizer decisions to measured model-system consequences and demonstrate exact iterator resume."
+    code_tag: "module-02-tokenizer-stream"
+    resources: ["cs336"]
+    reports:
+      - id: report-02-tokenizer-stream
+        title: "A Tokenizer Is a Compute Allocation Policy"
+        slug: "a-tokenizer-is-a-compute-allocation-policy"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-03-modern-decoder
+    number: 3
+    phase: "Construct the complete language-model training loop"
+    weeks: "9-12"
+    starts: "2026-10-19"
+    publish_by: "2026-11-15"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Build a modern decoder from equations"
+    research_question: "What computation and state transition does each part of a contemporary decoder implement?"
+    prerequisites: ["module-01-loss-semantics", "module-02-tokenizer-stream"]
+    competencies:
+      - "decoder architecture"
+      - "attention equivalence"
+      - "KV-cache generation"
+    implementation_target: "Decoder-only Transformer with RMSNorm, RoPE, SwiGLU, MHA/GQA, sampling, and cached generation."
+    publication_gate: "Every forward tensor must have documented semantics, shape, FLOPs, memory traffic, and lifetime, backed by reference and cached-logit tests."
+    code_tag: "module-03-modern-decoder"
+    resources: ["cs336", "nanochat"]
+    reports:
+      - id: report-03-modern-decoder
+        title: "A Modern Decoder, Derived and Tested"
+        slug: "a-modern-decoder-derived-and-tested"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-04-reproducible-pretraining
+    number: 4
+    phase: "Construct the complete language-model training loop"
+    weeks: "13-16"
+    starts: "2026-11-16"
+    publish_by: "2026-12-13"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Pretrain a reproducible base model"
+    research_question: "What makes a model-training result reproducible rather than merely repeatable-looking?"
+    prerequisites: ["module-01-loss-semantics", "module-02-tokenizer-stream", "module-03-modern-decoder"]
+    competencies:
+      - "end-to-end pretraining"
+      - "checkpoint lineage"
+      - "stochastic-state restoration"
+    implementation_target: "End-to-end pretraining plus checkpoint, RNG, scheduler, optimizer, accumulation, and data-cursor ablations."
+    publication_gate: "A clean checkout must regenerate the configuration, data and tokenizer identity, checkpoint lineage, metrics, and final equivalence result."
+    code_tag: "module-04-reproducible-pretraining"
+    resources: ["cs336", "nanochat", "olmo"]
+    reports:
+      - id: report-04-reproducible-pretraining
+        title: "Training a Small Language Model That Can Actually Be Reproduced"
+        slug: "training-a-small-language-model-that-can-actually-be-reproduced"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-05-data-experiments
+    number: 5
+    phase: "Pretraining science"
+    weeks: "17-20"
+    starts: "2026-12-14"
+    publish_by: "2027-01-10"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Treat data as an experimental variable"
+    research_question: "At fixed token and compute budgets, which curation or mixture decision changes transferable model quality?"
+    prerequisites: ["module-02-tokenizer-stream", "module-04-reproducible-pretraining"]
+    competencies:
+      - "data lineage"
+      - "deduplication and contamination testing"
+      - "controlled mixture experiments"
+    implementation_target: "Auditable four-domain corpus, filtering, deduplication, contamination checks, mixtures, and fixed-compute comparisons."
+    publication_gate: "Report per-domain validation, downstream transfer, contamination, rejected-document characteristics, and uncertainty under fixed compute."
+    code_tag: "module-05-data-experiments"
+    resources: ["datacomp-lm", "tuning-playbook"]
+    reports:
+      - id: report-05-data-experiments
+        title: "Which Data Should the Model See?"
+        slug: "which-data-should-the-model-see"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-06-scaling-forecast
+    number: 6
+    phase: "Pretraining science"
+    weeks: "21-24"
+    starts: "2027-01-11"
+    publish_by: "2027-02-07"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Use small runs to predict expensive runs"
+    research_question: "How reliably can pilot runs forecast pretraining loss or capability at a larger model and token budget?"
+    prerequisites: ["module-04-reproducible-pretraining", "module-05-data-experiments"]
+    competencies:
+      - "scaling-law fitting"
+      - "compute allocation"
+      - "prospective forecasting"
+    implementation_target: "Three model sizes, three token budgets, selected repeated seeds, and one preregistered held-out forecast."
+    publication_gate: "The forecast must be committed before the held-out run and evaluated without post-hoc revision."
+    code_tag: "module-06-scaling-forecast"
+    resources: ["cs336", "tuning-playbook"]
+    reports:
+      - id: report-06-scaling-forecast
+        title: "Can a Small LLM Run Predict a Larger One?"
+        slug: "can-a-small-llm-run-predict-a-larger-one"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-07-gpu-roofline
+    number: 7
+    phase: "Systems depth and architecture research"
+    weeks: "25-28"
+    starts: "2027-02-08"
+    publish_by: "2027-03-07"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Model GPU performance before optimizing it"
+    research_question: "Can an analytical model correctly predict whether a Transformer operation is limited by memory traffic, arithmetic, launch overhead, or synchronization?"
+    prerequisites: ["module-03-modern-decoder", "module-04-reproducible-pretraining"]
+    competencies:
+      - "GPU roofline modeling"
+      - "profiling"
+      - "Triton kernel validation"
+    implementation_target: "Analytical FLOP and byte model followed by eager, compiled, and Triton implementations of one selected operation."
+    publication_gate: "Report losing shapes, warm-up policy, numerical tolerances, and the gap between analytical prediction and measurement."
+    code_tag: "module-07-gpu-roofline"
+    resources: ["cs336", "cuda"]
+    reports:
+      - id: report-07-gpu-roofline
+        title: "A Transformer Layer Through the GPU Roofline"
+        slug: "a-transformer-layer-through-the-gpu-roofline"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-08-distributed-equivalence
+    number: 8
+    phase: "Systems depth and architecture research"
+    weeks: "29-32"
+    starts: "2027-03-08"
+    publish_by: "2027-04-04"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Distributed training as a preserved computation"
+    research_question: "How can execution and state be sharded without changing the intended optimizer update?"
+    prerequisites: ["module-01-loss-semantics", "module-03-modern-decoder", "module-04-reproducible-pretraining", "module-07-gpu-roofline"]
+    competencies:
+      - "DDP and FSDP2"
+      - "tensor and sequence parallelism"
+      - "distributed failure diagnosis"
+    implementation_target: "Dense-reference equivalence, explicit collectives, sharding, failure injection, and whatever scaling free resources permit."
+    publication_gate: "The report must demonstrate both correctness and performance; unavailable multi-GPU scale must be marked as unearned rather than simulated."
+    code_tag: "module-08-distributed-equivalence"
+    resources: ["pytorch-distributed"]
+    reports:
+      - id: report-08-distributed-equivalence
+        title: "The Same LLM Update Across DDP, FSDP2, and Tensor Parallelism"
+        slug: "the-same-llm-update-across-ddp-fsdp2-and-tensor-parallelism"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-09-gqa-tradeoff
+    number: 9
+    phase: "Systems depth and architecture research"
+    weeks: "33-36"
+    starts: "2027-04-05"
+    publish_by: "2027-05-02"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Make an architecture decision under matched constraints"
+    research_question: "At what point does reducing KV heads provide a useful inference advantage without unacceptable model-quality loss?"
+    prerequisites: ["module-03-modern-decoder", "module-04-reproducible-pretraining", "module-07-gpu-roofline"]
+    competencies:
+      - "matched-compute architecture experiments"
+      - "GQA tradeoff analysis"
+      - "quality-memory-latency measurement"
+    implementation_target: "MHA and at least two GQA configurations under matched parameters, tokens, optimization, data order, and seeds."
+    publication_gate: "No architecture winner may be declared from one seed or unequal compute; publish the complete quality-memory-latency frontier."
+    code_tag: "module-09-gqa-tradeoff"
+    resources: ["cs336", "vllm"]
+    reports:
+      - id: report-09-gqa-tradeoff
+        title: "Grouped-Query Attention Under Matched Compute: Quality Versus KV Memory"
+        slug: "grouped-query-attention-under-matched-compute"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-10-sft-preference
+    number: 10
+    phase: "Post-training, reinforcement learning, and evaluation"
+    weeks: "37-40"
+    starts: "2027-05-03"
+    publish_by: "2027-05-30"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Understand what each post-training stage changes"
+    research_question: "Which model-behavior changes come from demonstrations, preference optimization, response length, data construction, or evaluation artifacts?"
+    prerequisites: ["module-04-reproducible-pretraining", "module-05-data-experiments"]
+    competencies:
+      - "SFT and DPO objectives"
+      - "preference-data construction"
+      - "length-aware evaluation"
+    implementation_target: "Manual SFT and DPO objectives plus base, SFT, SFT+DPO, and equal-extra-data SFT comparisons."
+    publication_gate: "A preference win must survive length-aware analysis and an evaluator not used to construct the training data."
+    code_tag: "module-10-sft-preference"
+    resources: ["rlhf-book", "inspect"]
+    reports:
+      - id: report-10-sft-preference
+        title: "From SFT to Preference Learning Without Fooling the Evaluation"
+        slug: "from-sft-to-preference-learning-without-fooling-the-evaluation"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-11-rlvr
+    number: 11
+    phase: "Post-training, reinforcement learning, and evaluation"
+    weeks: "41-44"
+    starts: "2027-05-31"
+    publish_by: "2027-06-27"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "RLVR and trustworthy model-behavior measurement"
+    research_question: "Does reinforcement learning create a capability improvement after matching inference-time sampling compute and controlling for verifier exploitation?"
+    prerequisites: ["module-10-sft-preference"]
+    competencies:
+      - "exact verifier design"
+      - "policy-gradient and GRPO reasoning"
+      - "reward-hacking diagnosis"
+    implementation_target: "Exact verifier, small policy-gradient or GRPO implementation, reward telemetry, and matched-sampling comparisons."
+    publication_gate: "Separate capability improvement from more samples, longer traces, formatting effects, and reward exploitation."
+    code_tag: "module-11-rlvr"
+    resources: ["rlhf-book", "inspect"]
+    reports:
+      - id: report-11-rlvr
+        title: "Does GRPO Improve Capability Beyond Best-of-N?"
+        slug: "does-grpo-improve-capability-beyond-best-of-n"
+        status: "planned"
+        evidence_level: "not-started"
+
+  - id: module-12-spatial-capstone
+    number: 12
+    phase: "Differentiated capstone"
+    weeks: "45-52"
+    starts: "2027-06-28"
+    publish_by: "2027-08-22"
+    status: "planned"
+    current: false
+    evidence_level: "not-started"
+    title: "Verifiable spatial reasoning for LLM agents"
+    research_question: "Can a verifiable spatial environment support trustworthy measurement, training, and serving experiments for compositional planning?"
+    prerequisites: ["module-05-data-experiments", "module-09-gqa-tradeoff", "module-10-sft-preference", "module-11-rlvr"]
+    competencies:
+      - "environment and grader design"
+      - "verifiable-reward training"
+      - "agent serving under load"
+    implementation_target: "A deterministic spatial environment, training study, and serving analysis that integrate the preceding curriculum."
+    publication_gate: "The capstone must separate language, geometry, tool-use, planning, formatting, verifier, and serving failures using synthetic or openly licensed data."
+    code_tag: "module-12-spatial-capstone"
+    resources: ["inspect", "vllm"]
+    reports:
+      - id: report-12a-spatial-environment
+        title: "Can a Spatial Reasoning Environment Measure What It Claims to Measure?"
+        slug: "can-a-spatial-reasoning-environment-measure-what-it-claims"
+        publish_by: "2027-07-18"
+        status: "planned"
+        evidence_level: "not-started"
+      - id: report-12b-spatial-training
+        title: "Can Verifiable-Reward Training Improve Compositional Spatial Planning?"
+        slug: "can-verifiable-reward-training-improve-spatial-planning"
+        publish_by: "2027-08-08"
+        status: "planned"
+        evidence_level: "not-started"
+      - id: report-12c-spatial-serving
+        title: "The Cost of Reasoning: Serving a Spatial LLM Agent Under Load"
+        slug: "the-cost-of-reasoning-serving-a-spatial-llm-agent-under-load"
+        publish_by: "2027-08-22"
+        status: "planned"
+        evidence_level: "not-started"

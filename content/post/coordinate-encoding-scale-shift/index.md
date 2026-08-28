@@ -4,7 +4,7 @@ description: "A five-seed synthetic probe with an MLP and a tiny transformer sho
 summary: "A small coordinate-encoding probe shows why in-domain accuracy can miss absolute-position shortcuts under scale and translation shifts, even with a transformer block."
 date: 2026-07-10
 lastmod: 2026-07-11
-draft: false
+draft: true
 slug: "coordinate-encoding-scale-shift"
 author: "Anshuman Sahoo"
 image: "/images/coordinate-encoding-scale-shift/cover.svg"
@@ -35,6 +35,8 @@ I tested that hypothesis with a deliberately small system. Two points define one
 ![Two points preserve the same relation while canvas scale and origin change.](/images/coordinate-encoding-scale-shift/cover.svg)
 
 The result was not that one encoding won everywhere. Raw pixels actually produced the best in-domain score. The useful signal appeared only after the translation intervention: its mean accuracy fell from **0.908 to 0.535**, while normalized coordinates retained **0.817**. That gap is the reason to treat coordinate tests as interventions, not ordinary held-out evaluation.
+
+> **Runnable source:** [README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/coordinate-encoding-scale-shift/README.md), [implementation](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/coordinate-encoding-scale-shift/code/coordinate_probe.py), and [tests](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/coordinate-encoding-scale-shift/code/test_coordinate_probe.py). The commands below run from the cloned module directory.
 
 ## The probe: keep the geometry, change its address
 

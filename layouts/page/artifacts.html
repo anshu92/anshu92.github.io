@@ -1,0 +1,51 @@
+{{ define "main" }}
+    {{ $curriculum := .Site.Data.research_curriculum }}
+    <header class="research-hero research-hero--compact">
+        <p class="research-hero__eyebrow">Reproducible evidence</p>
+        <h1>{{ .Title }}</h1>
+        <p>Every numerical claim should resolve to a retained configuration, manifest, raw result, and reproduction command.</p>
+    </header>
+
+    <section class="research-section" aria-labelledby="artifact-contract-title">
+        <div class="research-section__heading">
+            <h2 id="artifact-contract-title">Artifact contract</h2>
+            <p>The lab repository is still migrating to <code>{{ $curriculum.code_repository.name }}</code>. Until that migration is complete, existing article artifacts remain at the current repository URL.</p>
+        </div>
+        <div class="artifact-contract">
+            <div><strong>Preregistration</strong><span>Hypothesis, controls, metrics, compute ceiling, and stopping rule committed before the main run.</span></div>
+            <div><strong>Run manifest</strong><span>Code, configuration, data, tokenizer, checkpoint, seed, hardware, software, and output identities.</span></div>
+            <div><strong>Results</strong><span>Raw measurements, aggregate statistics, retained examples, failed-run compute, and deterministic figures.</span></div>
+            <div><strong>Reproduction</strong><span>Clean-environment command, expected outputs, tolerances, and immutable code tag.</span></div>
+        </div>
+        <div class="artifact-downloads">
+            <a href="/templates/research-preregistration.yaml" download>Preregistration template</a>
+            <a href="/schemas/research-run-manifest.schema.json">Run-manifest schema</a>
+            <a href="/schemas/research-result-summary.schema.json">Result-summary schema</a>
+        </div>
+    </section>
+
+    <section class="research-section" aria-labelledby="artifact-index-title">
+        <div class="research-section__heading">
+            <h2 id="artifact-index-title">Module artifact index</h2>
+            <p>Planned rows are intentionally empty until evidence exists.</p>
+        </div>
+        <div class="artifact-table-wrap">
+            <table class="artifact-table">
+                <thead><tr><th>Module</th><th>Status</th><th>Evidence</th><th>Code tag</th><th>Publication gate</th></tr></thead>
+                <tbody>
+                    {{ range $curriculum.modules }}
+                        <tr>
+                            <td><a href="/page/curriculum/#{{ .id }}">{{ printf "%02d" .number }} · {{ .title }}</a></td>
+                            <td><span class="status-pill status-pill--{{ .status | urlize }}">{{ humanize .status }}</span></td>
+                            <td><span class="evidence-pill evidence-pill--{{ .evidence_level | urlize }}">{{ humanize .evidence_level }}</span></td>
+                            <td><code>{{ .code_tag }}</code></td>
+                            <td>{{ .publication_gate }}</td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    {{ partialCached "footer/footer" . }}
+{{ end }}

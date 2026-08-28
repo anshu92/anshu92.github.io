@@ -34,6 +34,8 @@ I wanted to reconstruct the smallest attention block that still preserves that c
 
 The result is narrow but useful: **the natural partition is a complete query/KV group, not an arbitrary matrix slice**. The forward pass also needs an output reduction, while the replicated input path needs a separate backward reduction. A forward-only test catches the first bug and misses the second.
 
+> **Runnable source:** [README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/tensor-parallel-gqa-attention/README.md), [implementation](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/tensor-parallel-gqa-attention/code/tp_gqa_attention.py), and [tests](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/tensor-parallel-gqa-attention/code/test_tp_gqa_attention.py). The commands below run from the cloned module directory.
+
 ## Start with the dense block
 
 The dense reference is short enough to inspect:
@@ -123,7 +125,7 @@ PYTHONPATH=code python code/tp_gqa_attention.py --mode inspect
 }
 ```
 
-The full transcript is retained in [`data/terminal-01-inspect.txt`](data/terminal-01-inspect.txt), and the executable reference is in [`code/tp_gqa_attention.py`](code/tp_gqa_attention.py).
+The full transcript is retained in [`data/terminal-01-inspect.txt`](data/terminal-01-inspect.txt), and the executable reference is [`tp_gqa_attention.py`](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/tensor-parallel-gqa-attention/code/tp_gqa_attention.py).
 
 ## First change: split complete head groups
 

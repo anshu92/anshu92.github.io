@@ -2,7 +2,7 @@
 title: "Continuous Batching Needs Admission Control"
 date: 2026-07-20
 lastmod: 2026-07-20
-draft: false
+draft: true
 slug: "continuous-batching-admission-control"
 author: "Anshuman Sahoo"
 image: "/images/continuous-batching-admission-control/cover.svg"
@@ -52,7 +52,7 @@ The request is cheap *now* and expensive *over its lifetime*.
 
 ## The mechanism model
 
-The package includes `code/simulate_admission.py`. Each synthetic request has:
+The [runnable simulator](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/continuous-batching-admission-control/code/simulate_admission.py), its [tests](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/continuous-batching-admission-control/tests/test_admission.py), and its [execution README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/continuous-batching-admission-control/README.md) live in the public source repository. Each synthetic request has:
 
 - an arrival step;
 - prompt length;

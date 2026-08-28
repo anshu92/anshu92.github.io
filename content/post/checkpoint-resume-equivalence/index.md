@@ -4,7 +4,7 @@ description: "I built a small PyTorch training loop, interrupted it, removed che
 summary: "A practical checkpoint test: run a control, resume from an interruption, remove one saved field at a time, and find the first update that diverges."
 date: 2026-07-04T12:00:00-04:00
 lastmod: 2026-07-05T14:00:00-04:00
-draft: false
+draft: true
 slug: "checkpoint-resume-equivalence"
 author: "Anshuman Sahoo"
 image: "cover.svg"
@@ -44,6 +44,8 @@ I expected “model plus optimizer” to get most of the way there. It did not.
 Across seeds 11, 17, 29, 47, and 83, the complete checkpoint reproduced the uninterrupted run bit for bit. A model-plus-optimizer checkpoint branched on the first resumed update. Omitting only the scheduler looked fine for three updates, then changed the weights at step nine. Saving in the middle of gradient accumulation also failed if I discarded gradients that had already been computed.
 
 That changed how I think about checkpoint tests. A successful load is useful, but it is not a resume test. The test I want asks: does the restored process produce the same next update as the uninterrupted control, then keep agreeing for a short future?
+
+> **Runnable source:** [README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/checkpoint-resume-equivalence/README.md), [implementation](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/checkpoint-resume-equivalence/code/checkpoint_equivalence.py), and [tests](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/checkpoint-resume-equivalence/code/test_checkpoint_equivalence.py). The commands below run from the cloned module directory.
 
 ## The tiny training loop
 
@@ -294,4 +296,4 @@ A restart becomes a resume only when the future agrees.
 4. PyTorch, [`Optimizer.state_dict`](https://docs.pytorch.org/docs/stable/generated/torch.optim.Optimizer.state_dict.html), [`Optimizer.load_state_dict`](https://docs.pytorch.org/docs/stable/generated/torch.optim.Optimizer.load_state_dict.html), and [`LRScheduler`](https://docs.pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.LRScheduler.html).
 5. PyTorch, [Distributed Checkpoint tutorial](https://docs.pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html) and [Distributed Checkpoint API](https://docs.pytorch.org/docs/stable/distributed.checkpoint.html).
 6. TorchData, [StatefulDataLoader tutorial](https://meta-pytorch.org/data/0.9/stateful_dataloader_tutorial.html).
-7. Executable evidence: [`code/checkpoint_equivalence.py`](code/checkpoint_equivalence.py), [`code/test_checkpoint_equivalence.py`](code/test_checkpoint_equivalence.py), [`requirements.txt`](requirements.txt), [`data/results.csv`](data/results.csv), [`data/run-summary.json`](data/run-summary.json), [`data/raw-output.txt`](data/raw-output.txt), [`data/step-traces.json`](data/step-traces.json), [`data/environment.json`](data/environment.json), the four [`data/terminal-*.txt`](data/terminal-01-fixture.txt) transcripts, and [`asset-manifest.yaml`](asset-manifest.yaml).
+7. Executable evidence: [`checkpoint_equivalence.py`](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/checkpoint-resume-equivalence/code/checkpoint_equivalence.py), [`test_checkpoint_equivalence.py`](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/checkpoint-resume-equivalence/code/test_checkpoint_equivalence.py), the [repository dependency manifest](https://github.com/anshu92/synaptic-radio-code/blob/main/pyproject.toml), [`data/results.csv`](data/results.csv), [`data/run-summary.json`](data/run-summary.json), [`data/raw-output.txt`](data/raw-output.txt), [`data/step-traces.json`](data/step-traces.json), [`data/environment.json`](data/environment.json), the four [`data/terminal-*.txt`](data/terminal-01-fixture.txt) transcripts, and [`asset-manifest.yaml`](asset-manifest.yaml).

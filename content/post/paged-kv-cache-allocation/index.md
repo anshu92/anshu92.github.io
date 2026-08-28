@@ -2,7 +2,7 @@
 title: "The KV Cache Is an Allocator Problem"
 date: 2026-07-19
 lastmod: 2026-07-20
-draft: false
+draft: true
 slug: "paged-kv-cache-allocation"
 author: "Anshuman Sahoo"
 image: "/images/paged-kv-cache-allocation/allocator-layout.svg"
@@ -47,6 +47,8 @@ The simulator compares three policies:
 - **Paged growth:** allocate fixed-size blocks on demand.
 
 Every policy receives the same deterministic event trace. A request is admitted only if its initial prompt cache can be allocated. At each decode step, the allocator tries to grow every active request by one token. We record admitted and rejected requests, live tokens, reserved slots, internal waste, free capacity, largest contiguous free interval, and allocation failures despite sufficient total free capacity.
+
+> **Runnable source:** [README](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/paged-kv-cache-allocation/README.md), [simulator](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/paged-kv-cache-allocation/code/kv_allocator.py), and [test](https://github.com/anshu92/synaptic-radio-code/blob/main/articles/paged-kv-cache-allocation/tests/test_allocator.py). The commands below run from the cloned module directory.
 
 ```bash
 python code/kv_allocator.py --scenario data/scenario.json --output outputs/results.json

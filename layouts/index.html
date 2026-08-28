@@ -12,6 +12,7 @@
         "Infrastructure & Scaling"
     }}
     {{ $bookRecommendations := .Site.Data.book_recommendations_2026 }}
+    {{ $curriculum := .Site.Data.research_curriculum }}
 
     {{ range $folderNames }}
         {{ $folders = merge $folders (dict . (dict "posts" slice "subfolderNames" slice "subfolders" dict)) }}
@@ -44,20 +45,41 @@
     {{ end }}
 
     <section class="blog-intro" aria-labelledby="blog-intro-title">
-        <p class="blog-intro__eyebrow">A first-principles ML journey</p>
-        <h1 id="blog-intro-title">Building understanding from the ground up</h1>
+        <p class="blog-intro__eyebrow">A public LLM research apprenticeship</p>
+        <h1 id="blog-intro-title">From model hypothesis to trustworthy result</h1>
         <p class="blog-intro__lead">
-            Synaptic Radio is a ground-up exploration of machine learning and foundation-model engineering. I start with the assumptions beneath an idea, rebuild the mechanism, and test whether the explanation survives contact with code and real systems.
+            Synaptic Radio is a 52-week, self-directed journey through language-model objectives, architecture, pretraining, GPU systems, post-training, evaluation, and serving.
         </p>
         <p>
-            This is both a record of what I have learned through my own work and a working notebook for what I am still learning. The purpose is to make the journey visible: the reasoning, experiments, wrong turns, and engineering choices that turn an abstract concept into practical understanding.
+            Each flagship report begins with a falsifiable question and ends only when the implementation, controls, retained evidence, failure analysis, and reproduction path are ready. Smaller supporting experiments remain Labs rather than silently completing the canonical sequence.
         </p>
+        <div class="blog-intro__actions">
+            <a href="/page/start-here/">Start here</a>
+            <a href="/page/curriculum/">Explore the curriculum</a>
+            <a href="/page/research-reports/">Research reports</a>
+        </div>
     </section>
+
+    {{ range where $curriculum.modules "current" true }}
+        <section class="home-current-module" aria-labelledby="home-current-module-title">
+            <div>
+                <p class="home-current-module__eyebrow">Current focus · Module {{ printf "%02d" .number }} · Weeks {{ .weeks }}</p>
+                <h2 id="home-current-module-title">{{ .title }}</h2>
+                <p>{{ .research_question }}</p>
+            </div>
+            <div class="home-current-module__status">
+                <span class="status-pill status-pill--{{ .status | urlize }}">{{ humanize .status }}</span>
+                <span class="evidence-pill evidence-pill--{{ .evidence_level | urlize }}">{{ humanize .evidence_level }}</span>
+                <a href="/page/curriculum/#{{ .id }}">View the module →</a>
+            </div>
+        </section>
+    {{ end }}
 
     <section class="blog-toc" aria-labelledby="blog-toc-title">
         <header class="blog-toc__header">
             <div>
-                <h2 id="blog-toc-title">Blog table of contents</h2>
+                <h2 id="blog-toc-title">Supplementary archive</h2>
+                <p>Existing posts and Labs, organized by topic rather than canonical module order.</p>
             </div>
 
             <form action="/page/search/" class="blog-toc__search" role="search">
