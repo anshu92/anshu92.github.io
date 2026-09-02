@@ -13,7 +13,7 @@ one_sentence_takeaway: "LLM confidence is useful only when it is calibrated agai
 rubric_score: 0
 ---
 
-An LLM confidence score becomes useful only when a reported probability, say
+A confidence score becomes useful only when a reported probability, say
 80%, corresponds to an event that happens about 80% of the time.
 
 ## Accuracy vs calibration
