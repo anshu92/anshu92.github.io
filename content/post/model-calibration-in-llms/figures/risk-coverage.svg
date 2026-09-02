@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="650" viewBox="0 0 1080 650" role="img" aria-labelledby="title desc">
+  <title id="title">Risk decreases as an LLM abstains on low-confidence requests</title>
+  <desc id="desc">A risk-coverage curve passes through four operating points: 20 percent coverage with 1 percent error, 50 percent coverage with 4 percent error, 80 percent coverage with 10 percent error, and 100 percent coverage with 18 percent error.</desc>
+  <defs>
+    <style>
+      .title { font: 700 30px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .axis-label { font: 600 17px system-ui, sans-serif; fill: #334155; }
+      .tick { font: 400 14px system-ui, sans-serif; fill: #64748b; }
+      .callout-title { font: 700 20px system-ui, sans-serif; fill: #0f172a; }
+      .callout { font: 400 17px system-ui, sans-serif; fill: #334155; }
+      .point { font: 500 15px system-ui, sans-serif; fill: #334155; }
+      .grid { stroke: #dbe3ec; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1080" height="650" fill="#f8fafc"/>
+  <text x="60" y="52" class="title">Abstention trades coverage for lower risk</text>
+  <text x="60" y="82" class="subtitle">Rejecting low-confidence requests improves the error rate of the answers that remain.</text>
+
+  <rect x="130" y="110" width="600" height="420" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <g class="grid">
+    <line x1="130" y1="430" x2="730" y2="430"/><line x1="130" y1="330" x2="730" y2="330"/>
+    <line x1="130" y1="230" x2="730" y2="230"/><line x1="250" y1="110" x2="250" y2="530"/>
+    <line x1="370" y1="110" x2="370" y2="530"/><line x1="490" y1="110" x2="490" y2="530"/>
+    <line x1="610" y1="110" x2="610" y2="530"/>
+  </g>
+  <line x1="130" y1="530" x2="730" y2="530" stroke="#334155" stroke-width="2"/>
+  <line x1="130" y1="530" x2="130" y2="110" stroke="#334155" stroke-width="2"/>
+
+  <g class="tick" text-anchor="middle">
+    <text x="130" y="555">0%</text><text x="250" y="555">20%</text><text x="370" y="555">40%</text>
+    <text x="490" y="555">60%</text><text x="610" y="555">80%</text><text x="730" y="555">100%</text>
+  </g>
+  <g class="tick" text-anchor="end">
+    <text x="118" y="535">0%</text><text x="118" y="435">5%</text><text x="118" y="335">10%</text>
+    <text x="118" y="235">15%</text><text x="118" y="115">20%</text>
+  </g>
+  <text x="430" y="596" text-anchor="middle" class="axis-label">Coverage: requests answered</text>
+  <text x="48" y="320" text-anchor="middle" class="axis-label" transform="rotate(-90 48 320)">Risk: error rate</text>
+
+  <path d="M250 510 C330 494 390 468 430 450 S560 365 610 330 S695 220 730 170" fill="none" stroke="#dc2626" stroke-width="6" stroke-linecap="round"/>
+  <g fill="#ffffff" stroke="#dc2626" stroke-width="5">
+    <circle cx="250" cy="510" r="9"/><circle cx="430" cy="450" r="9"/>
+    <circle cx="610" cy="330" r="9"/><circle cx="730" cy="170" r="9"/>
+  </g>
+
+  <rect x="755" y="145" width="300" height="305" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="785" y="184" class="callout-title">Operating points</text>
+  <text x="785" y="230" class="point">100% coverage</text><text x="1025" y="230" text-anchor="end" class="point">82% accuracy</text>
+  <line x1="785" y1="249" x2="1025" y2="249" stroke="#e2e8f0"/>
+  <text x="785" y="290" class="point">80% coverage</text><text x="1025" y="290" text-anchor="end" class="point">90% accuracy</text>
+  <line x1="785" y1="309" x2="1025" y2="309" stroke="#e2e8f0"/>
+  <text x="785" y="350" class="point">50% coverage</text><text x="1025" y="350" text-anchor="end" class="point">96% accuracy</text>
+  <line x1="785" y1="369" x2="1025" y2="369" stroke="#e2e8f0"/>
+  <text x="785" y="410" class="point">20% coverage</text><text x="1025" y="410" text-anchor="end" class="point">99% accuracy</text>
+
+  <rect x="760" y="500" width="285" height="72" rx="12" fill="#ecfeff" stroke="#67e8f9"/>
+  <text x="902" y="529" text-anchor="middle" class="axis-label">Choose the threshold from</text>
+  <text x="902" y="554" text-anchor="middle" class="axis-label">error cost and required coverage.</text>
+</svg>

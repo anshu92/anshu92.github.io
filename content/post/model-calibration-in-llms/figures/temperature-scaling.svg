@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="610" viewBox="0 0 1080 610" role="img" aria-labelledby="title desc">
+  <title id="title">Temperature scaling softens probabilities without changing the predicted class</title>
+  <desc id="desc">The logits 10, 5, and 1 yield probabilities 0.9932, 0.0067, and 0.0001 at temperature one. At temperature two they yield 0.9148, 0.0751, and 0.0101. Class one remains the argmax.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .title { font: 700 30px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .panel-title { font: 700 22px system-ui, sans-serif; fill: #0f172a; }
+      .label { font: 600 17px system-ui, sans-serif; fill: #334155; }
+      .value { font: 600 16px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #0f172a; }
+      .note { font: 400 16px system-ui, sans-serif; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect width="1080" height="610" fill="#f8fafc"/>
+  <text x="60" y="52" class="title">Temperature scaling softens confidence—not rank</text>
+  <text x="60" y="82" class="subtitle">The same logits [10, 5, 1] are divided by T before softmax.</text>
+
+  <rect x="55" y="120" width="430" height="385" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="85" y="162" class="panel-title">Before · T = 1</text>
+  <text x="85" y="193" class="note">Nearly all probability mass sits on Class 1.</text>
+  <text x="85" y="249" class="label">Class 1</text><rect x="165" y="225" width="268.2" height="34" rx="7" fill="#0284c7"/><text x="443" y="248" class="value">0.9932</text>
+  <text x="85" y="329" class="label">Class 2</text><rect x="165" y="305" width="2" height="34" rx="2" fill="#7dd3fc"/><text x="178" y="328" class="value">0.0067</text>
+  <text x="85" y="409" class="label">Class 3</text><rect x="165" y="385" width="1" height="34" rx="1" fill="#bae6fd"/><text x="178" y="408" class="value">0.0001</text>
+  <rect x="115" y="449" width="310" height="38" rx="10" fill="#e0f2fe"/>
+  <text x="270" y="474" text-anchor="middle" class="label">Argmax = Class 1</text>
+
+  <line x1="500" y1="310" x2="575" y2="310" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="537" y="282" text-anchor="middle" class="label">÷ 2</text>
+
+  <rect x="595" y="120" width="430" height="385" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="625" y="162" class="panel-title">After · T = 2</text>
+  <text x="625" y="193" class="note">Probability spreads; ranking stays fixed.</text>
+  <text x="625" y="249" class="label">Class 1</text><rect x="705" y="225" width="247.0" height="34" rx="7" fill="#0284c7"/><text x="962" y="248" class="value">0.9148</text>
+  <text x="625" y="329" class="label">Class 2</text><rect x="705" y="305" width="20.3" height="34" rx="5" fill="#7dd3fc"/><text x="735" y="328" class="value">0.0751</text>
+  <text x="625" y="409" class="label">Class 3</text><rect x="705" y="385" width="2.7" height="34" rx="2" fill="#bae6fd"/><text x="718" y="408" class="value">0.0101</text>
+  <rect x="655" y="449" width="310" height="38" rx="10" fill="#e0f2fe"/>
+  <text x="810" y="474" text-anchor="middle" class="label">Argmax = Class 1</text>
+
+  <rect x="180" y="545" width="720" height="43" rx="11" fill="#ecfdf5" stroke="#6ee7b7"/>
+  <text x="540" y="573" text-anchor="middle" class="label">For T &gt; 0, confidence changes; class order does not.</text>
+</svg>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="620" viewBox="0 0 1080 620" role="img" aria-labelledby="title desc">
+  <title id="title">Calibration and sharpness are different properties</title>
+  <desc id="desc">Model A assigns probability 0.5 to ten cases and five succeed. Model B assigns probability 0.1 to ten cases with one success and probability 0.9 to ten cases with nine successes. Both models are calibrated, but Model B is sharper and has a lower Brier score.</desc>
+  <defs>
+    <style>
+      .title { font: 700 30px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .panel-title { font: 700 21px system-ui, sans-serif; fill: #0f172a; }
+      .label { font: 600 16px system-ui, sans-serif; fill: #334155; }
+      .small { font: 400 15px system-ui, sans-serif; fill: #64748b; }
+      .axis { stroke: #334155; stroke-width: 2; }
+      .tick { stroke: #64748b; stroke-width: 1.5; }
+      .positive { fill: #0f766e; stroke: #115e59; stroke-width: 1.5; }
+      .negative { fill: #f97316; stroke: #c2410c; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1080" height="620" fill="#f8fafc"/>
+  <text x="60" y="52" class="title">Both models are calibrated. Only one is sharp.</text>
+  <text x="60" y="82" class="subtitle">Sharp forecasts move away from the base rate when the evidence supports it.</text>
+
+  <rect x="55" y="115" width="470" height="420" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="85" y="153" class="panel-title">Model A · calibrated, not sharp</text>
+  <text x="85" y="181" class="small">Every case receives p = 0.50; 5 of 10 succeed.</text>
+  <line x1="100" y1="455" x2="480" y2="455" class="axis"/>
+  <line x1="100" y1="448" x2="100" y2="462" class="tick"/><line x1="290" y1="448" x2="290" y2="462" class="tick"/><line x1="480" y1="448" x2="480" y2="462" class="tick"/>
+  <text x="100" y="482" text-anchor="middle" class="small">0.0</text><text x="290" y="482" text-anchor="middle" class="small">0.5</text><text x="480" y="482" text-anchor="middle" class="small">1.0</text>
+  <text x="290" y="512" text-anchor="middle" class="label">Predicted probability</text>
+  <g>
+    <circle cx="290" cy="220" r="10" class="positive"/><circle cx="290" cy="244" r="10" class="negative"/>
+    <circle cx="290" cy="268" r="10" class="positive"/><circle cx="290" cy="292" r="10" class="negative"/>
+    <circle cx="290" cy="316" r="10" class="positive"/><circle cx="290" cy="340" r="10" class="negative"/>
+    <circle cx="290" cy="364" r="10" class="positive"/><circle cx="290" cy="388" r="10" class="negative"/>
+    <circle cx="290" cy="412" r="10" class="positive"/><circle cx="290" cy="436" r="10" class="negative"/>
+  </g>
+  <rect x="146" y="548" width="288" height="42" rx="10" fill="#f1f5f9"/>
+  <text x="290" y="575" text-anchor="middle" class="label">Brier score = 0.25</text>
+
+  <rect x="555" y="115" width="470" height="420" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="585" y="153" class="panel-title">Model B · calibrated and sharp</text>
+  <text x="585" y="181" class="small">p = 0.10 → 10% succeed; p = 0.90 → 90% succeed.</text>
+  <line x1="600" y1="455" x2="980" y2="455" class="axis"/>
+  <line x1="600" y1="448" x2="600" y2="462" class="tick"/><line x1="790" y1="448" x2="790" y2="462" class="tick"/><line x1="980" y1="448" x2="980" y2="462" class="tick"/>
+  <text x="600" y="482" text-anchor="middle" class="small">0.0</text><text x="790" y="482" text-anchor="middle" class="small">0.5</text><text x="980" y="482" text-anchor="middle" class="small">1.0</text>
+  <text x="790" y="512" text-anchor="middle" class="label">Predicted probability</text>
+  <g>
+    <circle cx="638" cy="220" r="10" class="positive"/>
+    <circle cx="638" cy="244" r="10" class="negative"/><circle cx="638" cy="268" r="10" class="negative"/>
+    <circle cx="638" cy="292" r="10" class="negative"/><circle cx="638" cy="316" r="10" class="negative"/>
+    <circle cx="638" cy="340" r="10" class="negative"/><circle cx="638" cy="364" r="10" class="negative"/>
+    <circle cx="638" cy="388" r="10" class="negative"/><circle cx="638" cy="412" r="10" class="negative"/>
+    <circle cx="638" cy="436" r="10" class="negative"/>
+    <circle cx="942" cy="220" r="10" class="negative"/>
+    <circle cx="942" cy="244" r="10" class="positive"/><circle cx="942" cy="268" r="10" class="positive"/>
+    <circle cx="942" cy="292" r="10" class="positive"/><circle cx="942" cy="316" r="10" class="positive"/>
+    <circle cx="942" cy="340" r="10" class="positive"/><circle cx="942" cy="364" r="10" class="positive"/>
+    <circle cx="942" cy="388" r="10" class="positive"/><circle cx="942" cy="412" r="10" class="positive"/>
+    <circle cx="942" cy="436" r="10" class="positive"/>
+  </g>
+  <rect x="646" y="548" width="288" height="42" rx="10" fill="#ecfdf5"/>
+  <text x="790" y="575" text-anchor="middle" class="label">Brier score = 0.09</text>
+
+  <circle cx="690" cy="100" r="7" class="positive"/><text x="705" y="106" class="small">event occurred</text>
+  <circle cx="830" cy="100" r="7" class="negative"/><text x="845" y="106" class="small">did not occur</text>
+</svg>

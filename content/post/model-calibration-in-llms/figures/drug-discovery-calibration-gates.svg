@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Calibration gates in an agentic drug-discovery workflow</title>
+  <desc id="desc">Five stages run from literature evidence through candidate design, synthesis, assay, and replication. Each stage has its own measurable probability, and experimental outcomes feed back to the next discovery cycle.</desc>
+  <defs>
+    <style>
+      .title { font: 700 31px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .step { font: 700 20px system-ui, sans-serif; fill: #0f172a; }
+      .body { font: 400 15px system-ui, sans-serif; fill: #475569; }
+      .prob { font: 650 16px system-ui, sans-serif; fill: #164e63; }
+      .gate { font: 700 13px system-ui, sans-serif; fill: #ffffff; }
+      .loop { font: 600 16px system-ui, sans-serif; fill: #6d28d9; }
+      .foot { font: 400 14px system-ui, sans-serif; fill: #64748b; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/>
+    </marker>
+    <marker id="loop-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="760" fill="#f8fafc"/>
+  <circle cx="1125" cy="80" r="170" fill="#e0f2fe" opacity="0.55"/>
+  <circle cx="80" cy="735" r="170" fill="#ede9fe" opacity="0.55"/>
+
+  <text x="54" y="58" class="title">One discovery loop, five different calibration targets</text>
+  <text x="54" y="88" class="subtitle">Confidence should name the next observable event—not whether a molecule will eventually become a drug.</text>
+
+  <g stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)">
+    <line x1="238" y1="231" x2="272" y2="231"/>
+    <line x1="468" y1="231" x2="502" y2="231"/>
+    <line x1="698" y1="231" x2="732" y2="231"/>
+    <line x1="928" y1="231" x2="962" y2="231"/>
+  </g>
+
+  <g>
+    <rect x="40" y="135" width="198" height="192" rx="17" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
+    <circle cx="70" cy="165" r="17" fill="#2563eb"/><text x="70" y="170" text-anchor="middle" class="gate">1</text>
+    <text x="60" y="207" class="step">Evidence</text>
+    <text x="60" y="237" class="body">Search literature</text>
+    <text x="60" y="260" class="body">and databases</text>
+    <rect x="58" y="282" width="162" height="29" rx="8" fill="#eff6ff"/>
+    <text x="139" y="302" text-anchor="middle" class="prob">P(support)</text>
+
+    <rect x="270" y="135" width="198" height="192" rx="17" fill="#ffffff" stroke="#a5b4fc" stroke-width="2"/>
+    <circle cx="300" cy="165" r="17" fill="#4f46e5"/><text x="300" y="170" text-anchor="middle" class="gate">2</text>
+    <text x="290" y="207" class="step">Candidate</text>
+    <text x="290" y="237" class="body">Generate and rank</text>
+    <text x="290" y="260" class="body">molecules or biologics</text>
+    <rect x="288" y="282" width="162" height="29" rx="8" fill="#eef2ff"/>
+    <text x="369" y="302" text-anchor="middle" class="prob">P(constraints met)</text>
+
+    <rect x="500" y="135" width="198" height="192" rx="17" fill="#ffffff" stroke="#c4b5fd" stroke-width="2"/>
+    <circle cx="530" cy="165" r="17" fill="#7c3aed"/><text x="530" y="170" text-anchor="middle" class="gate">3</text>
+    <text x="520" y="207" class="step">Synthesis</text>
+    <text x="520" y="237" class="body">Plan a route and</text>
+    <text x="520" y="260" class="body">execute safely</text>
+    <rect x="518" y="282" width="162" height="29" rx="8" fill="#f5f3ff"/>
+    <text x="599" y="302" text-anchor="middle" class="prob">P(route succeeds)</text>
+
+    <rect x="730" y="135" width="198" height="192" rx="17" fill="#ffffff" stroke="#67e8f9" stroke-width="2"/>
+    <circle cx="760" cy="165" r="17" fill="#0891b2"/><text x="760" y="170" text-anchor="middle" class="gate">4</text>
+    <text x="750" y="207" class="step">Assay</text>
+    <text x="750" y="237" class="body">Measure activity</text>
+    <text x="750" y="260" class="body">under a fixed protocol</text>
+    <rect x="748" y="282" width="162" height="29" rx="8" fill="#ecfeff"/>
+    <text x="829" y="302" text-anchor="middle" class="prob">P(assay positive)</text>
+
+    <rect x="960" y="135" width="198" height="192" rx="17" fill="#ffffff" stroke="#86efac" stroke-width="2"/>
+    <circle cx="990" cy="165" r="17" fill="#16a34a"/><text x="990" y="170" text-anchor="middle" class="gate">5</text>
+    <text x="980" y="207" class="step">Replication</text>
+    <text x="980" y="237" class="body">Repeat in a new batch,</text>
+    <text x="980" y="260" class="body">model, or laboratory</text>
+    <rect x="978" y="282" width="162" height="29" rx="8" fill="#f0fdf4"/>
+    <text x="1059" y="302" text-anchor="middle" class="prob">P(replicates)</text>
+  </g>
+
+  <g>
+    <text x="54" y="390" class="step">Every gate needs its own label</text>
+    <rect x="54" y="414" width="1092" height="106" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="82" y="451" class="body">Evidence label</text>
+    <text x="82" y="480" class="prob">human reference check</text>
+    <line x1="280" y1="436" x2="280" y2="499" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="310" y="451" class="body">Synthesis label</text>
+    <text x="310" y="480" class="prob">isolated product / yield</text>
+    <line x1="535" y1="436" x2="535" y2="499" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="565" y="451" class="body">Assay label</text>
+    <text x="565" y="480" class="prob">prespecified threshold</text>
+    <line x1="790" y1="436" x2="790" y2="499" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="820" y="451" class="body">Replication label</text>
+    <text x="820" y="480" class="prob">independent confirmation</text>
+  </g>
+
+  <path d="M1058 548 C1058 648 815 674 599 674 C383 674 142 648 142 548" fill="none" stroke="#7c3aed" stroke-width="4" stroke-dasharray="9 8" marker-end="url(#loop-arrow)"/>
+  <text x="600" y="632" text-anchor="middle" class="loop">Experimental outcomes update the next search, hypothesis, and calibrator</text>
+  <text x="600" y="718" text-anchor="middle" class="foot">The probabilities are conditional on the domain, protocol, model version, and selection policy.</text>
+</svg>

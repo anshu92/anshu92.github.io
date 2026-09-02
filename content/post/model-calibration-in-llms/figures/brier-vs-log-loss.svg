@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="650" viewBox="0 0 1080 650" role="img" aria-labelledby="title desc">
+  <title id="title">Brier score and log-loss penalties for a wrong prediction</title>
+  <desc id="desc">As the probability assigned to a wrong outcome approaches one, the Brier penalty approaches one while log loss rises without bound.</desc>
+  <defs>
+    <style>
+      .title { font: 700 30px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .axis-label { font: 600 16px system-ui, sans-serif; fill: #334155; }
+      .tick { font: 400 14px system-ui, sans-serif; fill: #64748b; }
+      .callout-title { font: 700 20px system-ui, sans-serif; fill: #0f172a; }
+      .callout { font: 400 17px system-ui, sans-serif; fill: #334155; }
+      .grid { stroke: #dbe3ec; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1080" height="650" fill="#f8fafc"/>
+  <text x="60" y="52" class="title">Wrong-way confidence: bounded Brier, unbounded log loss</text>
+  <text x="60" y="82" class="subtitle">Here the true outcome is 0 and q is the probability assigned to the wrong outcome.</text>
+
+  <rect x="130" y="110" width="560" height="420" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <g class="grid">
+    <line x1="130" y1="446" x2="690" y2="446"/><line x1="130" y1="362" x2="690" y2="362"/>
+    <line x1="130" y1="278" x2="690" y2="278"/><line x1="130" y1="194" x2="690" y2="194"/>
+    <line x1="242" y1="110" x2="242" y2="530"/><line x1="354" y1="110" x2="354" y2="530"/>
+    <line x1="466" y1="110" x2="466" y2="530"/><line x1="578" y1="110" x2="578" y2="530"/>
+  </g>
+  <line x1="130" y1="530" x2="690" y2="530" stroke="#334155" stroke-width="2"/>
+  <line x1="130" y1="530" x2="130" y2="110" stroke="#334155" stroke-width="2"/>
+
+  <g class="tick" text-anchor="middle">
+    <text x="130" y="555">0.0</text><text x="242" y="555">0.2</text><text x="354" y="555">0.4</text>
+    <text x="466" y="555">0.6</text><text x="578" y="555">0.8</text><text x="690" y="555">1.0</text>
+  </g>
+  <g class="tick" text-anchor="end">
+    <text x="118" y="535">0</text><text x="118" y="451">1</text><text x="118" y="367">2</text>
+    <text x="118" y="283">3</text><text x="118" y="199">4</text><text x="118" y="115">5</text>
+  </g>
+  <text x="410" y="595" text-anchor="middle" class="axis-label">Probability assigned to the wrong outcome, q</text>
+  <text x="48" y="320" text-anchor="middle" class="axis-label" transform="rotate(-90 48 320)">Penalty</text>
+
+  <polyline points="130,530 242,526.6 354,516.6 466,499.8 578,476.2 634,462.0 662,454.2 684.4,447.7" fill="none" stroke="#0284c7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="130,530 242,511.3 354,487.1 466,453.1 578,394.8 634,336.6 662,278.3 684.4,143.2" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <line x1="755" y1="156" x2="805" y2="156" stroke="#dc2626" stroke-width="5"/>
+  <text x="820" y="162" class="callout">Log loss: −log(1−q)</text>
+  <line x1="755" y1="202" x2="805" y2="202" stroke="#0284c7" stroke-width="5"/>
+  <text x="820" y="208" class="callout">Brier: q²</text>
+
+  <rect x="745" y="270" width="285" height="190" rx="14" fill="#fff1f2" stroke="#fda4af" stroke-width="2"/>
+  <text x="775" y="309" class="callout-title">At q = 0.999999</text>
+  <text x="775" y="350" class="callout">Brier ≈ 1</text>
+  <text x="775" y="386" class="callout">Log loss ≈ 13.8</text>
+  <text x="775" y="427" class="callout">Log loss is unbounded</text>
+
+  <rect x="220" y="614" width="720" height="28" rx="8" fill="#e0f2fe"/>
+  <text x="580" y="634" text-anchor="middle" class="axis-label">Log loss diverges as a wrong prediction approaches certainty.</text>
+</svg>
