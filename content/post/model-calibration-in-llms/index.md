@@ -13,8 +13,8 @@ one_sentence_takeaway: "LLM confidence is useful only when it is calibrated agai
 rubric_score: 0
 ---
 
-An LLM confidence score becomes useful only when a reported probability—say,
-80%—corresponds to an event that happens about 80% of the time.
+An LLM confidence score becomes useful only when a reported probability, say
+80%, corresponds to an event that happens about 80% of the time.
 
 ## Accuracy vs calibration
 
@@ -27,8 +27,23 @@ It answers one question:
 
 > Do predicted probabilities correspond to observed frequencies?
 
-This sounds obvious, but modern neural networks can be accurate yet badly
-calibrated ([Guo et al.][modern-calibration]).
+That question becomes consequential when an LLM output drives a decision. Here
+are a few illustrative cases:
+
+| LLM-assisted case | If the system reports... | Calibration requires... |
+|---|---|---|
+| Chest X-ray interpretation | "75% probability that this image shows a pneumothorax" | Among comparable studies assigned 75%, the finding is confirmed by the reference standard about three times out of four. |
+| Clinical decision support | "60% probability that the proposed diagnosis is correct" | About 60 of 100 comparable cases receive that diagnosis after the defined clinical work-up. |
+| Drug discovery | "65% probability that this candidate crosses the activity threshold" | About 65 of 100 similarly scored candidates succeed under the same assay protocol. |
+| Retrieval and citation | "90% probability that this source supports the generated claim" | Human review finds entailment in about 90 of 100 claims assigned that probability. |
+| Tool-using software agent | "99.5% probability that this database migration preserves the required constraints" | Comparable migrations at that confidence fail about 5 times per 1,000 executions. |
+
+These percentages are hypothetical. Each becomes meaningful only after the
+event, reference standard, population, and operating conditions are specified.
+In high-stakes settings such as medicine, calibrated confidence should support
+triage and verification rather than replace clinical review.
+
+This sounds obvious, but accuracy and calibration answer different questions.
 
 Imagine a binary classifier predicts whether an object belongs in a room.
 
@@ -51,7 +66,7 @@ Suppose two models make exactly the same classification decisions:
 
 Both get 100% accuracy at threshold 0.5.
 
-Model B assigns 0.98–0.99 probability to its chosen label on every example. If
+Model B assigns 0.98-0.99 probability to its chosen label on every example. If
 it makes even occasional mistakes, those implied confidence levels are
 unjustified.
 
@@ -66,15 +81,15 @@ rather than simply asking whether $\arg\max \hat P = Y$.
 The most intuitive calibration diagnostic is a **reliability diagram**.
 
 A diagram can target any binary event. To match the later LLM examples, let the
-event be “this prediction is correct.” Then $hat p_i$ is the confidence assigned
+event be "this prediction is correct." Then $\hat p_i$ is the confidence assigned
 to the chosen label and $y_i$ records whether that choice was correct.
 
 Take predictions and place them into confidence bins:
 
-- 0–10%
-- 10–20%
+- 0-10%
+- 10-20%
 - ...
-- 90–100%
+- 90-100%
 
 For every bin $B_m$, calculate its mean predicted confidence:
 
@@ -110,7 +125,7 @@ Consider these five bins:
 ![A reliability diagram in which observed accuracy falls increasingly below predicted confidence at higher confidence levels](figures/reliability-diagram.svg)
 
 The model is increasingly **overconfident** at high probabilities. In the last
-bin, “95% sure” actually means “correct about 72% of the time.” That 23-point gap
+bin, "95% sure" actually means "correct about 72% of the time." That 23-point gap
 is a serious problem if a downstream system treats 0.95 as near-certainty.
 
 ## Expected calibration error
@@ -348,8 +363,7 @@ log loss are valuable.
 
 ## Brier score decomposition
 
-The Brier score has a useful reliability–resolution–uncertainty decomposition
-([Murphy][brier-decomposition]):
+The Brier score has a useful reliability-resolution-uncertainty decomposition:
 
 $$
 \boxed{
@@ -458,8 +472,8 @@ $$
 =0.19.
 $$
 
-The model is nearly calibrated—the reliability penalty is only $0.0025$—and
-its separation into low- and high-risk groups reduces the score by $0.0625$
+The model is nearly calibrated: the reliability penalty is only $0.0025$. Its
+separation into low- and high-risk groups reduces the score by $0.0625$
 relative to predicting the 50% base rate for every example.
 
 The decomposition explains why Brier score captures more than calibration alone.
@@ -618,7 +632,8 @@ $$
 ![Temperature scaling softens a probability distribution without changing its highest-ranked class](figures/temperature-scaling.svg)
 
 Dividing every logit by the same positive temperature does not change their
-ordering, so the argmax—and therefore classification accuracy—stays the same.
+ordering, so the argmax stays the same. Classification accuracy therefore stays
+the same.
 The reported probabilities can nevertheless become much better calibrated.
 
 ## Other calibration techniques
@@ -709,7 +724,7 @@ The fitted mapping becomes:
 | 0.60 | 0.45 |
 | 0.80 | 0.90 |
 
-A new score on the pooled plateau—for example, 0.50—maps to 0.45. The method
+A new score on the pooled plateau, such as 0.50, maps to 0.45. The method
 learns this shape directly from the calibration data rather than assuming a
 sigmoid. With unequal bucket sizes, the pooled value would be the
 sample-count-weighted average instead.
@@ -879,7 +894,7 @@ which can be evaluated with ECE and Brier score. The $P(\mathrm{True})$
 experiments in [Language Models (Mostly) Know What They Know][lm-knows] show that
 models can contain genuine self-evaluation signal.
 
-But “I am 95% confident” is itself generated text. It does not necessarily expose
+But "I am 95% confident" is itself generated text. It does not necessarily expose
 an internal posterior of 0.95; it is a learned linguistic behavior influenced by
 pretraining, prompting, instruction tuning, and preference optimization. In one
 study, RLHF increased verbalized overconfidence under the evaluated setups
@@ -895,13 +910,13 @@ $$
 
 ### Semantic uncertainty
 
-Suppose five samples answer “What caused the failure?” with:
+Suppose five samples answer "What caused the failure?" with:
 
-1. “A memory leak in the worker.”
-2. “The worker exhausted memory.”
-3. “OOM in the worker process.”
-4. “A networking timeout.”
-5. “Worker memory exhaustion.”
+1. "A memory leak in the worker."
+2. "The worker exhausted memory."
+3. "OOM in the worker process."
+4. "A networking timeout."
+5. "Worker memory exhaustion."
 
 There are five strings but only two meanings:
 
@@ -965,14 +980,14 @@ At larger scale, an answer-level reliability table might look like:
 
 | Reported confidence | Questions | Observed accuracy |
 |---|---:|---:|
-| 50–60% | 1,200 | 54% |
-| 60–70% | 1,600 | 59% |
-| 70–80% | 2,300 | 64% |
-| 80–90% | 2,600 | 71% |
-| 90–100% | 2,300 | 78% |
+| 50-60% | 1,200 | 54% |
+| 60-70% | 1,600 | 59% |
+| 70-80% | 2,300 | 64% |
+| 80-90% | 2,600 | 71% |
+| 90-100% | 2,300 | 78% |
 
-Confidence still contains ranking signal—the high-confidence bins are more
-accurate—but every upper bin is overconfident. That is a common and useful
+Confidence still contains ranking signal: the high-confidence bins are more
+accurate, but every upper bin is overconfident. That is a common and useful
 failure mode: **the score knows something, but it is not yet a probability.**
 
 ## Uncertainty ranking and calibration are different
@@ -993,13 +1008,13 @@ calibrator could learn $f(0.9)=0.75$, $f(0.8)=0.65$, and so on.
 That separates two questions:
 
 - **Uncertainty discrimination:** can the score rank likely-correct answers above
-  likely-wrong ones? Measure AUROC, AUPRC, and risk–coverage.
+  likely-wrong ones? Measure AUROC, AUPRC, and risk-coverage.
 - **Calibration:** does $c=0.8$ actually mean an 80% correctness rate? Measure
   reliability diagrams, ECE, Brier score, and NLL.
 
 A useful system needs both.
 
-## Risk–coverage connects confidence to abstention
+## Risk-coverage connects confidence to abstention
 
 Suppose the model answers every request at 82% accuracy. If it abstains on its
 least-confident requests, the operating points might be:
@@ -1019,7 +1034,7 @@ The curve answers a production question more directly than ECE:
 > error rate?
 
 For deployed systems, this can matter more than whether confidence values are
-perfectly calibrated. The two evaluations remain complementary: risk–coverage
+perfectly calibrated. The two evaluations remain complementary: risk-coverage
 tests ranking and selective prediction, while ECE tests probability semantics.
 
 ## Long answers need claim-level calibration
@@ -1130,7 +1145,7 @@ policy, not just annotate an answer after the fact.
 Scientific agents make the event-definition problem concrete. They do not make
 one prediction; they search literature, form a hypothesis, rank candidates,
 call chemistry or biology tools, propose an experiment, and interpret the
-result. A single “agent confidence” number collapses failure modes with very
+result. A single "agent confidence" number collapses failure modes with very
 different meanings and costs.
 
 Recent systems show how much of this loop can already be automated:
@@ -1144,8 +1159,8 @@ Recent systems show how much of this loop can already be automated:
 | [Co-Scientist][co-scientist] | Specialized agents generated and ranked biomedical hypotheses that were followed by experimental validation, including drug-repurposing work in acute myeloid leukaemia and target discovery in liver fibrosis. | Hypothesis rankings become actionable probabilities only after calibration against comparable experiments. |
 
 ChemCrow and Coscientist are broader chemistry systems, while the latter three
-close parts of a drug-discovery loop. None makes “probability that this becomes
-a safe, effective drug” a sensible one-step target. Attrition can occur at every
+close parts of a drug-discovery loop. The probability that a candidate becomes
+a safe, effective drug is not a sensible one-step target. Attrition can occur at every
 stage, and later events are conditional on earlier gates having succeeded.
 
 ![A drug-discovery agent workflow with separate calibration gates for evidence, candidates, synthesis, assays, and replication](figures/drug-discovery-calibration-gates.svg)
@@ -1171,14 +1186,14 @@ These are not interchangeable. A candidate can be well supported by literature
 and easy to synthesize yet fail the assay. A strong assay result can also fail
 to replicate or translate to a different model system. The outcome definition
 must therefore include the assay, threshold, experimental population, and time
-horizon—not merely “works.”
+horizon, rather than simply whether the candidate works.
 
 ### Proxy scores are not probabilities
 
 Drug-discovery agents combine signals on incompatible scales: an LLM judge's
 rank, agreement among agents, language-model likelihood, structure-model
 confidence, molecular-simulation energy, and an experimental measurement. A
-high value can mean “preferred relative to this batch” without saying how often
+high value can mean "preferred relative to this batch" without saying how often
 similarly scored candidates succeed.
 
 ![Raw scientific-agent scores must be calibrated against a named experimental outcome before a policy uses them](figures/proxy-to-assay-confidence.svg)
@@ -1331,11 +1346,11 @@ Only then should a decision policy apply thresholds. For example:
 
 ```text
 confidence > 0.98        auto-place
-0.80–0.98                present suggestion
+0.80-0.98                present suggestion
 confidence < 0.80        retrieve, regenerate, or defer
 ```
 
-The exact thresholds should come from error costs and risk–coverage analysis, not
+The exact thresholds should come from error costs and risk-coverage analysis, not
 from round numbers chosen in advance.
 
 ## A calibrated LLM can still be bad
@@ -1360,7 +1375,7 @@ $$
 $$
 
 Accuracy, task metrics, and execution success measure capability. AUROC, AUPRC,
-and risk–coverage measure uncertainty ranking. Reliability diagrams, ECE, Brier
+and risk-coverage measure uncertainty ranking. Reliability diagrams, ECE, Brier
 score, and NLL measure probability quality.
 
 ## The deepest conceptual shift
@@ -1390,8 +1405,6 @@ make confidence correspond to an event that a system can measure and act on.
 
 ## References
 
-- Murphy, [*A New Vector Partition of the Probability Score*][brier-decomposition] (Journal of Applied Meteorology, 1973).
-- Guo et al., [*On Calibration of Modern Neural Networks*][modern-calibration] (ICML 2017).
 - Kadavath et al., [*Language Models (Mostly) Know What They Know*][lm-knows] (2022).
 - ffrench-Constant et al., [*ConfidenceBench: Evaluating Confidence Calibration in Large Language Models*][confidence-bench] (2026).
 - Farquhar et al., [*Detecting Hallucinations in Large Language Models Using Semantic Entropy*][semantic-entropy] (Nature, 2024).
@@ -1417,5 +1430,3 @@ make confidence correspond to an event that a system can measure and act on.
 [virtual-lab]: https://www.nature.com/articles/s41586-025-09442-9
 [robin]: https://www.nature.com/articles/s41586-026-10652-y
 [co-scientist]: https://www.nature.com/articles/s41586-026-10644-y
-[brier-decomposition]: https://doi.org/10.1175/1520-0450%281973%29012%3C0595%3AANVPOT%3E2.0.CO%3B2
-[modern-calibration]: https://proceedings.mlr.press/v70/guo17a.html

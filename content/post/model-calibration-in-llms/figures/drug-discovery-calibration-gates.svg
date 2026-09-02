@@ -25,7 +25,7 @@
   <circle cx="80" cy="735" r="170" fill="#ede9fe" opacity="0.55"/>
 
   <text x="54" y="58" class="title">One discovery loop, five different calibration targets</text>
-  <text x="54" y="88" class="subtitle">Confidence should name the next observable event—not whether a molecule will eventually become a drug.</text>
+  <text x="54" y="88" class="subtitle">Confidence should name the next observable event, not whether a molecule will eventually become a drug.</text>
 
   <g stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)">
     <line x1="238" y1="231" x2="272" y2="231"/>

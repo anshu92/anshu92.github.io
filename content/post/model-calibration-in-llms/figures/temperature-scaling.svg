@@ -16,7 +16,7 @@
   </defs>
 
   <rect width="1080" height="610" fill="#f8fafc"/>
-  <text x="60" y="52" class="title">Temperature scaling softens confidence—not rank</text>
+  <text x="60" y="52" class="title">Temperature scaling changes confidence, not rank</text>
   <text x="60" y="82" class="subtitle">The same logits [10, 5, 1] are divided by T before softmax.</text>
 
   <rect x="55" y="120" width="430" height="385" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
