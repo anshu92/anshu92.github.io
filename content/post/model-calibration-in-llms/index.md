@@ -136,14 +136,7 @@ calibration error (ECE)** compresses those gaps into one number.
 For bins $B_1,\ldots,B_M$:
 
 $$
-\boxed{
-\operatorname{ECE}
-= \sum_{m=1}^{M}\frac{|B_m|}{n}
-\left|
-\operatorname{accuracy}(B_m)
-- \operatorname{confidence}(B_m)
-\right|
-}
+\boxed{\operatorname{ECE}=\sum_{m=1}^{M}\frac{|B_m|}{n}\left|\operatorname{accuracy}(B_m)-\operatorname{confidence}(B_m)\right|}
 $$
 
 Each bin's absolute calibration gap is weighted by the fraction of predictions
@@ -164,11 +157,13 @@ Suppose three bins contain:
 Then:
 
 $$
+\begin{aligned}
 \operatorname{ECE}
-= 0.5|0.8-0.9|
-+ 0.3|0.6-0.7|
-+ 0.2|0.5-0.5|
-= 0.08
+&=0.5|0.8-0.9| \\
+&\quad+0.3|0.6-0.7| \\
+&\quad+0.2|0.5-0.5| \\
+&=0.08
+\end{aligned}
 $$
 
 So:
@@ -278,13 +273,10 @@ $$
 The squared errors are:
 
 $$
-(0.9-1)^2=0.01,\quad
-(0.7-1)^2=0.09,
-$$
-
-$$
-(0.4-0)^2=0.16,\quad
-(0.2-0)^2=0.04.
+\begin{aligned}
+(0.9-1)^2&=0.01,\qquad (0.7-1)^2=0.09, \\
+(0.4-0)^2&=0.16,\qquad (0.2-0)^2=0.04.
+\end{aligned}
 $$
 
 Therefore:
@@ -366,12 +358,7 @@ log loss are valuable.
 The Brier score has a useful reliability-resolution-uncertainty decomposition:
 
 $$
-\boxed{
-\operatorname{BS}
-= \text{Reliability}
-- \text{Resolution}
-+ \text{Uncertainty}
-}
+\boxed{\operatorname{BS}=\text{Reliability}-\text{Resolution}+\text{Uncertainty}}
 $$
 
 The standard decomposition is exact when each group contains a common forecast
@@ -381,17 +368,12 @@ unless within-bin variation is accounted for. For forecast groups $m$, the terms
 are:
 
 $$
-\underbrace{
-\sum_m\frac{n_m}{N}(\bar p_m-\bar y_m)^2
-}_{\text{Reliability}}
--
-\underbrace{
-\sum_m\frac{n_m}{N}(\bar y_m-\bar y)^2
-}_{\text{Resolution}}
-+
-\underbrace{
-\bar y(1-\bar y)
-}_{\text{Uncertainty}}.
+\begin{aligned}
+\operatorname{BS}
+&=\underbrace{\sum_m\frac{n_m}{N}(\bar p_m-\bar y_m)^2}_{\text{Reliability}} \\
+&\quad-\underbrace{\sum_m\frac{n_m}{N}(\bar y_m-\bar y)^2}_{\text{Resolution}} \\
+&\quad+\underbrace{\bar y(1-\bar y)}_{\text{Uncertainty}}.
+\end{aligned}
 $$
 
 Here, $\bar p_m$ is the mean forecast in bin $m$, $\bar y_m$ is that bin's
@@ -446,12 +428,7 @@ $$
 \begin{aligned}
 \text{Reliability}
 &=0.5(0.20-0.25)^2+0.5(0.80-0.75)^2 \\
-&=0.0025,
-\end{aligned}
-$$
-
-$$
-\begin{aligned}
+&=0.0025, \\[6pt]
 \text{Resolution}
 &=0.5(0.25-0.50)^2+0.5(0.75-0.50)^2 \\
 &=0.0625,
@@ -484,12 +461,7 @@ Another important metric is **negative log-likelihood**, also called log loss or
 binary cross-entropy:
 
 $$
-\operatorname{NLL}
-= -\frac{1}{N}\sum_{i=1}^{N}
-\left[
-y_i\log p_i
-+ (1-y_i)\log(1-p_i)
-\right].
+\operatorname{NLL}=-\frac{1}{N}\sum_{i=1}^{N}\left[y_i\log p_i+(1-y_i)\log(1-p_i)\right].
 $$
 
 Both Brier score and NLL are **proper scoring rules**: in expectation, the best
