@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">The boundary must earn its cost</title>
+  <desc id="desc">A hand-drawn balance compares useful capacity recovered by separating phases with the transfer, waiting, coordination, and stale-work costs introduced by the boundary.</desc>
+  <defs>
+    <pattern id="paper" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.25" fill="#d9d1c1" opacity="0.55"/>
+    </pattern>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.017" numOctaves="2" seed="31" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <style>
+      .title { font: 700 49px "Segoe Print", "Bradley Hand", system-ui, sans-serif; fill: #273b38; }
+      .subtitle { font: 400 21px system-ui, sans-serif; fill: #5d6864; }
+      .group { font: 700 27px "Segoe Print", "Bradley Hand", system-ui, sans-serif; }
+      .item { font: 550 20px system-ui, sans-serif; fill: #35443f; }
+      .scribble { font: 700 22px "Segoe Print", "Bradley Hand", system-ui, sans-serif; fill: #a55231; }
+      .equation { font: 650 22px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #273b38; }
+      .decision { font: 700 26px "Segoe Print", "Bradley Hand", system-ui, sans-serif; fill: #fbf7ed; }
+      .line { fill: none; stroke: #273b38; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="900" fill="#fbf7ed"/>
+  <rect width="1500" height="900" fill="url(#paper)"/>
+  <text x="70" y="72" class="title">The boundary must earn its cost</text>
+  <text x="73" y="111" class="subtitle">Compare complete systems under the same workload and service-level objective.</text>
+
+  <g filter="url(#rough)">
+    <path d="M750 216 C743 345 754 510 747 638" class="line" stroke-width="9"/>
+    <circle cx="749" cy="461" r="31" fill="#273b38"/>
+    <path d="M240 405 C501 389 744 420 1250 405" class="line" stroke-width="11"/>
+    <path d="M248 408 L203 569 Q342 606 481 566 L438 402" fill="#dcece5" stroke="#273b38" stroke-width="4"/>
+    <path d="M1061 404 L1018 566 Q1155 605 1298 568 L1251 408" fill="#f1dfd0" stroke="#273b38" stroke-width="4"/>
+    <path d="M676 696 Q675 669 706 667 L1318 670 Q1346 672 1341 699 L1338 795 Q1334 822 1304 817 L703 821 Q676 816 678 790 Z" fill="#fffdf8" stroke="#273b38" stroke-width="3"/>
+  </g>
+
+  <text x="338" y="206" text-anchor="middle" class="group" fill="#2f705d">VALUE RECOVERED</text>
+  <path d="M210 222 C291 211 378 228 473 217" fill="none" stroke="#2f705d" stroke-width="3" filter="url(#rough)"/>
+  <text x="338" y="264" text-anchor="middle" class="item">less waiting</text>
+  <text x="338" y="300" text-anchor="middle" class="item">better batches</text>
+  <text x="338" y="336" text-anchor="middle" class="item">independent scaling</text>
+
+  <text x="1155" y="206" text-anchor="middle" class="group" fill="#a55231">BOUNDARY TAX</text>
+  <path d="M1042 222 C1116 210 1206 228 1273 217" fill="none" stroke="#a55231" stroke-width="3" filter="url(#rough)"/>
+  <text x="1155" y="264" text-anchor="middle" class="item">transfer</text>
+  <text x="1155" y="300" text-anchor="middle" class="item">queueing + coordination</text>
+  <text x="1155" y="336" text-anchor="middle" class="item">stale or repeated work</text>
+
+  <text x="338" y="506" text-anchor="middle" class="group" fill="#2f705d">GAIN</text>
+  <text x="1155" y="506" text-anchor="middle" class="group" fill="#a55231">COST</text>
+  <text x="746" y="181" text-anchor="middle" class="scribble">same SLO!</text>
+  <path d="M765 187 C806 209 828 238 831 267" fill="none" stroke="#a55231" stroke-width="3" filter="url(#rough)"/>
+
+  <text x="1008" y="719" text-anchor="middle" class="equation">T_boundary = fixed latency + bytes / bandwidth</text>
+  <text x="1008" y="755" text-anchor="middle" class="equation">+ queueing + coordination + stale work</text>
+  <text x="1008" y="790" text-anchor="middle" class="scribble">measure every term →</text>
+
+  <path d="M72 841 C383 830 1084 848 1427 836 L1431 892 L69 893 Z" fill="#273b38" filter="url(#rough)"/>
+  <text x="750" y="880" text-anchor="middle" class="decision">Separate only when gain &gt; boundary tax.</text>
+</svg>
