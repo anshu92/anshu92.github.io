@@ -2,7 +2,7 @@
 title: "Phase Separation Patterns in Modern AI Workloads"
 date: 2026-08-28
 description: "A practical guide to deciding which parts of an AI workload should run independently, what must cross the boundary, and when separation costs more than it saves."
-draft: true
+draft: false
 slug: "phase-separation-patterns-in-modern-ai-workloads"
 author: "Anshuman Sahoo"
 image: "cover.svg"
