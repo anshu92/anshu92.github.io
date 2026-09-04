@@ -1391,6 +1391,8 @@ is perfectly calibrated but still performs poorly.
 Conversely, a model could be 95% accurate while reporting
 $P(\text{correct})=0.999$ for every answer. It is capable but miscalibrated.
 
+<span id="the-deepest-conceptual-shift"></span>
+
 ## Define the event before calibrating it
 
 A classic classifier naturally exposes $P(y=k\mid x)$, so calibration starts by
