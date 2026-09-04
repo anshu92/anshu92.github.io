@@ -12,15 +12,15 @@ one_sentence_takeaway: "Semantic entropy measures disagreement over meanings, no
 rubric_score: 0
 ---
 
-Ask an LLM the same question several times and it may phrase one answer in many
-ways. Token-level entropy treats those strings as different outcomes, even when
-they mean the same thing. **Semantic entropy** first groups answers by meaning,
-then measures how much probability is spread across those meanings.
+**Semantic entropy** measures uncertainty across the meanings of an LLM's
+answers. It samples several answers, groups equivalent answers by meaning, and
+measures how much probability is spread across the resulting groups. Unlike
+token-level entropy, it does not treat harmless wording changes as different
+answers.
 
-That makes semantic entropy a useful uncertainty signal for free-form answers.
-It does not, by itself, produce a calibrated probability of correctness. A
-second, supervised calibration step is required before a system can claim that
-an answer is, for example, 80% likely to be correct.
+Semantic entropy is an uncertainty signal, not a calibrated probability of
+correctness. A supervised calibration step is required before a system can
+claim that an answer is, for example, 80% likely to be correct.
 
 ## The problem with entropy over strings
 
@@ -30,8 +30,8 @@ $$
 P(s\mid x)=\prod_i P(t_i\mid x,t_{\lt i}).
 $$
 
-This distribution distinguishes every wording. Consider three answers to
-"What is the capital of France?":
+Sequence probability distinguishes every wording. For the question "What is the
+capital of France?", an LLM might generate:
 
 - `Paris.`
 - `The capital is Paris.`
@@ -43,16 +43,16 @@ strings mixes two kinds of variation:
 1. **Lexical uncertainty:** which words should express the answer?
 2. **Semantic uncertainty:** which answer is actually meant?
 
-Semantic entropy removes the first source as far as the clustering procedure
-allows. Answers that entail each other in both directions are placed in the same
-semantic equivalence class, following the method introduced by [Kuhn et
-al.][semantic-uncertainty] and extended by [Farquhar et al.][semantic-entropy].
+Semantic entropy reduces lexical variation by placing answers that entail each
+other in both directions in the same semantic equivalence class. The method was
+introduced by [Kuhn et al.][semantic-uncertainty] and extended by [Farquhar et
+al.][semantic-entropy].
 
 ![String entropy treats paraphrases as different outcomes, while semantic entropy groups them by meaning](figures/string-vs-semantic-entropy.svg)
 
 ## A worked example
 
-Suppose five independent samples answer "What caused the worker failure?":
+Five independent samples answer "What caused the worker failure?":
 
 | Sample | Answer | Semantic cluster |
 |---:|---|---|
@@ -62,8 +62,7 @@ Suppose five independent samples answer "What caused the worker failure?":
 | 4 | `Memory exhaustion.` | Memory failure |
 | 5 | `A network timeout.` | Network failure |
 
-If every sampled string receives equal weight, string entropy sees five distinct
-outcomes:
+With equal sample weights, string entropy counts five distinct outcomes:
 
 $$
 H_{\text{string}}=-5\left(\frac{1}{5}\log\frac{1}{5}\right)
@@ -71,8 +70,8 @@ H_{\text{string}}=-5\left(\frac{1}{5}\log\frac{1}{5}\right)
 \approx1.609\ \text{nats}.
 $$
 
-Discrete semantic entropy instead estimates the two cluster probabilities from
-their sample frequencies:
+Discrete semantic entropy counts two meanings and estimates their probabilities
+from sample frequency:
 
 $$
 q_{\text{memory}}=\frac{4}{5}=0.8,
@@ -91,13 +90,12 @@ H_{\text{sem}}
 \end{aligned}
 $$
 
-The lower value captures the important fact: four differently worded answers
-agree on one cause. There is still uncertainty because one sample proposes a
-different cause.
+The semantic entropy is lower because four differently worded answers agree on
+one cause. It remains above zero because one sample proposes a different cause.
 
 ## The technique step by step
 
-The complete pipeline has four stages.
+Compute semantic entropy in four stages.
 
 1. **Sample answers.** Draw $M$ responses from a fixed model, prompt, decoding
    temperature, and answer format. The Nature experiments used ten generations
@@ -137,11 +135,11 @@ different range and meaning: its maximum is $\log K$ for $K$ equally likely
 semantic clusters, and the observed value also depends on sample count and the
 decoding policy.
 
-Raw semantic entropy can be evaluated as an uncertainty ranking: do high-entropy
-answers fail more often than low-entropy answers? AUROC, risk-coverage curves,
-and rank-calibration measure this ordering without pretending the score is a
-probability. This matters because uncertainty measures can live on incompatible
-scales, as emphasized by [Huang et al.][rank-calibration].
+Evaluate raw semantic entropy as an uncertainty ranking: do high-entropy answers
+fail more often than low-entropy answers? AUROC, risk-coverage curves, and
+rank-calibration measure this ordering without treating the score as a
+probability. [Huang et al.][rank-calibration] explain why uncertainty measures
+on incompatible scales require rank-based evaluation.
 
 To obtain a probability, collect a labeled calibration set. For each prompt,
 compute semantic entropy $H_i$ and record whether the selected answer is correct:
@@ -163,25 +161,26 @@ $$
 \frac{dg}{dH}\leq0.
 $$
 
-Logistic calibration is a compact choice; isotonic regression is more flexible
-when enough labeled data are available. Evaluate the fitted probabilities on a
-separate test set using a reliability diagram, Brier score, ECE, and the
-operating risk-coverage curve. The broader workflow is covered in the [model
-calibration guide](/post/model-calibration-in-llms/).
+Use logistic calibration for a compact parametric mapping or isotonic regression
+for a more flexible mapping when enough labeled data are available. Evaluate the
+fitted probabilities on a separate test set with a reliability diagram, Brier
+score, ECE, and the operating risk-coverage curve. The [model calibration
+guide](/post/model-calibration-in-llms/) explains these diagnostics.
 
 ![Semantic entropy becomes operational confidence only after a labeled calibrator maps entropy to probability of correctness](figures/entropy-to-calibrated-confidence.svg)
 
 ## What the evidence shows
 
-The original ICLR work found semantic entropy more predictive of question-answer
-accuracy than comparable uncertainty baselines across its evaluated datasets
-and models. The 2024 Nature study tested sentence-length answers across five
-datasets and multiple 7B to 70B model families. Averaged over 30 task-model
-combinations, it reported an AUROC of 0.790 for semantic entropy, compared with
-0.691 for naive entropy, 0.698 for $P(\mathrm{True})$, and 0.687 for an embedding
-regression baseline. Its discrete, frequency-based variant performed similarly
-without requiring token probabilities. These are results for the studied setup,
-not a universal performance guarantee. [Farquhar et al.][semantic-entropy]
+Semantic entropy outperformed the compared uncertainty baselines in the original
+ICLR experiments. [Kuhn et al.][semantic-uncertainty] found it more predictive
+of question-answer accuracy across their evaluated datasets and models. The 2024
+Nature study tested sentence-length answers across five datasets and multiple 7B
+to 70B model families. Averaged over 30 task-model combinations, it reported an
+AUROC of 0.790 for semantic entropy, compared with 0.691 for naive entropy, 0.698
+for $P(\mathrm{True})$, and 0.687 for an embedding regression baseline. Its
+discrete, frequency-based variant performed similarly without requiring token
+probabilities. These results apply to the studied setups and are not a universal
+performance guarantee. [Farquhar et al.][semantic-entropy]
 
 Sampling is the main cost. Semantic entropy normally requires several additional
 generations plus semantic comparisons. [Kossen et al.][semantic-entropy-probes]
@@ -200,15 +199,16 @@ component.
 | Long, multi-claim answers | A paragraph can agree on one claim and disagree on another. | Decompose the response into atomic claims and score each claim separately. |
 | Distribution shift | The entropy-to-correctness mapping can change across tasks or model versions. | Monitor reliability by slice and recalibrate after material changes. |
 
-The method is designed to detect **confabulations**, where sampled meanings vary
-because the model lacks a stable answer. It explicitly does not solve systematic
-falsehoods that the model repeats confidently. For long passages, the Nature
-paper addresses this by extracting factual claims, generating focused questions
-for each claim, and computing semantic entropy on the resulting answers.
+Semantic entropy detects **confabulations**: unstable answers that produce
+different meanings across samples. It does not detect a systematic falsehood
+that the model repeats consistently. For long passages, evaluate individual
+factual claims rather than the entire response. The Nature paper extracts
+claims, generates a focused question for each claim, and computes semantic
+entropy on the resulting answers.
 
 ## A practical recipe
 
-For a production evaluation:
+Use this production evaluation procedure:
 
 1. Define one observable event, such as "the answer is factually correct."
 2. Create disjoint calibration and test sets with trustworthy correctness labels.
@@ -219,18 +219,18 @@ For a production evaluation:
 6. On the test split, report both ranking quality and probability calibration.
 7. Set answer, retrieve, verify, or abstain thresholds from the cost of errors.
 
-Semantic entropy is most useful for open-ended questions where many strings can
-express the same answer. For constrained multiple choice, normalized choice
-probabilities are usually simpler. For source-grounded or high-stakes claims,
-semantic entropy should complement evidence verification rather than replace it.
+Use semantic entropy for open-ended questions where many strings can express the
+same answer. Use normalized choice probabilities for constrained multiple-choice
+tasks. For source-grounded or high-stakes claims, combine semantic entropy with
+evidence verification.
 
 ## Bottom line
 
-Semantic entropy asks:
+Semantic entropy measures agreement in meaning:
 
 > Do repeated generations agree on the meaning?
 
-Calibration asks a separate question:
+Probability calibration measures whether stated confidence matches accuracy:
 
 > When the system reports 80% confidence, is it correct about 80% of the time?
 

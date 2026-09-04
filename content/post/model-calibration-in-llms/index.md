@@ -15,21 +15,17 @@ rubric_score: 0
 
 ## Accuracy vs calibration
 
-The core idea behind model calibration is simple:
+**Model calibration** tests whether predicted probabilities match observed event
+frequencies:
 
 > When a model says "70% probability," the event should actually happen about
 > 70% of the time.
-
-It answers one question:
-
-> Do predicted probabilities correspond to observed frequencies?
 
 Accuracy counts how often the final decision is correct. Calibration asks whether
 the probabilities attached to those decisions have the right numerical meaning.
 A model can therefore be accurate while still assigning unjustified confidence.
 
-That distinction becomes consequential when an LLM output drives a decision.
-Here are a few illustrative cases:
+Calibration matters whenever an LLM's confidence affects a decision:
 
 | LLM-assisted case | If the system reports... | Calibration requires... |
 |---|---|---|
@@ -39,14 +35,14 @@ Here are a few illustrative cases:
 | Retrieval and citation | "90% probability that this source supports the generated claim" | Human review finds entailment in about 90 of 100 claims assigned that probability. |
 | Tool-using software agent | "99.5% probability that this database migration preserves the required constraints" | Comparable migrations at that confidence fail about 5 times per 1,000 executions. |
 
-These percentages are hypothetical. Each becomes meaningful only after the
-event, reference standard, population, and operating conditions are specified.
+The percentages in these examples are hypothetical. A confidence value becomes
+meaningful only after the event, reference standard, population, and operating
+conditions are specified.
 In high-stakes settings such as medicine, calibrated confidence should support
 triage and verification rather than replace clinical review.
 
-Imagine a binary classifier predicts whether an object belongs in a room.
-
-For 1,000 predictions where the model outputs approximately:
+A binary classifier predicts whether an object belongs in a room. Consider 1,000
+predictions for which it outputs approximately:
 
 $$ P(y=1)=0.8 $$
 
@@ -55,7 +51,7 @@ in roughly 800 of those 1,000 cases.
 
 A model can make every decision correctly while still being poorly calibrated.
 
-Suppose two models make exactly the same classification decisions:
+Two models make exactly the same classification decisions:
 
 | Example | True label | Model A $P(Y=1)$ | Model B $P(Y=1)$ |
 |---|---|---:|---:|
@@ -70,7 +66,7 @@ Model B assigns 0.98-0.99 probability to its chosen label on every example. If
 it makes even occasional mistakes, those implied confidence levels are
 unjustified.
 
-Calibration asks:
+Perfect calibration requires:
 
 $$ P(Y=1 \mid \hat P = p) = p $$
 
@@ -78,11 +74,10 @@ rather than simply asking whether $\arg\max \hat P = Y$.
 
 ## Reliability diagrams
 
-The most intuitive calibration diagnostic is a **reliability diagram**.
-
-A diagram can target any binary event. For a classifier or LLM confidence score,
-let the event be "this prediction is correct." Then $\hat p_i$ is the confidence
-assigned to the chosen label and $y_i$ records whether that choice was correct.
+A **reliability diagram** compares predicted confidence with observed event
+frequency. For a classifier or LLM confidence score, define the event as "this
+prediction is correct." Then $\hat p_i$ is the confidence assigned to the chosen
+label and $y_i$ records whether that choice was correct.
 
 Take predictions and place them into confidence bins:
 
@@ -112,7 +107,7 @@ $$
 y=x
 $$
 
-Consider these five bins:
+The following five bins describe an overconfident model:
 
 | Mean confidence | Actual success rate |
 |---:|---:|
@@ -130,8 +125,8 @@ is a serious problem if a downstream system treats 0.95 as near-certainty.
 
 ## Expected calibration error
 
-A reliability diagram shows *where* confidence and accuracy diverge. **Expected
-calibration error (ECE)** compresses those gaps into one number.
+**Expected calibration error (ECE)** summarizes the gaps between confidence and
+accuracy in a reliability diagram.
 
 For bins $B_1,\ldots,B_M$ containing $n$ predictions in total:
 
@@ -146,7 +141,7 @@ accuracy.
 
 ### Example
 
-Suppose three bins contain:
+Three confidence bins contain:
 
 | Samples | Confidence | Actual accuracy |
 |---:|---:|---:|
@@ -166,7 +161,7 @@ $$
 \end{aligned}
 $$
 
-So:
+Therefore:
 
 $$
 \boxed{\operatorname{ECE}=8\%}
@@ -177,8 +172,8 @@ about 8 percentage points under this binning.
 
 ## Limitations of ECE
 
-ECE is useful, but it should not be treated as a definitive calibration score.
-Its value depends substantially on how it is calculated.
+**ECE depends on the binning strategy and sample size**, so it is not a
+definitive calibration score by itself.
 
 ### Number of bins
 
@@ -207,8 +202,8 @@ $$
 \operatorname{accuracy}=\frac{7}{12}\approx0.583
 $$
 
-That gap does not necessarily mean the model is dramatically miscalibrated. With
-so few observations, sampling noise is large.
+Sampling noise can explain much of that gap because the bin contains so few
+observations.
 
 ### Aggregation effects
 
@@ -246,7 +241,7 @@ where $y_i\in\{0,1\}$. It is simply mean squared error for probabilities.
 
 ### Example
 
-Suppose the model predicts:
+The model predicts:
 
 $$
 [0.9,0.7,0.4,0.2]
@@ -288,14 +283,14 @@ $0.02,0.97,0.93$ are sharper than $0.49,0.53,0.51$.
 ECE focuses on calibration. Brier score measures overall probabilistic quality,
 so it rewards both calibration and sharpness.
 
-Consider two calibrated models. Model A always predicts:
+Two calibrated models show why sharpness matters. Model A always predicts:
 
 $$
 P(y=1)=0.5
 $$
 
-Suppose the dataset really is 50% positive. Model A is calibrated, but it is not
-useful for distinguishing positives from negatives.
+The dataset is 50% positive, so Model A is calibrated but cannot distinguish
+positives from negatives.
 
 Model B predicts 0.9 for many positives and 0.1 for many negatives, and those
 probabilities match the observed frequencies. It is also calibrated, but much
@@ -323,14 +318,14 @@ not merely calibrated. Brier score captures both requirements.
 
 ## Brier score decomposition
 
-A single Brier score tells us whether the probabilities were good overall. Its
-decomposition explains *why* the score is good or bad.
+**The Brier score decomposition** separates overall probabilistic error into
+calibration, discrimination, and dataset uncertainty.
 
 First define the event. For a correctness forecast, let $y_i=1$ when the answer
 is correct and $y_i=0$ when it is wrong. For a drug-discovery forecast, the event
 might instead be whether a candidate crosses a prespecified assay threshold.
 
-Now divide the predictions into forecast groups $B_m$. Each group has:
+Divide the predictions into forecast groups $B_m$. Each group has:
 
 - $n_m$: the number of predictions in the group;
 - $\bar p_m$: the probability assigned to that group;
@@ -343,10 +338,10 @@ $$
 \bar y_m=\frac{1}{n_m}\sum_{i\in B_m}y_i.
 $$
 
-It is an observed frequency, not another model prediction. If three of four
-answers in a group are correct, then $\bar y_m=3/4=0.75$. When the event is
-"the answer is correct," the event rate is simply the accuracy within that
-group.
+The group event rate $\bar y_m$ is an observed frequency, not another model
+prediction. If three of four answers in a group are correct, then
+$\bar y_m=3/4=0.75$. When the event is "the answer is correct," the event rate is
+the accuracy within that group.
 
 The Brier decomposition is:
 
@@ -378,15 +373,14 @@ low-event-rate groups from high-event-rate groups improves the forecast.
 Uncertainty is the baseline difficulty of the dataset and does not depend on the
 model.
 
-This form is exact when every prediction in a group has the same forecast value.
-If an interval bin contains different probabilities and $\bar p_m$ replaces them
-all, the result is a binned approximation unless within-bin variation is
-included.
+The decomposition is exact when every prediction in a group has the same
+forecast value. If an interval bin contains different probabilities and
+$\bar p_m$ replaces them all, the result is a binned approximation unless
+within-bin variation is included.
 
 ### Worked example
 
-Suppose eight predictions fall into two groups, and the event is a positive
-outcome:
+Eight predictions fall into two groups, and the event is a positive outcome:
 
 | Group | $n_m$ | Forecast $\bar p_m$ | Outcomes | Event rate $\bar y_m$ |
 |---|---:|---:|---|---:|
@@ -435,20 +429,20 @@ $$
 \operatorname{BS}=0.0025-0.0625+0.25=0.19.
 $$
 
-The interpretation is now visible. Predicting the 50% base rate for every case
-would produce the uncertainty baseline of $0.25$. Separating the cases into 25%
-and 75% event-rate groups improves the score by $0.0625$. Slightly missing those
-group rates with forecasts of 20% and 80% adds back a small calibration penalty
-of $0.0025$. The final Brier score is therefore $0.19$.
+Predicting the 50% base rate for every case would produce the uncertainty
+baseline of $0.25$. Separating the cases into 25% and 75% event-rate groups
+improves the score by $0.0625$. Slightly missing those group rates with forecasts
+of 20% and 80% adds back a calibration penalty of $0.0025$, producing the final
+Brier score of $0.19$.
 
-This is why Brier score captures more than calibration alone. It rewards both
-probabilities that match observed frequencies and predictions that separate
-cases with meaningfully different outcomes.
+The decomposition shows why Brier score captures more than calibration alone:
+it rewards probabilities that match observed frequencies and predictions that
+separate cases with meaningfully different outcomes.
 
 ## Brier score vs log loss
 
-Another important metric is **negative log-likelihood**, also called log loss or
-binary cross-entropy:
+**Negative log-likelihood (NLL)**, also called log loss or binary cross-entropy,
+is another proper scoring rule:
 
 $$
 \operatorname{NLL}=-\frac{1}{N}\sum_{i=1}^{N}\left[y_i\log p_i+(1-y_i)\log(1-p_i)\right].
@@ -458,7 +452,7 @@ Both Brier score and NLL are **proper scoring rules**: in expectation, the best
 strategy is to report the probability you actually believe. But they punish
 errors differently.
 
-Suppose $y=0$ and the model predicts $p=0.999999$. The Brier penalty is:
+For $y=0$ and a prediction of $p=0.999999$, the Brier penalty is:
 
 $$
 (0.999999-0)^2\approx1
@@ -471,36 +465,36 @@ $$
 $$
 
 Log loss therefore punishes a confidently wrong prediction much more severely.
-That is useful when unjustified certainty is especially costly.
+The stronger penalty is useful when unjustified certainty is especially costly.
 
 ![Brier and log-loss penalties as the probability assigned to a wrong outcome approaches one](figures/brier-vs-log-loss.svg)
 
 | Metric | Primarily asks |
 |---|---|
 | Accuracy | Was the final decision correct? |
-| AUROC | Did positives rank above negatives? |
+| Area under the ROC curve (AUROC) | Did positives rank above negatives? |
 | ECE | Does confidence match empirical accuracy? |
 | Brier score | Are the probabilities good overall? |
 | NLL | How much probability did the model assign to what happened? |
 
 ## Multiclass calibration gets trickier
 
-For a multiclass model, **top-label calibration** reduces the full probability
-vector to the highest predicted probability:
+**Top-label calibration** reduces a multiclass probability vector to its highest
+predicted probability:
 
 $$
 \operatorname{confidence}=\max_k P(y=k).
 $$
 
-It then checks whether predictions at that confidence are correct at the same
-rate. Suppose a model outputs:
+Top-label calibration then checks whether predictions at that confidence are
+correct at the same rate. A model outputs:
 
 $$
 P(y)=[0.6,0.3,0.1].
 $$
 
 The top-label confidence is 0.6, and the other two probabilities are discarded.
-That loss of information can hide differences between distributions.
+Discarding them can hide differences between distributions.
 
 For example:
 
@@ -517,7 +511,7 @@ $$
 look identical to top-label ECE even though their uncertainty structures are
 different.
 
-One alternative is **classwise calibration**:
+**Classwise calibration** instead checks every class probability:
 
 $$
 P(Y=k\mid\hat P_k=p)=p
@@ -537,14 +531,15 @@ of classes, so the convention should be recorded when results are compared.
 
 ## Calibration can be conditional
 
-An aggregate score can look calibrated even when it fails for important
-subgroups. Suppose the full dataset shows:
+**Conditional calibration** tests whether probabilities remain reliable within
+important subgroups. An aggregate result can hide a failure. The full dataset
+might show:
 
 $$
 P(\text{correct}\mid\text{confidence}=0.8)=0.8.
 $$
 
-Now split the same predictions by context:
+The same predictions split by context might show:
 
 $$
 P(\text{correct}\mid\text{confidence}=0.8,\text{bedroom})=0.95
@@ -580,7 +575,7 @@ calibration. In an overparameterized network, training can continue increasing
 the margin between the raw class scores, called logits, even after the
 classification decision is already correct.
 
-Suppose the logits are:
+The following logits illustrate the problem:
 
 $$
 [12,4,1].
@@ -667,7 +662,7 @@ where $s$ is the model's uncalibrated scalar score. The parameters $a$ and $b$
 are fitted on a held-out calibration set, typically by minimizing binary NLL. The
 slope $a$ changes the scale, while the intercept $b$ corrects a systematic bias.
 
-For example, suppose calibration fitting gives:
+A fitted calibrator might produce:
 
 $$
 a=0.8,\qquad b=-0.4.
@@ -690,9 +685,9 @@ The same mapping transforms several scores as follows:
 | 0.0 | 0.500 | 0.401 |
 | 2.0 | 0.881 | 0.769 |
 
-Here, the fitted mapping says the original scores were both too large in scale
-and too optimistic around zero. Because $a\gt0$, the transformation preserves the
-ranking of examples even though their reported probabilities change.
+The fitted mapping says the original scores were both too large in scale and too
+optimistic around zero. Because $a\gt0$, the transformation preserves the ranking
+of examples even though their reported probabilities change.
 
 ### Isotonic regression
 
@@ -702,7 +697,7 @@ complex distortions, but it needs more calibration data and can overfit small
 samples. The standard pool-adjacent-violators algorithm enforces monotonicity by
 merging neighboring buckets whenever their observed rates are out of order.
 
-Suppose four equally sized score buckets have these observed success rates:
+Four equally sized score buckets have these observed success rates:
 
 | Original score | Observed success rate |
 |---:|---:|
@@ -751,21 +746,21 @@ P(t_1,\ldots,t_n\mid x)
 =\prod_i P(t_i\mid x,t_{\lt i}).
 $$
 
-When it generates:
+For the generated answer:
 
 > Ottawa is the capital of Canada.
 
 the model assigns probabilities to `Ottawa`, ` is`, ` the`, ` capital`, and every
-subsequent token. The operational quantity is different:
+subsequent token. Answer calibration requires a different quantity:
 
 $$
 P(\text{the proposition "Ottawa is Canada's capital" is correct}\mid x).
 $$
 
-There is no reason for sequence likelihood and proposition correctness to be
-equal. That distinction is the foundation of LLM calibration.
+Sequence likelihood does not equal proposition correctness. LLM calibration
+must therefore define the semantic event before assigning confidence to it.
 
-Several calibration targets are possible:
+LLM systems can calibrate several distinct targets:
 
 | Level | Probability being calibrated | Operational question |
 |---|---|---|
@@ -784,7 +779,7 @@ When an LLM must choose from a fixed set of answers, the choice probabilities
 directly match the event being scored. The task can therefore be evaluated like
 an ordinary multiclass classifier.
 
-Suppose we ask:
+The following multiple-choice question defines a fixed output space:
 
 > What is the capital of Canada?
 >
@@ -809,8 +804,8 @@ model is overconfident by roughly 20 percentage points.
 
 [Kadavath et al.][lm-knows] found that sufficiently large language models could
 show useful calibration on multiple-choice and true/false questions when the
-probability was elicited in the right format. The result is encouraging, but it
-is specific to the model, task, and elicitation method.
+probability was elicited in the right format. The reported calibration depends
+on the model, task, and elicitation method.
 
 ## Why sequence probability fails for free-form answers
 
@@ -818,7 +813,7 @@ Free-form sequence probability measures the likelihood of one exact token
 string, while answer correctness is a property of its meaning. Paraphrases can
 therefore express the same fact while receiving very different probabilities.
 
-Consider two answers:
+Two paraphrases show the problem:
 
 > Paris.
 
@@ -844,8 +839,8 @@ generative QA experiments likewise found model probabilities to be poorly calibr
 
 ## Where answer-level confidence can come from
 
-There is no single built-in $P(\text{answer correct})$. A system has to construct
-an estimator from observable signals.
+**Answer-level confidence** is not a built-in LLM probability. A system must
+estimate $P(\text{answer correct})$ from observable signals.
 
 ### Constrained token or choice probability
 
@@ -855,13 +850,13 @@ cleanest case because the output space already matches the event being scored.
 
 ### Verbalized confidence
 
-Another option is to ask the model directly:
+**Verbalized confidence** asks the model to report a probability directly:
 
 > **Answer:** Ottawa
 >
 > **Confidence:** 97%
 
-This produces:
+The reported confidence is:
 
 $$
 c_i=\text{model's reported confidence},
@@ -873,7 +868,7 @@ normalized probability it assigns to `True`. Experiments in [Language Models
 (Mostly) Know What They Know][lm-knows] show that models can contain genuine
 self-evaluation signal.
 
-But "I am 95% confident" is itself generated text. It does not necessarily expose
+"I am 95% confident" is itself generated text. It does not necessarily expose
 an internal posterior of 0.95; it is a learned linguistic behavior influenced by
 pretraining, prompting, instruction tuning, and preference optimization. In one
 study, reinforcement learning from human feedback (RLHF) increased verbalized
@@ -894,7 +889,7 @@ Semantic uncertainty groups sampled answers by meaning before measuring how
 spread out the answers are. Paraphrases count as the same outcome, so wording
 variation does not masquerade as uncertainty about the underlying answer.
 
-Suppose five samples answer "What caused the failure?" with:
+Five samples answer "What caused the failure?" with:
 
 1. "A memory leak in the worker."
 2. "The worker exhausted memory."
@@ -902,11 +897,12 @@ Suppose five samples answer "What caused the failure?" with:
 4. "A networking timeout."
 5. "Worker memory exhaustion."
 
-There are five strings but only two meanings:
+The five strings contain only two meanings. Their sample frequencies define the
+cluster probabilities:
 
 $$
-P(\text{memory failure})=0.8,\qquad
-P(\text{network failure})=0.2.
+q_{\text{memory}}=0.8,\qquad
+q_{\text{network}}=0.2.
 $$
 
 Rather than compute entropy over strings, cluster semantically equivalent answers
@@ -914,17 +910,19 @@ and compute entropy over meanings:
 
 $$
 \boxed{
-H(\text{meaning})=-\sum_s P(s)\log P(s)
+H_{\text{sem}}=-\sum_k q_k\log q_k
 }
 $$
 
-Here, $s$ indexes the distinct semantic answer clusters rather than the original
-token strings.
+In this equation, $k$ indexes semantic answer clusters and $q_k$ is the
+probability assigned to cluster $k$.
 
-[Farquhar et al.][semantic-entropy] use this idea to detect confabulations:
-generations that vary in meaning across samples. Nine paraphrases plus one
-alternative signal something very different from three answers naming Alice,
-three naming Bob, two naming Carol, and two naming Dave.
+[Farquhar et al.][semantic-entropy] use semantic entropy to detect
+confabulations: generations that vary in meaning across samples. Nine
+paraphrases plus one alternative signal something very different from three
+answers naming Alice, three naming Bob, two naming Carol, and two naming Dave.
+The [semantic entropy guide](/post/semantic-entropy-llm-calibration/) covers the
+method and its calibration in detail.
 
 Semantic agreement is still not proof of correctness. Every sample can reproduce
 the same systematic misconception.
@@ -934,12 +932,14 @@ the same systematic misconception.
 Any answer-level confidence score should be tested on two distinct properties:
 
 - **Uncertainty discrimination:** can the score rank likely-correct answers above
-  likely-wrong ones? Measure AUROC, AUPRC, and risk-coverage, which tracks error
-  as the system answers a larger fraction of requests.
+  likely-wrong ones? Measure area under the receiver operating characteristic
+  curve (AUROC), area under the precision-recall curve (AUPRC), and
+  risk-coverage, which tracks error as the system answers a larger fraction of
+  requests.
 - **Calibration:** does $c=0.8$ actually mean an 80% correctness rate? Measure
   reliability diagrams, ECE, Brier score, and NLL.
 
-Suppose an LLM produces this relationship:
+An LLM produces the following relationship:
 
 | Raw confidence | Accuracy |
 |---:|---:|
@@ -949,15 +949,15 @@ Suppose an LLM produces this relationship:
 | 0.80 | 65% |
 | 0.90 | 75% |
 
-It is miscalibrated everywhere, yet its ranking is excellent. A monotonic
-calibrator could learn $f(0.9)=0.75$, $f(0.8)=0.65$, and so on.
+The confidence is miscalibrated everywhere, yet it ranks answers well. A
+monotonic calibrator could learn $f(0.9)=0.75$, $f(0.8)=0.65$, and so on.
 
 A useful system needs both discrimination and calibration.
 
 ## ECE and Brier at the answer level
 
-Once each answer has a confidence $c_i$ and a correctness label $y_i$, the general
-metrics apply without modification:
+For each answer, assign a confidence $c_i$ and define its correctness label
+$y_i$. The general calibration metrics then apply without modification:
 
 $$
 y_i=
@@ -983,10 +983,9 @@ $$
 \frac{0.0025+0.81+0.16+0.3025}{4}=0.31875.
 $$
 
-This is also the evaluation pattern used by [ConfidenceBench][confidence-bench],
-which elicits verbalized probabilities and scores them with Brier score. Its
-reported results reinforce that accuracy and calibration need not rank models in
-the same order.
+[ConfidenceBench][confidence-bench] uses this evaluation pattern: it elicits
+verbalized probabilities and scores them with Brier score. Its reported results
+show that accuracy and calibration need not rank models in the same order.
 
 At larger scale, an answer-level reliability table might look like:
 
@@ -999,7 +998,8 @@ At larger scale, an answer-level reliability table might look like:
 | 90-100% | 2,300 | 78% |
 
 The rising accuracy shows useful discrimination, while every upper bin remains
-overconfident. The score knows something, but it is not yet a probability.
+overconfident. The score ranks answers by likely correctness but does not yet
+have valid probability semantics.
 
 ## Risk-coverage connects confidence to abstention
 
@@ -1007,8 +1007,8 @@ overconfident. The score knows something, but it is not yet a probability.
 error rate on those answered requests. Sorting requests by confidence and
 abstaining on the lowest scores traces a risk-coverage curve.
 
-Suppose the model answers every request at 82% accuracy. If it abstains on its
-least-confident requests, the operating points might be:
+An example model answers every request at 82% accuracy. Abstaining on its
+least-confident requests produces these operating points:
 
 | Coverage | Accuracy | Risk (error rate) |
 |---:|---:|---:|
@@ -1024,9 +1024,9 @@ The curve answers a production question more directly than ECE:
 > What fraction of requests can the LLM handle while staying below a specified
 > error rate?
 
-For deployed systems, this can matter more than whether confidence values are
-perfectly calibrated. The two evaluations remain complementary: risk-coverage
-tests ranking and selective prediction, while ECE tests probability semantics.
+Risk-coverage directly supports an abstention policy. ECE remains complementary:
+risk-coverage tests ranking and selective prediction, while ECE tests probability
+semantics.
 
 ## Long answers need claim-level calibration
 
@@ -1040,7 +1040,7 @@ $$
 
 for each claim. This is **claim-level calibration**.
 
-Consider a response containing four factual statements:
+A response contains four factual statements:
 
 > Toronto is Canada's capital, Canada has ten provinces, Ottawa is in Ontario,
 > and the prime minister is X.
@@ -1049,9 +1049,10 @@ A single $P(\text{response correct})=0.8$ hides which parts are trustworthy.
 Claim-level probabilities can distinguish the supported statements from the
 incorrect or time-sensitive ones.
 
-It also separates hallucination detection from calibration. An uncertainty model
-might rank a claim with score 8.7 above one with score 4.2, yet neither number is a
-probability. A calibrator can turn the first score into a statement such as:
+Claim-level evaluation also separates hallucination detection from calibration.
+An uncertainty model might rank a claim with score 8.7 above one with score 4.2,
+yet neither number is a probability. A calibrator can turn the first score into a
+statement such as:
 
 $$
 P(\text{claim true})=0.93.
@@ -1081,10 +1082,10 @@ Useful estimator features can include:
 - execution results
 - tool-based verification
 
-Internal signals can help. For example, [Khanmohammadi et al.][representation-stability]
-perturb hidden representations, measure their stability, and train a lightweight
-correctness classifier; their reported experiments improve both ECE and Brier
-score relative to the evaluated baselines.
+Hidden-state stability is one useful internal signal. [Khanmohammadi et
+al.][representation-stability] perturb hidden representations, measure their
+stability, and train a lightweight correctness classifier; their reported
+experiments improve both ECE and Brier score relative to the evaluated baselines.
 
 ### Agreement is not calibration
 
@@ -1092,7 +1093,7 @@ Agreement measures how often multiple reasoning paths reach the same answer. It
 can be a useful uncertainty score, but it becomes a probability only after its
 relationship to correctness is measured on labeled data.
 
-Suppose 100 reasoning samples produce:
+One hundred reasoning samples produce:
 
 $$
 A:82,\qquad B:13,\qquad C:5.
@@ -1114,8 +1115,8 @@ $$
 
 ## RAG needs several calibrated events
 
-A retrieval-augmented system has more than one place to be uncertain. Instead of
-one generic confidence score, it can estimate:
+**Retrieval-augmented generation (RAG) calibration** requires separate
+probabilities for retrieval, support, correctness, and citation quality:
 
 $$
 \begin{aligned}
@@ -1126,7 +1127,7 @@ $$
 \end{aligned}
 $$
 
-For example:
+An event-specific confidence output might be:
 
 ```text
 document relevance         0.93
@@ -1141,22 +1142,22 @@ policy, not just annotate an answer after the fact.
 
 ## Drug-discovery agents turn calibration into a chain of gates
 
-Scientific agents make the event-definition problem concrete. They do not make
-one prediction; they search literature, form a hypothesis, rank candidates,
-call chemistry or biology tools, propose an experiment, and interpret the
-result. A single "agent confidence" number collapses failure modes with very
-different meanings and costs.
+**Scientific-agent calibration** requires a separate event at each decision
+gate. These agents search literature, form hypotheses, rank candidates, call
+chemistry or biology tools, propose experiments, and interpret results. A single
+"agent confidence" number collapses failure modes with different meanings and
+costs.
 
-The probability that a candidate becomes a safe, effective drug is not a
-sensible one-step target. Attrition occurs at a sequence of gates: evidence,
+A one-step probability that a candidate becomes a safe, effective drug is not a
+useful calibration target. Attrition occurs at a sequence of gates: evidence,
 candidate selection, synthesis, assay, and replication. Each probability should
-name the gate and the population reaching it. For example, assay success is
+name the gate and the population reaching it. Assay success, for example, is
 measured among synthesized candidates sent to that assay, while replication is
 measured among results selected for confirmation.
 
 ![A drug-discovery agent workflow with separate calibration gates for evidence, candidates, synthesis, assays, and replication](figures/drug-discovery-calibration-gates.svg)
 
-A useful confidence interface would expose measurable events such as:
+A calibrated confidence interface should expose measurable events such as:
 
 $$
 \begin{aligned}
@@ -1173,17 +1174,17 @@ c_{\text{replication}}
 \end{aligned}
 $$
 
-These are not interchangeable. A candidate can be well supported by literature
-and easy to synthesize yet fail the assay. A strong assay result can also fail
-to replicate or translate to a different model system. The outcome definition
-must therefore include the assay, threshold, experimental population, and time
-horizon, rather than simply whether the candidate works.
+The five probabilities are not interchangeable. A candidate can be well
+supported by literature and easy to synthesize yet fail the assay. A strong
+assay result can also fail to replicate or translate to a different model
+system. The outcome definition must include the assay, threshold, experimental
+population, and time horizon rather than simply whether the candidate works.
 
 ### Examples from scientific agents
 
-Recent systems show how much of this loop can already be automated. They also
-show why a rank, model score, or agent agreement is only a proxy until it is
-calibrated against a named outcome:
+Recent scientific agents automate parts of the discovery loop, but their ranks,
+model scores, and agent agreement remain proxies until calibrated against named
+outcomes:
 
 | System | What was demonstrated | Calibration lesson |
 |---|---|---|
@@ -1206,10 +1207,10 @@ similarly scored candidates succeed.
 
 ![Raw scientific-agent scores must be calibrated against a named experimental outcome before a policy uses them](figures/proxy-to-assay-confidence.svg)
 
-For the Virtual Lab workflow, for example, an uncertainty estimator could
-combine signals from ESM, AlphaFold-Multimer, Rosetta, and agent agreement into a
-raw candidate score $s_i$. A held-out set of physically tested designs would
-then fit a mapping:
+In the Virtual Lab workflow, an uncertainty estimator could combine protein
+language-model scores from ESM, structure predictions from AlphaFold-Multimer,
+Rosetta energy scores, and agent agreement into a raw candidate score $s_i$. A
+held-out set of physically tested designs would then fit a mapping:
 
 $$
 \hat c_i=f_\phi(s_i)
@@ -1222,25 +1223,23 @@ that assay's binding threshold about 70% of the time. Even perfect calibration
 for this event would say nothing directly about toxicity, in vivo efficacy, or
 clinical success.
 
-Robin provides another instructive case. Its candidates were ranked by an
-LLM-judged tournament, and its data-analysis agent ran eight trajectories before
-forming a consensus. Those mechanisms can improve ranking and robustness, but
-neither the tournament position nor an eight-of-eight agreement is automatically
-a calibrated probability. The mapping has to be learned from subsequent assay
-outcomes and checked again when the disease area, assay, model, prompts, or tools
-change.
+Robin ranked candidates with an LLM-judged tournament, and its data-analysis
+agent ran eight trajectories before forming a consensus. Those mechanisms can
+improve ranking and robustness, but neither tournament position nor
+eight-of-eight agreement is automatically a calibrated probability. The mapping
+must be learned from subsequent assay outcomes and checked again when the disease
+area, assay, model, prompts, or tools change.
 
-There is also a selection-bias trap. If only the top-ranked molecules are tested,
-the resulting reliability diagram estimates calibration **among shortlisted
-candidates**, not across everything the agent generated. Randomly testing a
-small exploration set helps reveal performance outside the shortlist.
-Propensity-aware evaluation can also reweight tested candidates by their
-selection probabilities to estimate the broader score-to-success relationship.
+Testing only the top-ranked molecules creates selection bias. The resulting
+reliability diagram estimates calibration **among shortlisted candidates**, not
+across everything the agent generated. Randomly testing a small exploration set
+helps reveal performance outside the shortlist. Propensity-aware evaluation can
+also reweight tested candidates by their selection probabilities to estimate the
+broader score-to-success relationship.
 
 ### Calibration should control the next action
 
-Once each probability names an observable event, it can drive a gate in the
-workflow:
+Event-level probabilities should control the next gate in the workflow:
 
 - low evidence sufficiency triggers another literature search;
 - uncertain synthesis feasibility triggers chemist review or route generation;
@@ -1249,15 +1248,15 @@ workflow:
 - a positive result with low replication confidence triggers confirmation before
   the agent updates its hypothesis.
 
-This is the same selective-prediction idea as abstention, but with a richer action
-space. The agent can search, simulate, ask for review, run a cheap assay, or stop.
-Calibration makes those choices auditable because every threshold refers to a
-frequency that can be measured.
+Scientific-agent policies extend selective prediction beyond answering or
+abstaining. An agent can search, simulate, ask for review, run a cheap assay, or
+stop. Calibration makes those choices auditable because every threshold refers
+to a frequency that can be measured.
 
 ## Structured actions need event-specific confidence
 
-Event-specific calibration also applies outside scientific discovery. Suppose
-an LLM proposes an element placement:
+**Structured-action calibration** assigns confidence to each operational event,
+not to the generated syntax. An LLM proposes this element placement:
 
 ```json
 {
@@ -1282,7 +1281,7 @@ C_{\text{overall}}&=P(\text{proposal is accepted by the evaluator}).
 \end{aligned}
 $$
 
-Then it can expose where uncertainty comes from:
+The system can then expose where uncertainty comes from:
 
 ```text
 element selection       0.99
@@ -1316,7 +1315,7 @@ $$
 P(\|\hat{\mathbf{x}}-\mathbf{x}^*\|\lt20\,\mathrm{cm})=0.87
 $$
 
-or:
+or use an intersection-over-union (IoU) threshold:
 
 $$
 P(\operatorname{IoU}(\hat B,B^*)\gt0.8)=0.92.
@@ -1331,9 +1330,9 @@ for samples that may violate this assumption.
 
 ## Treat LLM confidence as a subsystem
 
-A robust architecture should not equate confidence with
-`average_token_probability`. It separates generation, uncertainty estimation,
-calibration, and policy:
+A robust confidence architecture separates generation, uncertainty estimation,
+calibration, and policy. It should not equate confidence with
+`average_token_probability`:
 
 ```mermaid
 flowchart LR
@@ -1385,26 +1384,26 @@ Accuracy, task metrics, and execution success measure capability. AUROC, AUPRC,
 and risk-coverage measure uncertainty ranking. Reliability diagrams, ECE, Brier
 score, and NLL measure probability quality.
 
-These properties can fail independently. Suppose an LLM knows almost nothing,
-always reports $P(\text{correct})=0.30$, and is correct 30% of the time. It is
-perfectly calibrated and still a terrible model.
+Capability, uncertainty discrimination, and calibration can fail independently.
+An LLM that always reports $P(\text{correct})=0.30$ and is correct 30% of the time
+is perfectly calibrated but still performs poorly.
 
 Conversely, a model could be 95% accurate while reporting
 $P(\text{correct})=0.999$ for every answer. It is capable but miscalibrated.
 
-## The deepest conceptual shift
+## Define the event before calibrating it
 
-For a classic classifier, the model naturally exposes $P(y=k\mid x)$, so
-calibration starts by repairing that probability. For an LLM, the first problem
-is deciding which random variable deserves a probability at all.
+A classic classifier naturally exposes $P(y=k\mid x)$, so calibration starts by
+repairing that probability. An LLM requires an earlier decision: which random
+variable deserves a probability?
 
-In a production system, I would rarely choose:
+A production system should rarely calibrate next-token probability:
 
 $$
-P(\text{next token})
+P(\text{next token}).
 $$
 
-and would usually choose something closer to:
+A production system should instead calibrate an operational event such as:
 
 $$
 \boxed{
@@ -1412,10 +1411,10 @@ P(\text{this semantic claim, structured action, or tool call is correct})
 }.
 $$
 
-Once that event is explicit, reliability diagrams, ECE, Brier score, post-hoc
-calibration, selective prediction, and conformal methods become useful again.
-The operational goal is not merely to make an LLM sound less certain. It is to
-make confidence correspond to an event that a system can measure and act on.
+After the event is explicit, reliability diagrams, ECE, Brier score, post-hoc
+calibration, selective prediction, and conformal methods become applicable. The
+goal is to make confidence correspond to an event that a system can measure and
+act on.
 
 ## References
 
