@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">String entropy versus semantic entropy</title>
+  <desc id="desc">Five differently worded answers appear as five outcomes under string entropy. Semantic clustering groups four memory-related paraphrases together and leaves one network-timeout answer in a second cluster, producing lower entropy.</desc>
+  <defs>
+    <style>
+      .title { font: 700 31px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .head { font: 700 23px system-ui, sans-serif; fill: #0f172a; }
+      .label { font: 600 15px system-ui, sans-serif; fill: #334155; }
+      .small { font: 400 14px system-ui, sans-serif; fill: #64748b; }
+      .math { font: 750 25px system-ui, sans-serif; fill: #164e63; }
+      .callout { font: 700 18px system-ui, sans-serif; fill: #166534; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="720" fill="#f8fafc"/>
+  <text x="52" y="58" class="title">Entropy should be computed over meanings, not wordings</text>
+  <text x="52" y="88" class="subtitle">Worked example with five equally weighted generations</text>
+
+  <rect x="48" y="126" width="518" height="492" rx="20" fill="#ffffff" stroke="#fda4af" stroke-width="2"/>
+  <text x="78" y="168" class="head">String entropy</text>
+  <text x="78" y="194" class="small">Every unique token sequence becomes an outcome</text>
+
+  <g>
+    <rect x="78" y="222" width="458" height="52" rx="10" fill="#fff1f2"/>
+    <text x="96" y="253" class="label">1. A memory leak.</text>
+    <rect x="78" y="286" width="458" height="52" rx="10" fill="#fff1f2"/>
+    <text x="96" y="317" class="label">2. The worker ran out of memory.</text>
+    <rect x="78" y="350" width="458" height="52" rx="10" fill="#fff1f2"/>
+    <text x="96" y="381" class="label">3. An OOM condition.</text>
+    <rect x="78" y="414" width="458" height="52" rx="10" fill="#fff1f2"/>
+    <text x="96" y="445" class="label">4. Memory exhaustion.</text>
+    <rect x="78" y="478" width="458" height="52" rx="10" fill="#fff1f2"/>
+    <text x="96" y="509" class="label">5. A network timeout.</text>
+  </g>
+  <text x="307" y="578" text-anchor="middle" class="math">Hstring = log 5 = 1.609 nats</text>
+
+  <rect x="634" y="126" width="518" height="492" rx="20" fill="#ffffff" stroke="#67e8f9" stroke-width="2"/>
+  <text x="664" y="168" class="head">Semantic entropy</text>
+  <text x="664" y="194" class="small">Bidirectional entailment groups equivalent answers</text>
+
+  <rect x="664" y="222" width="458" height="230" rx="15" fill="#ecfeff" stroke="#22d3ee" stroke-width="2"/>
+  <text x="686" y="254" class="label">Cluster A: memory failure</text>
+  <text x="1082" y="254" text-anchor="end" class="callout">q = 0.8</text>
+  <text x="692" y="294" class="small">A memory leak.</text>
+  <text x="692" y="328" class="small">The worker ran out of memory.</text>
+  <text x="692" y="362" class="small">An OOM condition.</text>
+  <text x="692" y="396" class="small">Memory exhaustion.</text>
+
+  <rect x="664" y="472" width="458" height="76" rx="15" fill="#fff7ed" stroke="#fb923c" stroke-width="2"/>
+  <text x="686" y="504" class="label">Cluster B: network failure</text>
+  <text x="1082" y="504" text-anchor="end" class="callout" fill="#9a3412">q = 0.2</text>
+  <text x="692" y="532" class="small">A network timeout.</text>
+
+  <text x="893" y="588" text-anchor="middle" class="math">Hsem = 0.500 nats</text>
+
+  <rect x="190" y="652" width="820" height="46" rx="12" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="600" y="681" text-anchor="middle" class="callout">Four paraphrases express one answer, so lexical variety no longer looks like factual uncertainty.</text>
+</svg>

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Mapping semantic entropy to calibrated confidence</title>
+  <desc id="desc">Semantic entropy is an uncertainty score measured in nats. Labeled calibration examples fit a decreasing mapping from entropy to observed correctness, producing a probability that is then checked on a held-out test set.</desc>
+  <defs>
+    <style>
+      .title { font: 700 31px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .head { font: 700 21px system-ui, sans-serif; fill: #0f172a; }
+      .label { font: 600 15px system-ui, sans-serif; fill: #334155; }
+      .small { font: 400 13px system-ui, sans-serif; fill: #64748b; }
+      .math { font: 700 21px system-ui, sans-serif; fill: #164e63; }
+      .prob { font: 750 30px system-ui, sans-serif; fill: #166534; }
+      .grid { stroke: #e2e8f0; stroke-width: 1; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="700" fill="#f8fafc"/>
+  <text x="50" y="58" class="title">Semantic entropy becomes confidence only after calibration</text>
+  <text x="50" y="88" class="subtitle">Illustrative values: fit on labeled examples, verify on a separate test set.</text>
+
+  <rect x="48" y="132" width="256" height="450" rx="18" fill="#ffffff" stroke="#a5b4fc" stroke-width="2"/>
+  <text x="74" y="174" class="head">Raw uncertainty</text>
+  <text x="74" y="204" class="small">One answer produces:</text>
+  <rect x="74" y="236" width="204" height="84" rx="13" fill="#eef2ff"/>
+  <text x="176" y="272" text-anchor="middle" class="math">Hsem = 0.62</text>
+  <text x="176" y="299" text-anchor="middle" class="small">units: nats</text>
+  <text x="74" y="366" class="label">What it tells us</text>
+  <text x="74" y="397" class="small">Meanings disagree somewhat.</text>
+  <text x="74" y="434" class="label">What it does not tell us</text>
+  <text x="74" y="465" class="small">The probability the answer</text>
+  <text x="74" y="486" class="small">is correct.</text>
+
+  <line x1="304" y1="350" x2="348" y2="350" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="352" y="132" width="500" height="450" rx="18" fill="#ffffff" stroke="#67e8f9" stroke-width="2"/>
+  <text x="378" y="174" class="head">Fit g(H) on labeled calibration data</text>
+
+  <g class="grid">
+    <line x1="426" y1="254" x2="812" y2="254"/>
+    <line x1="426" y1="326" x2="812" y2="326"/>
+    <line x1="426" y1="398" x2="812" y2="398"/>
+    <line x1="503" y1="218" x2="503" y2="470"/>
+    <line x1="580" y1="218" x2="580" y2="470"/>
+    <line x1="657" y1="218" x2="657" y2="470"/>
+    <line x1="734" y1="218" x2="734" y2="470"/>
+  </g>
+  <line x1="426" y1="470" x2="812" y2="470" stroke="#334155" stroke-width="3"/>
+  <line x1="426" y1="470" x2="426" y2="218" stroke="#334155" stroke-width="3"/>
+  <path d="M442 238 C525 245 562 276 610 323 C660 372 724 421 798 449" fill="none" stroke="#0891b2" stroke-width="6" stroke-linecap="round"/>
+  <g fill="#ffffff" stroke="#0891b2" stroke-width="4">
+    <circle cx="457" cy="241" r="7"/>
+    <circle cx="531" cy="266" r="7"/>
+    <circle cx="610" cy="323" r="7"/>
+    <circle cx="690" cy="394" r="7"/>
+    <circle cx="780" cy="445" r="7"/>
+  </g>
+  <text x="619" y="517" text-anchor="middle" class="label">Semantic entropy H</text>
+  <text x="388" y="348" text-anchor="middle" class="label" transform="rotate(-90 388 348)">Observed correctness</text>
+  <text x="466" y="231" class="small">low entropy</text>
+  <text x="704" y="441" class="small">high entropy</text>
+  <text x="619" y="552" text-anchor="middle" class="math">p(correct) = g(H), with g decreasing</text>
+
+  <line x1="852" y1="350" x2="896" y2="350" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="900" y="132" width="252" height="450" rx="18" fill="#ffffff" stroke="#86efac" stroke-width="2"/>
+  <text x="926" y="174" class="head">Calibrated output</text>
+  <text x="926" y="204" class="small">For Hsem = 0.62:</text>
+  <rect x="926" y="236" width="200" height="92" rx="13" fill="#f0fdf4"/>
+  <text x="1026" y="291" text-anchor="middle" class="prob">P(correct) = 0.71</text>
+  <text x="926" y="375" class="label">Verify on held-out data</text>
+  <text x="926" y="407" class="small">Reliability diagram</text>
+  <text x="926" y="433" class="small">Brier score and ECE</text>
+  <text x="926" y="459" class="small">Risk-coverage curve</text>
+  <text x="926" y="510" class="small">If predictions labeled 71%</text>
+  <text x="926" y="531" class="small">are correct about 71% of the</text>
+  <text x="926" y="552" class="small">time, the mapping is calibrated.</text>
+
+  <rect x="196" y="626" width="808" height="46" rx="12" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="600" y="655" text-anchor="middle" class="label">Never read an entropy value directly as a confidence percentage.</text>
+</svg>

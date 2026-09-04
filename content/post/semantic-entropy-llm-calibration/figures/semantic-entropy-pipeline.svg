@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">Semantic entropy pipeline</title>
+  <desc id="desc">A fixed prompt and sampling policy produce multiple answers. Bidirectional entailment clusters those answers by meaning, cluster probabilities are estimated, and entropy is computed over the cluster distribution.</desc>
+  <defs>
+    <style>
+      .title { font: 700 31px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px system-ui, sans-serif; fill: #475569; }
+      .step { font: 750 17px system-ui, sans-serif; fill: #0369a1; }
+      .head { font: 700 21px system-ui, sans-serif; fill: #0f172a; }
+      .label { font: 600 15px system-ui, sans-serif; fill: #334155; }
+      .small { font: 400 13px system-ui, sans-serif; fill: #64748b; }
+      .math { font: 700 19px system-ui, sans-serif; fill: #164e63; }
+      .footer { font: 650 17px system-ui, sans-serif; fill: #166534; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="650" fill="#f8fafc"/>
+  <text x="50" y="58" class="title">From samples to uncertainty over meanings</text>
+  <text x="50" y="88" class="subtitle">Keep the model, prompt, answer format, temperature, and sample count fixed.</text>
+
+  <rect x="40" y="135" width="248" height="388" rx="18" fill="#ffffff" stroke="#bae6fd" stroke-width="2"/>
+  <text x="64" y="169" class="step">STEP 1</text>
+  <text x="64" y="201" class="head">Sample answers</text>
+  <text x="64" y="226" class="small">Draw M responses</text>
+  <g>
+    <rect x="64" y="253" width="200" height="42" rx="8" fill="#eff6ff"/>
+    <text x="78" y="279" class="label">memory leak</text>
+    <rect x="64" y="306" width="200" height="42" rx="8" fill="#eff6ff"/>
+    <text x="78" y="332" class="label">out of memory</text>
+    <rect x="64" y="359" width="200" height="42" rx="8" fill="#eff6ff"/>
+    <text x="78" y="385" class="label">OOM condition</text>
+    <rect x="64" y="412" width="200" height="42" rx="8" fill="#eff6ff"/>
+    <text x="78" y="438" class="label">memory exhausted</text>
+    <rect x="64" y="465" width="200" height="42" rx="8" fill="#fff7ed"/>
+    <text x="78" y="491" class="label">network timeout</text>
+  </g>
+
+  <line x1="288" y1="329" x2="330" y2="329" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="334" y="135" width="248" height="388" rx="18" fill="#ffffff" stroke="#a5b4fc" stroke-width="2"/>
+  <text x="358" y="169" class="step">STEP 2</text>
+  <text x="358" y="201" class="head">Cluster meanings</text>
+  <text x="358" y="226" class="small">A entails B and B entails A</text>
+  <rect x="358" y="262" width="200" height="143" rx="12" fill="#ecfeff" stroke="#22d3ee"/>
+  <text x="458" y="295" text-anchor="middle" class="label">Memory failure</text>
+  <text x="458" y="330" text-anchor="middle" class="math">C1</text>
+  <text x="458" y="365" text-anchor="middle" class="small">4 equivalent answers</text>
+  <rect x="358" y="426" width="200" height="72" rx="12" fill="#fff7ed" stroke="#fb923c"/>
+  <text x="458" y="455" text-anchor="middle" class="label">Network failure</text>
+  <text x="458" y="481" text-anchor="middle" class="small">C2: 1 answer</text>
+
+  <line x1="582" y1="329" x2="624" y2="329" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="628" y="135" width="248" height="388" rx="18" fill="#ffffff" stroke="#67e8f9" stroke-width="2"/>
+  <text x="652" y="169" class="step">STEP 3</text>
+  <text x="652" y="201" class="head">Estimate mass</text>
+  <text x="652" y="226" class="small">Frequency or likelihood weights</text>
+  <rect x="652" y="266" width="200" height="84" rx="12" fill="#ecfeff"/>
+  <text x="752" y="300" text-anchor="middle" class="label">Memory failure</text>
+  <text x="752" y="330" text-anchor="middle" class="math">q1 = 4 / 5 = 0.8</text>
+  <rect x="652" y="372" width="200" height="84" rx="12" fill="#fff7ed"/>
+  <text x="752" y="406" text-anchor="middle" class="label">Network failure</text>
+  <text x="752" y="436" text-anchor="middle" class="math">q2 = 1 / 5 = 0.2</text>
+
+  <line x1="876" y1="329" x2="918" y2="329" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="922" y="135" width="238" height="388" rx="18" fill="#ffffff" stroke="#86efac" stroke-width="2"/>
+  <text x="946" y="169" class="step">STEP 4</text>
+  <text x="946" y="201" class="head">Compute entropy</text>
+  <rect x="946" y="259" width="190" height="118" rx="13" fill="#f0fdf4"/>
+  <text x="1041" y="299" text-anchor="middle" class="math">Hsem = -sum q log q</text>
+  <text x="1041" y="344" text-anchor="middle" class="math">= 0.500 nats</text>
+  <text x="1041" y="414" text-anchor="middle" class="label">Low: one meaning dominates</text>
+  <text x="1041" y="447" text-anchor="middle" class="label">High: meanings compete</text>
+
+  <rect x="197" y="570" width="806" height="48" rx="12" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="600" y="600" text-anchor="middle" class="footer">The result is an uncertainty score. A separate labeled step is needed for P(correct).</text>
+</svg>

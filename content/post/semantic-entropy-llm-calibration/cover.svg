@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Semantic Entropy for LLM Confidence</title>
+  <desc id="desc">Several differently worded model answers are grouped into two meaning clusters. Their probability masses produce a semantic entropy score, which is then mapped to calibrated confidence.</desc>
+  <defs>
+    <style>
+      .title { font: 700 49px system-ui, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 21px system-ui, sans-serif; fill: #475569; }
+      .head { font: 700 19px system-ui, sans-serif; fill: #0f172a; }
+      .label { font: 600 16px system-ui, sans-serif; fill: #334155; }
+      .small { font: 400 14px system-ui, sans-serif; fill: #64748b; }
+      .math { font: 700 24px system-ui, sans-serif; fill: #164e63; }
+      .prob { font: 750 31px system-ui, sans-serif; fill: #166534; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  <circle cx="1120" cy="60" r="175" fill="#dcfce7" opacity="0.55"/>
+  <circle cx="1030" cy="610" r="210" fill="#e0f2fe" opacity="0.55"/>
+
+  <text x="62" y="76" class="title">Semantic Entropy for LLM Confidence</text>
+  <text x="64" y="112" class="subtitle">Measure disagreement over meanings, then calibrate it to correctness.</text>
+
+  <rect x="60" y="154" width="328" height="382" rx="19" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="86" y="190" class="head">Sample answers</text>
+  <text x="86" y="215" class="small">Different strings can mean the same thing</text>
+
+  <g>
+    <rect x="86" y="230" width="276" height="45" rx="10" fill="#ecfeff" stroke="#67e8f9"/>
+    <text x="103" y="258" class="label">A memory leak.</text>
+    <rect x="86" y="285" width="276" height="45" rx="10" fill="#ecfeff" stroke="#67e8f9"/>
+    <text x="103" y="313" class="label">The worker ran out of memory.</text>
+    <rect x="86" y="340" width="276" height="45" rx="10" fill="#ecfeff" stroke="#67e8f9"/>
+    <text x="103" y="368" class="label">An OOM condition.</text>
+    <rect x="86" y="395" width="276" height="45" rx="10" fill="#ecfeff" stroke="#67e8f9"/>
+    <text x="103" y="423" class="label">Memory exhaustion.</text>
+    <rect x="86" y="450" width="276" height="45" rx="10" fill="#fff7ed" stroke="#fdba74"/>
+    <text x="103" y="478" class="label">A network timeout.</text>
+  </g>
+
+  <line x1="388" y1="345" x2="454" y2="345" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="458" y="194" width="285" height="302" rx="20" fill="#ffffff" stroke="#a5b4fc" stroke-width="2"/>
+  <text x="484" y="232" class="head">Meaning clusters</text>
+  <rect x="484" y="260" width="233" height="84" rx="13" fill="#ecfeff" stroke="#22d3ee" stroke-width="2"/>
+  <text x="600" y="294" text-anchor="middle" class="label">Memory failure</text>
+  <text x="600" y="324" text-anchor="middle" class="math">q = 0.80</text>
+  <rect x="484" y="364" width="233" height="84" rx="13" fill="#fff7ed" stroke="#fb923c" stroke-width="2"/>
+  <text x="600" y="398" text-anchor="middle" class="label">Network failure</text>
+  <text x="600" y="428" text-anchor="middle" class="math">q = 0.20</text>
+
+  <line x1="743" y1="345" x2="809" y2="345" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="813" y="160" width="327" height="376" rx="20" fill="#ffffff" stroke="#86efac" stroke-width="2"/>
+  <text x="839" y="200" class="head">Entropy, then calibration</text>
+  <text x="976" y="262" text-anchor="middle" class="math">Hsem = 0.50 nats</text>
+  <text x="976" y="294" text-anchor="middle" class="small">uncertainty over meanings</text>
+  <line x1="850" y1="326" x2="1103" y2="326" stroke="#e2e8f0" stroke-width="2"/>
+  <rect x="850" y="354" width="253" height="58" rx="12" fill="#f0fdf4"/>
+  <text x="976" y="390" text-anchor="middle" class="prob">P(correct) = 0.88</text>
+  <text x="976" y="444" text-anchor="middle" class="small">learned from labeled outcomes</text>
+  <text x="976" y="476" text-anchor="middle" class="small">and checked on held-out data</text>
+
+  <rect x="255" y="566" width="690" height="45" rx="12" fill="#eef2ff" stroke="#c7d2fe"/>
+  <text x="600" y="595" text-anchor="middle" class="label">Low entropy means agreement. Calibration tells us whether the agreement is right.</text>
+</svg>
